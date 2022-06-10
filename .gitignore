@@ -1,0 +1,5 @@
+*.o
+*.yy.o
+*.yy.cc
+*.js
+main
