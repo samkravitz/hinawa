@@ -4,8 +4,11 @@
 
 #include "node.h"
 
-struct Element : protected Node
+struct Element : public Node
 {
+public:
+	Element(std::string);
+
 private:
 	std::string tag;
 	std::unordered_map<std::string, std::string> attrs;

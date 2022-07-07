@@ -4,8 +4,11 @@
 
 #include "node.h"
 
-struct Text : protected Node
+struct Text : public Node
 {
+public:
+	Text(std::string);
+
 private:
 	std::string text;
 };

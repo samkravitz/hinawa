@@ -6,6 +6,10 @@
 
 class Dom
 {
+public:
+	Dom(std::shared_ptr<Node>);
+	Dom();
+
 private:
 	std::shared_ptr<Node> root;
 };
