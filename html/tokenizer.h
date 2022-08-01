@@ -89,6 +89,7 @@ namespace html
 class Tokenizer
 {
 public:
+	Tokenizer(std::string const input) : input(input) { }
 	enum class State
 	{
 #define STATE(state) state,
@@ -96,7 +97,12 @@ public:
 #undef STATE
 	};
 
+	void run();
+
 private:
 	State state = State::Data;
+	std::string input;
+	std::size_t pos = 0;
+	char current_input_character;
 };
 }    // namespace html
