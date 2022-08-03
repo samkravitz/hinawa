@@ -91,7 +91,7 @@ namespace html
 class Tokenizer
 {
 public:
-	Tokenizer(std::string const input) : input(input) { }
+	Tokenizer(std::string const input);
 	enum class State
 	{
 #define STATE(state) state,
@@ -99,11 +99,11 @@ public:
 #undef STATE
 	};
 
-	void run();
+	std::vector<Token> scan_all();
+	Token next();
 
 private:
 	bool eof();
-	void emit(Token);
 	void consume_next_input_character();
 	void reconsume_in(State);
 

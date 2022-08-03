@@ -5,7 +5,7 @@
 namespace html
 {
 	Token::Token(TokenType type) :
-		type(type)
+		m_type(type)
 	{ }
 
 	void Token::new_attribute()
@@ -58,6 +58,18 @@ namespace html
 		std::get<DoctypeData>(data).force_quirks = true;
 	}
 
+	char Token::get_char()
+	{
+		assert(is_character());
+		return std::get<char>(data);
+	}
+
+	std::string Token::tag_name()
+	{
+		assert(is_tag());
+		return std::get<TagData>(data).name;
+	}
+
 	std::string Token::to_string()
 	{
 		return std::visit([this](auto &&arg) -> std::string {
@@ -87,7 +99,7 @@ namespace html
 
 			else if constexpr (std::is_same_v<T, char>)
 			{
-				return "Character: " + arg;
+				return std::string(1, arg);
 			}
 
 			else if constexpr (std::is_same_v<T, std::string>)

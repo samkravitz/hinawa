@@ -38,13 +38,14 @@ public:
 	Token(TokenType);
 	Token() = default;
 
-	inline bool is_doctype() { return type == Doctype; }
-	inline bool is_start_tag() { return type == StartTag; }
-	inline bool is_end_tag() { return type == EndTag; }
-	inline bool is_character() { return type == Character; }
-	inline bool is_comment() { return type == Comment; }
-	inline bool is_eof() { return type == Eof; }
+	inline bool is_doctype() { return m_type == Doctype; }
+	inline bool is_start_tag() { return m_type == StartTag; }
+	inline bool is_end_tag() { return m_type == EndTag; }
+	inline bool is_character() { return m_type == Character; }
+	inline bool is_comment() { return m_type == Comment; }
+	inline bool is_eof() { return m_type == Eof; }
 	inline bool is_tag() { return is_start_tag() || is_end_tag(); }
+	inline TokenType type() { return m_type; }
 
 	static Token make_doctype()
 	{
@@ -94,11 +95,13 @@ public:
 	void append_attribute_value(char c);
 	void doctype_set_name(char c);
 	void set_force_quirks();
+	char get_char();
+	std::string tag_name();
 
 	std::string to_string();
 
 private:
-	TokenType type;
+	TokenType m_type;
 	std::variant<
 		DoctypeData,   // Doctype
 		TagData,       // StartTag, EndTag

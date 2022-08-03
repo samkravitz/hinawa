@@ -7,11 +7,26 @@
 
 namespace html
 {
-void Tokenizer::run()
+Tokenizer::Tokenizer(std::string const input) :
+	input(input)
 {
 	// consume first input character; prime the engines
 	next_input_character = input[0];
+}
 
+std::vector<Token> Tokenizer::scan_all()
+{
+	std::vector<Token> tokens;
+	Token token;
+
+	while (!(token = next()).is_eof())
+		tokens.push_back(token);
+
+	return tokens;
+}
+
+Token Tokenizer::next()
+{
 	while (1)
 	{
 		consume_next_input_character();
@@ -30,11 +45,11 @@ void Tokenizer::run()
 						state = State::TagOpen;
 						break;
 					case '\0':
-						return;
+						return Token::make_eof();
 						break;
 					// case EOF
 					default:
-						emit(Token::make_character(current_input_character));
+						return Token::make_character(current_input_character);
 				}
 			break;
 
@@ -53,7 +68,7 @@ void Tokenizer::run()
 						break;
 					// case EOF
 					default:
-						emit(Token::make_character(current_input_character));
+						return Token::make_character(current_input_character);
 				}
 			break;
 
@@ -68,7 +83,7 @@ void Tokenizer::run()
 						break;
 					// case EOF
 					default:
-						emit(Token::make_character(current_input_character));
+						Token::make_character(current_input_character);
 				}
 			break;
 
@@ -83,7 +98,7 @@ void Tokenizer::run()
 						break;
 					// case EOF
 					default:
-						emit(Token::make_character(current_input_character));
+						return Token::make_character(current_input_character);
 				}
 			break;
 
@@ -115,7 +130,7 @@ void Tokenizer::run()
 
 				else
 				{
-					emit(Token::make_character('<'));
+					return Token::make_character('<');
 					reconsume_in(State::Data);
 				}
 			break;
@@ -159,7 +174,7 @@ void Tokenizer::run()
 					
 					case '>':
 						state = State::Data;
-						emit(current_token);
+						return current_token;
 						break;
 					
 					case '\0':
@@ -354,7 +369,7 @@ void Tokenizer::run()
 					
 					case '>':
 						state = State::Data;
-						emit(current_token);
+						return current_token;
 						break;
 					
 					// case EOF:
@@ -386,7 +401,7 @@ void Tokenizer::run()
 					
 					case '>':
 						state = State::Data;
-						emit(current_token);
+						return current_token;
 						break;
 					
 					default:
@@ -421,7 +436,7 @@ void Tokenizer::run()
 					
 					case '>':
 						state = State::Data;
-						emit(current_token);
+						return current_token;
 						break;
 					
 					case '\0':
@@ -561,14 +576,6 @@ void Tokenizer::run()
 bool Tokenizer::eof()
 {
 	return pos >= input.length();
-}
-
-void Tokenizer::emit(Token t)
-{
-	if (t.is_character())
-		return;
-
-	std::cout << t.to_string() << "\n";
 }
 
 void Tokenizer::consume_next_input_character()
