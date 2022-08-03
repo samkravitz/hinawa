@@ -6,9 +6,8 @@
 #include <iostream>
 
 #include "token.h"
-#include "../document/element.h"
-#include "../document/node.h"
-#include "../document/text.h"
+#include "document/element.h"
+#include "document/text.h"
 
 namespace html
 {

@@ -5,6 +5,9 @@ SRC = \
 	token.cc \
 	tokenizer.cc
 
+INCLUDE = -I ..
+CXXFLAGS += $(INCLUDE)
+
 OBJ = $(SRC:.cc=.html.o)
 
 ifdef FULL_BUILD
