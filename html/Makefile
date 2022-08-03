@@ -1,6 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++2a -g -Wall -Wpedantic
 SRC = \
+	parser.cc \
 	token.cc \
 	tokenizer.cc
 
