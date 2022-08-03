@@ -8,6 +8,8 @@ struct Element : public Node
 {
 public:
 	Element(std::string);
+	inline NodeType type() { return NodeType::Element; }
+	void print(int depth = 0);
 
 private:
 	std::string tag;
