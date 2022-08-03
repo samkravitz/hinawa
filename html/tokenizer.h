@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "token.h"
+
 namespace html
 {
 #define STATES \
@@ -100,9 +102,17 @@ public:
 	void run();
 
 private:
+	bool eof();
+	void emit(Token);
+	void consume_next_input_character();
+	void reconsume_in(State);
+
 	State state = State::Data;
+	State return_state = State::Data;
 	std::string input;
 	std::size_t pos = 0;
 	char current_input_character;
+	char next_input_character;
+	Token current_token;
 };
 }    // namespace html
