@@ -1,6 +1,6 @@
 include ../config.mk
 
-OBJ = $(SRC:.cc=.render.o)
+OBJ = $(SRC:.cc=.web.o)
 
 ifdef FULL_BUILD
 all: $(OBJ)
@@ -9,9 +9,9 @@ all: main
 endif
 
 main: main.cc $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJ) $(LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJ)
 
-%.render.o : %.cc
+%.web.o : %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean

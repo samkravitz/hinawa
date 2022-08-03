@@ -1,19 +1,23 @@
-CXX = g++
-CXXFLAGS = -std=c++2a -g -Wall -Wpedantic
+include ../config.mk
+
 SRC = \
 	dom.cc \
 	element.cc \
 	node.cc \
 	text.cc
 
-OBJ = $(SRC:.cc=.o)
+OBJ = $(SRC:.cc=.document.o)
 
+ifdef FULL_BUILD
+all: $(OBJ)
+else
 all: main
+endif
 
 main: main.cc $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJ)
 
-%.o : %.cc
+%.document.o : %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean

@@ -1,22 +1,26 @@
-CXX = g++
-CXXFLAGS = -std=c++2a -g -Wall -Wpedantic
+include ../config.mk
+
 LEX = flex -+
 SRC = \
 	scanner.cc \
 	token.cc \
 
-OBJ = lex.yy.o $(SRC:.cc=.o)
+OBJ = lex.yy.js.o $(SRC:.cc=.js.o)
 
+ifdef FULL_BUILD
+all: $(OBJ)
+else
 all: main
+endif
 
 main: main.cc $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJ)
 
-lex.yy.o: lex.ll
+lex.yy.js.o: lex.ll
 	$(LEX) -o lex.yy.cc lex.ll
 	$(CXX) $(CXXFLAGS) -c lex.yy.cc -o $@
 
-%.o : %.cc
+%.js.o : %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean
