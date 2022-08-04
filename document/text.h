@@ -10,10 +10,12 @@ public:
 	Text(std::string);
 	Text(char);
 
-	inline NodeType type() { return NodeType::Text; }
 	void append(char);
 	void print(int depth = 0);
 
+	inline NodeType type() { return NodeType::Text; }
+	inline std::string text() { return m_text; }
+
 private:
-	std::string text;
+	std::string m_text;
 };

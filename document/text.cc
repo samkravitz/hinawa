@@ -3,17 +3,17 @@
 #include <iostream>
 
 Text::Text(std::string text) :
-	text(text)
+	m_text(text)
 { }
 
 Text::Text(char c)
 {
-	text = c;
+	m_text = c;
 }
 
 void Text::append(char c)
 {
-	text += c;
+	m_text += c;
 }
 
 void Text::print(int depth)
@@ -21,7 +21,7 @@ void Text::print(int depth)
 	for (int i = 0; i < depth; i++)
 		std::cout << "\t";
 
-	std::cout << "Text: " << text << "\n";
+	std::cout << "Text: " << m_text << "\n";
 
 	for (auto child : children)
 		child->print(depth + 1);
