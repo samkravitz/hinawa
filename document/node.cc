@@ -7,6 +7,15 @@ void Node::add_child(std::shared_ptr<Node> node)
 	children.push_back(node);
 }
 
+void Node::in_order(std::function<void(std::shared_ptr<Node>)> f)
+{
+	for (auto child : children)
+	{
+		child->in_order(f);
+		f(child);
+	}
+}
+
 bool Node::has_children()
 {
 	return !children.empty();
