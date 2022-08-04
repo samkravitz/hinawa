@@ -1,5 +1,8 @@
 include ../config.mk
 
+SRC = \
+	window.cc
+
 OBJ = $(SRC:.cc=.render.o)
 
 ifdef FULL_BUILD
