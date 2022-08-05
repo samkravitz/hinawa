@@ -1,0 +1,9 @@
+/*
+ * Default stylesheet for hinawa
+ * These rules will be applied to elements when when no other rules apply
+ */
+
+body,
+div {
+	display: block;
+}
