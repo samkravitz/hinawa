@@ -106,6 +106,7 @@ private:
 	bool eof();
 	void consume_next_input_character();
 	void reconsume_in(State);
+	bool consume_if_match(std::string const &str, bool case_sensitive = false);
 
 	State state = State::Data;
 	State return_state = State::Data;

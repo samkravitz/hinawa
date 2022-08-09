@@ -93,6 +93,7 @@ public:
 	void append_tag_name(char c);
 	void append_attribute_name(char c);
 	void append_attribute_value(char c);
+	void append_doctype_name(char c);
 	void doctype_set_name(char c);
 	void set_force_quirks();
 	char get_char();

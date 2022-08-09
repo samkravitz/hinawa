@@ -52,6 +52,12 @@ namespace html
 		std::get<DoctypeData>(data).name = c;
 	}
 
+	void Token::append_doctype_name(char c)
+	{
+		assert(is_doctype());
+		std::get<DoctypeData>(data).name += c;
+	}
+
 	void Token::set_force_quirks()
 	{
 		assert(is_doctype());

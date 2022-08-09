@@ -463,6 +463,27 @@ Token Tokenizer::next()
 
 			// 13.2.5.42 Markup declaration open state
 			case State::MarkupDeclarationOpen:
+				if (consume_if_match("--"))
+				{
+					current_token = Token::make_comment();
+					state = State::CommentStart;
+				}
+
+				else if (consume_if_match("doctype"))
+				{
+					state = State::DOCTYPE;
+				}
+
+				else if (consume_if_match("[CDATA["))
+				{
+
+				}
+
+				else
+				{
+					current_token = Token::make_comment();
+					state = State::BogusComment;
+				}
 			break;
 
 			// 13.2.5.43 Comment start state
@@ -568,7 +589,68 @@ Token Tokenizer::next()
 				}
 			break;
 
-			
+			// 13.2.5.55 DOCTYPE name state
+			case State::DOCTYPEName:
+				switch (current_input_character)
+				{
+					case '\t':
+					case '\n':
+					case '\f':
+					case ' ':
+						state = State::AfterDOCTYPEName;
+						break;
+
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+					
+					// case EOF:
+
+					default:
+						if (std::isupper(current_input_character))
+							current_input_character -= 32;
+						
+						current_token.append_doctype_name(current_input_character);
+				}
+			break;
+
+			// 13.2.5.56 After DOCTYPE name state
+			case State::AfterDOCTYPEName:
+				switch (current_input_character)
+				{
+					case '\t':
+					case '\n':
+					case '\f':
+					case ' ':
+						// ignore the character
+						break;
+
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+					
+					// case EOF:
+
+					default:
+						if (consume_if_match("public"))
+						{
+							state = State::AfterDOCTYPEPublicKeyword;
+						}
+
+						else if (consume_if_match("system"))
+						{
+							state = State::AfterDOCTYPESystemKeyword;
+						}
+
+						else
+						{
+							current_token.set_force_quirks();
+							reconsume_in(State::BogusDOCTYPE);
+						}
+				}
+			break;
 		}
 	}
 }
@@ -596,5 +678,31 @@ void Tokenizer::reconsume_in(State s)
 	state = s;
 	next_input_character = current_input_character;
 	current_input_character = input[--pos];
+}
+
+bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
+{
+	auto size = str.size();
+	if (pos + size >= input.size())
+		return false;
+	
+	for (std::size_t i = 0; i < size; i++)
+	{
+		auto c1 = str[i];
+		auto c2 = input[pos + i - 1];
+		if (!case_sensitive)
+		{
+			c1 = std::tolower(c1);
+			c2 = std::tolower(c2);
+		}
+
+		if (c1 != c2)
+			return false;
+	}
+
+	for (std::size_t i = 0; i < size - 1; i++)
+		consume_next_input_character();
+	
+	return true;
 }
 }
