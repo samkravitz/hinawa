@@ -2,6 +2,7 @@
 %option noyywrap
 %option yylineno
 %option case-insensitive
+%option prefix="css"
 
 %{
 	// implements the lexical scanner from
@@ -88,6 +89,12 @@ nl                                 \n|\r\n|\r|\f
 {baduri}                           { return BAD_URI; }
 
 {ident}"("                         { return FUNCTION; }
+
+","                                { return COMMA; }
+":"                                { return COLON; }
+";"                                { return SEMICOLON; }
+"{"                                { return OPEN_BRACE; }
+"}"                                { return CLOSE_BRACE; }
 
 .                                  { return *yytext; }
 
