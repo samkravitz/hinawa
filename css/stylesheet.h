@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -98,4 +99,6 @@ struct Stylesheet
 		return res;
 	}
 };
+
+std::shared_ptr<Stylesheet> read_default_stylesheet();
 }
