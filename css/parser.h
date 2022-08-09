@@ -24,6 +24,7 @@ private:
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);
+	TokenType peek();
 
 	std::shared_ptr<Stylesheet> parse_stylesheet();
 	std::shared_ptr<Rule> parse_rule();

@@ -37,6 +37,16 @@ std::shared_ptr<Rule> Parser::parse_rule()
 		return nullptr;
 	
 	rule->selectors.push_back(*selector);
+
+	while (peek() != OPEN_BRACE)
+	{
+		consume(COMMA, "expected ','");
+		selector = parse_selector();
+		if (!selector)
+			std::cout << "expected selector\n";
+
+		rule->selectors.push_back(*selector);
+	}
 	
 	if (match(OPEN_BRACE))
 	{
@@ -102,5 +112,10 @@ void Parser::consume(TokenType type, const char *msg)
 	{
 		std::cout << msg << "\n";
 	}
+}
+
+TokenType Parser::peek()
+{
+	return current_token.type();
 }
 }
