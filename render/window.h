@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../document/node.h"
+#include "../css/styled_node.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -13,7 +13,7 @@ constexpr int TEXT_SIZE = 30;
 class Window
 {
 public:
-	Window(std::shared_ptr<Node>);
+	Window(std::shared_ptr<css::StyledNode>);
 
 private:
 	// width, height of window in px

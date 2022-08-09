@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 
+#include "css/stylesheet.h"
+#include "css/styled_node.h"
 #include "html/parser.h"
 #include "render/window.h"
 
@@ -22,6 +24,9 @@ int main(int argc, char **argv)
 	auto document = parser.parse();
 	document->print();
 
-	Window window(document);
+	auto stylesheet = css::read_default_stylesheet();
+	auto style_tree = std::make_shared<css::StyledNode>(document, stylesheet);
+
+	Window window(style_tree);
 	return 0;
 }
