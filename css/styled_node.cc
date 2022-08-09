@@ -16,7 +16,7 @@ StyledNode::StyledNode(std::shared_ptr<Node> n, std::shared_ptr<Stylesheet> styl
 		auto element = std::dynamic_pointer_cast<Element>(n);
 		for (auto decl : stylesheet->rules_for(element->tag()))
 		{
-			m_values[decl.name] = decl.value;
+			values[decl.name] = decl.value;
 		}
 	}
 

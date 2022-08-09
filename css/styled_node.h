@@ -24,12 +24,9 @@ public:
 		}
 	}
 
-	inline std::unordered_map<std::string, std::string> values() { return m_values; }
-
-private:
 	// pointer to the DOM node being styled
 	std::shared_ptr<Node> node;
-	std::unordered_map<std::string, std::string> m_values;
+	std::unordered_map<std::string, std::string> values;
 	std::vector<std::shared_ptr<StyledNode>> children;
 };
 }
