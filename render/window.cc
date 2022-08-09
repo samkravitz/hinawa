@@ -66,7 +66,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 			}
 		};
 
-		style_tree->in_order(draw_fn);
+		style_tree->preorder(draw_fn);
 		window.display();
 	}
 }

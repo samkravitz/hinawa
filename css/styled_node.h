@@ -15,12 +15,12 @@ public:
 	StyledNode(std::shared_ptr<Node>);
 	StyledNode(std::shared_ptr<Node>, std::shared_ptr<Stylesheet>);
 
-	inline void in_order(std::function<void(std::shared_ptr<StyledNode> node)> f)
+	inline void preorder(std::function<void(std::shared_ptr<StyledNode> node)> f)
 	{
 		for (auto child : children)
 		{
-			child->in_order(f);
 			f(child);
+			child->preorder(f);
 		}
 	}
 

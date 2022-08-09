@@ -7,11 +7,11 @@ void Node::add_child(std::shared_ptr<Node> node)
 	children.push_back(node);
 }
 
-void Node::in_order(std::function<void(std::shared_ptr<Node>)> f)
+void Node::preorder(std::function<void(std::shared_ptr<Node>)> f)
 {
 	for (auto child : children)
 	{
-		child->in_order(f);
+		child->preorder(f);
 		f(child);
 	}
 }

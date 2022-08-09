@@ -20,7 +20,7 @@ public:
 	~Node() { }
 
 	void add_child(std::shared_ptr<Node>);
-	void in_order(std::function<void(std::shared_ptr<Node>)>);
+	void preorder(std::function<void(std::shared_ptr<Node>)>);
 	void for_each_child(std::function<void(std::shared_ptr<Node>)>);
 	bool has_children();
 
