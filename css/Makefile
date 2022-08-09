@@ -2,8 +2,12 @@ include ../config.mk
 
 LEX = flex -+
 
-src = \
-	parser.cc
+SRC = \
+	parser.cc \
+	scanner.cc \
+	styled_node.cc \
+	stylesheet.cc \
+	token.cc
 
 OBJ = lex.yy.css.o $(SRC:.cc=.css.o)
 

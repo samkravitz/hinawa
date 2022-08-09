@@ -1,8 +1,9 @@
 include config.mk
 
-OBJ = $(wildcard document/*.o html/*.o js/*.o render/*.o web/*.o)
+OBJ = $(wildcard css/*.o document/*.o html/*.o js/*.o render/*.o web/*.o)
 
 MODULES = \
+	css \
 	document \
 	html \
 	js \
