@@ -2,9 +2,10 @@
 
 #include <memory>
 #include <string>
-#include <FlexLexer.h>
 
 #include "stylesheet.h"
+#include "scanner.h"
+#include "token.h"
 
 namespace css
 {
@@ -12,13 +13,17 @@ class Parser
 {
 public:
 	Parser(std::string);
-	~Parser();
 
 	std::shared_ptr<Stylesheet> parse();
 
 private:
-	FlexLexer *lexer;
-	std::string input;
+	Scanner scanner;
+	Token current_token;
+	Token previous_token;
+
+	void advance();
+	void consume(TokenType, const char *);
+	bool match(TokenType);
 
 	std::shared_ptr<Stylesheet> parse_stylesheet();
 	std::shared_ptr<Rule> parse_rule();
