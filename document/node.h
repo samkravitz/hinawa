@@ -21,6 +21,7 @@ public:
 
 	void add_child(std::shared_ptr<Node>);
 	void in_order(std::function<void(std::shared_ptr<Node>)>);
+	void for_each_child(std::function<void(std::shared_ptr<Node>)>);
 	bool has_children();
 
 	std::shared_ptr<Node> last_child();

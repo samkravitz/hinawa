@@ -16,6 +16,12 @@ void Node::in_order(std::function<void(std::shared_ptr<Node>)> f)
 	}
 }
 
+void Node::for_each_child(std::function<void(std::shared_ptr<Node>)> f)
+{
+	for (auto child : children)
+		f(child);
+}
+
 bool Node::has_children()
 {
 	return !children.empty();
