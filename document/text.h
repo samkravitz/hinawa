@@ -11,10 +11,10 @@ public:
 	Text(char);
 
 	void append(char);
-	void print(int depth = 0);
+	void print(int depth = 0) const ;
 
-	inline NodeType type() { return NodeType::Text; }
-	inline std::string text() { return m_text; }
+	inline NodeType type() const { return NodeType::Text; }
+	inline std::string text() const { return m_text; }
 
 private:
 	std::string m_text;

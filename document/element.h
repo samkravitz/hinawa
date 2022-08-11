@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
 #include "node.h"
 
@@ -8,10 +9,10 @@ struct Element : public Node
 {
 public:
 	Element(std::string);
-	inline NodeType type() { return NodeType::Element; }
-	inline std::string tag() { return m_tag; }
+	inline NodeType type() const { return NodeType::Element; }
+	inline std::string tag() const { return m_tag; }
 
-	void print(int depth = 0);
+	void print(int depth = 0) const;
 
 private:
 	std::string m_tag;

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "../util/tree_node.h"
 
 enum class NodeType
 {
@@ -13,22 +9,9 @@ enum class NodeType
 	Text,
 };
 
-struct Node
+class Node : public util::TreeNode<Node>
 {
 public:
-	Node() { }
-	~Node() { }
-
-	void add_child(std::shared_ptr<Node>);
-	void preorder(std::function<void(std::shared_ptr<Node>)>);
-	void for_each_child(std::function<void(std::shared_ptr<Node>)>);
-	bool has_children();
-
-	std::shared_ptr<Node> last_child();
-
-	virtual NodeType type();
-	virtual void print(int depth = 0);
-
-protected:
-	std::vector<std::shared_ptr<Node>> children;
+	virtual NodeType type() const;
+	virtual void print(int depth = 0) const;
 };

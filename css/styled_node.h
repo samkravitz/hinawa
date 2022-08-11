@@ -6,27 +6,22 @@
 
 #include "stylesheet.h"
 #include "../document/node.h"
+#include "../util/tree_node.h"
 
 namespace css
 {
-class StyledNode
+class StyledNode : public util::TreeNode<StyledNode>
 {
 public:
 	StyledNode(std::shared_ptr<Node>);
 	StyledNode(std::shared_ptr<Node>, std::shared_ptr<Stylesheet>);
 
-	inline void preorder(std::function<void(std::shared_ptr<StyledNode> node)> f)
-	{
-		for (auto child : children)
-		{
-			f(child);
-			child->preorder(f);
-		}
-	}
+	inline std::shared_ptr<Node> node() const { return m_node; }
+	inline std::unordered_map<std::string, std::string> values() const { return m_values; }
 
+private:
 	// pointer to the DOM node being styled
-	std::shared_ptr<Node> node;
-	std::unordered_map<std::string, std::string> values;
-	std::vector<std::shared_ptr<StyledNode>> children;
+	std::shared_ptr<Node> m_node;
+	std::unordered_map<std::string, std::string> m_values;
 };
 }

@@ -8,7 +8,7 @@ Element::Element(std::string tag)
 	
 }
 
-void Element::print(int depth)
+void Element::print(int depth) const
 {
 	for (int i = 0; i < depth; i++)
 		std::cout << "\t";

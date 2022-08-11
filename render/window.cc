@@ -9,7 +9,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 	auto font = sf::Font{};
 	auto event = sf::Event{};
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-	std::unordered_map<std::string, std::string> *current_rules;
+	std::unordered_map<std::string, std::string> current_rules;
 	bg.setFillColor(sf::Color::White);
 
 	if (!font.loadFromFile("data/fonts/FiraSans-Book.otf"))
@@ -29,7 +29,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 
 		auto draw_fn = [this, &font, &current_rules](std::shared_ptr<css::StyledNode> styled_node)
 		{
-			auto node = styled_node->node;
+			auto node = styled_node->node();
 			if (node->type() == NodeType::Text)
 			{
 				auto text_element = std::dynamic_pointer_cast<Text>(node);
@@ -38,9 +38,9 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 				
 				auto color = sf::Color::Black;
 				
-				if (current_rules->find("color") != current_rules->end())
+				if (current_rules.find("color") != current_rules.end())
 				{
-					auto c = current_rules->at("color");
+					auto c = current_rules["color"];
 
 					if (c == "red")
 						color = sf::Color::Red;
@@ -62,7 +62,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 
 			else
 			{
-				current_rules = &styled_node->values;
+				current_rules = styled_node->values();
 			}
 		};
 

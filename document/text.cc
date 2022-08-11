@@ -16,7 +16,7 @@ void Text::append(char c)
 	m_text += c;
 }
 
-void Text::print(int depth)
+void Text::print(int depth) const
 {
 	for (int i = 0; i < depth; i++)
 		std::cout << "\t";
