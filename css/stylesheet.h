@@ -69,26 +69,8 @@ struct Stylesheet
 
 	std::vector<Rule> rules;
 
-	std::vector<Declaration> rules_for(std::string const tag)
-	{
-		std::vector<Declaration> declarations;
-
-		for (auto rule : rules)
-		{
-			for (auto selector : rule.selectors)
-			{
-				if (selector.tag_name == tag)
-				{
-					for (auto declaration : rule.declarations)
-					{
-						declarations.push_back(declaration);
-					}
-				}
-			}
-		}
-
-		return declarations;
-	}
+	std::vector<Declaration> rules_for_tag(std::string const);
+	std::vector<Declaration> rules_for_class(std::string const);
 
 	std::string to_string()
 	{
