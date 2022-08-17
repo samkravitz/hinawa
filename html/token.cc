@@ -96,6 +96,17 @@ namespace html
 					res += '/';
 
 				res += arg.name;
+
+				for (auto attribute : arg.attributes)
+				{
+					res += " ";
+					res += attribute.first;
+					res += "=";
+					res += "\"";
+					res += attribute.second;
+					res += "\"";
+				}
+
 				if (arg.self_closing)
 					res += '/';
 

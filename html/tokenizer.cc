@@ -412,10 +412,38 @@ Token Tokenizer::next()
 
 			// 13.2.5.36 Attribute value (double-quoted) state
 			case State::AttributeValueDoubleQuoted:
+				switch (current_input_character)
+				{
+					case '\"':
+						state = State::AfterAttributeValueQuoted;
+						break;
+					
+					case '&':
+						return_state = State::AttributeValueDoubleQuoted;
+						state = State::CharacterReference;
+						break;
+					
+					default:
+						current_token.append_attribute_value(current_input_character);
+				}
 			break;
 
 			// 13.2.5.37 Attribute value (single-quoted) state
 			case State::AttributeValueSingleQuoted:
+				switch (current_input_character)
+				{
+					case '\'':
+						state = State::AfterAttributeValueQuoted;
+						break;
+					
+					case '&':
+						return_state = State::AttributeValueSingleQuoted;
+						state = State::CharacterReference;
+						break;
+					
+					default:
+						current_token.append_attribute_value(current_input_character);
+				}
 			break;
 
 			// 13.2.5.38 Attribute value (unquoted) state
@@ -451,6 +479,27 @@ Token Tokenizer::next()
 
 			// 13.2.5.39 After attribute value (quoted) state
 			case State::AfterAttributeValueQuoted:
+				switch (current_input_character)
+				{
+					case '\t':
+					case '\n':
+					case '\f':
+					case ' ':
+						state = State::BeforeAttributeName;
+						break;
+
+					case '/':
+						state = State::SelfClosingStartTag;
+						break;
+					
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+					
+					default:
+						reconsume_in(State::BeforeAttributeName);
+				}
 			break;
 
 			// 13.2.5.40 Self-closing start tag state

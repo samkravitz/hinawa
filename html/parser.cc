@@ -265,8 +265,11 @@ std::shared_ptr<Node> Parser::parse()
 
 					case StartTag:
 					{
-						auto tag_name = token.tag_name();
-						auto element = std::make_shared<Element>(tag_name);
+						auto tag_data = token.as_tag_data();
+						auto element = std::make_shared<Element>(tag_data.name);
+						for (auto attribute : tag_data.attributes)
+							element->add_attribute(attribute.first, attribute.second);
+
 						insert_element(element);
 						break;
 					}

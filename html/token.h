@@ -89,6 +89,8 @@ public:
 		return t;
 	}
 
+	inline TagData as_tag_data() { return std::get<TagData>(data); }
+
 	void new_attribute();
 	void append_tag_name(char c);
 	void append_attribute_name(char c);
