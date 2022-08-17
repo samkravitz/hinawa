@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+#undef yyFlexLexer
+#define yyFlexLexer jsFlexLexer
 #include <FlexLexer.h>
 
 #include "token.h"
