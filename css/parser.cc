@@ -1,6 +1,8 @@
 #include "parser.h"
 
+#include <cassert>
 #include <iostream>
+#include <sstream>
 
 namespace css
 {
@@ -64,10 +66,25 @@ std::shared_ptr<Selector> Parser::parse_selector()
 {
 	std::shared_ptr<Selector> selector = nullptr;
 
+	bool is_classname = false;
+
+	if (current_token.value() == ".")
+	{
+		is_classname = true;
+		advance();
+	}
+
 	if (current_token.type() == IDENT)
 	{
 		selector = std::make_shared<Selector>();
-		selector->tag_name = current_token.value();
+
+		auto identifier = current_token.value();
+
+		if (is_classname)
+			selector->class_name = identifier;		
+		else
+			selector->tag_name = identifier;
+
 		advance();
 	}
 
@@ -79,14 +96,47 @@ std::shared_ptr<Declaration> Parser::parse_declaration()
 	consume(IDENT, "expected identifier");
 	auto name = previous_token.value();
 	consume(COLON, "expected ':'");
-	consume(IDENT, "expected identifier");
-	auto value = previous_token.value();
+	auto value = parse_value();
 	consume(SEMICOLON, "expected ;");
 	
 	auto declaration = std::make_shared<Declaration>();
 	declaration->name = name;
 	declaration->value = value;
 	return declaration;
+}
+
+std::shared_ptr<Value> Parser::parse_value()
+{
+	std::shared_ptr<Value> value = nullptr;
+
+	switch (current_token.type())
+	{
+		case HASH:
+		{
+			auto hex = current_token.value();
+			auto color = Color{};
+			color.r = std::stoul(hex.substr(1, 2), nullptr, 16);
+			color.g = std::stoul(hex.substr(3, 2), nullptr, 16);
+			color.b = std::stoul(hex.substr(5, 2), nullptr, 16);
+			value = std::make_shared<Color>(color);
+			advance();
+			break;
+		}
+
+		case IDENT:
+		{
+			auto keyword = Keyword{};
+			keyword.value = current_token.value();
+			value = std::make_shared<Keyword>(keyword);
+			advance();
+			break;
+		}
+
+		default:
+			assert(!"Error parsing a CSS value");
+	}
+
+	return value;
 }
 
 void Parser::advance()
