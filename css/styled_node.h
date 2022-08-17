@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "stylesheet.h"
+#include "value.h"
 #include "../document/node.h"
 #include "../util/tree_node.h"
 
@@ -17,11 +18,11 @@ public:
 	StyledNode(std::shared_ptr<Node>, std::shared_ptr<Stylesheet>);
 
 	inline std::shared_ptr<Node> node() const { return m_node; }
-	inline std::unordered_map<std::string, std::string> values() const { return m_values; }
+	inline std::unordered_map<std::string, std::shared_ptr<Value>> values() const { return m_values; }
 
 private:
 	// pointer to the DOM node being styled
 	std::shared_ptr<Node> m_node;
-	std::unordered_map<std::string, std::string> m_values;
+	std::unordered_map<std::string, std::shared_ptr<Value>> m_values;
 };
 }

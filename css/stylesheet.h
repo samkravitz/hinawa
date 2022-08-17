@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "value.h"
+
 namespace css
 {
 // ex
@@ -27,11 +29,11 @@ struct Selector
 struct Declaration
 {
 	std::string name;
-	std::string value;
+	std::shared_ptr<Value> value = nullptr;
 
 	std::string to_string()
 	{
-		return name + " : " + value;
+		return name + " : " + value->to_string();
 	}
 };
 
