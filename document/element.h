@@ -13,6 +13,9 @@ public:
 	inline std::string tag() const { return m_tag; }
 
 	void print(int depth = 0) const;
+	void add_attribute(std::string, std::string);
+	bool has_attribute(std::string) const;
+	std::string get_attribute(std::string);
 
 private:
 	std::string m_tag;
