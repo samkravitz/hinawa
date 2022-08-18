@@ -1,5 +1,8 @@
+%option c++
 %option noyywrap
 %option yylineno
+%option case-insensitive
+%option prefix="js"
 
 %{
 	#include <iostream>

@@ -12,7 +12,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 	std::unordered_map<std::string, std::shared_ptr<css::Value>> current_rules;
 	bg.setFillColor(sf::Color::White);
 
-	if (!font.loadFromFile("data/fonts/FiraSans-Book.otf"))
+	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))
 		exit(2);
 
 	while (window.isOpen())
