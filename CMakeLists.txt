@@ -16,6 +16,7 @@ add_subdirectory(css)
 add_subdirectory(document)
 add_subdirectory(html)
 add_subdirectory(js)
+add_subdirectory(layout)
 add_subdirectory(render)
 
 target_link_libraries(hinawa sfml-graphics sfml-window sfml-system)
