@@ -34,7 +34,8 @@ struct Color : public Value
 	inline ValueType type() { return ValueType::Color; }
 	std::string to_string()
 	{
-		return "{ Color r: " + std::to_string(r) + " g: " + std::to_string(g) + " b: " + std::to_string(b) + " a: " + std::to_string(a) + " }";
+		return "{ Color r: " + std::to_string(r) + " g: " + std::to_string(g) + " b: " + std::to_string(b) +
+		       " a: " + std::to_string(a) + " }";
 	}
 };
 
@@ -49,30 +50,27 @@ struct Keyword : public Value
 
 struct Length : public Value
 {
-enum Unit
-{
-	IN, // inches
-	CM, // centimeters
-	MM, // millimeters
-	PT, // points          (1 pt = 1/72 in)
-	PC, // picas           (1 pc = 12 pt)
-	PX, // pixels          (1 px = .75 pt)
-};
+	enum Unit
+	{
+		IN,    // inches
+		CM,    // centimeters
+		MM,    // millimeters
+		PT,    // points          (1 pt = 1/72 in)
+		PC,    // picas           (1 pc = 12 pt)
+		PX,    // pixels          (1 px = .75 pt)
+	};
 
 	Length() = default;
 
 	Length(float value, Unit unit) :
-		value(value),
-		unit(unit)
+	    value(value),
+	    unit(unit)
 	{ }
 
 	float value = 0.0f;
 	Unit unit = PX;
 
-	float to_px()
-	{
-		return value;
-	}
+	float to_px() { return value; }
 
 	inline ValueType type() { return ValueType::Keyword; }
 
