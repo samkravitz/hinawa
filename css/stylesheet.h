@@ -29,7 +29,7 @@ struct Selector
 struct Declaration
 {
 	std::string name;
-	std::shared_ptr<Value> value = nullptr;
+	Value *value;
 
 	std::string to_string()
 	{

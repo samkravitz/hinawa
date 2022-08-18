@@ -31,6 +31,6 @@ private:
 	std::shared_ptr<Rule> parse_rule();
 	std::shared_ptr<Selector> parse_selector();
 	std::shared_ptr<Declaration> parse_declaration();
-	std::shared_ptr<Value> parse_value();
+	Value *parse_value();
 };
 };

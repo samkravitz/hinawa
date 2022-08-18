@@ -9,7 +9,7 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 	auto font = sf::Font{};
 	auto event = sf::Event{};
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-	std::unordered_map<std::string, std::shared_ptr<css::Value>> current_rules;
+	std::unordered_map<std::string, css::Value> current_rules;
 	bg.setFillColor(sf::Color::White);
 
 	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))

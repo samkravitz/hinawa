@@ -10,12 +10,15 @@ enum class ValueType
 {
 	Color,
 	Keyword,
+	Unsupported,
 };
 
 struct Value
 {
-	virtual std::string to_string() = 0;
-	virtual ValueType type() = 0;
+	virtual ~Value() = default;
+
+	virtual std::string to_string() { return "{ Unsupported Value }"; }
+	virtual ValueType type() { return ValueType::Unsupported; }
 };
 
 struct Color : public Value

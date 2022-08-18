@@ -96,7 +96,7 @@ std::shared_ptr<Declaration> Parser::parse_declaration()
 	consume(IDENT, "expected identifier");
 	auto name = previous_token.value();
 	consume(COLON, "expected ':'");
-	auto value = parse_value();
+	auto *value = parse_value();
 	consume(SEMICOLON, "expected ;");
 	
 	auto declaration = std::make_shared<Declaration>();
@@ -105,29 +105,29 @@ std::shared_ptr<Declaration> Parser::parse_declaration()
 	return declaration;
 }
 
-std::shared_ptr<Value> Parser::parse_value()
+Value *Parser::parse_value()
 {
-	std::shared_ptr<Value> value = nullptr;
+	Value *value = nullptr;
 
 	switch (current_token.type())
 	{
 		case HASH:
 		{
 			auto hex = current_token.value();
-			auto color = Color{};
-			color.r = std::stoul(hex.substr(1, 2), nullptr, 16);
-			color.g = std::stoul(hex.substr(3, 2), nullptr, 16);
-			color.b = std::stoul(hex.substr(5, 2), nullptr, 16);
-			value = std::make_shared<Color>(color);
+			auto *color = new Color();
+			color->r = std::stoul(hex.substr(1, 2), nullptr, 16);
+			color->g = std::stoul(hex.substr(3, 2), nullptr, 16);
+			color->b = std::stoul(hex.substr(5, 2), nullptr, 16);
+			value = color;
 			advance();
 			break;
 		}
 
 		case IDENT:
 		{
-			auto keyword = Keyword{};
-			keyword.value = current_token.value();
-			value = std::make_shared<Keyword>(keyword);
+			auto *keyword = new Keyword();
+			keyword->value = current_token.value();
+			value = keyword;
 			advance();
 			break;
 		}

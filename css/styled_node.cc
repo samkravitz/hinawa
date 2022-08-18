@@ -15,18 +15,13 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 	{
 		auto element = std::dynamic_pointer_cast<Element>(node);
 		for (auto decl : stylesheet->rules_for_tag(element->tag()))
-		{
 			m_values[decl.name] = decl.value;
-		}
 
 		if (element->has_attribute("class"))
 		{
 			for (auto decl : stylesheet->rules_for_class(element->get_attribute("class")))
-			{
 				m_values[decl.name] = decl.value;
-			}
 		}
-		
 	}
 
 	auto f = [this, stylesheet](std::shared_ptr<Node> node)
@@ -35,5 +30,13 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 	};
 
 	node->for_each_child(f);
+}
+
+Value *StyledNode::lookup(std::string property_name, Value * const fallback)
+{
+	if (m_values.find(property_name) != m_values.end())
+		return m_values[property_name];
+	
+	return fallback;
 }
 }
