@@ -2,22 +2,28 @@
 
 #include <unordered_map>
 
-#include "../document/text.h"
+#include "../layout/box.h"
 
-Window::Window(std::shared_ptr<css::StyledNode> style_tree)
+Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 {
 	auto font = sf::Font{};
 	auto event = sf::Event{};
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-	std::unordered_map<std::string, css::Value> current_rules;
 	bg.setFillColor(sf::Color::White);
+
+	layout::Box viewport;
+	viewport.content.width = width;
+	viewport.content.height = height;
+	viewport.content.x = 0;
+	viewport.content.y = 0;
+
+	layout_tree->calculate_layout(viewport);
 
 	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))
 		exit(2);
 
 	while (window.isOpen())
 	{
-		y = 0;
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -27,46 +33,27 @@ Window::Window(std::shared_ptr<css::StyledNode> style_tree)
 		window.clear();
 		window.draw(bg);
 
-		auto draw_fn = [this, &font, &current_rules](std::shared_ptr<css::StyledNode> styled_node)
+		auto draw_fn = [this, &font](std::shared_ptr<layout::LayoutNode> layout_node)
 		{
-			auto node = styled_node->node();
-			if (node->type() == NodeType::Text)
+			auto style = layout_node->node();
+			auto dimensions = layout_node->dimensions();
+			auto *background = style->lookup("background");
+
+			auto x = dimensions.content.x;
+			auto y = dimensions.content.y;
+
+			if (background)
 			{
-				auto text_element = std::dynamic_pointer_cast<Text>(node);
-				if (!isprint(text_element->text()[0]))
-					return;
-				
-				auto color = sf::Color::Black;
-				
-				if (current_rules.find("color") != current_rules.end())
-				{
-					auto c = current_rules["color"];
-
-					//if (c == "red")
-					//	color = sf::Color::Red;
-					
-					//if (c == "blue")
-					//	color = sf::Color::Blue;
-					
-					//if (c == "green")
-					//	color = sf::Color::Green;
-				}
-
-				sf::Text text(text_element->text(), font);
-				text.setCharacterSize(TEXT_SIZE);
-				text.setFillColor(color);
-				text.setPosition(0, y);
-				y += TEXT_SIZE;
-				window.draw(text);
-			}
-
-			else
-			{
-				current_rules = styled_node->values();
+				auto *color = dynamic_cast<css::Color *>(background);
+				sf::RectangleShape rect;
+				rect.setPosition(x, y);
+				rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.y));
+				rect.setFillColor(sf::Color(color->r, color->g, color->b));
+				window.draw(rect);
 			}
 		};
 
-		style_tree->preorder(draw_fn);
+		layout_tree->preorder(draw_fn);
 		window.display();
 	}
 }

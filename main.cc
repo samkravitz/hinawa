@@ -7,6 +7,7 @@
 #include "css/styled_node.h"
 #include "html/parser.h"
 #include "render/window.h"
+#include "layout/layout_node.h"
 
 int main(int argc, char **argv)
 {
@@ -27,6 +28,10 @@ int main(int argc, char **argv)
 	auto stylesheet = css::read_default_stylesheet();
 	auto style_tree = std::make_shared<css::StyledNode>(document, stylesheet);
 
-	Window window(style_tree);
+	auto html = style_tree->last_child();
+	auto body = html->last_child();
+	auto layout_tree = std::make_shared<layout::LayoutNode>(body);
+
+	Window window(layout_tree);
 	return 0;
 }
