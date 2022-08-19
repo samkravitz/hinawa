@@ -4,6 +4,7 @@ set(SOURCES
 
 set(HEADERS
 	box.h
+	edges.h
 	layout_node.h
 	rect.h
 )
