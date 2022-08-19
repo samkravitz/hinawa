@@ -1,8 +1,9 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <vector>
 
-#include "scanner.h"
+#include "parser.h"
 
 int main(int argc, char **argv)
 {
@@ -12,14 +13,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	std::ifstream file(argv[1], std::ios::binary | std::ios::ate);
-	std::streamsize size = file.tellg();
-	file.seekg(0, std::ios::beg);
+	std::ifstream file(argv[1]);
+	std::stringstream buffer;
+	buffer << file.rdbuf();
 
-	std::vector<char> buffer(size);
-	file.read(buffer.data(), size);
-
-	js::Scanner scanner(buffer.data());
-	scanner.scan();
-	std::cout << scanner.to_string() << "\n";
+	js::Parser parser(buffer.str());
+	auto ast = parser.parse();
+	ast->print("AST");
 }
