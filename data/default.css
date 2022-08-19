@@ -3,7 +3,24 @@
  * These rules will be applied to elements when when no other rules apply
  */
 
+/* block elements */
 body,
-div {
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
 	display: block;
+}
+
+/* inline elements */
+a,
+b,
+code,
+i,
+span {
+	display: inline;
 }
