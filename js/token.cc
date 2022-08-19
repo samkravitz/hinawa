@@ -4,24 +4,22 @@
 
 namespace js
 {
-
 Token::Token(std::string value, TokenType type, int line, int col) :
-	value(value),
-	type(type),
-	line(line),
-	col(col)
+    m_value(value),
+    m_type(type),
+    m_line(line),
+    m_col(col)
 { }
 
 std::string Token::to_string()
 {
 	std::stringstream str;
 	str << "{";
-	str << " value: " << value;
-	str << ", type: " << type;
-	str << ", line: " << line;
-	str << ", col: " << col;
+	str << " value: " << m_value;
+	str << ", type: " << m_type;
+	str << ", line: " << m_line;
+	str << ", col: " << m_col;
 	str << " }";
 	return str.str();
 }
-
 }

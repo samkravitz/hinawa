@@ -66,6 +66,46 @@
 "yield"                     { return KEY_YIELD; }
 
 %{
+	// Three character tokens
+%}
+
+"==="                       { return EQUAL_EQUAL_EQUAL; }
+"!=="                       { return BANG_EQUAL_EQUAL; }
+"**="                       { return STAR_STAR_EQUAL; }
+"<<="                       { return LESS_LESS_EQUAL; }
+">>="                       { return RIGHT_RIGHT_EQUAL; }
+"&&="                       { return AND_AND_EQUAL; }
+"||="                       { return PIPE_PIPE_EQUAL; }
+">>>"                       { return RIGHT_RIGHT_RIGHT; }
+"..."                       { return DOT_DOT_DOT; }
+
+%{
+	// Two character tokens
+%}
+
+"!="                        { return BANG_EQUAL; }
+"=="                        { return EQUAL_EQUAL; }
+">="                        { return GREATER_EQUAL; }
+"<="                        { return LESS_EQUAL; }
+"+="                        { return PLUS_EQUAL; }
+"-="                        { return MINUS_EQUAL; }
+"*="                        { return STAR_EQUAL; }
+"/="                        { return SLASH_EQUAL; }
+"&="                        { return AND_EQUAL; }
+"|="                        { return PIPE_EQUAL; }
+"^="                        { return CARET_EQUAL; }
+"<<"                        { return LESS_LESS; }
+">>"                        { return GREATER_GREATER; }
+"&&"                        { return AND_AND; }
+"||"                        { return PIPE_PIPE; }
+"=>"                        { return ARROW; }
+"??"                        { return QUESTION_QUESTION; }
+"**"                        { return STAR_STAR; }
+"++"                        { return PLUS_PLUS; }
+"--"                        { return MINUS_MINUS; }
+"?."                        { return QUESTION_DOT; }
+
+%{
 	// One character tokens
 %}
 
@@ -73,6 +113,8 @@
 ")"                         { return RIGHT_PAREN; }
 "{"                         { return LEFT_BRACE; }
 "}"                         { return RIGHT_BRACE; }
+"["                         { return LEFT_BRACKET; }
+"]"                         { return RIGHT_BRACKET; }
 ","                         { return COMMA; }
 "."                         { return DOT; }
 "-"                         { return MINUS; }
@@ -81,27 +123,15 @@
 "*"                         { return STAR; }
 "%"                         { return MOD; }
 ";"                         { return SEMICOLON; }
-"!"                         { return NOT; }
+"!"                         { return BANG; }
 "="                         { return EQUAL; }
 ">"                         { return GREATER; }
 "<"                         { return LESS; }
 "&"                         { return AND; }
 "|"                         { return PIPE; }
-
-%{
-	// Two+ character tokens
-%}
-
-"!="                        { return NOT_EQUAL; }
-"=="                        { return EQUAL_EQUAL; }
-"==="                       { return EQUAL_EQUAL_EQUAL; }
-"!=="                       { return NOT_EQUAL_EQUAL; }
-">="                        { return GREATER_EQUAL; }
-"<="                        { return LESS_EQUAL; }
-"<<"                        { return LESS_LESS; }
-">>"                        { return GREATER_GREATER; }
-"&&"                        { return AND_AND; }
-"||"                        { return PIPE_PIPE; }
+"~"                         { return TILDE; }
+"^"                         { return CARET; }
+"?"                         { return QUESTION; }
 
 %{
 	// Literals

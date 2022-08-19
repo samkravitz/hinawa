@@ -9,6 +9,8 @@ enum TokenType : int
 	RIGHT_PAREN,       // )
 	LEFT_BRACE,        // {
 	RIGHT_BRACE,       // }
+	LEFT_BRACKET,      // [
+	RIGHT_BRACKET,     // ]
 	COMMA,             // ,
 	DOT,               // .
 	MINUS,             // -
@@ -17,30 +19,55 @@ enum TokenType : int
 	STAR,              // *
 	MOD,               // %
 	SEMICOLON,         // ;
-	NOT,               // !
+	BANG,              // !
 	EQUAL,             // =
 	GREATER,           // >
 	LESS,              // <
 	AND,               // &
 	PIPE,              // |
+	TILDE,             // ~
+	CARET,             // ^
+	QUESTION,          // ?
 	NEWLINE,
 
-	// Two+ character tokens
-	NOT_EQUAL,         // !=
-	EQUAL_EQUAL,       // ==
-	EQUAL_EQUAL_EQUAL, // ===
-	NOT_EQUAL_EQUAL,   // !==
-	GREATER_EQUAL,     // >=
-	LESS_EQUAL,        // <=
-	LESS_LESS,         // <<
-	GREATER_GREATER,   // >>
-	AND_AND,           // &&
-	PIPE_PIPE,         // ||
+	// Two character tokens
+	BANG_EQUAL,           // !=
+	EQUAL_EQUAL,          // ==
+	GREATER_EQUAL,        // >=
+	LESS_EQUAL,           // <=
+	PLUS_EQUAL,           // +=
+	MINUS_EQUAL,          // -=
+	STAR_EQUAL,           // *=
+	SLASH_EQUAL,          // /=
+	AND_EQUAL,            // &=
+	PIPE_EQUAL,           // |=
+	CARET_EQUAL,          // ^=
+	LESS_LESS,            // <<
+	GREATER_GREATER,      // >>
+	AND_AND,              // &&
+	PIPE_PIPE,            // ||
+	ARROW,                // =>
+	QUESTION_QUESTION,    // ??
+	STAR_STAR,            // **
+	PLUS_PLUS,            // ++
+	MINUS_MINUS,          // --
+	QUESTION_DOT,         // ?.
+
+	// Three character tokens
+	EQUAL_EQUAL_EQUAL,    // ===
+	BANG_EQUAL_EQUAL,     // !==
+	STAR_STAR_EQUAL,      // **=
+	LESS_LESS_EQUAL,      // <<=
+	RIGHT_RIGHT_EQUAL,    // >>=
+	AND_AND_EQUAL,        // &&=
+	PIPE_PIPE_EQUAL,      // ||=
+	RIGHT_RIGHT_RIGHT,    // >>>
+	DOT_DOT_DOT,          // ...
 
 	// Literals
 	IDENTIFIER,
-	STRING,            // e.g. 'Hello World'
-	NUMBER,            // e.g. 3.4, -1
+	STRING,    // e.g. 'Hello World'
+	NUMBER,    // e.g. 3.4, -1
 
 	// Keywords
 	KEY_AWAIT,
