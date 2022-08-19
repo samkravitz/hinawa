@@ -51,7 +51,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 			}
 		};
 
-		layout_tree->preorder(draw_fn);
+		layout_tree->postorder(draw_fn);
 		window.display();
 	}
 }

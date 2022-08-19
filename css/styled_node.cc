@@ -55,4 +55,15 @@ Value *StyledNode::lookup(std::string property_name, Value *const fallback)
 
 	return fallback;
 }
+
+Value *StyledNode::lookup(std::string property_name1, std::string property_name2, Value *const fallback)
+{
+	if (m_values.find(property_name1) != m_values.end())
+		return m_values[property_name1];
+
+	if (m_values.find(property_name2) != m_values.end())
+		return m_values[property_name2];
+
+	return fallback;
+}
 }

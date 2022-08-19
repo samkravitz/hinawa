@@ -32,17 +32,16 @@ void LayoutNode::calculate_layout(Box container)
 
 void LayoutNode::calculate_width(Box container)
 {
-	auto len = css::Length{ 12.0, css::Length::PX };
 	auto zero = css::Length{};
 
-	auto *margin_left = m_node->lookup("margin-left", &zero);
-	auto *margin_right = m_node->lookup("margin-right", &zero);
+	auto *margin_left = m_node->lookup("margin-left", "margin", &zero);
+	auto *margin_right = m_node->lookup("margin-right", "margin", &zero);
 
-	auto *border_left = m_node->lookup("border-left", &zero);
-	auto *border_right = m_node->lookup("border-right", &zero);
+	auto *border_left = m_node->lookup("border-left", "border", &zero);
+	auto *border_right = m_node->lookup("border-right", "border", &zero);
 
-	auto *padding_left = m_node->lookup("padding-left", &len);
-	auto *padding_right = m_node->lookup("padding-right", &len);
+	auto *padding_left = m_node->lookup("padding-left", "padding", &zero);
+	auto *padding_right = m_node->lookup("padding-right", "padding", &zero);
 
 	// total width in px
 	int total = 0;
@@ -67,17 +66,16 @@ void LayoutNode::calculate_width(Box container)
 
 void LayoutNode::calculate_position(Box container)
 {
-	auto len = css::Length{ 12.0, css::Length::PX };
 	auto zero = css::Length{};
 
-	m_dimensions.margin.top = m_node->lookup("margin-top", &zero)->to_px();
-	m_dimensions.margin.bottom = m_node->lookup("margin-bottom", &zero)->to_px();
+	m_dimensions.margin.top = m_node->lookup("margin-top", "margin", &zero)->to_px();
+	m_dimensions.margin.bottom = m_node->lookup("margin-bottom", "margin", &zero)->to_px();
 
-	m_dimensions.border.top = m_node->lookup("border-top", &zero)->to_px();
-	m_dimensions.border.bottom = m_node->lookup("border-bottom", &zero)->to_px();
+	m_dimensions.border.top = m_node->lookup("border-top", "border", &zero)->to_px();
+	m_dimensions.border.bottom = m_node->lookup("border-bottom", "border", &zero)->to_px();
 
-	m_dimensions.padding.top = m_node->lookup("padding-top", &len)->to_px();
-	m_dimensions.padding.bottom = m_node->lookup("padding-bottom", &len)->to_px();
+	m_dimensions.padding.top = m_node->lookup("padding-top", "padding", &zero)->to_px();
+	m_dimensions.padding.bottom = m_node->lookup("padding-bottom", "padding", &zero)->to_px();
 
 	m_dimensions.content.x =
 	    container.content.x + m_dimensions.margin.left + m_dimensions.border.left + m_dimensions.padding.left;

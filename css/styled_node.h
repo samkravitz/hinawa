@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "stylesheet.h"
-#include "value.h"
 #include "../document/node.h"
 #include "../util/tree_node.h"
+#include "stylesheet.h"
+#include "value.h"
 
 namespace css
 {
@@ -20,7 +20,8 @@ public:
 	inline std::shared_ptr<Node> node() const { return m_node; }
 	inline std::unordered_map<std::string, Value *> values() const { return m_values; }
 
-	Value *lookup(std::string property_name, Value * const fallback = nullptr);
+	Value *lookup(std::string property_name, Value *const fallback = nullptr);
+	Value *lookup(std::string property_name1, std::string property_name2, Value *const fallback = nullptr);
 
 private:
 	// pointer to the DOM node being styled
