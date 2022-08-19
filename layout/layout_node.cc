@@ -7,30 +7,87 @@
 
 namespace layout
 {
+// constructor for an anonymous box
+// anonymous boxes by definition do not point to a DOM node,
+// so we set it to null
+LayoutNode::LayoutNode() :
+    m_node(nullptr)
+{
+	m_box_type = ANONYMOUS;
+}
+
 LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
     m_node(node)
 {
-	auto f = [this](std::shared_ptr<css::StyledNode> node)
-	{ children.push_back(std::make_shared<LayoutNode>(LayoutNode(node))); };
+	switch (node->display())
+	{
+		case css::Display::Block: m_box_type = BLOCK; break;
+		case css::Display::Inline: m_box_type = INLINE; break;
+		default: std::cerr << "Found display: none!\n";
+	}
 
-	node->for_each_child(f);
+	node->for_each_child(
+	    [this](std::shared_ptr<css::StyledNode> node)
+	    {
+		    switch (node->display())
+		    {
+			    case css::Display::Block: add_child(std::make_shared<LayoutNode>(LayoutNode(node))); break;
+			    case css::Display::Inline:
+			    {
+				    switch (m_box_type)
+				    {
+					    case INLINE:
+					    case ANONYMOUS: add_child(std::make_shared<LayoutNode>(LayoutNode(node))); break;
+					    case BLOCK:
+					    {
+						    auto last_layout_child = last_child();
+						    if (!last_layout_child || last_layout_child->box_type() != ANONYMOUS)
+							    add_child(std::make_shared<LayoutNode>(LayoutNode()));
+
+						    last_child()->add_child(std::make_shared<LayoutNode>(LayoutNode(node)));
+					    }
+				    }
+				    break;
+			    }
+			    case css::Display::None: break;
+		    }
+	    });
 }
 
-void LayoutNode::calculate_layout(Box container)
+void LayoutNode::layout(Box container)
 {
-	calculate_width(container);
-	calculate_position(container);
+	switch (m_box_type)
+	{
+		case BLOCK: layout_block(container); break;
+		case ANONYMOUS:
+		{
+			m_dimensions = container;
+			for (auto child : children)
+				child->layout(container);
+			break;
+		}
+		case INLINE:
+			m_dimensions.content.x = container.content.x;
+			m_dimensions.content.y = container.content.y;
+			break;
+	}
+}
+
+void LayoutNode::layout_block(Box container)
+{
+	calculate_block_width(container);
+	calculate_block_position(container);
 
 	for (auto child : children)
 	{
-		child->calculate_layout(m_dimensions);
+		child->layout(m_dimensions);
 		m_dimensions.content.height += child->dimensions().margin_box().height;
 	}
 
-	calculate_height(container);
+	calculate_block_height(container);
 }
 
-void LayoutNode::calculate_width(Box container)
+void LayoutNode::calculate_block_width(Box container)
 {
 	auto zero = css::Length{};
 
@@ -64,7 +121,7 @@ void LayoutNode::calculate_width(Box container)
 	m_dimensions.margin.right = margin_right->to_px();
 }
 
-void LayoutNode::calculate_position(Box container)
+void LayoutNode::calculate_block_position(Box container)
 {
 	auto zero = css::Length{};
 
@@ -83,5 +140,5 @@ void LayoutNode::calculate_position(Box container)
 	                         m_dimensions.border.top + m_dimensions.padding.top;
 }
 
-void LayoutNode::calculate_height(Box container) { }
+void LayoutNode::calculate_block_height(Box container) { }
 }
