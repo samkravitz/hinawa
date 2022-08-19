@@ -15,8 +15,6 @@ public:
 	inline std::shared_ptr<css::StyledNode> node() const { return m_node; }
 	inline Box dimensions() const { return m_dimensions; }
 
-	inline Edges margin() const { return m_dimensions.margin; }
-
 	void calculate_layout(Box);
 	void calculate_width(Box);
 	void calculate_position(Box);

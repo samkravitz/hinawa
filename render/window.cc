@@ -13,9 +13,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 
 	layout::Box viewport;
 	viewport.content.width = width;
-	viewport.content.height = height;
-	viewport.content.x = 0;
-	viewport.content.y = 0;
+	viewport.content.height = 0;
 
 	layout_tree->calculate_layout(viewport);
 
@@ -47,7 +45,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 				auto *color = dynamic_cast<css::Color *>(background);
 				sf::RectangleShape rect;
 				rect.setPosition(x, y);
-				rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.y));
+				rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
 				rect.setFillColor(sf::Color(color->r, color->g, color->b));
 				window.draw(rect);
 			}

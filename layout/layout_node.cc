@@ -24,9 +24,7 @@ void LayoutNode::calculate_layout(Box container)
 	for (auto child : children)
 	{
 		child->calculate_layout(m_dimensions);
-
-		auto margins = child->margin();
-		m_dimensions.content.height = margins.top + margins.bottom;
+		m_dimensions.content.height += child->dimensions().margin_box().height;
 	}
 
 	calculate_height(container);
@@ -55,7 +53,7 @@ void LayoutNode::calculate_width(Box container)
 	total += padding_left->to_px();
 	total += padding_right->to_px();
 
-	m_dimensions.content.width = total;
+	m_dimensions.content.width = container.content.width - total;
 
 	m_dimensions.padding.left = padding_left->to_px();
 	m_dimensions.padding.right = padding_right->to_px();
