@@ -8,6 +8,7 @@ set(HEADERS
 	scanner.h
 	token_type.h
 	token.h
+	value.h
 	vm.h
 )
 
