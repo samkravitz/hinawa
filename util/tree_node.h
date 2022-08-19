@@ -11,7 +11,7 @@ class TreeNode
 {
 public:
 	TreeNode() = default;
-	~TreeNode()  = default;
+	~TreeNode() = default;
 
 	void add_child(std::shared_ptr<T> node) { children.push_back(node); }
 
@@ -21,6 +21,15 @@ public:
 		{
 			child->preorder(f);
 			f(child);
+		}
+	}
+
+	void postorder(std::function<void(std::shared_ptr<T>)> f)
+	{
+		for (auto child : children)
+		{
+			f(child);
+			child->postorder(f);
 		}
 	}
 
