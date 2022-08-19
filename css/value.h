@@ -14,6 +14,13 @@ enum class ValueType
 	Unsupported,
 };
 
+enum class Display
+{
+	Block,
+	Inline,
+	None,
+};
+
 struct Value
 {
 	virtual ~Value() = default;
@@ -41,6 +48,12 @@ struct Color : public Value
 
 struct Keyword : public Value
 {
+	Keyword() = default;
+
+	Keyword(std::string value) :
+	    value(value)
+	{ }
+
 	std::string value;
 
 	inline ValueType type() { return ValueType::Keyword; }

@@ -66,4 +66,23 @@ Value *StyledNode::lookup(std::string property_name1, std::string property_name2
 
 	return fallback;
 }
+
+Display StyledNode::display()
+{
+	auto inline_display = css::Keyword{ "inline" };
+
+	auto *display = lookup("display", &inline_display);
+	auto *keyword = dynamic_cast<Keyword *>(display);
+
+	if (keyword->value == "block")
+		return Display::Block;
+
+	if (keyword->value == "inline")
+		return Display::Inline;
+
+	if (keyword->value == "none")
+		return Display::None;
+
+	return Display::Inline;
+}
 }

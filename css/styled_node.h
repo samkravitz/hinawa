@@ -22,6 +22,7 @@ public:
 
 	Value *lookup(std::string property_name, Value *const fallback = nullptr);
 	Value *lookup(std::string property_name1, std::string property_name2, Value *const fallback = nullptr);
+	Display display();
 
 private:
 	// pointer to the DOM node being styled
