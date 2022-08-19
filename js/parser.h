@@ -38,7 +38,7 @@ private:
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);
-	bool match(std::initializer_list<TokenType> const &);
+	bool match_any(std::initializer_list<TokenType> const &);
 	TokenType peek();
 };
 };

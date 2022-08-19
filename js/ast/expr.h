@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../token.h"
 #include "../value.h"
 #include "ast.h"
 
@@ -11,6 +12,31 @@ public:
 	virtual const char *name() const = 0;
 };
 
+class UnaryExpr : public Expr
+{
+public:
+	UnaryExpr(Token op, std::shared_ptr<Expr> rhs) :
+	    m_op(op),
+	    m_rhs(rhs)
+	{ }
+
+	const char *name() const { return "UnaryExpr"; }
+	void print(std::string const &prefix, bool is_left)
+	{
+		std::cout << prefix;
+		std::cout << (is_left ? "├──" : "└──");
+		std::cout << name() << "\n";
+
+		std::cout << prefix << (is_left ? "│   " : "    ") << "├──"
+		          << " " << m_op.value() << "\n";
+		m_rhs->print(prefix + (is_left ? "│   " : "    "), false);
+	}
+
+private:
+	Token m_op;
+	std::shared_ptr<Expr> m_rhs;
+};
+
 class BinaryExpr : public Expr
 {
 public:
@@ -20,7 +46,7 @@ public:
 		Minus,
 	};
 
-	BinaryExpr(std::shared_ptr<Expr> lhs, BinaryOp op, std::shared_ptr<Expr> rhs) :
+	BinaryExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
 	    m_lhs(lhs),
 	    m_op(op),
 	    m_rhs(rhs)
@@ -35,14 +61,13 @@ public:
 
 		m_lhs->print(prefix + (is_left ? "│   " : "    "), true);
 		std::cout << prefix << (is_left ? "│   " : "    ") << "├──"
-		          << "+"
-		          << "\n";
+		          << " " << m_op.value() << "\n";
 		m_rhs->print(prefix + (is_left ? "│   " : "    "), false);
 	}
 
 private:
 	std::shared_ptr<Expr> m_lhs;
-	BinaryOp m_op;
+	Token m_op;
 	std::shared_ptr<Expr> m_rhs;
 };
 
@@ -64,7 +89,7 @@ public:
 	{
 		std::cout << prefix;
 		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << " " << m_value.as_number() << "\n";
+		std::cout << " " << m_value.as_number() << "\n";
 	}
 
 private:

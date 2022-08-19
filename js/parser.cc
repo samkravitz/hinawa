@@ -19,9 +19,8 @@ std::shared_ptr<AstNode> Parser::parse()
 	auto program = std::make_shared<Program>();
 	std::shared_ptr<Stmt> stmt;
 
-	while ((stmt = statement())) {
+	while ((stmt = statement()))
 		program->add_stmt(stmt);
-	}
 
 	return program;
 }
@@ -36,7 +35,12 @@ std::shared_ptr<Stmt> Parser::expression_statement()
 	std::shared_ptr<Stmt> stmt = nullptr;
 	std::shared_ptr<Expr> expr;
 	if ((expr = expression()))
+	{
+		// match optional semicolon after expression statement
+		match(SEMICOLON);
+
 		stmt = std::make_shared<ExpressionStmt>(expr);
+	}
 
 	return stmt;
 }
@@ -49,13 +53,24 @@ std::shared_ptr<Expr> Parser::expression()
 std::shared_ptr<Expr> Parser::equality()
 {
 	auto expr = comparison();
-
+	while (match_any({ BANG_EQUAL, EQUAL_EQUAL, EQUAL_EQUAL_EQUAL, BANG_EQUAL_EQUAL }))
+	{
+		auto op = previous_token;
+		auto rhs = comparison();
+		expr = std::make_shared<BinaryExpr>(expr, op, rhs);
+	}
 	return expr;
 }
 
 std::shared_ptr<Expr> Parser::comparison()
 {
 	auto expr = term();
+	while (match_any({ GREATER, LESS, LESS_EQUAL, GREATER_EQUAL }))
+	{
+		auto op = previous_token;
+		auto rhs = term();
+		expr = std::make_shared<BinaryExpr>(expr, op, rhs);
+	}
 	return expr;
 }
 
@@ -63,11 +78,11 @@ std::shared_ptr<Expr> Parser::term()
 {
 	auto expr = factor();
 
-	while (match({ MINUS, PLUS }))
+	while (match_any({ MINUS, PLUS }))
 	{
 		auto op = previous_token;
 		auto rhs = term();
-		expr = std::make_shared<BinaryExpr>(expr, BinaryExpr::BinaryOp::Plus, rhs);
+		expr = std::make_shared<BinaryExpr>(expr, op, rhs);
 	}
 
 	return expr;
@@ -77,11 +92,11 @@ std::shared_ptr<Expr> Parser::factor()
 {
 	auto expr = unary();
 
-	while (match({ SLASH, STAR }))
+	while (match_any({ SLASH, STAR }))
 	{
 		auto op = previous_token;
 		auto rhs = term();
-		expr = std::make_shared<BinaryExpr>(expr, BinaryExpr::BinaryOp::Plus, rhs);
+		expr = std::make_shared<BinaryExpr>(expr, op, rhs);
 	}
 
 	return expr;
@@ -89,6 +104,13 @@ std::shared_ptr<Expr> Parser::factor()
 
 std::shared_ptr<Expr> Parser::unary()
 {
+	if (match_any({ BANG, MINUS, MINUS_MINUS, PLUS_PLUS }))
+	{
+		auto op = previous_token;
+		auto rhs = unary();
+		return std::make_shared<UnaryExpr>(op, rhs);
+	}
+
 	return primary();
 }
 
@@ -106,8 +128,6 @@ void Parser::advance()
 {
 	previous_token = current_token;
 	current_token = scanner.next();
-
-	std::cout << current_token.to_string() << "\n";
 }
 
 bool Parser::match(TokenType type)
@@ -121,9 +141,9 @@ bool Parser::match(TokenType type)
 	return false;
 }
 
-bool Parser::match(std::initializer_list<TokenType> const &list)
+bool Parser::match_any(std::initializer_list<TokenType> const &tokens)
 {
-	for (auto t : list)
+	for (auto t : tokens)
 	{
 		if (match(t))
 			return true;

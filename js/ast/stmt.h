@@ -43,7 +43,7 @@ public:
 		std::cout << (is_left ? "├──" : "└──");
 		std::cout << name() << "\n";
 
-		m_expr->print(prefix + (is_left ? "│   " : "    "), true);
+		m_expr->print(prefix + (is_left ? "│   " : "    "), false);
 	}
 
 private:

@@ -27,13 +27,7 @@ void Program::print(std::string const &prefix, bool is_left)
 	std::cout << (is_left ? "├──" : "└──");
 	std::cout << name() << "\n";
 
-	int i = 0;
 	for (auto stmt : m_stmts)
-	{
-		if (i++ == 0)
-			stmt->print(prefix + (is_left ? "│   " : "    "), true);
-		else
-			stmt->print(prefix + (is_left ? "│   " : "    "), false);
-	}
+		stmt->print(prefix + (is_left ? "│   " : "    "), true);
 }
 }
