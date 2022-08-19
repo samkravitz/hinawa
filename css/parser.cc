@@ -66,8 +66,16 @@ std::shared_ptr<Selector> Parser::parse_selector()
 {
 	std::shared_ptr<Selector> selector = nullptr;
 
-	bool is_classname = false;
+	// universal selector *
+	if (current_token.value() == "*")
+	{
+		selector = std::make_shared<Selector>();
+		selector->is_universal = true;
+		advance();
+		return selector;
+	}
 
+	bool is_classname = false;
 	if (current_token.value() == ".")
 	{
 		is_classname = true;
@@ -128,6 +136,40 @@ Value *Parser::parse_value()
 			auto *keyword = new Keyword();
 			keyword->value = current_token.value();
 			value = keyword;
+			advance();
+			break;
+		}
+
+		case LENGTH:
+		{
+			auto valstr = current_token.value();
+			auto *length = new Length();
+
+			// units are always 2 characters long
+			auto unitstr = valstr.substr(valstr.size() - 2);
+			Length::Unit unit;
+
+			if (unitstr == "in")
+				unit = Length::IN;
+			
+			if (unitstr == "cm")
+				unit = Length::CM;
+			
+			if (unitstr == "mm")
+				unit = Length::MM;
+			
+			if (unitstr == "pt")
+				unit = Length::PT;
+			
+			if (unitstr == "pc")
+				unit = Length::PC;
+			
+			if (unitstr == "px")
+				unit = Length::PX;
+			
+			length->value = std::stof(valstr.substr(0, valstr.size() - 2));
+			length->unit = unit;
+			value = length;
 			advance();
 			break;
 		}

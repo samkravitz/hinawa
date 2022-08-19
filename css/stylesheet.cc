@@ -58,4 +58,25 @@ std::vector<Declaration> Stylesheet::rules_for_class(std::string const class_nam
 
 	return declarations;
 }
+
+std::vector<Declaration> Stylesheet::universal_rules()
+{
+	std::vector<Declaration> declarations;
+
+	for (auto rule : rules)
+	{
+		for (auto selector : rule.selectors)
+		{
+			if (selector.is_universal)
+			{
+				for (auto declaration : rule.declarations)
+				{
+					declarations.push_back(declaration);
+				}
+			}
+		}
+	}
+
+	return declarations;
+}
 }

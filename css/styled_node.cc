@@ -17,6 +17,10 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 	if (node->type() == NodeType::Element)
 	{
 		auto element = std::dynamic_pointer_cast<Element>(node);
+
+		for (auto decl : stylesheet->universal_rules())
+			m_values[decl.name] = decl.value;
+
 		for (auto decl : stylesheet->rules_for_tag(element->tag()))
 			m_values[decl.name] = decl.value;
 

@@ -17,6 +17,8 @@ struct Selector
 	std::string id;
 	std::string class_name;
 
+	bool is_universal = false;
+
 	std::string to_string()
 	{
 		return tag_name;
@@ -69,6 +71,7 @@ struct Stylesheet
 
 	std::vector<Rule> rules;
 
+	std::vector<Declaration> universal_rules();
 	std::vector<Declaration> rules_for_tag(std::string const);
 	std::vector<Declaration> rules_for_class(std::string const);
 
