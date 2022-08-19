@@ -13,5 +13,5 @@ class Node : public util::TreeNode<Node>
 {
 public:
 	virtual NodeType type() const;
-	virtual void print(int depth = 0) const;
+	std::string to_string() const;
 };

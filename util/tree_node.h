@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+#include <string>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -12,6 +14,8 @@ class TreeNode
 public:
 	TreeNode() = default;
 	~TreeNode() = default;
+
+	virtual std::string to_string() const { return "TREE BASE"; };
 
 	void add_child(std::shared_ptr<T> node) { children.push_back(node); }
 
@@ -56,6 +60,30 @@ public:
 			count += child->size();
 
 		return count;
+	}
+
+	void print(std::string const &prefix, bool is_left)
+	{
+		std::cout << prefix;
+		std::cout << (is_left ? "├──" : "└──"); 
+		std::cout << to_string() << "\n";
+
+		int i = 0;
+		for (auto child : children)
+		{
+			if (i++ == 0)
+				child->print(prefix + (is_left ? "│   " : "    "), true);
+			else
+        		child->print(prefix + (is_left ? "│   " : "    "), false);
+		}
+	}
+
+	void print(std::string const &title = "")
+	{
+		if (!title.empty())
+			std::cout << title << "\n";
+
+		print("", false);
 	}
 
 protected:

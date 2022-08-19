@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 	auto parser = html::Parser(buffer.str());
 	auto document = parser.parse();
-	document->print();
+	document->print("Document");
 
 	auto stylesheet = css::read_default_stylesheet();
 	auto style_tree = std::make_shared<css::StyledNode>(document, stylesheet);

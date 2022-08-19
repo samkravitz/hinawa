@@ -14,8 +14,8 @@ public:
 	inline std::string text() const { return m_text; }
 
 	void append(char);
-	void print(int depth = 0) const;
 	bool whitespace_only() const;
+	std::string to_string() const;
 
 private:
 	std::string m_text;
