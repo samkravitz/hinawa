@@ -1,12 +1,15 @@
 #include "styled_node.h"
 
 #include "../document/element.h"
+#include "../document/text.h"
 
 #include <iostream>
 
 namespace css
 {
-StyledNode::StyledNode(std::shared_ptr<Node> node) : m_node(node) { }
+StyledNode::StyledNode(std::shared_ptr<Node> node) :
+    m_node(node)
+{ }
 
 StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> stylesheet)
 {
@@ -26,17 +29,26 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 
 	auto f = [this, stylesheet](std::shared_ptr<Node> node)
 	{
+		// skip text nodes that are only whitespace;
+		// they don't belong in the style tree
+		if (node->type() == NodeType::Text)
+		{
+			auto text = std::dynamic_pointer_cast<Text>(node);
+			if (text->whitespace_only())
+				return;
+		}
+
 		children.push_back(std::make_shared<StyledNode>(StyledNode(node, stylesheet)));
 	};
 
 	node->for_each_child(f);
 }
 
-Value *StyledNode::lookup(std::string property_name, Value * const fallback)
+Value *StyledNode::lookup(std::string property_name, Value *const fallback)
 {
 	if (m_values.find(property_name) != m_values.end())
 		return m_values[property_name];
-	
+
 	return fallback;
 }
 }
