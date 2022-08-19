@@ -11,13 +11,11 @@
 
 int main(int argc, char **argv)
 {
-	if (argc < 2)
-	{
-		std::cout << "Usage: ./hinawa [url]\n";
-		return 1;
-	}
+	auto html_file = "../data/homepage.html";
+	if (argc > 1)
+		html_file = argv[1];
 
-	std::ifstream file(argv[1]);
+	std::ifstream file(html_file);
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
