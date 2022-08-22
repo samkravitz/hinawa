@@ -720,6 +720,78 @@ Token Tokenizer::next()
 						}
 				}
 				break;
+			
+			// 13.2.5.57 After DOCTYPE public keyword state
+			case State::AfterDOCTYPEPublicKeyword: break;
+
+			// 13.2.5.58 Before DOCTYPE public identifier state
+			case State::BeforeDOCTYPEPublicIdentifier: break;
+
+			// 13.2.5.59 DOCTYPE public identifier (double-quoted) state
+			case State::DOCTYPEPublicIdentifierDoubleQuoted: break;
+
+			// 13.2.5.60 DOCTYPE public identifier (single-quoted) state
+			case State::DOCTYPEPublicIdentifierSingleQuoted: break;
+
+			// 13.2.5.61 After DOCTYPE public identifier state
+			case State::AfterDOCTYPEPublicIdentifier: break;
+
+			// 13.2.5.62 Between DOCTYPE public and system identifiers state
+			case State::BetweenDOCTYPEPublicAndSystemIdentifiers: break;
+
+			// 13.2.5.63 After DOCTYPE system keyword state
+			case State::AfterDOCTYPESystemKeyword: break;
+
+			// 13.2.5.64 Before DOCTYPE system identifier state
+			case State::BeforeDOCTYPESystemIdentifier: break;
+
+			// 13.2.5.65 DOCTYPE system identifier (double-quoted) state
+			case State::DOCTYPESystemIdentifierDoubleQuoted: break;
+
+			// 13.2.5.66 DOCTYPE system identifier (single-quoted) state
+			case State::DOCTYPESystemIdentifierSingleQuoted: break;
+
+			// 13.2.5.67 After DOCTYPE system identifier state
+			case State::AfterDOCTYPESystemIdentifier: break;
+
+			// 13.2.5.68 Bogus DOCTYPE state
+			case State::BogusDOCTYPE: break;
+
+			// 13.2.5.69 CDATA section state
+			case State::CDATASection: break;
+
+			// 13.2.5.70 CDATA section bracket state
+			case State::CDATASectionBracket: break;
+
+			// 13.2.5.71 CDATA section end state
+			case State::CDATASectionEnd: break;
+
+			// 13.2.5.72 Character reference state
+			case State::CharacterReference: break;
+
+			// 13.2.5.73 Named character reference state
+			case State::NamedCharacterReference: break;
+
+			// 13.2.5.74 Ambiguous ampersand state
+			case State::AmbiguousAmpersand: break;
+
+			// 13.2.5.75 Numeric character reference state
+			case State::NumericCharacterReference: break;
+
+			// 13.2.5.76 Hexadecimal character reference start state
+			case State::HexadecimalCharacterReferenceStart: break;
+
+			// 13.2.5.77 Decimal character reference start state
+			case State::DecimalCharacterReferenceStart: break;
+
+			// 13.2.5.78 Hexadecimal character reference state
+			case State::HexadecimalCharacterReference: break;
+
+			// 13.2.5.79 Decimal character reference state
+			case State::DecimalCharacterReference: break;
+
+			// 13.2.5.80 Numeric character reference end state
+			case State::NumericCharacterReferenceEnd: break;
 		}
 	}
 }
