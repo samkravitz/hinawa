@@ -1,5 +1,8 @@
 #pragma once
 
+#include <sstream>
+#include <string>
+
 #include "edges.h"
 
 namespace layout
@@ -21,6 +24,19 @@ struct Rect
 		rect.height = height + edges.top + edges.bottom;
 
 		return rect;
+	}
+
+	std::string to_string() const
+	{
+		std::stringstream ss;
+		ss << "{ Rect ";
+		ss << "x: " << x;
+		ss << " y: " << y;
+		ss << " width: " << width;
+		ss << " height: " << height;
+		ss << " }";
+
+		return ss.str();
 	}
 };
 }

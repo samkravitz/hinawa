@@ -141,4 +141,20 @@ void LayoutNode::calculate_block_position(Box container)
 }
 
 void LayoutNode::calculate_block_height(Box container) { }
+
+std::string LayoutNode::to_string() const
+{
+	std::stringstream ss;
+
+	switch (m_box_type)
+	{
+		case BLOCK: ss << "BLOCK"; break;
+		case ANONYMOUS: ss << "ANONYMOUS"; break;
+		case INLINE: ss << "INLINE"; break;
+	}
+
+	ss << " ";
+	ss << m_dimensions.to_string();
+	return ss.str();
+}
 }

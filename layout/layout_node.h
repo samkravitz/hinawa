@@ -29,6 +29,8 @@ public:
 	void calculate_block_position(Box);
 	void calculate_block_height(Box);
 
+	std::string to_string() const;
+
 private:
 	// pointer to the styled node to be rendered
 	std::shared_ptr<css::StyledNode> m_node;

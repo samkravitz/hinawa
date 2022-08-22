@@ -17,6 +17,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 	viewport.content.height = 0;
 
 	layout_tree->layout(viewport);
+	layout_tree->print("Layout Tree");
 
 	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))
 		exit(2);
