@@ -96,8 +96,10 @@ public:
 	void append_attribute_name(char c);
 	void append_attribute_value(char c);
 	void append_doctype_name(char c);
+	void append_comment(char c);
 	void doctype_set_name(char c);
 	void set_force_quirks();
+	void set_self_closing();
 	char get_char();
 	std::string tag_name();
 

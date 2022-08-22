@@ -504,6 +504,17 @@ Token Tokenizer::next()
 
 			// 13.2.5.40 Self-closing start tag state
 			case State::SelfClosingStartTag:
+				switch (current_input_character)
+				{
+					case '>':
+						current_token.set_self_closing();
+						state = State::Data;
+						return current_token;
+						break;
+					
+					default:
+						reconsume_in(State::BeforeAttributeName);
+				}
 			break;
 
 			// 13.2.5.41 Bogus comment state
@@ -537,42 +548,178 @@ Token Tokenizer::next()
 
 			// 13.2.5.43 Comment start state
 			case State::CommentStart:
+				switch (next_input_character)
+				{
+					case '-':
+						state = State::CommentStartDash;
+						break;
+					
+					case '>':
+						state = State::Data;
+						return current_token;
+					
+					default:
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.44 Comment start dash state
 			case State::CommentStartDash:
+				switch (next_input_character)
+				{
+					case '-':
+						state = State::CommentEnd;
+						break;
+					
+					case '>':
+						state = State::Data;
+						return current_token;
+					
+					default:
+						current_token.append_comment(current_input_character);
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.45 Comment state
 			case State::Comment:
+				switch (next_input_character)
+				{
+					case '<':
+						current_token.append_comment(next_input_character);
+						state = State::CommentLessThanSign;
+						break;
+
+					case '-':
+						state = State::CommentEndDash;
+						break;
+					
+					case '/0':
+						current_token.append_comment('\ufffd');
+						break;
+										
+					default:
+						current_token.append_comment(current_input_character);
+				}
 			break;
 
 			// 13.2.5.46 Comment less-than sign state
 			case State::CommentLessThanSign:
+				switch (next_input_character)
+				{
+					case '!':
+						current_token.append_comment(current_input_character);
+						state = State::CommentLessThanSignBang;
+						break;
+					
+					case '<':
+						current_token.append_comment(current_input_character);
+						break;
+					
+					default:
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.47 Comment less-than sign bang state
 			case State::CommentLessThanSignBang:
+				switch (next_input_character)
+				{
+					case '-':
+						state = State::CommentLessThanSignBangDash;
+						break;
+					
+					default:
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.48 Comment less-than sign bang dash state
 			case State::CommentLessThanSignBangDash:
+				switch (next_input_character)
+				{
+					case '-':
+						state = State::CommentLessThanSignBangDashDash;
+						break;
+					
+					default:
+						reconsume_in(State::CommentEndDash);
+				}
 			break;
 
 			// 13.2.5.49 Comment less-than sign bang dash dash state
 			case State::CommentLessThanSignBangDashDash:
+				switch (next_input_character)
+				{
+					case '>':
+						state = State::CommentEnd;
+						break;
+					
+					default:
+						reconsume_in(State::CommentEnd);
+				}
 			break;
 
 			// 13.2.5.50 Comment end dash state
 			case State::CommentEndDash:
+				switch (next_input_character)
+				{
+					case '-':
+						state = State::CommentEnd;
+						break;
+					
+					default:
+						current_token.append_comment('-');
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.51 Comment end state
 			case State::CommentEnd:
+				switch (next_input_character)
+				{
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+
+					case '!':
+						state = State::CommentEndBang;
+						break;
+					
+					case '-':
+						current_token.append_comment('-');
+						break;
+					
+					default:
+						current_token.append_comment('-');
+						current_token.append_comment('-');
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.52 Comment end bang state
 			case State::CommentEndBang:
+				switch (next_input_character)
+				{
+					case '-':
+						current_token.append_comment('-');
+						current_token.append_comment('-');
+						current_token.append_comment('!');
+						state = State::CommentEndDash;
+						break;
+					
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+					
+					default:
+						current_token.append_comment('-');
+						current_token.append_comment('-');
+						current_token.append_comment('!');
+						reconsume_in(State::Comment);
+				}
 			break;
 
 			// 13.2.5.53 DOCTYPE state

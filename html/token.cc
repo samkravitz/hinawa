@@ -76,6 +76,18 @@ namespace html
 		return std::get<TagData>(data).name;
 	}
 
+	void Token::set_self_closing()
+	{
+		assert(is_tag());
+		std::get<TagData>(data).self_closing = true;
+	}
+
+	void Token::append_comment(char c)
+	{
+		assert(is_comment());
+		std::get<std::string>(data) += c;
+	}
+
 	std::string Token::to_string()
 	{
 		return std::visit([this](auto &&arg) -> std::string {
