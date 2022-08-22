@@ -24,7 +24,11 @@ private:
 
 	// parse statements
 	std::shared_ptr<Stmt> statement();
+	std::shared_ptr<Stmt> block_stmt();
+	std::shared_ptr<Stmt> variable_statement();
 	std::shared_ptr<Stmt> expression_statement();
+	std::shared_ptr<Stmt> if_statement();
+	std::shared_ptr<Stmt> return_statement();
 
 	// parse expressions
 	std::shared_ptr<Expr> expression();

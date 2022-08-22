@@ -27,7 +27,45 @@ std::shared_ptr<AstNode> Parser::parse()
 
 std::shared_ptr<Stmt> Parser::statement()
 {
+	if (match(LEFT_BRACE))
+		return block_stmt();
+
+	if (match(KEY_VAR))
+		return variable_statement();
+
+	if (match(KEY_IF))
+		return if_statement();
+
+	if (match(KEY_RETURN))
+		return return_statement();
+
 	return expression_statement();
+}
+
+std::shared_ptr<Stmt> Parser::block_stmt()
+{
+	std::vector<std::shared_ptr<Stmt>> stmts;
+
+	while (!match(RIGHT_BRACE))
+		stmts.push_back(statement());
+
+	return std::make_shared<BlockStmt>(stmts);
+}
+
+std::shared_ptr<Stmt> Parser::variable_statement()
+{
+	consume(IDENTIFIER, "Expected variable name");
+
+	auto identifier = previous_token.value();
+	std::shared_ptr<Expr> initializer = nullptr;
+
+	if (match(EQUAL))
+		initializer = expression();
+
+	// match optional semicolon after expression statement
+	match(SEMICOLON);
+
+	return std::make_shared<VariableStmt>(identifier, initializer);
 }
 
 std::shared_ptr<Stmt> Parser::expression_statement()
@@ -43,6 +81,31 @@ std::shared_ptr<Stmt> Parser::expression_statement()
 	}
 
 	return stmt;
+}
+
+std::shared_ptr<Stmt> Parser::if_statement()
+{
+	consume(LEFT_PAREN, "Expected '('");
+	std::shared_ptr<Expr> condition = expression();
+	consume(RIGHT_PAREN, "Expected ')'");
+
+	std::shared_ptr<Stmt> then_stmt = statement();
+	std::shared_ptr<Stmt> else_stmt = nullptr;
+
+	if (match(KEY_ELSE))
+		else_stmt = statement();
+
+	return std::make_shared<IfStmt>(condition, then_stmt, else_stmt);
+}
+
+std::shared_ptr<Stmt> Parser::return_statement()
+{
+	auto expr = expression();
+
+	// match optional semicolon after return statement
+	match(SEMICOLON);
+
+	return std::make_shared<ReturnStmt>(expr);
 }
 
 std::shared_ptr<Expr> Parser::expression()
