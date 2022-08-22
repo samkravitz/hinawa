@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../css/value.h"
+#include "../render/window.h"
 
 namespace layout
 {
@@ -63,12 +64,16 @@ void LayoutNode::layout(Box container)
 		{
 			m_dimensions = container;
 			for (auto child : children)
-				child->layout(container);
+			{
+				child->layout(m_dimensions);
+				m_dimensions.content.height += child->dimensions().margin_box().height;
+			}
 			break;
 		}
 		case INLINE:
 			m_dimensions.content.x = container.content.x;
-			m_dimensions.content.y = container.content.y;
+			m_dimensions.content.y = container.content.height + m_dimensions.content.height;
+			m_dimensions.content.height = TEXT_SIZE;
 			break;
 	}
 }

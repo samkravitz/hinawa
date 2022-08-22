@@ -24,3 +24,8 @@ i,
 span {
 	display: inline;
 }
+
+/* visual-less elements */
+br {
+	display: none;
+}
