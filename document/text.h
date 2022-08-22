@@ -15,6 +15,7 @@ public:
 
 	void append(char);
 	bool whitespace_only() const;
+	std::string trim();
 	std::string to_string() const;
 
 private:

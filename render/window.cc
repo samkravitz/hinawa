@@ -60,7 +60,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 				auto text_element = std::dynamic_pointer_cast<Text>(style->node());
 				auto color = sf::Color::Black;
 
-				sf::Text text(text_element->text(), font);
+				sf::Text text(text_element->trim(), font);
 				text.setCharacterSize(TEXT_SIZE);
 				text.setFillColor(color);
 				text.setPosition(x, y);
