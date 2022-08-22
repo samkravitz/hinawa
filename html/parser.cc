@@ -238,6 +238,10 @@ std::shared_ptr<Node> Parser::parse()
 					after_head_anything_else:
 					default:
 					{
+						// create body start tag
+						auto body_element = std::make_shared<Element>("body");
+						insert_element(body_element);
+						insertion_mode = InsertionMode::InBody;
 					}
 				}
 				break;
@@ -260,6 +264,9 @@ std::shared_ptr<Node> Parser::parse()
 							element->add_attribute(attribute.first, attribute.second);
 
 						insert_element(element);
+
+						if (tag_data.self_closing)
+							open_elements.pop_back();
 						break;
 					}
 
