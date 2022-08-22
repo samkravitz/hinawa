@@ -8,7 +8,7 @@
 #include <SFML/Window.hpp>
 
 // size of text character (px)
-constexpr int TEXT_SIZE = 30;
+constexpr int TEXT_SIZE = 16;
 
 class Window
 {
@@ -18,7 +18,7 @@ public:
 private:
 	// width, height of window in px
 	int width = 800;
-	int height = 800;
+	int height = 600;
 
 	sf::RenderWindow window{ sf::VideoMode(width, height), "hinawa" };
 };
