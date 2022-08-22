@@ -5,10 +5,10 @@
 
 #include <iostream>
 
-#include "token.h"
 #include "../document/element.h"
 #include "../document/node.h"
 #include "../document/text.h"
+#include "token.h"
 
 namespace html
 {
@@ -26,7 +26,7 @@ std::shared_ptr<Node> Parser::parse()
 	{
 		// std::cout << token.to_string() << "\n";
 
-		reprocess_token:
+	reprocess_token:
 		switch (insertion_mode)
 		{
 			// 13.2.6.4.1 The "initial" insertion mode
@@ -36,18 +36,14 @@ std::shared_ptr<Node> Parser::parse()
 					case Character:
 						// ignore the character
 						break;
-					
-					case Comment:
-						break;
-					
-					case Doctype:
-						break;
-					
-					default:
-						insertion_mode = InsertionMode::BeforeHtml;
-						goto reprocess_token;
+
+					case Comment: break;
+
+					case Doctype: break;
+
+					default: insertion_mode = InsertionMode::BeforeHtml; goto reprocess_token;
 				}
-			break;
+				break;
 
 			// 13.2.6.4.2 The "before html" insertion mode
 			case InsertionMode::BeforeHtml:
@@ -56,21 +52,20 @@ std::shared_ptr<Node> Parser::parse()
 					case Doctype:
 						// ignore the token
 						break;
-					
-					case Comment:
-						break;
-					
+
+					case Comment: break;
+
 					case Character:
 					{
 						auto c = token.get_char();
 						// ignore the whitespace
 						if (is_whitespace(c))
 							break;
-						
+
 						goto before_html_anything_else;
 						break;
 					}
-					
+
 					case StartTag:
 					{
 						auto tag_name = token.tag_name();
@@ -101,7 +96,7 @@ std::shared_ptr<Node> Parser::parse()
 							break;
 						}
 					}
-					
+
 					before_html_anything_else:
 					default:
 					{
@@ -112,7 +107,7 @@ std::shared_ptr<Node> Parser::parse()
 						goto reprocess_token;
 					}
 				}
-			break;
+				break;
 
 			// 13.2.6.4.3 The "before head" insertion mode
 			case InsertionMode::BeforeHead:
@@ -134,20 +129,18 @@ std::shared_ptr<Node> Parser::parse()
 						break;
 					}
 
-					case Comment:
-						break;
-					
+					case Comment: break;
+
 					case Doctype:
 						// ignore the token
 						break;
-					
+
 					case StartTag:
 					{
 						auto tag_name = token.tag_name();
 						if (tag_name == "html")
 						{
 							// process the token using the rules for the "in body" insertion mode
-							
 						}
 
 						else if (tag_name == "head")
@@ -187,7 +180,7 @@ std::shared_ptr<Node> Parser::parse()
 						insertion_mode = InsertionMode::InHead;
 						goto reprocess_token;
 				}
-			break;
+				break;
 
 			// 13.2.6.4.4 The "in head" insertion mode
 			case InsertionMode::InHead:
@@ -211,7 +204,7 @@ std::shared_ptr<Node> Parser::parse()
 					case Comment:
 						// insert_comment(token);
 						break;
-					
+
 					in_head_anything_else:
 					default:
 						// pop head element off stack of open elements
@@ -219,11 +212,10 @@ std::shared_ptr<Node> Parser::parse()
 						insertion_mode = InsertionMode::AfterHead;
 						goto reprocess_token;
 				}
-			break;
+				break;
 
 			// 13.2.6.4.5 The "in head noscript" insertion mode
-			case InsertionMode::InHeadNoScript:
-			break;
+			case InsertionMode::InHeadNoScript: break;
 
 			// 13.2.6.4.6 The "after head" insertion mode
 			case InsertionMode::AfterHead:
@@ -245,23 +237,20 @@ std::shared_ptr<Node> Parser::parse()
 
 					after_head_anything_else:
 					default:
-						;
+					{
+					}
 				}
-			break;
+				break;
 
 			// 13.2.6.4.7 The "in body" insertion mode
 			case InsertionMode::InBody:
 				switch (token.type())
 				{
-					case Character:
-						insert_character(token);
-						break;
-					
-					case Comment:
-						break;
-					
-					case Doctype:
-						break;
+					case Character: insert_character(token); break;
+
+					case Comment: break;
+
+					case Doctype: break;
 
 					case StartTag:
 					{
@@ -289,57 +278,44 @@ std::shared_ptr<Node> Parser::parse()
 						}
 						break;
 					}
-					
+
 					in_body_anything_else:
-					default:
-						insertion_mode = InsertionMode::BeforeHtml;
-						goto reprocess_token;
+					default: insertion_mode = InsertionMode::BeforeHtml; goto reprocess_token;
 				}
-			break;
+				break;
 
 			// 13.2.6.4.8 The "text" insertion mode
-			case InsertionMode::Text:
-			break;
+			case InsertionMode::Text: break;
 
 			// 13.2.6.4.9 The "in table" insertion mode
-			case InsertionMode::InTable:
-			break;
+			case InsertionMode::InTable: break;
 
 			// 13.2.6.4.10 The "in table text" insertion mode
-			case InsertionMode::InTableText:
-			break;
+			case InsertionMode::InTableText: break;
 
 			// 13.2.6.4.11 The "in caption" insertion mode
-			case InsertionMode::InCaption:
-			break;
+			case InsertionMode::InCaption: break;
 
 			// 13.2.6.4.12 The "in column group" insertion mode
-			case InsertionMode::InColumnBody:
-			break;
+			case InsertionMode::InColumnBody: break;
 
 			// 13.2.6.4.13 The "in table body" insertion mode
-			case InsertionMode::InTableBody:
-			break;
+			case InsertionMode::InTableBody: break;
 
 			// 13.2.6.4.14 The "in row" insertion mode
-			case InsertionMode::InRow:
-			break;
+			case InsertionMode::InRow: break;
 
 			// 13.2.6.4.15 The "in cell" insertion mode
-			case InsertionMode::InCell:
-			break;
+			case InsertionMode::InCell: break;
 
 			// 13.2.6.4.16 The "in select" insertion mode
-			case InsertionMode::InSelect:
-			break;
+			case InsertionMode::InSelect: break;
 
 			// 13.2.6.4.17 The "in select in table" insertion mode
-			case InsertionMode::InSelectInTable:
-			break;
+			case InsertionMode::InSelectInTable: break;
 
 			// 13.2.6.4.18 The "in template" insertion mode
-			case InsertionMode::InTemplate:
-			break;
+			case InsertionMode::InTemplate: break;
 
 			// 13.2.6.4.19 The "after body" insertion mode
 			case InsertionMode::AfterBody:
@@ -361,30 +337,24 @@ std::shared_ptr<Node> Parser::parse()
 						break;
 					}
 
-					case Eof:
-						return document;
-					
-					after_body_anything_else:
-					default:
-						;
+					case Eof: return document;
+
+					    after_body_anything_else:
+					default:;
 				}
-			break;
+				break;
 
 			// 13.2.6.4.20 The "in frameset" insertion mode
-			case InsertionMode::InFrameset:
-			break;
+			case InsertionMode::InFrameset: break;
 
 			// 13.2.6.4.21 The "after frameset" insertion mode
-			case InsertionMode::AfterFrameset:
-			break;
+			case InsertionMode::AfterFrameset: break;
 
 			// 13.2.6.4.22 The "after after body" insertion mode
-			case InsertionMode::AfterAfterBody:
-			break;
+			case InsertionMode::AfterAfterBody: break;
 
 			// 13.2.6.4.23 The "after after frameset" insertion mode
-			case InsertionMode::AfterAfterFrameset:
-			break;
+			case InsertionMode::AfterAfterFrameset: break;
 		}
 	}
 
@@ -470,7 +440,7 @@ void Parser::insert_character(Token t)
 	// 2. let the adjusted insertion location be the appropriate place for inserting a node.
 	auto target = insert_location();
 
-	// 3. if the adjusted insertion location is in a Document node, then return. 
+	// 3. if the adjusted insertion location is in a Document node, then return.
 
 	// 4. if there is a Text node immediately before the adjusted insertion location, then append data to that Text node's data.
 	auto previous_node = target->last_child();
