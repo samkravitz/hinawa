@@ -8,7 +8,7 @@
 namespace html
 {
 Tokenizer::Tokenizer(std::string const input) :
-	input(input)
+    input(input)
 {
 	// consume first input character; prime the engines
 	next_input_character = input[0];
@@ -41,17 +41,12 @@ Token Tokenizer::next()
 						return_state = State::Data;
 						state = State::CharacterReference;
 						break;
-					case '<':
-						state = State::TagOpen;
-						break;
-					case '\0':
-						return Token::make_eof();
-						break;
+					case '<': state = State::TagOpen; break;
+					case '\0': return Token::make_eof(); break;
 					// case EOF
-					default:
-						return Token::make_character(current_input_character);
+					default: return Token::make_character(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.2 RCDATA state
 			case State::RCDATA:
@@ -61,59 +56,46 @@ Token Tokenizer::next()
 						return_state = State::RCDATA;
 						state = State::CharacterReference;
 						break;
-					case '<':
-						state = State::RCDATALessThanSign;
-						break;
-					case '\0':
-						break;
+					case '<': state = State::RCDATALessThanSign; break;
+					case '\0': break;
 					// case EOF
-					default:
-						return Token::make_character(current_input_character);
+					default: return Token::make_character(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.3 RAWTEXT state
 			case State::RAWTEXT:
 				switch (current_input_character)
 				{
-					case '<':
-						state = State::RAWTEXTLessThanSign;
-						break;
-					case '\0':
-						break;
+					case '<': state = State::RAWTEXTLessThanSign; break;
+					case '\0': break;
 					// case EOF
-					default:
-						Token::make_character(current_input_character);
+					default: Token::make_character(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.4 Script data state
 			case State::ScriptData:
 				switch (current_input_character)
 				{
-					case '<':
-						state = State::ScriptDataDoubleEscapedLessThanSign;
-						break;
-					case '\0':
-						break;
+					case '<': state = State::ScriptDataDoubleEscapedLessThanSign; break;
+					case '\0': break;
 					// case EOF
-					default:
-						return Token::make_character(current_input_character);
+					default: return Token::make_character(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.5 PLAINTEXT state
-			case State::PLAINTEXT:
-			break;
+			case State::PLAINTEXT: break;
 
 			// 13.2.5.6 Tag open state
 			case State::TagOpen:
 				if (current_input_character == '!')
 					state = State::MarkupDeclarationOpen;
-				
+
 				else if (current_input_character == '/')
 					state = State::EndTagOpen;
-				
+
 				else if (isalpha(current_input_character))
 				{
 					current_token = Token::make_start_tag();
@@ -133,7 +115,7 @@ Token Tokenizer::next()
 					return Token::make_character('<');
 					reconsume_in(State::Data);
 				}
-			break;
+				break;
 
 			// 13.2.5.7 End tag open state
 			case State::EndTagOpen:
@@ -155,7 +137,7 @@ Token Tokenizer::next()
 					current_token = Token::make_comment();
 					reconsume_in(State::BogusComment);
 				}
-			break;
+				break;
 
 			// 13.2.5.8 Tag name state
 			case State::TagName:
@@ -164,125 +146,98 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						state = State::BeforeAttributeName;
-						break;
-					
-					case '/':
-						state = State::SelfClosingStartTag;
-						break;
-					
+					case ' ': state = State::BeforeAttributeName; break;
+
+					case '/': state = State::SelfClosingStartTag; break;
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
+
 					case '\0':
-					// case EOF:
+						// case EOF:
 						break;
-					
+
 					default:
 					{
 						auto c = current_input_character;
 						if (isupper(c))
 							c += 32;
-						
+
 						current_token.append_tag_name(c);
 					}
 				}
-			break;
+				break;
 
 			// 13.2.5.9 RCDATA less-than sign state
-			case State::RCDATALessThanSign:
-			break;
+			case State::RCDATALessThanSign: break;
 
 			// 13.2.5.10 RCDATA end tag open state
-			case State::RCDATAEndTagOpen:
-			break;
+			case State::RCDATAEndTagOpen: break;
 
 			// 13.2.5.11 RCDATA end tag name state
-			case State::RCDATAEndTagName:
-			break;
+			case State::RCDATAEndTagName: break;
 
 			// 13.2.5.12 RAWTEXT less-than sign state
-			case State::RAWTEXTLessThanSign:
-			break;
+			case State::RAWTEXTLessThanSign: break;
 
 			// 13.2.5.13 RAWTEXT end tag open state
-			case State::RAWTEXTEndTagOpen:
-			break;
+			case State::RAWTEXTEndTagOpen: break;
 
 			// 13.2.5.14 RAWTEXT end tag name state
-			case State::RAWTEXTEndTagName:
-			break;
+			case State::RAWTEXTEndTagName: break;
 
 			// 13.2.5.15 Script data less-than sign state
-			case State::ScriptDataLessThanSign:
-			break;
+			case State::ScriptDataLessThanSign: break;
 
 			// 13.2.5.16 Script data end tag open state
-			case State::ScriptDataEndTagOpen:
-			break;
+			case State::ScriptDataEndTagOpen: break;
 
 			// 13.2.5.17 Script data end tag name state
-			case State::ScriptDataEndTagName:
-			break;
+			case State::ScriptDataEndTagName: break;
 
 			// 13.2.5.18 Script data escape start state
-			case State::ScriptDataEscapeStart:
-			break;
+			case State::ScriptDataEscapeStart: break;
 
 			// 13.2.5.19 Script data escape start dash state
-			case State::ScriptDataEscapeStartDash:
-			break;
+			case State::ScriptDataEscapeStartDash: break;
 
 			// 13.2.5.20 Script data escaped state
-			case State::ScriptDataEscaped:
-			break;
+			case State::ScriptDataEscaped: break;
 
 			// 13.2.5.21 Script data escaped dash state
-			case State::ScriptDataEscapedDash:
-			break;
+			case State::ScriptDataEscapedDash: break;
 
 			// 13.2.5.22 Script data escaped dash dash state
-			case State::ScriptDataEscapedDashDash:
-			break;
+			case State::ScriptDataEscapedDashDash: break;
 
 			// 13.2.5.23 Script data escaped less-than sign state
-			case State::ScriptDataEscapedLessThanSign:
-			break;
+			case State::ScriptDataEscapedLessThanSign: break;
 
 			// 13.2.5.24 Script data escaped end tag open state
-			case State::ScriptDataEscapedEndTagOpen:
-			break;
+			case State::ScriptDataEscapedEndTagOpen: break;
 
 			// 13.2.5.25 Script data escaped end tag name state
-			case State::ScriptDataEscapedEndTagName:
-			break;
+			case State::ScriptDataEscapedEndTagName: break;
 
 			// 13.2.5.26 Script data double escape start state
-			case State::ScriptDataDoubleEscapeStart:
-			break;
+			case State::ScriptDataDoubleEscapeStart: break;
 
 			// 13.2.5.27 Script data double escaped state
-			case State::ScriptDataDoubleEscaped:
-			break;
+			case State::ScriptDataDoubleEscaped: break;
 
 			// 13.2.5.28 Script data double escaped dash state
-			case State::ScriptDataDoubleEscapedDash:
-			break;
+			case State::ScriptDataDoubleEscapedDash: break;
 
 			// 13.2.5.29 Script data double escaped dash dash state
-			case State::ScriptDataDoubleEscapedDashDash:
-			break;
+			case State::ScriptDataDoubleEscapedDashDash: break;
 
 			// 13.2.5.30 Script data double escaped less-than sign state
-			case State::ScriptDataDoubleEscapedLessThanSign:
-			break;
+			case State::ScriptDataDoubleEscapedLessThanSign: break;
 
 			// 13.2.5.31 Script data double escape end state
-			case State::ScriptDataDoubleEscapeEnd:
-			break;
+			case State::ScriptDataDoubleEscapeEnd: break;
 
 			// 13.2.5.32 Before attribute name state
 			case State::BeforeAttributeName:
@@ -291,12 +246,11 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						break; // ignore the character
-						
+					case ' ': break;    // ignore the character
+
 					case '/':
 					case '>':
-					// case EOF:
+						// case EOF:
 						reconsume_in(State::AfterAttributeName);
 						break;
 
@@ -306,22 +260,17 @@ Token Tokenizer::next()
 						state = State::AttributeName;
 						break;
 
-					default:
-						current_token.new_attribute();
-						reconsume_in(State::AttributeName);
+					default: current_token.new_attribute(); reconsume_in(State::AttributeName);
 				}
-			break;
+				break;
 
 			// 13.2.5.33 Attribute name state
 			case State::AttributeName:
-				if (current_input_character == '\t' ||
-					current_input_character == '\n' ||
-					current_input_character == '\f' ||
-					current_input_character == ' ' ||
-					current_input_character == '/' ||
-					current_input_character == '>'
-					// TODO: EOF
-					)
+				if (current_input_character == '\t' || current_input_character == '\n' ||
+				    current_input_character == '\f' || current_input_character == ' ' ||
+				    current_input_character == '/' || current_input_character == '>'
+				    // TODO: EOF
+				)
 				{
 					reconsume_in(State::AfterAttributeName);
 				}
@@ -337,16 +286,14 @@ Token Tokenizer::next()
 				}
 
 				else if (current_input_character == '\0')
-				{
-
-				}
+				{ }
 
 				else
 				{
 					current_token.append_attribute_name(current_input_character);
 				}
-				
-			break;
+
+				break;
 
 			// 13.2.5.34 After attribute name state
 			case State::AfterAttributeName:
@@ -359,26 +306,20 @@ Token Tokenizer::next()
 						// ignore the character
 						break;
 
-					case '/':
-						state = State::SelfClosingStartTag;
-						break;
-					
-					case '=':
-						state = State::BeforeAttributeValue;
-						break;
-					
+					case '/': state = State::SelfClosingStartTag; break;
+
+					case '=': state = State::BeforeAttributeValue; break;
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
-					// case EOF:
 
-					default:
-						current_token.new_attribute();
-						reconsume_in(State::AttributeName);
+						// case EOF:
+
+					default: current_token.new_attribute(); reconsume_in(State::AttributeName);
 				}
-			break;
+				break;
 
 			// 13.2.5.35 Before attribute value state
 			case State::BeforeAttributeValue:
@@ -391,60 +332,48 @@ Token Tokenizer::next()
 						// ignore the character
 						break;
 
-					case '\"':
-						state = State::AttributeValueDoubleQuoted;
-						break;
-					
-					case '\'':
-						state = State::AttributeValueSingleQuoted;
-						break;
-					
+					case '\"': state = State::AttributeValueDoubleQuoted; break;
+
+					case '\'': state = State::AttributeValueSingleQuoted; break;
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
-					default:
-						current_token.new_attribute();
-						reconsume_in(State::AttributeValueUnquoted);
+
+					default: current_token.new_attribute(); reconsume_in(State::AttributeValueUnquoted);
 				}
-			break;
+				break;
 
 			// 13.2.5.36 Attribute value (double-quoted) state
 			case State::AttributeValueDoubleQuoted:
 				switch (current_input_character)
 				{
-					case '\"':
-						state = State::AfterAttributeValueQuoted;
-						break;
-					
+					case '\"': state = State::AfterAttributeValueQuoted; break;
+
 					case '&':
 						return_state = State::AttributeValueDoubleQuoted;
 						state = State::CharacterReference;
 						break;
-					
-					default:
-						current_token.append_attribute_value(current_input_character);
+
+					default: current_token.append_attribute_value(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.37 Attribute value (single-quoted) state
 			case State::AttributeValueSingleQuoted:
 				switch (current_input_character)
 				{
-					case '\'':
-						state = State::AfterAttributeValueQuoted;
-						break;
-					
+					case '\'': state = State::AfterAttributeValueQuoted; break;
+
 					case '&':
 						return_state = State::AttributeValueSingleQuoted;
 						state = State::CharacterReference;
 						break;
-					
-					default:
-						current_token.append_attribute_value(current_input_character);
+
+					default: current_token.append_attribute_value(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.38 Attribute value (unquoted) state
 			case State::AttributeValueUnquoted:
@@ -453,29 +382,26 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						state = State::BeforeAttributeName;
-						break;
+					case ' ': state = State::BeforeAttributeName; break;
 
 					case '&':
 						return_state = State::AttributeValueUnquoted;
 						state = State::CharacterReference;
 						break;
-					
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
+
 					case '\0':
 						break;
-					
-					// case EOF:
-					
-					default:
-						current_token.append_attribute_value(current_input_character);
+
+						// case EOF:
+
+					default: current_token.append_attribute_value(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.39 After attribute value (quoted) state
 			case State::AfterAttributeValueQuoted:
@@ -484,23 +410,18 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						state = State::BeforeAttributeName;
-						break;
+					case ' ': state = State::BeforeAttributeName; break;
 
-					case '/':
-						state = State::SelfClosingStartTag;
-						break;
-					
+					case '/': state = State::SelfClosingStartTag; break;
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
-					default:
-						reconsume_in(State::BeforeAttributeName);
+
+					default: reconsume_in(State::BeforeAttributeName);
 				}
-			break;
+				break;
 
 			// 13.2.5.40 Self-closing start tag state
 			case State::SelfClosingStartTag:
@@ -511,15 +432,13 @@ Token Tokenizer::next()
 						state = State::Data;
 						return current_token;
 						break;
-					
-					default:
-						reconsume_in(State::BeforeAttributeName);
+
+					default: reconsume_in(State::BeforeAttributeName);
 				}
-			break;
+				break;
 
 			// 13.2.5.41 Bogus comment state
-			case State::BogusComment:
-			break;
+			case State::BogusComment: break;
 
 			// 13.2.5.42 Markup declaration open state
 			case State::MarkupDeclarationOpen:
@@ -535,51 +454,38 @@ Token Tokenizer::next()
 				}
 
 				else if (consume_if_match("[CDATA["))
-				{
-
-				}
+				{ }
 
 				else
 				{
 					current_token = Token::make_comment();
 					state = State::BogusComment;
 				}
-			break;
+				break;
 
 			// 13.2.5.43 Comment start state
 			case State::CommentStart:
 				switch (next_input_character)
 				{
-					case '-':
-						state = State::CommentStartDash;
-						break;
-					
-					case '>':
-						state = State::Data;
-						return current_token;
-					
-					default:
-						reconsume_in(State::Comment);
+					case '-': state = State::CommentStartDash; break;
+
+					case '>': state = State::Data; return current_token;
+
+					default: reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.44 Comment start dash state
 			case State::CommentStartDash:
 				switch (next_input_character)
 				{
-					case '-':
-						state = State::CommentEnd;
-						break;
-					
-					case '>':
-						state = State::Data;
-						return current_token;
-					
-					default:
-						current_token.append_comment(current_input_character);
-						reconsume_in(State::Comment);
+					case '-': state = State::CommentEnd; break;
+
+					case '>': state = State::Data; return current_token;
+
+					default: current_token.append_comment(current_input_character); reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.45 Comment state
 			case State::Comment:
@@ -590,18 +496,13 @@ Token Tokenizer::next()
 						state = State::CommentLessThanSign;
 						break;
 
-					case '-':
-						state = State::CommentEndDash;
-						break;
-					
-					case '/0':
-						current_token.append_comment('\ufffd');
-						break;
-										
-					default:
-						current_token.append_comment(current_input_character);
+					case '-': state = State::CommentEndDash; break;
+
+					case '/0': current_token.append_comment('\ufffd'); break;
+
+					default: current_token.append_comment(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.46 Comment less-than sign state
 			case State::CommentLessThanSign:
@@ -611,68 +512,52 @@ Token Tokenizer::next()
 						current_token.append_comment(current_input_character);
 						state = State::CommentLessThanSignBang;
 						break;
-					
-					case '<':
-						current_token.append_comment(current_input_character);
-						break;
-					
-					default:
-						reconsume_in(State::Comment);
+
+					case '<': current_token.append_comment(current_input_character); break;
+
+					default: reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.47 Comment less-than sign bang state
 			case State::CommentLessThanSignBang:
 				switch (next_input_character)
 				{
-					case '-':
-						state = State::CommentLessThanSignBangDash;
-						break;
-					
-					default:
-						reconsume_in(State::Comment);
+					case '-': state = State::CommentLessThanSignBangDash; break;
+
+					default: reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.48 Comment less-than sign bang dash state
 			case State::CommentLessThanSignBangDash:
 				switch (next_input_character)
 				{
-					case '-':
-						state = State::CommentLessThanSignBangDashDash;
-						break;
-					
-					default:
-						reconsume_in(State::CommentEndDash);
+					case '-': state = State::CommentLessThanSignBangDashDash; break;
+
+					default: reconsume_in(State::CommentEndDash);
 				}
-			break;
+				break;
 
 			// 13.2.5.49 Comment less-than sign bang dash dash state
 			case State::CommentLessThanSignBangDashDash:
 				switch (next_input_character)
 				{
-					case '>':
-						state = State::CommentEnd;
-						break;
-					
-					default:
-						reconsume_in(State::CommentEnd);
+					case '>': state = State::CommentEnd; break;
+
+					default: reconsume_in(State::CommentEnd);
 				}
-			break;
+				break;
 
 			// 13.2.5.50 Comment end dash state
 			case State::CommentEndDash:
 				switch (next_input_character)
 				{
-					case '-':
-						state = State::CommentEnd;
-						break;
-					
-					default:
-						current_token.append_comment('-');
-						reconsume_in(State::Comment);
+					case '-': state = State::CommentEnd; break;
+
+					default: current_token.append_comment('-'); reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.51 Comment end state
 			case State::CommentEnd:
@@ -683,20 +568,16 @@ Token Tokenizer::next()
 						return current_token;
 						break;
 
-					case '!':
-						state = State::CommentEndBang;
-						break;
-					
-					case '-':
-						current_token.append_comment('-');
-						break;
-					
+					case '!': state = State::CommentEndBang; break;
+
+					case '-': current_token.append_comment('-'); break;
+
 					default:
 						current_token.append_comment('-');
 						current_token.append_comment('-');
 						reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.52 Comment end bang state
 			case State::CommentEndBang:
@@ -708,19 +589,19 @@ Token Tokenizer::next()
 						current_token.append_comment('!');
 						state = State::CommentEndDash;
 						break;
-					
+
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
+
 					default:
 						current_token.append_comment('-');
 						current_token.append_comment('-');
 						current_token.append_comment('!');
 						reconsume_in(State::Comment);
 				}
-			break;
+				break;
 
 			// 13.2.5.53 DOCTYPE state
 			case State::DOCTYPE:
@@ -729,28 +610,22 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						state = State::BeforeDOCTYPEName;
-						break;
+					case ' ': state = State::BeforeDOCTYPEName; break;
 
 					case '>':
 						reconsume_in(State::BeforeDOCTYPEName);
 						break;
-					
-					// case EOF:
 
-					default:
-						reconsume_in(State::BeforeDOCTYPEName);
+						// case EOF:
+
+					default: reconsume_in(State::BeforeDOCTYPEName);
 				}
-			break;
+				break;
 
 			// 13.2.5.54 Before DOCTYPE name state
 			case State::BeforeDOCTYPEName:
-				if (current_input_character == '\t' ||
-					current_input_character == '\n' ||
-					current_input_character == '\f' ||
-					current_input_character == ' '
-					)
+				if (current_input_character == '\t' || current_input_character == '\n' ||
+				    current_input_character == '\f' || current_input_character == ' ')
 				{
 					// ignore the character
 					;
@@ -783,7 +658,7 @@ Token Tokenizer::next()
 					current_token.doctype_set_name(current_input_character);
 					state = State::DOCTYPEName;
 				}
-			break;
+				break;
 
 			// 13.2.5.55 DOCTYPE name state
 			case State::DOCTYPEName:
@@ -792,24 +667,22 @@ Token Tokenizer::next()
 					case '\t':
 					case '\n':
 					case '\f':
-					case ' ':
-						state = State::AfterDOCTYPEName;
-						break;
+					case ' ': state = State::AfterDOCTYPEName; break;
 
 					case '>':
 						state = State::Data;
 						return current_token;
 						break;
-					
-					// case EOF:
+
+						// case EOF:
 
 					default:
 						if (std::isupper(current_input_character))
 							current_input_character -= 32;
-						
+
 						current_token.append_doctype_name(current_input_character);
 				}
-			break;
+				break;
 
 			// 13.2.5.56 After DOCTYPE name state
 			case State::AfterDOCTYPEName:
@@ -826,8 +699,8 @@ Token Tokenizer::next()
 						state = State::Data;
 						return current_token;
 						break;
-					
-					// case EOF:
+
+						// case EOF:
 
 					default:
 						if (consume_if_match("public"))
@@ -846,7 +719,7 @@ Token Tokenizer::next()
 							reconsume_in(State::BogusDOCTYPE);
 						}
 				}
-			break;
+				break;
 		}
 	}
 }
@@ -881,7 +754,7 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 	auto size = str.size();
 	if (pos + size >= input.size())
 		return false;
-	
+
 	for (std::size_t i = 0; i < size; i++)
 	{
 		auto c1 = str[i];
@@ -898,7 +771,7 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 
 	for (std::size_t i = 0; i < size - 1; i++)
 		consume_next_input_character();
-	
+
 	return true;
 }
 }
