@@ -29,6 +29,16 @@ Token Tokenizer::next()
 {
 	while (1)
 	{
+		if (flush_temporary_buffer)
+		{
+			auto char_token = Token::make_character(temporary_buffer[0]);
+			temporary_buffer.erase(0, 1);
+			if (temporary_buffer.empty())
+				flush_temporary_buffer = false;
+
+			return char_token;
+		}
+
 		consume_next_input_character();
 
 		switch (state)
@@ -720,7 +730,7 @@ Token Tokenizer::next()
 						}
 				}
 				break;
-			
+
 			// 13.2.5.57 After DOCTYPE public keyword state
 			case State::AfterDOCTYPEPublicKeyword: break;
 
@@ -767,31 +777,146 @@ Token Tokenizer::next()
 			case State::CDATASectionEnd: break;
 
 			// 13.2.5.72 Character reference state
-			case State::CharacterReference: break;
+			case State::CharacterReference:
+				temporary_buffer = "&";
+				if (std::isalnum(current_input_character))
+					reconsume_in(State::NamedCharacterReference);
+
+				else if (current_input_character == '#')
+				{
+					temporary_buffer += current_input_character;
+					state = State::NumericCharacterReference;
+				}
+
+				else
+				{
+					flush_temporary_buffer = true;
+					reconsume_in(return_state);
+				}
+				break;
 
 			// 13.2.5.73 Named character reference state
-			case State::NamedCharacterReference: break;
+			case State::NamedCharacterReference:
+				// TODO - add other named characters other than &nbsp and &copy
+				if (consume_if_match("nbsp;"))
+				{
+					temporary_buffer += "nbsp;";
+					flush_temporary_buffer = true;
+					state = return_state;
+				}
+
+				else if (consume_if_match("copy;"))
+				{
+					temporary_buffer += "copy;";
+					flush_temporary_buffer = true;
+					state = return_state;
+				}
+
+				else
+				{
+					std::cout << "Unknown named character reference\n";
+					exit(1);
+				}
+				break;
 
 			// 13.2.5.74 Ambiguous ampersand state
 			case State::AmbiguousAmpersand: break;
 
 			// 13.2.5.75 Numeric character reference state
-			case State::NumericCharacterReference: break;
+			case State::NumericCharacterReference:
+				switch (current_input_character)
+				{
+					case 'x':
+					case 'X':
+						temporary_buffer += current_input_character;
+						state = State::HexadecimalCharacterReferenceStart;
+						break;
+
+					default: reconsume_in(State::DecimalCharacterReferenceStart);
+				}
+				break;
 
 			// 13.2.5.76 Hexadecimal character reference start state
-			case State::HexadecimalCharacterReferenceStart: break;
+			case State::HexadecimalCharacterReferenceStart:
+				if (std::isxdigit(current_input_character))
+					reconsume_in(State::HexadecimalCharacterReference);
+
+				else
+				{
+					flush_temporary_buffer = true;
+					reconsume_in(return_state);
+				}
+				break;
 
 			// 13.2.5.77 Decimal character reference start state
-			case State::DecimalCharacterReferenceStart: break;
+			case State::DecimalCharacterReferenceStart:
+				if (std::isdigit(current_input_character))
+					reconsume_in(State::DecimalCharacterReference);
+
+				else
+				{
+					flush_temporary_buffer = true;
+					reconsume_in(return_state);
+				}
+				break;
 
 			// 13.2.5.78 Hexadecimal character reference state
-			case State::HexadecimalCharacterReference: break;
+			case State::HexadecimalCharacterReference:
+				if (std::isdigit(current_input_character))
+				{
+					character_reference_code *= 16;
+					character_reference_code += current_input_character - 0x30;
+				}
+
+				else if (std::isxdigit(current_input_character))
+				{
+					character_reference_code *= 16;
+					int hex_digit;
+
+					if (std::isupper(current_input_character))
+						hex_digit = current_input_character - 0x37;
+					else
+						hex_digit = current_input_character - 0x57;
+
+					character_reference_code += hex_digit;
+				}
+
+				else if (current_input_character == ';')
+					state = State::NumericCharacterReferenceEnd;
+
+				else
+					reconsume_in(State::NumericCharacterReferenceEnd);
+				break;
 
 			// 13.2.5.79 Decimal character reference state
-			case State::DecimalCharacterReference: break;
+			case State::DecimalCharacterReference:
+				if (std::isdigit(current_input_character))
+				{
+					character_reference_code *= 10;
+					character_reference_code += current_input_character - 0x30;
+				}
+
+				else if (current_input_character == ';')
+					state = State::NumericCharacterReferenceEnd;
+
+				else
+					reconsume_in(State::NumericCharacterReferenceEnd);
+				break;
 
 			// 13.2.5.80 Numeric character reference end state
-			case State::NumericCharacterReferenceEnd: break;
+			case State::NumericCharacterReferenceEnd:
+				if (character_reference_code == 0x0 || character_reference_code > 0x10ffff)
+					character_reference_code = 0xfffd;
+
+				else if (character_reference_code >= 0xd800 && character_reference_code <= 0xdfff)
+					character_reference_code = 0xfffd;
+
+				std::cout << std::to_string(character_reference_code) << "\n";
+
+				temporary_buffer += std::to_string(character_reference_code);
+				flush_temporary_buffer = true;
+				reconsume_in(return_state);
+				break;
 		}
 	}
 }

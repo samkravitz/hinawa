@@ -115,5 +115,8 @@ private:
 	char current_input_character;
 	char next_input_character;
 	Token current_token;
+	std::string temporary_buffer;
+	bool flush_temporary_buffer = false;
+	unsigned int character_reference_code = 0;
 };
 }    // namespace html
