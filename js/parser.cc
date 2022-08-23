@@ -14,13 +14,13 @@ Parser::Parser(std::string input) :
 	advance();
 }
 
-std::shared_ptr<Program> Parser::parse()
+std::vector<std::shared_ptr<Stmt>> Parser::parse()
 {
-	auto program = std::make_shared<Program>();
+	std::vector<std::shared_ptr<Stmt>> program;
 	std::shared_ptr<Stmt> stmt;
 
 	while ((stmt = statement()))
-		program->add_stmt(stmt);
+		program.push_back(stmt);
 
 	return program;
 }

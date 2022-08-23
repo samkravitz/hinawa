@@ -4,6 +4,7 @@
 
 namespace js
 {
+
 void AstNode::print(std::string const &prefix, bool is_left)
 {
 	std::cout << prefix;
@@ -16,6 +17,7 @@ void AstNode::print(std::string const &title)
 	if (!title.empty())
 		std::cout << title << "\n";
 
-	print("", false);
+	print("");
 }
+
 }

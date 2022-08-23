@@ -2,13 +2,13 @@
 
 namespace js
 {
-void Interpreter::run(std::shared_ptr<Program> program)
+void Interpreter::run(std::vector<std::shared_ptr<Stmt>> program) const
 {
-	for (auto stmt : program->stmts())
+	for (auto stmt : program)
 		execute(stmt);
 }
 
-void Interpreter::execute(const std::shared_ptr<Stmt> stmt)
+void Interpreter::execute(const std::shared_ptr<Stmt> stmt) const
 {
 	stmt->accept(this);
 }
@@ -16,11 +16,6 @@ void Interpreter::execute(const std::shared_ptr<Stmt> stmt)
 Value Interpreter::evaluate(const std::shared_ptr<Expr> expr) const
 {
 	return expr->accept(this);
-}
-
-void Interpreter::visit(const Program *stmt) const
-{
-	std::cout << stmt->name() << "\n";
 }
 
 void Interpreter::visit(const BlockStmt *stmt) const

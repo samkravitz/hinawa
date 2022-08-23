@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -15,7 +16,7 @@ class Parser
 public:
 	Parser(std::string);
 
-	std::shared_ptr<Program> parse();
+	std::vector<std::shared_ptr<Stmt>> parse();
 
 private:
 	Scanner scanner;

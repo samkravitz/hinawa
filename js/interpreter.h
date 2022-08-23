@@ -13,10 +13,9 @@ class Interpreter : public StmtVisitor, public ExprVisitor
 public:
 	Interpreter() = default;
 
-	void run(std::shared_ptr<Program>);
+	void run(std::vector<std::shared_ptr<Stmt>>) const;
 
 	// statement visitors
-	void visit(const Program *) const;
 	void visit(const BlockStmt *) const;
 	void visit(const VariableStmt *) const;
 	void visit(const EmptyStmt *) const;
@@ -32,7 +31,7 @@ public:
 	Value visit(const Literal *) const;
 
 private:
-	void execute(const std::shared_ptr<Stmt>);
+	void execute(const std::shared_ptr<Stmt>) const;
 	Value evaluate(const std::shared_ptr<Expr>) const;
 };
 }

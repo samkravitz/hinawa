@@ -1,11 +1,11 @@
+#include "ast/ast.h"
+#include "ast_printer.h"
+#include "interpreter.h"
+#include "parser.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-#include "ast/ast.h"
-#include "parser.h"
-#include "interpreter.h"
 
 int main(int argc, char **argv)
 {
@@ -21,8 +21,10 @@ int main(int argc, char **argv)
 
 	js::Parser parser(buffer.str());
 	auto ast = parser.parse();
-	ast->print("", false);
+	//ast->print("", false);
 
+	js::AstPrinter printer;
+	printer.print(ast);
 	js::Interpreter interpreter;
 	interpreter.run(ast);
 }
