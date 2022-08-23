@@ -11,7 +11,7 @@ class Stmt : public AstNode
 public:
 	const char *name() const = 0;
 	virtual void accept(const StmtVisitor *visitor) const = 0;
-	virtual void accept(const PrintVisitor *visitor) const = 0;
+	virtual void accept(const PrintVisitor *visitor, std::string const &prefix) const = 0;
 };
 
 //class Program : public Stmt
@@ -47,7 +47,9 @@ public:
 
 	const char *name() const { return "BlockStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor)const { visitor->visit(this); };
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
+
+	inline std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -78,7 +80,7 @@ public:
 	{ }
 	const char *name() const { return "VariableStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); };
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -101,7 +103,7 @@ class EmptyStmt : public Stmt
 public:
 	const char *name() const { return "EmptyStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); };
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
 };
 
 class ExpressionStmt : public Stmt
@@ -113,7 +115,7 @@ public:
 
 	const char *name() const { return "ExpressionStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); };
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
 
 	std::shared_ptr<Expr> expr() const { return m_expr; }
 
@@ -139,13 +141,15 @@ public:
 	    m_else(else_stmt)
 	{ }
 
+	std::shared_ptr<Expr> condition() const { return m_condition; }
+	std::shared_ptr<Stmt> then() const { return m_then; }
+	std::shared_ptr<Stmt> else_stmt() const { return m_else; }
 	const char *name() const { return "IfStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); };
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
 
 	void print(std::string const &prefix, bool is_left)
 	{
-		std::cout << prefix;
 		std::cout << (is_left ? "├──" : "└──");
 		std::cout << name() << "\n";
 
@@ -183,7 +187,7 @@ public:
 
 	const char *name() const { return "ReturnStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); }
 
 	void print(std::string const &prefix, bool is_left)
 	{

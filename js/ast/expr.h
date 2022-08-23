@@ -12,7 +12,7 @@ class Expr : public AstNode
 public:
 	virtual const char *name() const = 0;
 	virtual Value accept(const ExprVisitor *visitor) const = 0;
-	virtual void accept(const PrintVisitor *visitor) const { }
+	virtual void accept(const PrintVisitor *visitor, std::string const & prefix) const =0;
 	//void accept(const PrintVisitor *visitor) const { }
 };
 
@@ -26,7 +26,7 @@ public:
 
 	const char *name() const { return "UnaryExpr"; }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const & prefix) const { visitor->visit(this, prefix); }
 
 	std::shared_ptr<Expr> rhs() const { return m_rhs; }
 	Token op() const { return m_op; };
@@ -63,7 +63,7 @@ public:
 	{ }
 
 	const char *name() const { return "BinaryExpr"; }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const & prefix) const { visitor->visit(this, prefix); }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 
 	std::shared_ptr<Expr> lhs() const { return m_lhs; }
@@ -92,7 +92,7 @@ class CallExpr : public Expr
 {
 public:
 	const char *name() const { return "CallExpr"; }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const & prefix) const { visitor->visit(this, prefix); }
 };
 
 class Literal : public Expr
@@ -104,7 +104,7 @@ public:
 
 	const char *name() const { return "Literal"; }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
-	void accept(const PrintVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const & prefix) const { visitor->visit(this, prefix); }
 	Value value() const { return m_value; }
 	void print(std::string const &prefix, bool is_left)
 	{
