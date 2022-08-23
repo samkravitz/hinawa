@@ -14,7 +14,7 @@ Parser::Parser(std::string input) :
 	advance();
 }
 
-std::shared_ptr<AstNode> Parser::parse()
+std::shared_ptr<Program> Parser::parse()
 {
 	auto program = std::make_shared<Program>();
 	std::shared_ptr<Stmt> stmt;

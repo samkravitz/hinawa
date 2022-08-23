@@ -15,7 +15,7 @@ class Parser
 public:
 	Parser(std::string);
 
-	std::shared_ptr<AstNode> parse();
+	std::shared_ptr<Program> parse();
 
 private:
 	Scanner scanner;

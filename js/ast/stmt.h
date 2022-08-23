@@ -2,6 +2,7 @@
 
 #include "ast.h"
 #include "expr.h"
+#include "visitor.h"
 
 namespace js
 {
@@ -24,11 +25,11 @@ public:
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
-	std::cout << (is_left ? "├──" : "└──");
-	std::cout << name() << "\n";
+		std::cout << (is_left ? "├──" : "└──");
+		std::cout << name() << "\n";
 
-	for (auto stmt : m_stmts)
-		stmt->print(prefix + (is_left ? "│   " : "    "), true);
+		for (auto stmt : m_stmts)
+			stmt->print(prefix + (is_left ? "│   " : "    "), true);
 	}
 
 private:

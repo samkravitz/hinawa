@@ -1,6 +1,7 @@
 set(SOURCES
 	ast/ast.cc
 
+	interpreter.cc
 	scanner.cc
 	parser.cc
 	token.cc
@@ -12,6 +13,7 @@ set(HEADERS
 	ast/stmt.h
 	ast/visitor.h
 
+	interpreter.h
 	opcode.h
 	parser.h
 	scanner.h

@@ -3,7 +3,9 @@
 #include <sstream>
 #include <vector>
 
+#include "ast/ast.h"
 #include "parser.h"
+#include "interpreter.h"
 
 int main(int argc, char **argv)
 {
@@ -19,5 +21,8 @@ int main(int argc, char **argv)
 
 	js::Parser parser(buffer.str());
 	auto ast = parser.parse();
-	ast->print("AST");
+	ast->print("", false);
+
+	js::Interpreter interpreter;
+	interpreter.run(ast);
 }

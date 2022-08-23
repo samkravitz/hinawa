@@ -3,6 +3,7 @@
 #include "../token.h"
 #include "../value.h"
 #include "ast.h"
+#include "visitor.h"
 
 namespace js
 {
@@ -23,6 +24,8 @@ public:
 
 	const char *name() const { return "UnaryExpr"; }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+	std::shared_ptr<Expr> rhs() const { return m_rhs; }
+	Token op() const { return m_op; };
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -57,6 +60,11 @@ public:
 
 	const char *name() const { return "BinaryExpr"; }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+
+	std::shared_ptr<Expr> lhs() const { return m_lhs; }
+	Token op() const { return m_op; };
+	std::shared_ptr<Expr> rhs() const { return m_rhs; }
+
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
@@ -91,6 +99,7 @@ public:
 
 	const char *name() const { return "Literal"; }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+	Value value() const { return m_value; }
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
