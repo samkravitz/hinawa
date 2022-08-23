@@ -28,29 +28,48 @@ LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
 	}
 
 	node->for_each_child(
-	    [this](std::shared_ptr<css::StyledNode> node)
+	    [this](std::shared_ptr<css::StyledNode> child)
 	    {
-		    switch (node->display())
+		    switch (child->display())
 		    {
-			    case css::Display::Block: add_child(std::make_shared<LayoutNode>(LayoutNode(node))); break;
 			    case css::Display::Inline:
 			    {
-				    switch (m_box_type)
+				    auto last_layout_child = last_child();
+				    if (!last_layout_child || last_layout_child->box_type() == INLINE)
 				    {
-					    case INLINE:
-					    case ANONYMOUS: add_child(std::make_shared<LayoutNode>(LayoutNode(node))); break;
-					    case BLOCK:
-					    {
-						    auto last_layout_child = last_child();
-						    if (!last_layout_child || last_layout_child->box_type() != ANONYMOUS)
-							    add_child(std::make_shared<LayoutNode>(LayoutNode()));
+					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+				    }
 
-						    last_child()->add_child(std::make_shared<LayoutNode>(LayoutNode(node)));
-					    }
+				    else
+				    {
+					    auto anonymous_box = std::make_shared<LayoutNode>(LayoutNode());
+					    anonymous_box->add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+					    add_child(anonymous_box);
 				    }
 				    break;
 			    }
-			    case css::Display::None: break;
+
+			    case css::Display::Block:
+			    {
+				    auto last_layout_child = last_child();
+				    if (!last_layout_child || last_layout_child->box_type() == BLOCK)
+				    {
+					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+				    }
+
+				    else
+				    {
+					    auto anonymous_box = std::make_shared<LayoutNode>(LayoutNode());
+					    anonymous_box->add_child(last_layout_child);
+					    children.pop_back();
+					    add_child(anonymous_box);
+					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+				    }
+					break;
+			    }
+
+			    case css::Display::None:
+					std::cout << "display_none\n";
 		    }
 	    });
 }
@@ -59,21 +78,16 @@ void LayoutNode::layout(Box container)
 {
 	switch (m_box_type)
 	{
-		case BLOCK: layout_block(container); break;
-		case ANONYMOUS:
-		{
-			m_dimensions = container;
-			for (auto child : children)
-			{
-				child->layout(m_dimensions);
-				m_dimensions.content.height += child->dimensions().margin_box().height;
-			}
-			break;
-		}
+		case BLOCK:
+		case ANONYMOUS: layout_block(container); break;
 		case INLINE:
-			m_dimensions.content.x = container.content.x;
-			m_dimensions.content.y = container.content.height + m_dimensions.content.height;
 			m_dimensions.content.height = TEXT_SIZE;
+			m_dimensions.content.width = container.content.width;
+			m_dimensions.content.x = container.content.x;
+			m_dimensions.content.y = container.content.y;
+
+			for (auto child : children)
+				child->layout(m_dimensions);
 			break;
 	}
 }

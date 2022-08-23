@@ -50,6 +50,9 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 
 Value *StyledNode::lookup(std::string property_name, Value *const fallback)
 {
+	if (!this)
+		return fallback;
+
 	if (m_values.find(property_name) != m_values.end())
 		return m_values[property_name];
 
@@ -58,6 +61,9 @@ Value *StyledNode::lookup(std::string property_name, Value *const fallback)
 
 Value *StyledNode::lookup(std::string property_name1, std::string property_name2, Value *const fallback)
 {
+	if (!this)
+		return fallback;
+
 	if (m_values.find(property_name1) != m_values.end())
 		return m_values[property_name1];
 
