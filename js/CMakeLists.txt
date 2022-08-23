@@ -10,6 +10,7 @@ set(HEADERS
 	ast/ast.h
 	ast/expr.h
 	ast/stmt.h
+	ast/visitor.h
 
 	opcode.h
 	parser.h

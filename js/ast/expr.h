@@ -10,6 +10,7 @@ class Expr : public AstNode
 {
 public:
 	virtual const char *name() const = 0;
+	virtual Value accept(const ExprVisitor *visitor) const = 0;
 };
 
 class UnaryExpr : public Expr
@@ -21,6 +22,8 @@ public:
 	{ }
 
 	const char *name() const { return "UnaryExpr"; }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
@@ -53,6 +56,7 @@ public:
 	{ }
 
 	const char *name() const { return "BinaryExpr"; }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
@@ -75,6 +79,7 @@ class CallExpr : public Expr
 {
 public:
 	const char *name() const { return "CallExpr"; }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 };
 
 class Literal : public Expr
@@ -85,6 +90,7 @@ public:
 	{ }
 
 	const char *name() const { return "Literal"; }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;

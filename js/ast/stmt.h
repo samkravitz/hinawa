@@ -9,6 +9,30 @@ class Stmt : public AstNode
 {
 public:
 	const char *name() const = 0;
+	virtual void accept(const StmtVisitor *visitor) const = 0;
+};
+
+class Program : public Stmt
+{
+public:
+	void add_stmt(std::shared_ptr<Stmt> stmt) { m_stmts.push_back(stmt); }
+
+	const char *name() const { return "Program"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
+
+	std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
+	void print(std::string const &prefix, bool is_left)
+	{
+		std::cout << prefix;
+	std::cout << (is_left ? "├──" : "└──");
+	std::cout << name() << "\n";
+
+	for (auto stmt : m_stmts)
+		stmt->print(prefix + (is_left ? "│   " : "    "), true);
+	}
+
+private:
+	std::vector<std::shared_ptr<Stmt>> m_stmts;
 };
 
 class BlockStmt : public Stmt
@@ -19,6 +43,7 @@ public:
 	{ }
 
 	const char *name() const { return "BlockStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -48,6 +73,7 @@ public:
 	    m_init(initializer)
 	{ }
 	const char *name() const { return "VariableStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -69,6 +95,7 @@ class EmptyStmt : public Stmt
 {
 public:
 	const char *name() const { return "EmptyStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 };
 
 class ExpressionStmt : public Stmt
@@ -79,6 +106,10 @@ public:
 	{ }
 
 	const char *name() const { return "ExpressionStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
+
+	std::shared_ptr<Expr> expr() const { return m_expr; }
+
 	void print(std::string const &prefix, bool is_left)
 	{
 		std::cout << prefix;
@@ -102,6 +133,7 @@ public:
 	{ }
 
 	const char *name() const { return "IfStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -122,17 +154,17 @@ private:
 	std::shared_ptr<Stmt> m_else;
 };
 
-class ContinueStmt : public Stmt
-{
-public:
-	const char *name() const { return "ContinueStmt"; }
-};
+//class ContinueStmt : public Stmt
+//{
+//public:
+//	const char *name() const { return "ContinueStmt"; }
+//};
 
-class BreakStmt : public Stmt
-{
-public:
-	const char *name() const { return "BreakStmt"; }
-};
+//class BreakStmt : public Stmt
+//{
+//public:
+//	const char *name() const { return "BreakStmt"; }
+//};
 
 class ReturnStmt : public Stmt
 {
@@ -142,6 +174,7 @@ public:
 	{ }
 
 	const char *name() const { return "ReturnStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 
 	void print(std::string const &prefix, bool is_left)
 	{
@@ -157,27 +190,21 @@ private:
 	std::shared_ptr<Expr> m_expr;
 };
 
-class TryStmt : public Stmt
-{
-public:
-	const char *name() const { return "TryStmt"; }
-};
+//class TryStmt : public Stmt
+//{
+//public:
+//	const char *name() const { return "TryStmt"; }
+//};
 
-class FunctionDeclaration : public AstNode
-{
-public:
-	const char *name() const { return "FunctionDeclaration"; }
-};
+//class FunctionDeclaration : public AstNode
+//{
+//public:
+//	const char *name() const { return "FunctionDeclaration"; }
+//};
 
-class VariableDeclaration : public AstNode
-{
-public:
-	const char *name() const { return "VariableDeclaration"; }
-};
-
-class ExpressionStatement : public AstNode
-{
-public:
-	const char *name() const { return "ExpressionStatement"; }
-};
+//class VariableDeclaration : public AstNode
+//{
+//public:
+//	const char *name() const { return "VariableDeclaration"; }
+//};
 }
