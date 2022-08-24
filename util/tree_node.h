@@ -17,7 +17,13 @@ public:
 
 	virtual std::string to_string() const { return "TREE BASE"; };
 
-	void add_child(std::shared_ptr<T> node) { children.push_back(node); }
+	void add_child(std::shared_ptr<T> node)
+	{
+		node->m_parent = static_cast<T*>(this);
+		children.push_back(node);
+	}
+
+	TreeNode<T> *parent() const { return m_parent; }
 
 	void preorder(std::function<void(std::shared_ptr<T>)> f)
 	{
@@ -87,6 +93,7 @@ public:
 	}
 
 protected:
+	T *m_parent = nullptr;
 	std::vector<std::shared_ptr<T>> children;
 };
 }

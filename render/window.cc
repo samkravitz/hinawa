@@ -63,6 +63,17 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 
 				sf::Text text(text_element->trim(), font);
 				text.setCharacterSize(TEXT_SIZE);
+
+				if (text_element->is_link())
+				{
+					color = sf::Color::Blue;
+					sf::RectangleShape rect;
+					rect.setPosition(x, y + TEXT_SIZE + 2);
+					rect.setSize(sf::Vector2f(text.getLocalBounds().width, 2));
+					rect.setFillColor(color);
+					window.draw(rect);
+				}
+
 				text.setFillColor(color);
 				text.setPosition(x, y);
 				window.draw(text);

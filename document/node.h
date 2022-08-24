@@ -12,6 +12,7 @@ enum class NodeType
 class Node : public util::TreeNode<Node>
 {
 public:
+	bool is_link() const;
 	virtual NodeType type() const;
 	std::string to_string() const;
 };
