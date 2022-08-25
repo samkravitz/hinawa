@@ -7,13 +7,19 @@
 
 namespace css
 {
-StyledNode::StyledNode(std::shared_ptr<Node> node) :
-    m_node(node)
-{ }
+Value *const default_font_size = new Length(16, Length::PX);
 
-StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> stylesheet)
+StyledNode::StyledNode(std::shared_ptr<Node> node,
+                       std::shared_ptr<Stylesheet> stylesheet,
+                       std::unordered_map<std::string, Value *> *parent_values) :
+    m_node(node)
 {
-	m_node = node;
+	if (!node->parent())
+		m_values["font-size"] = default_font_size;
+
+	if (parent_values)
+		m_values["font-size"] = parent_values->at("font-size");
+
 	if (node->type() == NodeType::Element)
 	{
 		auto element = std::dynamic_pointer_cast<Element>(node);
@@ -31,21 +37,20 @@ StyledNode::StyledNode(std::shared_ptr<Node> node, std::shared_ptr<Stylesheet> s
 		}
 	}
 
-	auto f = [this, stylesheet](std::shared_ptr<Node> node)
-	{
-		// skip text nodes that are only whitespace;
-		// they don't belong in the style tree
-		if (node->type() == NodeType::Text)
-		{
-			auto text = std::dynamic_pointer_cast<Text>(node);
-			if (text->whitespace_only())
-				return;
-		}
+	node->for_each_child(
+	    [this, stylesheet](std::shared_ptr<Node> child)
+	    {
+		    // skip text nodes that are only whitespace;
+		    // they don't belong in the style tree
+		    if (child->type() == NodeType::Text)
+		    {
+			    auto text = std::dynamic_pointer_cast<Text>(child);
+			    if (text->whitespace_only())
+				    return;
+		    }
 
-		children.push_back(std::make_shared<StyledNode>(StyledNode(node, stylesheet)));
-	};
-
-	node->for_each_child(f);
+		    add_child(std::make_shared<StyledNode>(StyledNode(child, stylesheet, &m_values)));
+	    });
 }
 
 Value *StyledNode::lookup(std::string property_name, Value *const fallback)
