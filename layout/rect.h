@@ -32,8 +32,8 @@ struct Rect
 		ss << "{ Rect ";
 		ss << "x: " << x;
 		ss << " y: " << y;
-		ss << " width: " << width;
-		ss << " height: " << height;
+		ss << " w: " << width;
+		ss << " h: " << height;
 		ss << " }";
 
 		return ss.str();

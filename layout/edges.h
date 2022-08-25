@@ -16,10 +16,10 @@ struct Edges
 	{
 		std::stringstream ss;
 		ss << "{ ";
-		ss << "left: " << left;
-		ss << " right: " << right;
-		ss << " top: " << top;
-		ss << " bottom: " << bottom;
+		ss << "l: " << left;
+		ss << " r: " << right;
+		ss << " t: " << top;
+		ss << " b: " << bottom;
 		ss << " }";
 
 		return ss.str();
