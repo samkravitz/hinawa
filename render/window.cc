@@ -60,15 +60,16 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 			{
 				auto text_element = std::dynamic_pointer_cast<Text>(style->node());
 				auto color = sf::Color::Black;
+				auto *font_size = dynamic_cast<css::Length*>(style->lookup("font-size"));
 
 				sf::Text text(text_element->trim(), font);
-				text.setCharacterSize(TEXT_SIZE);
+				text.setCharacterSize(font_size->to_px());
 
 				if (text_element->is_link())
 				{
 					color = sf::Color::Blue;
 					sf::RectangleShape rect;
-					rect.setPosition(x, y + TEXT_SIZE + 2);
+					rect.setPosition(x, y + font_size->to_px() + 2);
 					rect.setSize(sf::Vector2f(text.getLocalBounds().width, 2));
 					rect.setFillColor(color);
 					window.draw(rect);

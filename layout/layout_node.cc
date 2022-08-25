@@ -81,7 +81,9 @@ void LayoutNode::layout(Box container)
 		case BLOCK:
 		case ANONYMOUS: layout_block(container); break;
 		case INLINE:
-			m_dimensions.content.height = TEXT_SIZE;
+		{
+			auto *font_size = dynamic_cast<css::Length*>(m_node->lookup("font-size"));
+			m_dimensions.content.height = font_size->to_px();
 			m_dimensions.content.width = container.content.width;
 			m_dimensions.content.x = container.content.x;
 			m_dimensions.content.y = container.content.y;
@@ -89,6 +91,7 @@ void LayoutNode::layout(Box container)
 			for (auto child : children)
 				child->layout(m_dimensions);
 			break;
+		}
 	}
 }
 
