@@ -13,6 +13,12 @@ enum BoxType
 	ANONYMOUS,
 };
 
+enum class FormatContext
+{
+	Block,
+	Inline,
+};
+
 class LayoutNode : public util::TreeNode<LayoutNode>
 {
 public:
@@ -25,6 +31,8 @@ public:
 
 	void layout(Box);
 	void layout_block(Box);
+	void layout_inline(Box);
+	void layout_inline_element(Box, int);
 	void calculate_block_width(Box);
 	void calculate_block_position(Box);
 	void calculate_block_height(Box);
@@ -37,5 +45,6 @@ private:
 
 	Box m_dimensions;
 	BoxType m_box_type;
+	FormatContext m_format_context = FormatContext::Inline;
 };
 }

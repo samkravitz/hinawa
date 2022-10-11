@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../css/value.h"
+#include "../document/text.h"
 #include "../render/window.h"
 
 namespace layout
@@ -27,51 +28,68 @@ LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
 		default: std::cerr << "Found display: none!\n";
 	}
 
+	bool contains_inline_children = false;
+	bool contains_block_children = false;
+
 	node->for_each_child(
-	    [this](std::shared_ptr<css::StyledNode> child)
+	    [this, &contains_inline_children, &contains_block_children](std::shared_ptr<css::StyledNode> child)
 	    {
 		    switch (child->display())
 		    {
 			    case css::Display::Inline:
 			    {
-				    auto last_layout_child = last_child();
-				    if (!last_layout_child || last_layout_child->box_type() == INLINE)
+				    contains_inline_children = true;
+				    auto inline_child = std::make_shared<LayoutNode>(LayoutNode(child));
+				    if (inline_child->children.size() == 0)
 				    {
-					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+					    add_child(inline_child);
 				    }
 
 				    else
 				    {
-					    auto anonymous_box = std::make_shared<LayoutNode>(LayoutNode());
-					    anonymous_box->add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
-					    add_child(anonymous_box);
+					    for (auto x : inline_child->children)
+						    add_child(x);
 				    }
 				    break;
 			    }
 
 			    case css::Display::Block:
 			    {
-				    auto last_layout_child = last_child();
-				    if (!last_layout_child || last_layout_child->box_type() == BLOCK)
-				    {
-					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
-				    }
-
-				    else
-				    {
-					    auto anonymous_box = std::make_shared<LayoutNode>(LayoutNode());
-					    anonymous_box->add_child(last_layout_child);
-					    children.pop_back();
-					    add_child(anonymous_box);
-					    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
-				    }
-					break;
+				    contains_block_children = true;
+				    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+				    break;
 			    }
 
-			    case css::Display::None:
-					std::cout << "display_none\n";
+			    case css::Display::None: std::cout << "display_none\n";
 		    }
 	    });
+
+	if (contains_block_children && contains_inline_children)
+	{
+	loop:
+		for (int i = 0; i < children.size(); i++)
+		{
+			auto child = children[i];
+			if (child->box_type() == INLINE)
+			{
+				int first_inline_index = i;
+				int last_inline_index = i;
+				auto anonymous_box = std::make_shared<LayoutNode>(LayoutNode());
+				while ((last_inline_index < children.size()) && (children[last_inline_index]->box_type() == INLINE))
+				{
+					anonymous_box->add_child(children[last_inline_index]);
+					last_inline_index++;
+				}
+
+				children.erase(children.begin() + first_inline_index, children.begin() + last_inline_index);
+				children.insert(children.begin() + first_inline_index, anonymous_box);
+				goto loop;
+			}
+		}
+	}
+
+	if (contains_block_children)
+		m_format_context = FormatContext::Block;
 }
 
 void LayoutNode::layout(Box container)
@@ -79,19 +97,12 @@ void LayoutNode::layout(Box container)
 	switch (m_box_type)
 	{
 		case BLOCK:
-		case ANONYMOUS: layout_block(container); break;
-		case INLINE:
-		{
-			auto *font_size = dynamic_cast<css::Length*>(m_node->lookup("font-size"));
-			m_dimensions.content.height = font_size->to_px();
-			m_dimensions.content.width = container.content.width;
-			m_dimensions.content.x = container.content.x;
-			m_dimensions.content.y = container.content.y;
-
-			for (auto child : children)
-				child->layout(m_dimensions);
+			if (m_format_context == FormatContext::Block)
+				layout_block(container);
+			else
+				layout_inline(container);
 			break;
-		}
+		case ANONYMOUS: layout_inline(container); break;
 	}
 }
 
@@ -107,6 +118,33 @@ void LayoutNode::layout_block(Box container)
 	}
 
 	calculate_block_height(container);
+}
+
+void LayoutNode::layout_inline(Box container)
+{
+	m_dimensions = container;
+	m_dimensions.content.y += container.content.height;
+	int x = container.content.x;
+
+	for (auto child : children)
+	{
+		child->layout_inline_element(m_dimensions, x);
+		x += child->dimensions().content.width;
+		m_dimensions.content.height = child->dimensions().margin_box().height;
+	}
+}
+
+void LayoutNode::layout_inline_element(Box container, int x)
+{
+	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
+
+	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
+	m_dimensions.content.width = text_element->trim().size() * font_size->to_px();
+
+	m_dimensions.content.height = font_size->to_px();
+
+	m_dimensions.content.x = x;
+	m_dimensions.content.y = container.content.y;
 }
 
 void LayoutNode::calculate_block_width(Box container)
