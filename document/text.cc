@@ -70,5 +70,7 @@ std::string Text::trim()
 
 std::string Text::to_string() const
 {
+	if (whitespace_only())
+		return "Text: <empty>";
 	return "Text: " + m_text;
 }
