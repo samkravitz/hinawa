@@ -28,6 +28,7 @@ public:
 	inline std::shared_ptr<css::StyledNode> node() const { return m_node; }
 	inline Box dimensions() const { return m_dimensions; }
 	inline BoxType box_type() const { return m_box_type; }
+	inline void reset() { m_dimensions = Box{}; }
 
 	void layout(Box);
 	void layout_block(Box);

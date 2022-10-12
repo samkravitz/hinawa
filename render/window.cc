@@ -28,6 +28,18 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			if (event.type == sf::Event::Resized)
+			{
+				width = event.size.width;
+				height = event.size.height;
+				window.setView(sf::View(sf::FloatRect { 0, 0, (float) width, (float) height }));
+				viewport = layout::Box{};
+				viewport.content.width = width;
+				viewport.content.height = 0;
+				layout_tree->layout(viewport);
+				bg = sf::RectangleShape{ sf::Vector2f(width, height) };
+			}
 		}
 
 		window.clear();
@@ -60,7 +72,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 			{
 				auto text_element = std::dynamic_pointer_cast<Text>(style->node());
 				auto color = sf::Color::Black;
-				auto *font_size = dynamic_cast<css::Length*>(style->lookup("font-size"));
+				auto *font_size = dynamic_cast<css::Length *>(style->lookup("font-size"));
 
 				sf::Text text(text_element->trim(), font);
 				text.setCharacterSize(font_size->to_px());

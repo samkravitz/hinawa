@@ -94,6 +94,7 @@ LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
 
 void LayoutNode::layout(Box container)
 {
+	reset();
 	switch (m_box_type)
 	{
 		case BLOCK:
