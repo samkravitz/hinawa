@@ -8,6 +8,7 @@
 #include "html/parser.h"
 #include "render/window.h"
 #include "layout/layout_node.h"
+#include "layout/node.h"
 
 int main(int argc, char **argv)
 {
@@ -29,6 +30,9 @@ int main(int argc, char **argv)
 	auto html = style_tree->last_child();
 	auto body = html->last_child();
 	auto layout_tree = std::make_shared<layout::LayoutNode>(body);
+
+	auto tree = layout::build_tree(body);
+	tree->print("Layout Tree 2.0");
 
 	Window window(layout_tree);
 	return 0;
