@@ -15,12 +15,12 @@ struct Edges
 	std::string to_string() const
 	{
 		std::stringstream ss;
-		ss << "{ ";
-		ss << "l: " << left;
-		ss << " r: " << right;
-		ss << " t: " << top;
-		ss << " b: " << bottom;
-		ss << " }";
+		ss << "[";
+		ss << left << ", ";
+		ss << right << ", ";
+		ss << top << ", ";
+		ss << bottom;
+		ss << "]";
 
 		return ss.str();
 	}

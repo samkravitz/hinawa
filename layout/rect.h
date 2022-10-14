@@ -29,7 +29,7 @@ struct Rect
 	std::string to_string() const
 	{
 		std::stringstream ss;
-		ss << "{ Rect ";
+		ss << "{ ";
 		ss << "x: " << x;
 		ss << " y: " << y;
 		ss << " w: " << width;
