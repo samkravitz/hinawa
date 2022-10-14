@@ -12,9 +12,10 @@ public:
 
 	void layout(Box);
 	std::string to_string() const;
-	inline bool is_anonymous() const { return m_node != nullptr; };
+	inline bool is_anonymous() const { return m_anonymous; };
 
 private:
+	bool m_anonymous = true;
 	void calculate_width(Box);
 	void calculate_position(Box);
 	void calculate_height(Box);

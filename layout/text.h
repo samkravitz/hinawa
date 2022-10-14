@@ -11,6 +11,7 @@ public:
 	Text() = delete;
 
 	void layout(Box);
+	bool is_inline() const { return true; }
 	std::string to_string() const;
 
 private:

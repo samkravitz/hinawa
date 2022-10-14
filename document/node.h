@@ -14,5 +14,6 @@ class Node : public util::TreeNode<Node>
 public:
 	bool is_link() const;
 	virtual NodeType type() const;
+	std::string element_name() const;
 	std::string to_string() const;
 };

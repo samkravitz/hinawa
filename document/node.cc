@@ -27,3 +27,14 @@ std::string Node::to_string() const
 {
 	return "HTML Node";
 }
+
+std::string Node::element_name() const
+{
+	if (type() == NodeType::Element)
+	{
+		auto *element = static_cast<Element const*>(this);
+		return element->tag();
+	}
+
+	return "<non-element>";
+}
