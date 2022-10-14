@@ -1,9 +1,9 @@
 #pragma once
 
-#include <iostream>
-#include <string>
 #include <functional>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace util
@@ -19,7 +19,7 @@ public:
 
 	void add_child(std::shared_ptr<T> node)
 	{
-		node->m_parent = static_cast<T*>(this);
+		node->m_parent = static_cast<T *>(this);
 		children.push_back(node);
 	}
 
@@ -68,32 +68,56 @@ public:
 		return count;
 	}
 
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──"); 
-		std::cout << to_string() << "\n";
-
-		int i = 0;
-		for (auto child : children)
-		{
-			if (i++ == 0)
-				child->print(prefix + (is_left ? "│   " : "    "), true);
-			else
-        		child->print(prefix + (is_left ? "│   " : "    "), false);
-		}
-	}
-
 	void print(std::string const &title = "")
 	{
 		if (!title.empty())
 			std::cout << title << "\n";
 
-		print("", false);
+		std::cout << to_string() << "\n";
+		print_subtree("");
 	}
 
 protected:
 	T *m_parent = nullptr;
 	std::vector<std::shared_ptr<T>> children;
+
+private:
+	void print_subtree(std::string const &prefix)
+	{
+		if (!has_children())
+			return;
+
+		std::cout << prefix;
+		if (children.size() > 1)
+			std::cout << "├──";
+
+		for (unsigned i = 0; i < children.size(); i++)
+		{
+			auto child = children[i];
+			if (i < children.size() - 1)
+			{
+				if (i > 0)
+					std::cout << prefix << "├──";
+
+				auto new_prefix = prefix;
+				if (children.size() > 1 && !child->children.empty())
+					new_prefix += "│";
+				new_prefix += "    ";
+
+				std::cout << child->to_string() << "\n";
+				child->print_subtree(new_prefix);
+			}
+
+			else
+			{
+				if (children.size() > 1)
+					std::cout << prefix;
+
+				std::cout << "└──";
+				std::cout << child->to_string() << "\n";
+				child->print_subtree(prefix + "    ");
+			}
+		}
+	}
 };
 }
