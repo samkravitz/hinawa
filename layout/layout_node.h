@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "../css/styled_node.h"
 #include "../util/tree_node.h"
 #include "box.h"
@@ -19,6 +22,13 @@ enum class FormatContext
 	Inline,
 };
 
+struct LineItem
+{
+	std::string str;
+	int x;
+	int y;
+};
+
 class LayoutNode : public util::TreeNode<LayoutNode>
 {
 public:
@@ -28,7 +38,7 @@ public:
 	inline std::shared_ptr<css::StyledNode> node() const { return m_node; }
 	inline Box dimensions() const { return m_dimensions; }
 	inline BoxType box_type() const { return m_box_type; }
-	inline void reset() { m_dimensions = Box{}; }
+	void reset();
 
 	void layout(Box);
 	void layout_block(Box);
@@ -39,6 +49,7 @@ public:
 	void calculate_block_height(Box);
 
 	std::string to_string() const;
+	std::vector<LineItem> line_items;
 
 private:
 	// pointer to the styled node to be rendered

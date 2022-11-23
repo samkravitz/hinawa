@@ -1,11 +1,16 @@
 #include "layout_node.h"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 
 #include "../css/value.h"
 #include "../document/text.h"
 #include "../render/window.h"
+
+#include <SFML/Graphics.hpp>
+
+extern sf::Font font;
 
 namespace layout
 {
@@ -138,13 +143,52 @@ void LayoutNode::layout_inline(Box container)
 void LayoutNode::layout_inline_element(Box container, int x)
 {
 	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
+	line_items.clear();
 
 	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
-	m_dimensions.content.width = text_element->trim().size() * font_size->to_px();
+	auto str = text_element->trim();
+	auto px = font_size->to_px();
+	int width = container.content.width;
+	int start_y = container.content.y;
+	int start_x = container.content.x;
+	int current_x = start_x;
+	int current_y = start_y;
+	float max_height = 0;
 
-	m_dimensions.content.height = font_size->to_px();
+	auto space = sf::Text(" ", font, px);
+	sf::Text text;
+	text.setFont(font);
+	text.setCharacterSize(px);
 
-	m_dimensions.content.x = x;
+	std::istringstream ss(str);
+	std::string word;
+	while (std::getline(ss, word, ' '))
+	{
+		LineItem item;
+		item.str = word;
+		text.setString(word);
+		max_height = std::max(max_height, text.getLocalBounds().height);
+
+		int len = text.getLocalBounds().width;
+		if (current_x + len > width)
+		{
+			current_x = start_x;
+			current_y += max_height;
+			max_height = 0;
+		}
+
+		item.x = current_x;
+		item.y = current_y;
+
+		current_x += len;
+		current_x += space.getLocalBounds().width;
+		line_items.push_back(item);
+	}
+
+	float height = current_y - start_y;
+	m_dimensions.content.height = std::max(height, max_height);
+	m_dimensions.content.width = current_x - start_x;
+
 	m_dimensions.content.y = container.content.y;
 }
 
@@ -202,6 +246,12 @@ void LayoutNode::calculate_block_position(Box container)
 }
 
 void LayoutNode::calculate_block_height(Box container) { }
+
+void LayoutNode::reset()
+{
+	m_dimensions = Box();
+	line_items.clear();
+}
 
 std::string LayoutNode::to_string() const
 {

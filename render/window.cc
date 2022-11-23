@@ -5,9 +5,10 @@
 #include "../document/text.h"
 #include "../layout/box.h"
 
+auto font = sf::Font{};
+
 Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 {
-	auto font = sf::Font{};
 	auto event = sf::Event{};
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
 	bg.setFillColor(sf::Color::White);
@@ -16,11 +17,11 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 	viewport.content.width = width;
 	viewport.content.height = 0;
 
-	layout_tree->layout(viewport);
-	layout_tree->print("Layout Tree");
-
 	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))
 		exit(2);
+	
+	layout_tree->layout(viewport);
+	layout_tree->print("Layout Tree");
 
 	while (window.isOpen())
 	{
@@ -45,7 +46,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 		window.clear();
 		window.draw(bg);
 
-		auto draw_fn = [this, &font](std::shared_ptr<layout::LayoutNode> layout_node)
+		auto draw_fn = [this](std::shared_ptr<layout::LayoutNode> layout_node)
 		{
 			// anonymous boxes don't get drawn
 			if (layout_node->box_type() == layout::ANONYMOUS)
@@ -74,22 +75,25 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 				auto color = sf::Color::Black;
 				auto *font_size = dynamic_cast<css::Length *>(style->lookup("font-size"));
 
-				sf::Text text(text_element->trim(), font);
-				text.setCharacterSize(font_size->to_px());
-
-				if (text_element->is_link())
+				for (auto item : layout_node->line_items)
 				{
-					color = sf::Color::Blue;
-					sf::RectangleShape rect;
-					rect.setPosition(x, y + font_size->to_px() + 2);
-					rect.setSize(sf::Vector2f(text.getLocalBounds().width, 2));
-					rect.setFillColor(color);
-					window.draw(rect);
-				}
+					sf::Text text(item.str, font);
+					text.setCharacterSize(font_size->to_px());
 
-				text.setFillColor(color);
-				text.setPosition(x, y);
-				window.draw(text);
+					if (text_element->is_link())
+					{
+						color = sf::Color::Blue;
+						sf::RectangleShape rect;
+						rect.setPosition(item.x, item.y + font_size->to_px() + 2);
+						rect.setSize(sf::Vector2f(text.getLocalBounds().width, 2));
+						rect.setFillColor(color);
+						window.draw(rect);
+					}
+
+					text.setFillColor(color);
+					text.setPosition(item.x, item.y);
+					window.draw(text);
+				}
 			}
 		};
 
