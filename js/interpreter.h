@@ -22,6 +22,7 @@ public:
 	void visit(const IfStmt *) const;
 	void visit(const ReturnStmt *) const;
 	void visit(const ExpressionStmt *) const;
+	void visit(const FunctionDecl *) const;
 
 	// expression visitors
 

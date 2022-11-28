@@ -38,6 +38,10 @@ std::shared_ptr<Stmt> Parser::statement()
 
 	if (match(KEY_RETURN))
 		return return_statement();
+	
+	auto decl = declaration();
+	if (decl)
+		return decl;
 
 	return expression_statement();
 }
@@ -106,6 +110,26 @@ std::shared_ptr<Stmt> Parser::return_statement()
 	match(SEMICOLON);
 
 	return std::make_shared<ReturnStmt>(expr);
+}
+
+std::shared_ptr<Stmt> Parser::declaration()
+{
+	return function_declaration();
+}
+
+std::shared_ptr<Stmt> Parser::function_declaration()
+{
+	if (!match(KEY_FUNCTION))
+		return nullptr;
+
+	consume(IDENTIFIER, "Expected identifier");
+	auto name = previous_token.value();
+	consume(LEFT_PAREN, "Expected '('");
+	consume(RIGHT_PAREN, "Expected ')'");
+	consume(LEFT_BRACE, "Expected '{'");
+	auto block = block_stmt();
+
+	return std::make_shared<FunctionDecl>(name, block);
 }
 
 std::shared_ptr<Expr> Parser::expression()

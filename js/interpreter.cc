@@ -49,6 +49,11 @@ void Interpreter::visit(const ExpressionStmt *stmt) const
 	std::cout << evaluate(stmt->expr()).as_number() << "\n";
 }
 
+void Interpreter::visit(const FunctionDecl *stmt) const
+{
+	std::cout << stmt->name() << "\n";
+}
+
 // expression visitors
 
 Value Interpreter::visit(const UnaryExpr *expr) const

@@ -202,6 +202,30 @@ public:
 private:
 	std::shared_ptr<Expr> m_expr;
 };
+
+class FunctionDecl : public Stmt
+{
+public:
+	FunctionDecl(std::string function_name, std::shared_ptr<Stmt> block) :
+		m_function_name(function_name),
+	    m_block(block)
+	{ }
+
+	const char *name() const { return "FunctionDecl"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); }
+
+	void print(std::string const &prefix, bool is_left)
+	{
+		std::cout << prefix;
+		std::cout << (is_left ? "├──" : "└──");
+		std::cout << name() << "\n";
+	}
+
+private:
+	std::string m_function_name;
+	std::shared_ptr<Stmt> m_block;
+};
 }
 //class TryStmt : public Stmt
 //{

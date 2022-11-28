@@ -31,6 +31,10 @@ private:
 	std::shared_ptr<Stmt> if_statement();
 	std::shared_ptr<Stmt> return_statement();
 
+	// parse declarations
+	std::shared_ptr<Stmt> declaration();
+	std::shared_ptr<Stmt> function_declaration();
+
 	// parse expressions
 	std::shared_ptr<Expr> expression();
 	std::shared_ptr<Expr> equality();

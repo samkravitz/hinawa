@@ -10,6 +10,7 @@ class EmptyStmt;
 class IfStmt;
 class ReturnStmt;
 class ExpressionStmt;
+class FunctionDecl;
 
 class UnaryExpr;
 class BinaryExpr;
@@ -25,6 +26,7 @@ public:
 	virtual void visit(const IfStmt *) const = 0;
 	virtual void visit(const ReturnStmt *) const = 0;
 	virtual void visit(const ExpressionStmt *) const = 0;
+	virtual void visit(const FunctionDecl *) const = 0;
 };
 
 class ExprVisitor
@@ -45,6 +47,7 @@ public:
 	virtual void visit(const IfStmt *, std::string const & prefix) const = 0;
 	virtual void visit(const ReturnStmt *, std::string const & prefix) const = 0;
 	virtual void visit(const ExpressionStmt *, std::string const & prefix) const = 0;
+	virtual void visit(const FunctionDecl *, std::string const & prefix) const = 0;
 	virtual void visit(const UnaryExpr *, std::string const & prefix) const = 0;
 	virtual void visit(const BinaryExpr *, std::string const & prefix) const = 0;
 	virtual void visit(const CallExpr *, std::string const & prefix) const = 0;

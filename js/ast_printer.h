@@ -61,6 +61,8 @@ public:
 		node->expr()->accept(this, prefix + "│   ");
 	}
 
+	void visit(const FunctionDecl *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
+
 	void visit(const UnaryExpr *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
 	void visit(const BinaryExpr *node, std::string const &prefix) const
 	{
