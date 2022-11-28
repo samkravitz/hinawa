@@ -12,7 +12,7 @@ class AstNode
 {
 public:
 	virtual const char *name() const = 0;
-	virtual void accept(const PrintVisitor *visitor, std::string const & prefix) const = 0;
+	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 
 	virtual void print(std::string const &prefix, bool is_left);
 	virtual void print(std::string const &title = "");

@@ -21,7 +21,6 @@ int main(int argc, char **argv)
 
 	js::Parser parser(buffer.str());
 	auto ast = parser.parse();
-	//ast->print("", false);
 
 	js::AstPrinter printer;
 	printer.print(ast);

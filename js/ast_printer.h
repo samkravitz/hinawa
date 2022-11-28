@@ -14,72 +14,62 @@ public:
 	AstPrinter() { }
 	void print(std::vector<std::shared_ptr<Stmt>> program)
 	{
-		std::string prefix = "└──";
-		std::cout << prefix << "Program\n";
+		std::cout << "Script:\n";
 		for (auto stmt : program)
-			stmt->accept(this, "     ");
+			stmt->accept(this, 0);
 	}
 
-	void visit(const BlockStmt *node, std::string const &prefix) const { 
-		std::cout << prefix << "└──";
+	void visit(const BlockStmt *node, int indent) const { 
+		print_indent(indent);
+
 		std::cout << node->name() << "\n";
 
-		int x = 0;
 		for (auto stmt : node->stmts())
-		{
-			if (x++ == 0)
-				stmt->accept(this, prefix + "    ");
-			else
-				stmt->accept(this, prefix + "│   ");
-		}
+			stmt->accept(this, indent + 1);
 	 }
-	void visit(const VariableStmt *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
-	void visit(const EmptyStmt *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
-	void visit(const IfStmt *node, std::string const &prefix) const
+	void visit(const VariableStmt *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const EmptyStmt *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const IfStmt *node, int indent) const
 	{
-		std::cout << prefix;
-		std::cout << "├──";
+		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		std::cout << prefix << "│   " << "├──" << "condition: ";
-		node->condition()->accept(this, "");
-
-		std::cout << prefix << "│   " << "├──" << "then: ";
-		//node->then()->accept(this, "");
-
-		//node->condition()->accept(this, prefix + "│   " + "├──" + "condition: ");
-		//node->then()->accept(this, prefix + "│   "  );
-		//if (node->else_stmt())
-		//	node->else_stmt()->accept(this,  prefix + "│   ");
+		node->condition()->accept(this, indent + 1);
 	}
 
-	void visit(const ReturnStmt *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
-	void visit(const ExpressionStmt *node, std::string const &prefix) const
+	void visit(const ReturnStmt *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const ExpressionStmt *node, int indent) const
 	{
-		std::cout << prefix << "└──";
+		print_indent(indent);
 		std::cout << node->name() << "\n";
-		node->expr()->accept(this, prefix + "│   ");
+		node->expr()->accept(this, indent + 1);
 	}
 
-	void visit(const FunctionDecl *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
+	void visit(const FunctionDecl *node, int indent) const { std::cout << node->name() << "\n"; }
 
-	void visit(const UnaryExpr *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
-	void visit(const BinaryExpr *node, std::string const &prefix) const
+	void visit(const UnaryExpr *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const BinaryExpr *node, int indent) const
 	{
-		std::cout << prefix;
-		std::cout << "└──";
+		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		node->lhs()->accept(this, prefix + "    " + "├──");
-		std::cout << prefix << "    "
-		          << "├──" << node->op().value() << "\n";
-		node->rhs()->accept(this, prefix + "    " + +"└──");
+		node->lhs()->accept(this, indent + 1);
+		print_indent(indent + 1);
+		std::cout << node->op().value() << "\n";
+		node->rhs()->accept(this, indent + 1);
 	}
-	void visit(const CallExpr *node, std::string const &prefix) const { std::cout << node->name() << "\n"; }
-	void visit(const Literal *node, std::string const &prefix) const
+	void visit(const CallExpr *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const Literal *node, int indent) const
 	{
-		std::cout << prefix;
+		print_indent(indent);
 		std::cout << node->value().as_number() << "\n";
+	}
+
+private:
+	void print_indent(int indent) const
+	{
+		for (int i = 0; i < indent * 2; i++)
+			std::cout << " ";
 	}
 };
 }

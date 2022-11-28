@@ -41,16 +41,16 @@ public:
 class PrintVisitor
 {
 public:
-	virtual void visit(const BlockStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const VariableStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const EmptyStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const IfStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const ReturnStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const ExpressionStmt *, std::string const & prefix) const = 0;
-	virtual void visit(const FunctionDecl *, std::string const & prefix) const = 0;
-	virtual void visit(const UnaryExpr *, std::string const & prefix) const = 0;
-	virtual void visit(const BinaryExpr *, std::string const & prefix) const = 0;
-	virtual void visit(const CallExpr *, std::string const & prefix) const = 0;
-	virtual void visit(const Literal *, std::string const & prefix) const = 0;
+	virtual void visit(const BlockStmt *, int indent) const = 0;
+	virtual void visit(const VariableStmt *, int indent) const = 0;
+	virtual void visit(const EmptyStmt *, int indent) const = 0;
+	virtual void visit(const IfStmt *, int indent) const = 0;
+	virtual void visit(const ReturnStmt *, int indent) const = 0;
+	virtual void visit(const ExpressionStmt *, int indent) const = 0;
+	virtual void visit(const FunctionDecl *, int indent) const = 0;
+	virtual void visit(const UnaryExpr *, int indent) const = 0;
+	virtual void visit(const BinaryExpr *, int indent) const = 0;
+	virtual void visit(const CallExpr *, int indent) const = 0;
+	virtual void visit(const Literal *, int indent) const = 0;
 };
 }

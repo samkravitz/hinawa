@@ -11,7 +11,7 @@ class Stmt : public AstNode
 public:
 	const char *name() const = 0;
 	virtual void accept(const StmtVisitor *visitor) const = 0;
-	virtual void accept(const PrintVisitor *visitor, std::string const &prefix) const = 0;
+	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 };
 
 //class Program : public Stmt
@@ -24,7 +24,7 @@ public:
 //i
 
 //	std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
-//	void print(std::string const &prefix, bool is_left)
+//	void print(int indent, bool is_left)
 //	{
 //		std::cout << prefix;
 //		std::cout << (is_left ? "├──" : "└──");
@@ -47,25 +47,9 @@ public:
 
 	const char *name() const { return "BlockStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	inline std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-
-		int x = 0;
-		for (auto stmt : m_stmts)
-		{
-			if (x++ == 0)
-				stmt->print(prefix + (is_left ? "│   " : "    "), true);
-			else
-				stmt->print(prefix + (is_left ? "│   " : "    "), false);
-		}
-	}
 
 private:
 	std::vector<std::shared_ptr<Stmt>> m_stmts;
@@ -80,18 +64,7 @@ public:
 	{ }
 	const char *name() const { return "VariableStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-
-		std::cout << prefix << "│   " << (m_init ? "├──" : "└──") << "name: " << m_identifier << "\n";
-		if (m_init)
-			m_init->print(prefix + (is_left ? "│   " : "    "), false);
-	}
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 private:
 	std::string m_identifier;
@@ -103,7 +76,7 @@ class EmptyStmt : public Stmt
 public:
 	const char *name() const { return "EmptyStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 };
 
 class ExpressionStmt : public Stmt
@@ -115,18 +88,9 @@ public:
 
 	const char *name() const { return "ExpressionStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	std::shared_ptr<Expr> expr() const { return m_expr; }
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-
-		m_expr->print(prefix + (is_left ? "│   " : "    "), false);
-	}
 
 private:
 	std::shared_ptr<Expr> m_expr;
@@ -146,20 +110,7 @@ public:
 	std::shared_ptr<Stmt> else_stmt() const { return m_else; }
 	const char *name() const { return "IfStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); };
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-
-		m_condition->print(prefix + (is_left ? "│   " : "    "), true);
-		m_then->print(prefix + (is_left ? "│   " : "    "), m_else != nullptr);
-
-		if (m_else)
-			m_else->print(prefix + (is_left ? "│   " : "    "), false);
-	}
-
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 private:
 	std::shared_ptr<Expr> m_condition;
 	std::shared_ptr<Stmt> m_then;
@@ -187,17 +138,7 @@ public:
 
 	const char *name() const { return "ReturnStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); }
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-
-		if (m_expr)
-			m_expr->print(prefix + (is_left ? "│   " : "    "), false);
-	}
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 private:
 	std::shared_ptr<Expr> m_expr;
@@ -213,14 +154,7 @@ public:
 
 	const char *name() const { return "FunctionDecl"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-	void accept(const PrintVisitor *visitor, std::string const &prefix) const { visitor->visit(this, prefix); }
-
-	void print(std::string const &prefix, bool is_left)
-	{
-		std::cout << prefix;
-		std::cout << (is_left ? "├──" : "└──");
-		std::cout << name() << "\n";
-	}
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 private:
 	std::string m_function_name;
