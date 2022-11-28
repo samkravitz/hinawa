@@ -19,16 +19,32 @@ public:
 			stmt->accept(this, 0);
 	}
 
-	void visit(const BlockStmt *node, int indent) const { 
+	void visit(const BlockStmt *node, int indent) const
+	{
 		print_indent(indent);
-
 		std::cout << node->name() << "\n";
 
 		for (auto stmt : node->stmts())
 			stmt->accept(this, indent + 1);
-	 }
-	void visit(const VariableStmt *node, int indent) const { std::cout << node->name() << "\n"; }
-	void visit(const EmptyStmt *node, int indent) const { std::cout << node->name() << "\n"; }
+	}
+
+	void visit(const VariableStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+		print_indent(indent + 1);
+		std::cout << node->identifier() << "\n";
+
+		if (node->init())
+			node->init()->accept(this, indent + 1);
+	}
+
+	void visit(const EmptyStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+	}
+
 	void visit(const IfStmt *node, int indent) const
 	{
 		print_indent(indent);
@@ -37,7 +53,15 @@ public:
 		node->condition()->accept(this, indent + 1);
 	}
 
-	void visit(const ReturnStmt *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const ReturnStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+
+		if (node->expr())
+			node->expr()->accept(this, indent + 1);
+	}
+
 	void visit(const ExpressionStmt *node, int indent) const
 	{
 		print_indent(indent);
@@ -45,9 +69,19 @@ public:
 		node->expr()->accept(this, indent + 1);
 	}
 
-	void visit(const FunctionDecl *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const FunctionDecl *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << ": " << node->function_name() << "\n";
+		node->block()->accept(this, indent + 1);
+	}
 
-	void visit(const UnaryExpr *node, int indent) const { std::cout << node->name() << "\n"; }
+	void visit(const UnaryExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+	}
+
 	void visit(const BinaryExpr *node, int indent) const
 	{
 		print_indent(indent);
@@ -58,7 +92,13 @@ public:
 		std::cout << node->op().value() << "\n";
 		node->rhs()->accept(this, indent + 1);
 	}
-	void visit(const CallExpr *node, int indent) const { std::cout << node->name() << "\n"; }
+
+	void visit(const CallExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+	}
+
 	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);

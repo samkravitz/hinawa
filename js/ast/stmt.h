@@ -66,6 +66,9 @@ public:
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
+	std::string identifier() const { return m_identifier; }
+	std::shared_ptr<Expr> init() const { return m_init; }
+
 private:
 	std::string m_identifier;
 	std::shared_ptr<Expr> m_init;
@@ -140,6 +143,8 @@ public:
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
+	std::shared_ptr<Expr> expr() const { return m_expr; }
+
 private:
 	std::shared_ptr<Expr> m_expr;
 };
@@ -155,6 +160,9 @@ public:
 	const char *name() const { return "FunctionDecl"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+
+	std::string function_name() const { return m_function_name; }
+	std::shared_ptr<Stmt> block() const { return m_block; }
 
 private:
 	std::string m_function_name;
