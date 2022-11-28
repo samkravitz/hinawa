@@ -16,6 +16,12 @@ public:
 		String,
 	};
 
+	// construct undefined value
+	Value()
+	{
+		m_type = Type::Undefined;
+	}
+
 	explicit Value(Type type) :
 	    m_type(type)
 	{ }

@@ -105,6 +105,12 @@ public:
 		std::cout << node->value().as_number() << "\n";
 	}
 
+	void visit(const Variable *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->ident() << "\n";
+	}
+
 private:
 	void print_indent(int indent) const
 	{

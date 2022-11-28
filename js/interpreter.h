@@ -30,6 +30,7 @@ public:
 	Value visit(const BinaryExpr *) const;
 	Value visit(const CallExpr *) const;
 	Value visit(const Literal *) const;
+	Value visit(const Variable *) const;
 
 private:
 	void execute(const std::shared_ptr<Stmt>) const;

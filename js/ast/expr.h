@@ -86,4 +86,20 @@ public:
 private:
 	Value m_value;
 };
+
+class Variable : public Expr
+{
+public:
+	Variable(std::string ident) :
+	    m_ident(ident)
+	{ }
+
+	const char *name() const { return "Variable"; }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	std::string ident() const { return m_ident; }
+
+private:
+	std::string m_ident;
+};
 }

@@ -204,9 +204,10 @@ std::shared_ptr<Expr> Parser::unary()
 std::shared_ptr<Expr> Parser::primary()
 {
 	if (match(NUMBER))
-	{
 		return std::make_shared<Literal>(Value(std::stof(previous_token.value())));
-	}
+	
+	if (match(IDENTIFIER))
+		return std::make_shared<Variable>(previous_token.value());
 
 	return nullptr;
 }

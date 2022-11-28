@@ -16,6 +16,7 @@ class UnaryExpr;
 class BinaryExpr;
 class CallExpr;
 class Literal;
+class Variable;
 
 class StmtVisitor
 {
@@ -36,6 +37,7 @@ public:
 	virtual Value visit(const BinaryExpr *) const = 0;
 	virtual Value visit(const CallExpr *) const = 0;
 	virtual Value visit(const Literal *) const = 0;
+	virtual Value visit(const Variable *) const = 0;
 };
 
 class PrintVisitor
@@ -52,5 +54,6 @@ public:
 	virtual void visit(const BinaryExpr *, int indent) const = 0;
 	virtual void visit(const CallExpr *, int indent) const = 0;
 	virtual void visit(const Literal *, int indent) const = 0;
+	virtual void visit(const Variable *, int indent) const = 0;
 };
 }

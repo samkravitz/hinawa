@@ -96,4 +96,9 @@ Value Interpreter::visit(const Literal *expr) const
 {
 	return expr->value();
 }
+
+Value Interpreter::visit(const Variable *expr) const
+{
+	return Value();
+}
 }
