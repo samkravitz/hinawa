@@ -38,7 +38,7 @@ std::shared_ptr<Stmt> Parser::statement()
 
 	if (match(KEY_RETURN))
 		return return_statement();
-	
+
 	auto decl = declaration();
 	if (decl)
 		return decl;
@@ -235,7 +235,7 @@ std::shared_ptr<Expr> Parser::primary()
 {
 	if (match(NUMBER))
 		return std::make_shared<Literal>(Value(std::stof(previous_token.value())));
-	
+
 	if (match(IDENTIFIER))
 		return std::make_shared<Variable>(previous_token.value());
 

@@ -24,6 +24,8 @@ int main(int argc, char **argv)
 
 	js::AstPrinter printer;
 	printer.print(ast);
+	std::cout << '\n';
+
 	js::Interpreter interpreter;
 	interpreter.run(ast);
 }
