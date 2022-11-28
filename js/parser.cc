@@ -198,7 +198,37 @@ std::shared_ptr<Expr> Parser::unary()
 		return std::make_shared<UnaryExpr>(op, rhs);
 	}
 
-	return primary();
+	return call();
+}
+
+std::shared_ptr<Expr> Parser::call()
+{
+	auto expr = primary();
+
+	auto call_helper = [this](std::shared_ptr<Expr> callee) -> std::shared_ptr<Expr>
+	{
+		std::vector<std::shared_ptr<Expr>> args;
+
+		if (peek() != RIGHT_PAREN)
+		{
+			do
+			{
+				args.push_back(expression());
+			} while (match(COMMA));
+		}
+
+		return std::make_shared<CallExpr>(callee, args);
+	};
+
+	while (true)
+	{
+		if (match(LEFT_PAREN))
+			expr = call_helper(expr);
+		else
+			break;
+	}
+
+	return expr;
 }
 
 std::shared_ptr<Expr> Parser::primary()

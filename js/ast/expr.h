@@ -67,8 +67,21 @@ private:
 class CallExpr : public Expr
 {
 public:
+	CallExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> args) :
+	    m_callee(callee),
+	    m_args(args)
+	{ }
+
 	const char *name() const { return "CallExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
+
+	std::shared_ptr<Expr> callee() const { return m_callee; }
+	std::vector<std::shared_ptr<Expr>> args() const { return m_args; }
+
+private:
+	std::shared_ptr<Expr> m_callee;
+	std::vector<std::shared_ptr<Expr>> m_args;
 };
 
 class Literal : public Expr

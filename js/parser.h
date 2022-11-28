@@ -42,6 +42,7 @@ private:
 	std::shared_ptr<Expr> term();
 	std::shared_ptr<Expr> factor();
 	std::shared_ptr<Expr> unary();
+	std::shared_ptr<Expr> call();
 	std::shared_ptr<Expr> primary();
 
 	void advance();
