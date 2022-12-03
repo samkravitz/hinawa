@@ -1,10 +1,15 @@
 #pragma once
 
+#include "../util/hinawa.h"
+
 namespace js
 {
-enum class Opcode : int
+enum Opcode : u8
 {
-	Constant,
-	Return,
+	OP_CONSTANT,
+	OP_LOAD,
+	OP_RETURN,
+
+	OP_UNKNOWN,
 };
 }

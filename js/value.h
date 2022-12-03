@@ -9,11 +9,11 @@ class Value
 public:
 	enum class Type
 	{
-		Boolean,
+		Bool,
 		Null,
-		Undefined,
 		Number,
 		String,
+		Undefined,
 	};
 
 	// construct undefined value
@@ -33,9 +33,11 @@ public:
 
 	inline Type type() const { return m_type; }
 
-	inline bool as_boolean() const { return boolean; }
+	inline bool as_bool() const { return boolean; }
 	inline double as_number() const { return number; }
 	inline std::string *as_string() const { return string; }
+
+	std::string to_string() const;
 
 private:
 	Type m_type;

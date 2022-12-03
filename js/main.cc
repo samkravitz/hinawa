@@ -1,5 +1,6 @@
 #include "ast/ast.h"
 #include "ast_printer.h"
+#include "codegen.h"
 #include "interpreter.h"
 #include "parser.h"
 #include <fstream>
@@ -25,6 +26,9 @@ int main(int argc, char **argv)
 	js::AstPrinter printer;
 	printer.print(ast);
 	std::cout << '\n';
+
+	auto chunk = codegen(ast);
+	chunk.disassemble("script");
 
 	js::Interpreter interpreter;
 	interpreter.run(ast);

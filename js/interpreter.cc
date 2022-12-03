@@ -1,5 +1,7 @@
 #include "interpreter.h"
 
+#include <iostream>
+
 namespace js
 {
 void Interpreter::run(std::vector<std::shared_ptr<Stmt>> program) const
