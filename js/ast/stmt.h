@@ -95,6 +95,11 @@ public:
 
 	std::shared_ptr<Expr> expr() const { return m_expr; }
 
+	void generate_bytecode(Chunk &chunk) const
+	{
+		expr()->generate_bytecode(chunk);
+	}
+
 private:
 	std::shared_ptr<Expr> m_expr;
 };

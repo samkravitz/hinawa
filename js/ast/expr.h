@@ -58,6 +58,24 @@ public:
 	Token op() const { return m_op; };
 	std::shared_ptr<Expr> rhs() const { return m_rhs; }
 
+	void generate_bytecode(Chunk &chunk) const
+	{
+		Opcode opcode;
+		switch (op().type())
+		{
+			case PLUS: opcode = OP_ADD; break;
+			case MINUS: opcode = OP_SUBTRACT; break;
+			default: opcode = OP_UNKNOWN; break;
+		}
+
+		auto lhs_reg = chunk.allocate_register();
+		auto rhs_reg = chunk.allocate_register();
+
+		chunk.write(opcode, op().line());
+		chunk.write(lhs_reg, op().line());
+		chunk.write(rhs_reg, op().line());
+	}
+
 private:
 	std::shared_ptr<Expr> m_lhs;
 	Token m_op;

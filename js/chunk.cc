@@ -1,5 +1,6 @@
 #include "chunk.h"
 
+#include <cassert>
 #include <cstdio>
 
 #include "opcode.h"
@@ -19,6 +20,17 @@ size_t Chunk::add_constant(Value value)
 	return m_constants.size() - 1;
 }
 
+size_t Chunk::size() const
+{
+	return m_code.size();
+}
+
+u32 Chunk::allocate_register()
+{
+	assert(m_next_register != REG_MAX);
+	return m_next_register++;
+}
+
 void Chunk::disassemble(const char *name) const
 {
 	std::printf("== %s ==\n", name);
@@ -27,11 +39,6 @@ void Chunk::disassemble(const char *name) const
 		offset = disassemble_instruction(offset);
 	
 	std::printf("\n");
-}
-
-size_t Chunk::size() const
-{
-	return m_code.size();
 }
 
 size_t Chunk::disassemble_instruction(size_t offset) const
@@ -49,6 +56,11 @@ size_t Chunk::disassemble_instruction(size_t offset) const
 			return simple_instruction("OP_RETURN", offset);
 		case OP_CONSTANT:
       		return constant_instruction("OP_CONSTANT", offset);
+		case OP_ADD: {
+			//return constant_instruction("OP_ADD", offset);
+			std::printf("%-16s r%4d, r%4d\n", "add", m_code[offset + 1], m_code[offset + 2]);
+			return offset + 2;
+		}
 		default:
 			std::printf("Unknown opcode: %d\n", instruction);
 			return offset + 1;

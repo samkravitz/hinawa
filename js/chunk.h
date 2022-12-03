@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <limits>
 #include <vector>
 
 #include "value.h"
@@ -8,6 +9,8 @@
 
 namespace js
 {
+static constexpr u32 REG_MAX = std::numeric_limits<u32>::max();
+
 class Chunk
 {
 public:
@@ -15,11 +18,13 @@ public:
 	size_t add_constant(Value);
 	void disassemble(const char *) const;
 	size_t size() const;
+	u32 allocate_register();
 
 private:
 	std::vector<u8> m_code;
 	std::vector<Value> m_constants;
 	std::vector<int> m_lines;
+	u32 m_next_register { 1 };
 
 	size_t disassemble_instruction(size_t) const;
 	size_t simple_instruction(const char *, size_t) const;
