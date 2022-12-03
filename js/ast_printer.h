@@ -12,7 +12,7 @@ class AstPrinter : public PrintVisitor
 {
 public:
 	AstPrinter() { }
-	void print(std::vector<std::shared_ptr<Stmt>> program)
+	void print(std::vector<Stmt *> program)
 	{
 		std::cout << "Script:\n";
 		for (auto stmt : program)

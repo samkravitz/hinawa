@@ -2,7 +2,7 @@
 
 namespace js
 {
-Chunk codegen(std::vector<std::shared_ptr<Stmt>> const &ast)
+Chunk codegen(std::vector<Stmt *> const &ast)
 {
 	auto chunk = Chunk{};
 	for (auto const &node : ast)

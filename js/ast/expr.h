@@ -18,7 +18,7 @@ public:
 class UnaryExpr : public Expr
 {
 public:
-	UnaryExpr(Token op, std::shared_ptr<Expr> rhs) :
+	UnaryExpr(Token op, Expr *rhs) :
 	    m_op(op),
 	    m_rhs(rhs)
 	{ }
@@ -27,12 +27,12 @@ public:
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
-	std::shared_ptr<Expr> rhs() const { return m_rhs; }
+	Expr *rhs() const { return m_rhs; }
 	Token op() const { return m_op; };
 
 private:
 	Token m_op;
-	std::shared_ptr<Expr> m_rhs;
+	Expr *m_rhs;
 };
 
 class BinaryExpr : public Expr
@@ -44,7 +44,7 @@ public:
 		Minus,
 	};
 
-	BinaryExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
+	BinaryExpr(Expr *lhs, Token op, Expr *rhs) :
 	    m_lhs(lhs),
 	    m_op(op),
 	    m_rhs(rhs)
@@ -54,9 +54,9 @@ public:
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 
-	std::shared_ptr<Expr> lhs() const { return m_lhs; }
+	Expr *lhs() const { return m_lhs; }
 	Token op() const { return m_op; };
-	std::shared_ptr<Expr> rhs() const { return m_rhs; }
+	Expr *rhs() const { return m_rhs; }
 
 	void generate_bytecode(Chunk &chunk) const
 	{
@@ -77,15 +77,15 @@ public:
 	}
 
 private:
-	std::shared_ptr<Expr> m_lhs;
+	Expr *m_lhs;
 	Token m_op;
-	std::shared_ptr<Expr> m_rhs;
+	Expr *m_rhs;
 };
 
 class CallExpr : public Expr
 {
 public:
-	CallExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> args) :
+	CallExpr(Expr *callee, std::vector<Expr *> args) :
 	    m_callee(callee),
 	    m_args(args)
 	{ }
@@ -94,12 +94,12 @@ public:
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 
-	std::shared_ptr<Expr> callee() const { return m_callee; }
-	std::vector<std::shared_ptr<Expr>> args() const { return m_args; }
+	Expr *callee() const { return m_callee; }
+	std::vector<Expr *> args() const { return m_args; }
 
 private:
-	std::shared_ptr<Expr> m_callee;
-	std::vector<std::shared_ptr<Expr>> m_args;
+	Expr *m_callee;
+	std::vector<Expr *> m_args;
 };
 
 class Literal : public Expr

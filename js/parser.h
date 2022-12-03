@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,7 +15,7 @@ class Parser
 public:
 	Parser(std::string);
 
-	std::vector<std::shared_ptr<Stmt>> parse();
+	std::vector<Stmt *> parse();
 
 private:
 	Scanner scanner;
@@ -24,26 +23,26 @@ private:
 	Token previous_token;
 
 	// parse statements
-	std::shared_ptr<Stmt> statement();
-	std::shared_ptr<Stmt> block_stmt();
-	std::shared_ptr<Stmt> variable_statement();
-	std::shared_ptr<Stmt> expression_statement();
-	std::shared_ptr<Stmt> if_statement();
-	std::shared_ptr<Stmt> return_statement();
+	Stmt *statement();
+	Stmt *block_stmt();
+	Stmt *variable_statement();
+	Stmt *expression_statement();
+	Stmt *if_statement();
+	Stmt *return_statement();
 
 	// parse declarations
-	std::shared_ptr<Stmt> declaration();
-	std::shared_ptr<Stmt> function_declaration();
+	Stmt *declaration();
+	Stmt *function_declaration();
 
 	// parse expressions
-	std::shared_ptr<Expr> expression();
-	std::shared_ptr<Expr> equality();
-	std::shared_ptr<Expr> comparison();
-	std::shared_ptr<Expr> term();
-	std::shared_ptr<Expr> factor();
-	std::shared_ptr<Expr> unary();
-	std::shared_ptr<Expr> call();
-	std::shared_ptr<Expr> primary();
+	Expr *expression();
+	Expr *equality();
+	Expr *comparison();
+	Expr *term();
+	Expr *factor();
+	Expr *unary();
+	Expr *call();
+	Expr *primary();
 
 	void advance();
 	void consume(TokenType, const char *);

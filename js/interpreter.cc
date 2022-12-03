@@ -4,18 +4,18 @@
 
 namespace js
 {
-void Interpreter::run(std::vector<std::shared_ptr<Stmt>> program) const
+void Interpreter::run(std::vector<Stmt *> program) const
 {
 	for (auto stmt : program)
 		execute(stmt);
 }
 
-void Interpreter::execute(const std::shared_ptr<Stmt> stmt) const
+void Interpreter::execute(const Stmt *stmt) const
 {
 	stmt->accept(this);
 }
 
-Value Interpreter::evaluate(const std::shared_ptr<Expr> expr) const
+Value Interpreter::evaluate(const Expr *expr) const
 {
 	return expr->accept(this);
 }
@@ -81,8 +81,7 @@ Value Interpreter::visit(const BinaryExpr *expr) const
 		case PLUS: return Value(lhs.as_number() + rhs.as_number());
 		case SLASH: return Value(lhs.as_number() * rhs.as_number());
 		case STAR: return Value(lhs.as_number() / rhs.as_number());
-		default:
-			;
+		default:;
 	}
 
 	return Value(0.0);

@@ -6,5 +6,5 @@
 
 namespace js
 {
-Chunk codegen(std::vector<std::shared_ptr<Stmt>> const &);
+Chunk codegen(std::vector<Stmt *> const &);
 }

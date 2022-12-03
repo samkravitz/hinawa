@@ -17,13 +17,13 @@ public:
 //class Program : public Stmt
 //{
 //public:
-//	void add_stmt(std::shared_ptr<Stmt> stmt) { m_stmts.push_back(stmt); }
+//	void add_stmt(Stmt * stmt) { m_stmts.push_back(stmt); }
 
 //	const char *name() const { return "Program"; }
 //	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 //i
 
-//	std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
+//	std::vector<Stmt *> stmts() const { return m_stmts; }
 //	void print(int indent, bool is_left)
 //	{
 //		std::cout << prefix;
@@ -35,13 +35,13 @@ public:
 //	}
 
 //private:
-//	std::vector<std::shared_ptr<Stmt>> m_stmts;
+//	std::vector<Stmt *> m_stmts;
 //};
 
 class BlockStmt : public Stmt
 {
 public:
-	BlockStmt(std::vector<std::shared_ptr<Stmt>> stmts) :
+	BlockStmt(std::vector<Stmt *> stmts) :
 	    m_stmts(stmts)
 	{ }
 
@@ -49,16 +49,16 @@ public:
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
-	inline std::vector<std::shared_ptr<Stmt>> stmts() const { return m_stmts; }
+	inline std::vector<Stmt *> stmts() const { return m_stmts; }
 
 private:
-	std::vector<std::shared_ptr<Stmt>> m_stmts;
+	std::vector<Stmt *> m_stmts;
 };
 
 class VariableStmt : public Stmt
 {
 public:
-	VariableStmt(std::string identifier, std::shared_ptr<Expr> initializer) :
+	VariableStmt(std::string identifier, Expr *initializer) :
 	    m_identifier(identifier),
 	    m_init(initializer)
 	{ }
@@ -67,11 +67,11 @@ public:
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	std::string identifier() const { return m_identifier; }
-	std::shared_ptr<Expr> init() const { return m_init; }
+	Expr *init() const { return m_init; }
 
 private:
 	std::string m_identifier;
-	std::shared_ptr<Expr> m_init;
+	Expr *m_init;
 };
 
 class EmptyStmt : public Stmt
@@ -85,7 +85,7 @@ public:
 class ExpressionStmt : public Stmt
 {
 public:
-	ExpressionStmt(std::shared_ptr<Expr> expr) :
+	ExpressionStmt(Expr *expr) :
 	    m_expr(expr)
 	{ }
 
@@ -93,36 +93,33 @@ public:
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
-	std::shared_ptr<Expr> expr() const { return m_expr; }
+	Expr *expr() const { return m_expr; }
 
-	void generate_bytecode(Chunk &chunk) const
-	{
-		expr()->generate_bytecode(chunk);
-	}
+	void generate_bytecode(Chunk &chunk) const { expr()->generate_bytecode(chunk); }
 
 private:
-	std::shared_ptr<Expr> m_expr;
+	Expr *m_expr;
 };
 
 class IfStmt : public Stmt
 {
 public:
-	IfStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> then, std::shared_ptr<Stmt> else_stmt) :
+	IfStmt(Expr *condition, Stmt *then, Stmt *else_stmt) :
 	    m_condition(condition),
 	    m_then(then),
 	    m_else(else_stmt)
 	{ }
 
-	std::shared_ptr<Expr> condition() const { return m_condition; }
-	std::shared_ptr<Stmt> then() const { return m_then; }
-	std::shared_ptr<Stmt> else_stmt() const { return m_else; }
+	Expr *condition() const { return m_condition; }
+	Stmt *then() const { return m_then; }
+	Stmt *else_stmt() const { return m_else; }
 	const char *name() const { return "IfStmt"; }
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 private:
-	std::shared_ptr<Expr> m_condition;
-	std::shared_ptr<Stmt> m_then;
-	std::shared_ptr<Stmt> m_else;
+	Expr *m_condition;
+	Stmt *m_then;
+	Stmt *m_else;
 };
 
 //class ContinueStmt : public Stmt
@@ -140,7 +137,7 @@ private:
 class ReturnStmt : public Stmt
 {
 public:
-	ReturnStmt(std::shared_ptr<Expr> expr) :
+	ReturnStmt(Expr *expr) :
 	    m_expr(expr)
 	{ }
 
@@ -148,17 +145,17 @@ public:
 	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
-	std::shared_ptr<Expr> expr() const { return m_expr; }
+	Expr *expr() const { return m_expr; }
 
 private:
-	std::shared_ptr<Expr> m_expr;
+	Expr *m_expr;
 };
 
 class FunctionDecl : public Stmt
 {
 public:
-	FunctionDecl(std::string function_name, std::shared_ptr<Stmt> block) :
-		m_function_name(function_name),
+	FunctionDecl(std::string function_name, Stmt *block) :
+	    m_function_name(function_name),
 	    m_block(block)
 	{ }
 
@@ -167,12 +164,13 @@ public:
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 	std::string function_name() const { return m_function_name; }
-	std::shared_ptr<Stmt> block() const { return m_block; }
+	Stmt *block() const { return m_block; }
 
 private:
 	std::string m_function_name;
-	std::shared_ptr<Stmt> m_block;
+	Stmt *m_block;
 };
+
 }
 //class TryStmt : public Stmt
 //{

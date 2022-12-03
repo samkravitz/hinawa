@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "ast/expr.h"
 #include "ast/stmt.h"
 #include "ast/visitor.h"
@@ -13,7 +11,7 @@ class Interpreter : public StmtVisitor, public ExprVisitor
 public:
 	Interpreter() = default;
 
-	void run(std::vector<std::shared_ptr<Stmt>>) const;
+	void run(std::vector<Stmt *>) const;
 
 	// statement visitors
 	void visit(const BlockStmt *) const;
@@ -33,7 +31,7 @@ public:
 	Value visit(const Variable *) const;
 
 private:
-	void execute(const std::shared_ptr<Stmt>) const;
-	Value evaluate(const std::shared_ptr<Expr>) const;
+	void execute(const Stmt *) const;
+	Value evaluate(const Expr *) const;
 };
 }
