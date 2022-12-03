@@ -6,6 +6,7 @@ set(SOURCES
 	parser.cc
 	token.cc
 	value.cc
+	vm.cc
 )
 
 set(HEADERS

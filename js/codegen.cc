@@ -8,6 +8,7 @@ Chunk codegen(std::vector<Stmt *> const &ast)
 	for (auto const &node : ast)
 		node->generate_bytecode(chunk);
 
+	chunk.write(OP_RETURN);
 	return chunk;
 }
 }

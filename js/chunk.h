@@ -17,14 +17,16 @@ public:
 	void disassemble(const char *) const;
 	size_t size() const;
 	u32 allocate_register();
+	inline size_t reg_count() const { return next_register; }
+
+	std::vector<u8> code;
+	std::vector<Value> constants;
+	std::vector<int> lines;
 
 	static constexpr u32 REG_INVALID = std::numeric_limits<u32>::max();
 	static constexpr u32 REG_MAX = REG_INVALID - 1;
 
 private:
-	std::vector<u8> code;
-	std::vector<Value> constants;
-	std::vector<int> lines;
 	u32 next_register{ 1 };
 
 	size_t disassemble_instruction(size_t) const;

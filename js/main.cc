@@ -3,6 +3,7 @@
 #include "codegen.h"
 #include "interpreter.h"
 #include "parser.h"
+#include "vm.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -29,6 +30,9 @@ int main(int argc, char **argv)
 
 	auto chunk = codegen(ast);
 	chunk.disassemble("script");
+
+	auto vm = js::Vm{};
+	auto res = vm.run(chunk);
 
 	js::Interpreter interpreter;
 	interpreter.run(ast);
