@@ -95,7 +95,11 @@ public:
 
 	Expr *expr() const { return m_expr; }
 
-	void generate_bytecode(Chunk &chunk) const { expr()->generate_bytecode(chunk); }
+	u32 generate_bytecode(Chunk &chunk) const
+	{
+		expr()->generate_bytecode(chunk);
+		return Chunk::REG_INVALID;
+	}
 
 private:
 	Expr *m_expr;

@@ -4,13 +4,11 @@
 #include <limits>
 #include <vector>
 
-#include "value.h"
 #include "../util/hinawa.h"
+#include "value.h"
 
 namespace js
 {
-static constexpr u32 REG_MAX = std::numeric_limits<u32>::max();
-
 class Chunk
 {
 public:
@@ -20,11 +18,14 @@ public:
 	size_t size() const;
 	u32 allocate_register();
 
+	static constexpr u32 REG_INVALID = std::numeric_limits<u32>::max();
+	static constexpr u32 REG_MAX = REG_INVALID - 1;
+
 private:
-	std::vector<u8> m_code;
-	std::vector<Value> m_constants;
-	std::vector<int> m_lines;
-	u32 m_next_register { 1 };
+	std::vector<u8> code;
+	std::vector<Value> constants;
+	std::vector<int> lines;
+	u32 next_register{ 1 };
 
 	size_t disassemble_instruction(size_t) const;
 	size_t simple_instruction(const char *, size_t) const;
@@ -32,5 +33,7 @@ private:
 	size_t byte_instruction(const char *, size_t) const;
 	size_t jump_instruction(const char *, int, size_t) const;
 	size_t array_instruction(const char *, size_t) const;
+	size_t load_instruction(size_t) const;
+	size_t binary_instruction(const char *, size_t) const;
 };
 }
