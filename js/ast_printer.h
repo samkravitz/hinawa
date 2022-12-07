@@ -102,7 +102,7 @@ public:
 	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);
-		std::cout << node->value().as_number() << "\n";
+		std::cout << node->value().to_string() << "\n";
 	}
 
 	void visit(const Variable *node, int indent) const

@@ -233,8 +233,12 @@ Expr *Parser::call()
 
 Expr *Parser::primary()
 {
+	auto value = current_token.value();
 	if (match(NUMBER))
-		return new Literal(Value(std::stof(previous_token.value())));
+		return new Literal(Value(std::stof(value)));
+	
+	if (match(STRING))
+		return new Literal(Value(new std::string(value)));
 
 	if (match(IDENTIFIER))
 		return new Variable(previous_token.value());

@@ -31,6 +31,11 @@ public:
 	    number(number)
 	{ }
 
+	explicit Value(std::string *str) :
+	    m_type(Type::String),
+	    string(str)
+	{ }
+
 	inline Type type() const { return m_type; }
 
 	inline bool as_bool() const { return boolean; }
