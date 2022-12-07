@@ -38,12 +38,6 @@ private:
 class BinaryExpr : public Expr
 {
 public:
-	enum class BinaryOp
-	{
-		Plus,
-		Minus,
-	};
-
 	BinaryExpr(Expr *lhs, Token op, Expr *rhs) :
 	    m_lhs(lhs),
 	    m_op(op),
@@ -65,6 +59,8 @@ public:
 		{
 			case PLUS: opcode = OP_ADD; break;
 			case MINUS: opcode = OP_SUBTRACT; break;
+			case STAR: opcode = OP_MULTIPLY; break;
+			case SLASH: opcode = OP_DIVIDE; break;
 			default: opcode = OP_UNKNOWN; break;
 		}
 

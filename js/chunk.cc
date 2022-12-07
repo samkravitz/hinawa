@@ -37,7 +37,7 @@ void Chunk::disassemble(const char *name) const
 	size_t offset = 0;
 	while (offset < code.size())
 		offset = disassemble_instruction(offset);
-	
+
 	std::printf("\n");
 }
 
@@ -60,6 +60,12 @@ size_t Chunk::disassemble_instruction(size_t offset) const
 			return load_instruction(offset);
 		case OP_ADD:
 			return binary_instruction("add", offset);
+		case OP_SUBTRACT:
+			return binary_instruction("sub", offset);
+		case OP_MULTIPLY:
+			return binary_instruction("mul", offset);
+		case OP_DIVIDE:
+			return binary_instruction("div", offset);
 		default:
 			std::printf("Unknown opcode: %d\n", instruction);
 			return offset + 1;
