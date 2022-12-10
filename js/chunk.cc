@@ -36,7 +36,7 @@ size_t Chunk::size()
 
 size_t Chunk::disassemble_instruction(size_t offset)
 {
-	std::printf("%04d ", offset);
+	std::printf("%04ld ", offset);
 	if (offset != 0 && lines[offset] == lines[offset + 1])
 		std::printf("   | ");
 	else
@@ -137,7 +137,7 @@ size_t Chunk::byte_instruction(const char *name, size_t offset)
 size_t Chunk::jump_instruction(const char *name, int sign, size_t offset)
 {
 	auto jump = (uint16_t) (code[offset + 1] << 8) | code[offset + 2];
-	std::printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
+	std::printf("%-16s %4ld -> %ld\n", name, offset, offset + 3 + sign * jump);
 	return offset + 3;
 }
 

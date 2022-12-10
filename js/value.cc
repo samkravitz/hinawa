@@ -1,5 +1,7 @@
 #include "value.h"
 
+#include <cassert>
+
 #include "chunk.h"
 
 namespace js
@@ -30,12 +32,15 @@ std::string Value::to_string() const
 {
 	switch (type())
 	{
+		case Type::Array: return "[ TODO ]";			
 		case Type::Bool: return as_bool() ? "true" : "false";
 		case Type::Null: return "null";
 		case Type::Number: return std::to_string(as_number());
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
 		case Type::Function: return as_function()->to_string();
+		default:
+			assert(!"Unknown value type!");
 	}
 }
 

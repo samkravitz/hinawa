@@ -39,7 +39,7 @@ Value Vm::run(Function f)
 					return result;
 				
 				auto diff = stack.size() - frame.base;
-				for (int i = 0; i < diff; i++)
+				for (uint i = 0; i < diff; i++)
 					pop();
 
 				push(result);

@@ -1,8 +1,7 @@
 #include "compiler.h"
 
+#include <cassert>
 #include <functional>
-
-class js::Local;
 
 namespace js
 {
@@ -13,6 +12,8 @@ struct ParseRule
 	Precedence precedence;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 ParseRule rules[] = {
 	[0]                 = { nullptr, nullptr, PREC_NONE },
 	[LEFT_PAREN]        = { &Compiler::grouping, &Compiler::call, PREC_CALL },
@@ -125,6 +126,7 @@ ParseRule rules[] = {
 
 	[TOKEN_EOF]         = { nullptr, nullptr, PREC_NONE },
 };
+#pragma GCC diagnostic pop
 
 static ParseRule *get_rule(TokenType type)
 {
@@ -312,6 +314,8 @@ void Compiler::binary(bool can_assign)
 		case PIPE_PIPE:
 			emit_byte(OP_LOGICAL_OR);
 			break;
+		default:
+			assert(!"Unknown binary op!");
 	}
 }
 
@@ -368,6 +372,8 @@ void Compiler::literal(bool can_assign)
 		case KEY_TRUE:
 			emit_byte(OP_TRUE);
 			break;
+		default:
+			assert(!"Unknown literal!");
 	}
 }
 
@@ -409,6 +415,8 @@ void Compiler::unary(bool can_assign)
 	{
 		case MINUS: emit_byte(OP_NEGATE); break;
 		case BANG: emit_byte(OP_NOT); break;
+		default:
+			assert(!"Unknown unary operator!");
 	}
 }
 
