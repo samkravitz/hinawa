@@ -116,7 +116,6 @@ enum TokenType : int
 	KEY_WHILE,
 	KEY_WITH,
 	KEY_YIELD,
-	KEY_PRINT,
 
 	TOKEN_EOF,
 };

@@ -122,7 +122,6 @@ ParseRule rules[] = {
 	[KEY_WHILE]         = { nullptr, nullptr, PREC_NONE },
 	[KEY_WITH]          = { nullptr, nullptr, PREC_NONE },
 	[KEY_YIELD]         = { nullptr, nullptr, PREC_NONE },
-	[KEY_PRINT]         = { nullptr, nullptr, PREC_NONE },
 
 	[TOKEN_EOF]         = { nullptr, nullptr, PREC_NONE },
 };
@@ -180,12 +179,6 @@ void Compiler::statement()
 	if (match(KEY_IF))
 	{
 		if_statement();
-		return;
-	}
-
-	if (match(KEY_PRINT))
-	{
-		print_expression();
 		return;
 	}
 
@@ -475,12 +468,6 @@ void Compiler::block()
 		expression();
 	
 	consume(RIGHT_BRACE, "Expect '}' after block");
-}
-
-void Compiler::print_expression()
-{
-	expression();
-	emit_byte(OP_PRINT);
 }
 
 void Compiler::if_statement()

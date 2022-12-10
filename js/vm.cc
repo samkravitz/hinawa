@@ -132,10 +132,6 @@ Value Vm::run(Function f)
 				binary_op(Operator::Pipe);
 				break;
 			
-			case OP_PRINT:
-				std::cout << peek().to_string() << "\n";
-				break;
-			
 			case OP_POP:
 				pop();
 				break;

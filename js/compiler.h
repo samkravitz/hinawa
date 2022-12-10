@@ -64,7 +64,6 @@ private:
 	void expression();
 	void expression_statement();
 	void block();
-	void print_expression();
 	void if_statement();
 	void while_statement();
 	void return_statement();
