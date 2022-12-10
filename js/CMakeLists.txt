@@ -17,6 +17,7 @@ set(HEADERS
 
 	chunk.h
 	compiler.h
+	function.h
 	opcode.h
 	parser.h
 	scanner.h

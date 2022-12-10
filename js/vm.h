@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "chunk.h"
+#include "function.h"
 #include "value.h"
 
 namespace js

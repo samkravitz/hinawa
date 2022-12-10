@@ -1,4 +1,4 @@
-#include "chunk.h"
+#include "function.h"
 
 namespace js
 {

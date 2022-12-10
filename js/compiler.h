@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "chunk.h"
+#include "function.h"
 #include "opcode.h"
 #include "scanner.h"
 #include "token_type.h"
