@@ -11,6 +11,32 @@
 
 namespace js
 {
+/**
+ * @brief initialize the Vm
+ * @param headless if true, the Vm will not construct global variables
+ * that are present in the javascript browser environment (i.e. window)
+ * 
+*/
+Vm::Vm(bool headless)
+{
+	define_native("log", [](std::vector<Value> argv) -> Value
+	{
+		auto undefined = Value();
+		if (argv.empty())
+			return undefined;
+
+		for (uint i = 0; i < argv.size(); i++)
+		{
+			std::cout << argv[i].to_string();
+			if (i != argv.size() - 1)
+				std::cout << " ";
+		}
+		
+		std::cout << "\n";
+		return undefined;
+	});
+}
+
 Value Vm::run(Function f)
 {
 	auto cf = CallFrame { f, 0 };
@@ -222,13 +248,28 @@ Value Vm::run(Function f)
 			case OP_CALL:
 			{
 				auto num_args = read_byte();
-				auto callable = peek(num_args);
+				auto callee = peek(num_args);
 
-				if (callable.is_function())
+				if (callee.is_function())
 				{
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
-					auto cf = CallFrame { *callable.as_function(), base };
+					auto cf = CallFrame { *callee.as_function(), base };
 					frames.push(cf);
+				}
+
+				else if (callee.is_native())
+				{
+					int i = num_args;
+					std::vector<Value> argv;
+
+					while (i--)
+						argv.push_back(peek(i));
+
+					auto result = callee.as_native()->call(argv);
+					for (int i = 0; i < num_args + 1; i++)
+						pop();
+					
+					push(result);
 				}
 
 				else
@@ -459,5 +500,10 @@ void Vm::runtime_error(std::string const &msg)
 	auto ip = frames.top().ip;
 	auto line = frames.top().function.chunk.lines[ip - 1];
 	std::printf("%s [line %d]\n", msg.c_str(), line);
+}
+
+void Vm::define_native(std::string const &name, std::function<Value(std::vector<Value>)> fn)
+{
+	globals[name] = Value(new NativeFunction(fn));
 }
 }

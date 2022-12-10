@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -20,15 +21,19 @@ struct Local
 	int depth;
 };
 
-struct Function
+class Function
 {
-	Function(std::string const &name);
+public:
+	Function(std::string const &name) :
+		name(name)
+	{
+		num_params = 0;
+	}
 
 	std::vector<Local> locals;
 	size_t num_params;
 	Chunk chunk;
 	std::string name;
-	bool native;
 	int scope_depth = 0;
 
 	int local_count() const { return locals.size(); }
@@ -40,5 +45,21 @@ struct Function
 		res += ">";
 		return res;
 	}
+};
+
+class NativeFunction
+{
+public:
+	NativeFunction(const std::function<Value(std::vector<Value>)> &fn) :
+	    fn(fn)
+	{ }
+
+	Value call(const std::vector<Value> &argv) const
+	{
+		return fn(argv);
+	}
+
+private:
+	std::function<Value(std::vector<Value>)> fn;
 };
 }

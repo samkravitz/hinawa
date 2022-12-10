@@ -36,6 +36,7 @@ std::string Value::to_string() const
 	{
 		case Type::Array: return "[ TODO ]";			
 		case Type::Bool: return as_bool() ? "true" : "false";
+		case Type::Native: return "<native fn>";
 		case Type::Null: return "null";
 		case Type::Number: return std::to_string(as_number());
 		case Type::Object: return as_object()->to_string();

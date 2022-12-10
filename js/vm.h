@@ -40,6 +40,7 @@ struct CallFrame
 class Vm
 {
 public:
+	Vm(bool headless = false);
 	Value run(Function);
 
 private:
@@ -59,5 +60,7 @@ private:
 	std::string read_string();
 
 	void runtime_error(std::string const &);
+
+	void define_native(std::string const &, std::function<Value(std::vector<Value>)>);
 };
 }

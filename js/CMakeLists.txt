@@ -1,7 +1,6 @@
 set(SOURCES
 	chunk.cc
 	compiler.cc
-	function.cc
 	object.cc
 	parser.cc
 	scanner.cc
