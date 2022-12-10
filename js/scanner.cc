@@ -16,8 +16,10 @@ Scanner::~Scanner()
 
 Token Scanner::next()
 {
-	int tok = lexer->yylex();
-	Token t{ lexer->YYText(), static_cast<TokenType>(tok), lexer->lineno(), 0 };
-	return t;
+	int tok, col = 1;
+	if ((tok = lexer->yylex()))
+		return Token { lexer->YYText(), static_cast<TokenType>(tok), lexer->lineno(), col };
+	else
+		return Token { "EOF", TOKEN_EOF, lexer->lineno(), col };
 }
 }

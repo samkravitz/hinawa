@@ -1,6 +1,6 @@
 #include "ast/ast.h"
 #include "ast_printer.h"
-#include "codegen.h"
+#include "compiler.h"
 #include "interpreter.h"
 #include "parser.h"
 #include "vm.h"
@@ -21,19 +21,17 @@ int main(int argc, char **argv)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	js::Parser parser(buffer.str());
-	auto ast = parser.parse();
+	//js::Parser parser(buffer.str());
+	//auto ast = parser.parse();
 
-	js::AstPrinter printer;
-	printer.print(ast);
-	std::cout << '\n';
+	//js::AstPrinter printer;
+	//printer.print(ast);
+	//std::cout << '\n';
 
-	auto chunk = codegen(ast);
-	chunk.disassemble("script");
+	auto compiler = js::Compiler(buffer.str().c_str());
+	auto fn = compiler.compile();
+	fn.chunk.disassemble("test chunk");
 
 	auto vm = js::Vm{};
-	auto res = vm.run(chunk);
-
-	js::Interpreter interpreter;
-	interpreter.run(ast);
+	auto res = vm.run(fn);
 }

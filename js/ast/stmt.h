@@ -97,8 +97,9 @@ public:
 
 	u32 generate_bytecode(Chunk &chunk) const
 	{
-		expr()->generate_bytecode(chunk);
-		return Chunk::REG_INVALID;
+		//expr()->generate_bytecode(chunk);
+		//return Chunk::REG_INVALID;
+		return 0;
 	}
 
 private:

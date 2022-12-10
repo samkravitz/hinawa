@@ -54,25 +54,26 @@ public:
 
 	u32 generate_bytecode(Chunk &chunk) const
 	{
-		Opcode opcode;
-		switch (op().type())
-		{
-			case PLUS: opcode = OP_ADD; break;
-			case MINUS: opcode = OP_SUBTRACT; break;
-			case STAR: opcode = OP_MULTIPLY; break;
-			case SLASH: opcode = OP_DIVIDE; break;
-			default: opcode = OP_UNKNOWN; break;
-		}
+		//Opcode opcode;
+		//switch (op().type())
+		//{
+		//	case PLUS: opcode = OP_ADD; break;
+		//	case MINUS: opcode = OP_SUBTRACT; break;
+		//	case STAR: opcode = OP_MULTIPLY; break;
+		//	case SLASH: opcode = OP_DIVIDE; break;
+		//	default: opcode = OP_UNKNOWN; break;
+		//}
 
-		auto src1 = lhs()->generate_bytecode(chunk);
-		auto src2 = rhs()->generate_bytecode(chunk);
-		auto dest = chunk.allocate_register();
+		//auto src1 = lhs()->generate_bytecode(chunk);
+		//auto src2 = rhs()->generate_bytecode(chunk);
+		//auto dest = chunk.allocate_register();
 
-		chunk.write(opcode, op().line());
-		chunk.write(dest, op().line());
-		chunk.write(src1, op().line());
-		chunk.write(src2, op().line());
-		return dest;
+		//chunk.write(opcode, op().line());
+		//chunk.write(dest, op().line());
+		//chunk.write(src1, op().line());
+		//chunk.write(src2, op().line());
+		//return dest;
+		return 0;
 	}
 
 private:
@@ -115,13 +116,14 @@ public:
 
 	u32 generate_bytecode(Chunk &chunk) const
 	{
-		auto reg = chunk.allocate_register();
-		auto index = chunk.add_constant(value());
-		chunk.write(OP_LOAD);
-		chunk.write(reg);
-		chunk.write(index);
+		//auto reg = chunk.allocate_register();
+		//auto index = chunk.add_constant(value());
+		//chunk.write(OP_LOAD);
+		//chunk.write(reg);
+		//chunk.write(index);
 
-		return reg;
+		//return reg;
+		return 0;
 	}
 
 private:
