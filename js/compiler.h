@@ -87,10 +87,15 @@ private:
 	void define_variable(u8);
 	void declare_variable();
 	u8 identifier_constant(Token const &);
+	void mark_initialized();
 
 	void add_local(Token);
 	int resolve_local(Token);
 	void begin_scope();
 	void end_scope();
+
+	bool is_global();
+
+	inline Function &current_function() { return functions.top(); }
 };
 }

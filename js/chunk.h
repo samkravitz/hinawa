@@ -53,5 +53,18 @@ struct Function
 	std::string name;
 	bool native;
 	int scope_depth = 0;
+
+	int local_count() const
+	{
+		return locals.size();
+	}
+
+	std::string to_string() const
+	{
+		std::string res = "<fn ";
+		res += name;
+		res += ">";
+		return res;
+	}
 };
 }

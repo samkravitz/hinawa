@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
 	auto compiler = js::Compiler(buffer.str().c_str());
 	auto fn = compiler.compile();
-	fn.chunk.disassemble("test chunk");
+	fn.chunk.disassemble("script");
 
 	auto vm = js::Vm{};
 	auto res = vm.run(fn);

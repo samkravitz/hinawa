@@ -146,7 +146,7 @@ Function Compiler::compile()
 		declaration();
 
 	emit_byte(OP_RETURN);
-	return functions.top();
+	return current_function();
 }
 
 void Compiler::advance()
@@ -465,7 +465,7 @@ void Compiler::expression()
 void Compiler::block()
 {
 	while (current.type() != RIGHT_BRACE)
-		expression();
+		declaration();
 	
 	consume(RIGHT_BRACE, "Expect '}' after block");
 }
@@ -539,10 +539,9 @@ void Compiler::var_declaration()
 void Compiler::function_declaration()
 {
 	auto name = current.value();
+	auto global = parse_variable("Expect function name");
 
-	auto fn = Function(name);
-	functions.push(fn);
-	advance();
+	functions.push(Function(name));
 
 	begin_scope();
 	consume(LEFT_PAREN, "Expect '(' after function name");
@@ -555,23 +554,23 @@ void Compiler::function_declaration()
 		consume(IDENTIFIER, "Expect identifier");
 	}
 
-	functions.top().num_params = num_params;
+	current_function().num_params = num_params;
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
 
-	if (functions.top().chunk.code.empty())
+	if (current_function().chunk.code.empty())
 		emit_constant(Value(nullptr));
 	
 	emit_byte(OP_RETURN);
-	auto val = functions.top();
+	auto fn = current_function();
 
 	#ifdef DEBUG
 	fn.chunk.disassemble(fn.name.c_str());
 	#endif
 
 	functions.pop();
-	auto global = make_constant(Value(&fn));
-	emit_bytes(OP_SET_GLOBAL, global);
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(fn))));
+	define_variable(global);
 }
 
 void Compiler::class_declaration()
@@ -588,7 +587,7 @@ void Compiler::class_declaration()
 
 size_t Compiler::make_constant(Value value)
 {
-	auto constant = functions.top().chunk.add_constant(value);
+	auto constant = current_function().chunk.add_constant(value);
 	if (constant > 0xff)
 	{
 		error("Too many constants in this chunk");
@@ -600,7 +599,7 @@ size_t Compiler::make_constant(Value value)
 
 void Compiler::emit_byte(u8 byte)
 {
-	functions.top().chunk.write(byte, previous.line());
+	current_function().chunk.write(byte, previous.line());
 }
 
 void Compiler::emit_bytes(u8 a, u8 b)
@@ -619,23 +618,23 @@ size_t Compiler::emit_jump(Opcode op)
 {
 	emit_byte(op);
 	emit_bytes(0xff, 0xff);
-	return functions.top().chunk.size() - 2;
+	return current_function().chunk.size() - 2;
 }
 
 void Compiler::patch_jump(size_t offset)
 {
-	auto jump = functions.top().chunk.size() - offset - 2;
+	auto jump = current_function().chunk.size() - offset - 2;
 	if (jump > 0xffff)
 		error("Jump is out of bounds");
 	
-	functions.top().chunk.code[offset] = (jump >> 8) & 0xff;
-	functions.top().chunk.code[offset + 1] = jump & 0xff;
+	current_function().chunk.code[offset] = (jump >> 8) & 0xff;
+	current_function().chunk.code[offset + 1] = jump & 0xff;
 }
 
 void Compiler::emit_loop(size_t loop_start)
 {
 	emit_byte(OP_LOOP);
-	auto offset = functions.top().chunk.size() - loop_start + 2;
+	auto offset = current_function().chunk.size() - loop_start + 2;
 	if (offset > 0xffff)
 		error("Loop offset is out of bounds");
 
@@ -661,7 +660,7 @@ void Compiler::error_at(Token t, const char *msg)
 void Compiler::add_local(Token t)
 {
 	auto local = Local { t, -1 };
-	functions.top().locals.push_back(local);
+	current_function().locals.push_back(local);
 }
 
 u8 Compiler::parse_variable(const char *msg)
@@ -672,6 +671,12 @@ u8 Compiler::parse_variable(const char *msg)
 
 void Compiler::define_variable(u8 global)
 {
+	if (!is_global())
+	{
+		mark_initialized();
+		return;
+	}
+
 	emit_bytes(OP_DEFINE_GLOBAL, global);
 }
 
@@ -685,13 +690,21 @@ u8 Compiler::identifier_constant(Token const &name)
 	return make_constant(Value(new std::string(name.value())));
 }
 
+void Compiler::mark_initialized()
+{
+	if (is_global())
+		return;
+	
+	current_function().locals[current_function().local_count() - 1].depth = current_function().scope_depth;
+}
+
 
 int Compiler::resolve_local(Token t)
 {
-	auto local_count = functions.top().locals.size();
+	auto local_count = current_function().locals.size();
 	for (int i = local_count - 1; i >= 0; i--)
 	{
-		auto local = functions.top().locals[i];
+		auto local = current_function().locals[i];
 		if (t.value() == local.name.value())
 			return i + 1;
 	}
@@ -701,18 +714,26 @@ int Compiler::resolve_local(Token t)
 
 void Compiler::begin_scope()
 {
-	functions.top().scope_depth += 1;
+	current_function().scope_depth += 1;
 }
 
 void Compiler::end_scope()
 {
-	functions.top().scope_depth -= 1;
-	auto local_count = functions.top().locals.size();
+	current_function().scope_depth -= 1;
+	auto local_count = current_function().locals.size();
 
-	while (local_count > 0 && functions.top().locals[local_count - 1].depth > functions.top().scope_depth)
+	while (local_count > 0 && current_function().locals[local_count - 1].depth > functions.top().scope_depth)
 	{
 		emit_byte(OP_POP);
 		local_count -= 1;
 	}
+}
+
+/**
+ * @brief returns true if currently compiling for the global scope
+*/
+bool Compiler::is_global()
+{
+	return current_function().scope_depth == 0;
 }
 }

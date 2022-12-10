@@ -1,5 +1,7 @@
 #include "value.h"
 
+#include "chunk.h"
+
 namespace js
 {
 bool Value::operator==(const Value &other) const
@@ -33,6 +35,7 @@ std::string Value::to_string() const
 		case Type::Number: return std::to_string(as_number());
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
+		case Type::Function: return as_function()->to_string();
 	}
 }
 
