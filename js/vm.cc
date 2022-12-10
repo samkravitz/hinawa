@@ -362,32 +362,36 @@ Value Vm::run(Function f)
 			//	break;
 			//}
 
-			//case OP_GET_PROPERTY:
-			//{
-			//	auto instance = peek()->as_instance();
-			//	auto name = read_constant().as_string();
+			case OP_GET_PROPERTY:
+			{
+				if (!peek().is_object())
+				{
+					runtime_error("Error: tried to get property on a non-object");
+					break;
+				}
 
-			//	// if an instance's value isn't set, default to nil
-			//	auto property = std::make_shared<Value>(nullptr);
+				auto *obj = peek().as_object();
+				auto val = obj->get(read_string());
+				pop();
+				push(val);
+				break;
+			}
 
-			//	if (instance->fields.find(name) != instance->fields.end())
-			//		property = instance->fields[name];
+			case OP_SET_PROPERTY:
+			{
+				if (!peek(1).is_object())
+				{
+					runtime_error("Error: tried to get property on a non-object");
+					break;
+				}
 
-			//	push(property);
-			//	break;
-			//}
-
-			//case OP_SET_PROPERTY:
-			//{
-			//	auto instance = peek(1)->as_instance();
-			//	auto name = read_constant().as_string();
-
-			//	auto property = pop();
-			//	instance->fields[name] = property;
-			//	pop();
-			//	push(property);
-			//	break;
-			//}
+				auto *obj = peek(1).as_object();
+				obj->set(read_string(), peek());
+				auto value = pop();
+				push(value);
+				pop();
+				break;
+			}
 
 			case OP_NEW_OBJECT:
 			{
