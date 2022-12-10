@@ -13,6 +13,8 @@ public:
 	Value get(std::string const &);
 	void set(std::string, Value);
 
+	bool is_defined(std::string const &) const;
+
 	std::string to_string() const;
 
 private:

@@ -44,8 +44,10 @@ public:
 	Value run(Function);
 
 private:
+	// pointer to the global object
+	Object *global = nullptr;
+
 	std::vector<Value> stack;
-	std::unordered_map<std::string, Value> globals;
 	std::stack<CallFrame> frames;
 
 	void push(Value);

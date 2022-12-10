@@ -19,7 +19,11 @@ namespace js
 */
 Vm::Vm(bool headless)
 {
-	define_native("log", [](std::vector<Value> argv) -> Value
+	global = new Object();
+	global->set("window", Value(global));
+
+	auto *console = new Object();
+	console->set("log", Value(new NativeFunction([](std::vector<Value> argv) -> Value
 	{
 		auto undefined = Value();
 		if (argv.empty())
@@ -34,7 +38,9 @@ Vm::Vm(bool headless)
 		
 		std::cout << "\n";
 		return undefined;
-	});
+	})));
+	
+	global->set("console", Value(console));
 }
 
 Value Vm::run(Function f)
@@ -165,44 +171,34 @@ Value Vm::run(Function f)
 
 			case OP_DEFINE_GLOBAL:
 			{
-				auto constant = read_constant();
-				globals[*constant.as_string()] = pop();
+				auto ident = read_string();
+				global->set(ident, pop());
 				break;
 			}
 
 			case OP_GET_GLOBAL:
 			{
 				auto ident = read_string();
-				auto variable = globals.find(ident);
-
-				if (variable != globals.end())
-					push(variable->second);
-				else
+				if (!global->is_defined(ident))
+				{
 					runtime_error("Undefined variable");
+					break;
+				}
+
+				push(global->get(ident));
 				break;
 			}
 
 			case OP_SET_GLOBAL:
 			{
-				auto constant = read_constant();
-				std::string name;
-				Value value;
-				if (constant.is_string())
+				auto ident = read_string();
+				if (!global->is_defined(ident))
 				{
-					name = *constant.as_string();
-					value = peek();
+					runtime_error("Undefined variable");
+					break;
 				}
 
-				else if (constant.is_function())
-				{
-					name = constant.as_function()->name;
-					value = Value(constant.as_function());
-				}
-
-				else
-					assert(!"Error: got unknown type in OP_SET_GLOBAL");
-
-				globals[name] = value;
+				global->set(ident, peek(0));
 				break;
 			}
 
@@ -398,12 +394,15 @@ Value Vm::run(Function f)
 				Object *obj = new Object();
 				auto property_count = read_byte();
 
-				while (property_count--)
+				for (int i = property_count - 1; i >= 0; i--)
 				{
 					auto key = read_string();
-					auto value = pop();
+					auto value = peek(i);
 					obj->set(key, value);
 				}
+
+				while (property_count--)
+					pop();
 
 				push(Value(obj));
 				break;
@@ -544,10 +543,5 @@ void Vm::runtime_error(std::string const &msg)
 	auto ip = frames.top().ip;
 	auto line = frames.top().function.chunk.lines[ip - 1];
 	std::printf("%s [line %d]\n", msg.c_str(), line);
-}
-
-void Vm::define_native(std::string const &name, std::function<Value(std::vector<Value>)> fn)
-{
-	globals[name] = Value(new NativeFunction(fn));
 }
 }

@@ -11,10 +11,15 @@ void Object::set(std::string key, Value value)
 
 Value Object::get(std::string const &key)
 {
-	if (properties.find(key) == properties.end())
+	if (!is_defined(key))
 		return Value();
-	
+
 	return properties[key];
+}
+
+bool Object::is_defined(std::string const &key) const
+{
+	return properties.find(key) != properties.end();
 }
 
 std::string Object::to_string() const
@@ -26,7 +31,12 @@ std::string Object::to_string() const
 	{
 		stream << " " << it->first;
 		stream << ": ";
-		stream << it->second.to_string();
+
+		if (it->second.as_object() == this)
+			stream << "[Object object]";
+		else
+			stream << it->second.to_string();
+
 		if (std::next(it) != properties.end())
 			stream << ", ";
 		else
