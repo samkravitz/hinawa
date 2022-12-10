@@ -144,7 +144,7 @@ Function Compiler::compile()
 	advance();
 
 	while (!match(TOKEN_EOF))
-		expression();
+		declaration();
 
 	emit_byte(OP_RETURN);
 	return functions.top();
@@ -173,6 +173,58 @@ bool Compiler::match(TokenType type)
 	}
 
 	return false;
+}
+
+void Compiler::statement()
+{
+	if (match(KEY_IF))
+	{
+		if_statement();
+		return;
+	}
+
+	if (match(KEY_PRINT))
+	{
+		print_expression();
+		return;
+	}
+
+	if (match(KEY_RETURN))
+	{
+		return_statement();
+		return;
+	}
+
+	if (match(KEY_WHILE))
+	{
+		while_statement();
+		return;
+	}
+
+	expression_statement();
+}
+
+void Compiler::declaration()
+{
+	if (match(KEY_VAR))
+	{
+		var_declaration();
+		return;
+	}
+
+	if (match(KEY_CLASS))
+	{
+		class_declaration();
+		return;
+	}
+
+	if (match(KEY_FUNCTION))
+	{
+		function_declaration();
+		return;
+	}
+
+	statement();
 }
 
 void Compiler::parse_precedence(Precedence precedence)
@@ -406,45 +458,14 @@ void Compiler::variable(bool can_assign)
 	}
 }
 
+void Compiler::expression_statement()
+{
+	expression();
+	emit_byte(OP_POP);
+}
 
 void Compiler::expression()
 {
-	if (match(KEY_CLASS))
-	{
-		class_declaration();
-		return;
-	}
-
-	if (match(KEY_FUNCTION))
-	{
-		function_declaration();
-		return;
-	}
-
-	if (match(KEY_IF))
-	{
-		if_expression();
-		return;
-	}
-
-	if (match(KEY_PRINT))
-	{
-		print_expression();
-		return;
-	}
-
-	if (match(KEY_RETURN))
-	{
-		return_expression();
-		return;
-	}
-
-	if (match(KEY_WHILE))
-	{
-		while_expression();
-		return;
-	}
-
 	parse_precedence(PREC_ASSIGNMENT);
 }
 
@@ -462,7 +483,7 @@ void Compiler::print_expression()
 	emit_byte(OP_PRINT);
 }
 
-void Compiler::if_expression()
+void Compiler::if_statement()
 {
 	expression();
 	auto then_offset = emit_jump(OP_JUMP_IF_FALSE);
@@ -479,7 +500,7 @@ void Compiler::if_expression()
 	{
 		if (match(KEY_IF))
 		{
-			if_expression();
+			if_statement();
 			return;
 		}
 
@@ -489,12 +510,12 @@ void Compiler::if_expression()
 
 	// insert nil when there is an if without else
 	else
-		emit_byte(OP_NIL);
+		emit_byte(OP_NULL);
 	
 	patch_jump(else_offset);
 }
 
-void Compiler::while_expression()
+void Compiler::while_statement()
 {
 	auto loop_start = functions.top().chunk.size();
 	expression();
@@ -509,11 +530,23 @@ void Compiler::while_expression()
 	emit_byte(OP_POP);
 }
 
-void Compiler::return_expression()
+void Compiler::return_statement()
 {
 	// TODO: don't parse expression if return is followed immediately by \n
 	expression();
 	emit_byte(OP_RETURN);
+}
+
+void Compiler::var_declaration()
+{
+	auto global = parse_variable("Expect variable name");
+
+	if (match(EQUAL))
+		expression();
+	else
+		emit_byte(OP_UNDEFINED);
+	
+	define_variable(global);
 }
 
 void Compiler::function_declaration()
@@ -643,6 +676,28 @@ void Compiler::add_local(Token t)
 	auto local = Local { t, -1 };
 	functions.top().locals.push_back(local);
 }
+
+u8 Compiler::parse_variable(const char *msg)
+{
+	consume(IDENTIFIER, msg);
+	return identifier_constant(previous);
+}
+
+void Compiler::define_variable(u8 global)
+{
+	emit_bytes(OP_DEFINE_GLOBAL, global);
+}
+
+void Compiler::declare_variable()
+{
+
+}
+
+u8 Compiler::identifier_constant(Token const &name)
+{
+	return make_constant(Value(new std::string(name.value())));
+}
+
 
 int Compiler::resolve_local(Token t)
 {

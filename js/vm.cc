@@ -139,7 +139,14 @@ Value Vm::run(Function f)
 			case OP_POP:
 				pop();
 				break;
-			
+
+			case OP_DEFINE_GLOBAL:
+			{
+				auto constant = read_constant();
+				globals[*constant.as_string()] = pop();
+				break;
+			}
+
 			case OP_GET_GLOBAL:
 			{
 				auto constant = read_constant();

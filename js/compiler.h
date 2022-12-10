@@ -59,12 +59,16 @@ private:
 
 	void parse_precedence(Precedence);
 
+	void statement();
+	void declaration();
 	void expression();
+	void expression_statement();
 	void block();
 	void print_expression();
-	void if_expression();
-	void while_expression();
-	void return_expression();
+	void if_statement();
+	void while_statement();
+	void return_statement();
+	void var_declaration();
 	void function_declaration();
 	void class_declaration();
 
@@ -79,6 +83,11 @@ private:
 	void error(const char *);
 	void error_at_current(const char *);
 	void error_at(Token, const char *);
+
+	u8 parse_variable(const char *);
+	void define_variable(u8);
+	void declare_variable();
+	u8 identifier_constant(Token const &);
 
 	void add_local(Token);
 	int resolve_local(Token);

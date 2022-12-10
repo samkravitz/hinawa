@@ -63,6 +63,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return byte_instruction("OP_GET_LOCAL", offset);
 		case OP_SET_LOCAL:
 			return byte_instruction("OP_SET_LOCAL", offset);
+		case OP_DEFINE_GLOBAL:
+			return constant_instruction("OP_DEFINE_GLOBAL", offset);
 		case OP_GET_GLOBAL:
 			return constant_instruction("OP_GET_GLOBAL", offset);
 		case OP_SET_GLOBAL:
