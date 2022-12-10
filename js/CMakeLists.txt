@@ -2,6 +2,7 @@ set(SOURCES
 	chunk.cc
 	compiler.cc
 	function.cc
+	object.cc
 	parser.cc
 	scanner.cc
 	token.cc
@@ -18,6 +19,7 @@ set(HEADERS
 	chunk.h
 	compiler.h
 	function.h
+	object.h
 	opcode.h
 	parser.h
 	scanner.h

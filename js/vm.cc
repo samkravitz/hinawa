@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "chunk.h"
+#include "object.h"
 #include "opcode.h"
 
 namespace js
@@ -145,8 +146,8 @@ Value Vm::run(Function f)
 
 			case OP_GET_GLOBAL:
 			{
-				auto constant = read_constant();
-				auto variable = globals.find(*constant.as_string());
+				auto ident = read_string();
+				auto variable = globals.find(ident);
 
 				if (variable != globals.end())
 					push(variable->second);
@@ -307,6 +308,22 @@ Value Vm::run(Function f)
 			//	break;
 			//}
 
+			case OP_NEW_OBJECT:
+			{
+				Object *obj = new Object();
+				auto property_count = read_byte();
+
+				while (property_count--)
+				{
+					auto key = read_string();
+					auto value = pop();
+					obj->set(key, value);
+				}
+
+				push(Value(obj));
+				break;
+			}
+
 			default:
 				assert(!"Unknown opcode");
 		}
@@ -428,6 +445,13 @@ Value Vm::read_constant()
 {
 	auto byte = read_byte();
 	return frames.top().function.chunk.constants[byte];
+}
+
+std::string Vm::read_string()
+{
+	auto constant = read_constant();
+	assert(constant.is_string());
+	return *constant.as_string();
 }
 
 void Vm::runtime_error(std::string const &msg)

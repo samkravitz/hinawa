@@ -18,7 +18,7 @@ ParseRule rules[] = {
 	[0]                 = { nullptr, nullptr, PREC_NONE },
 	[LEFT_PAREN]        = { &Compiler::grouping, &Compiler::call, PREC_CALL },
 	[RIGHT_PAREN]       = { nullptr, nullptr, PREC_NONE },
-	[LEFT_BRACE]        = { nullptr, nullptr, PREC_NONE },
+	[LEFT_BRACE]        = { &Compiler::object, nullptr, PREC_SUBSCRIPT },
 	[RIGHT_BRACE]       = { nullptr, nullptr, PREC_NONE },
 	[LEFT_BRACKET]      = { &Compiler::array, &Compiler::subscript, PREC_SUBSCRIPT },
 	[RIGHT_BRACKET]     = { nullptr, nullptr, PREC_NONE },
@@ -30,6 +30,7 @@ ParseRule rules[] = {
 	[STAR]              = { nullptr, &Compiler::binary, PREC_FACTOR },
 	[MOD]               = { nullptr, &Compiler::binary, PREC_FACTOR },
 	[SEMICOLON]         = { nullptr, nullptr, PREC_FACTOR },
+	[COLON]             = { nullptr, nullptr, PREC_NONE },
 	[BANG]              = { nullptr, nullptr, PREC_NONE },
 	[EQUAL]             = { nullptr, nullptr, PREC_NONE },
 	[GREATER]           = { nullptr, &Compiler::binary, PREC_COMPARISON },
@@ -259,6 +260,30 @@ void Compiler::array(bool can_assign)
 
 	consume(RIGHT_BRACKET, "Expect ']' after array literal");
 	emit_bytes(OP_BUILD_ARRAY, num_elements);
+}
+
+void Compiler::object(bool can_assign)
+{
+
+	auto num_elements = 0;
+	std::vector<u8> key_constants;
+
+	if (current.type() != RIGHT_BRACE)
+	{
+		do
+		{
+			num_elements += 1;
+			auto constant = parse_variable("Expected object key name");
+			key_constants.push_back(constant);
+			consume(COLON, "Expect : after object key name");
+			expression();
+		} while (match(COMMA));
+	}
+
+	consume(RIGHT_BRACE, "Expect '}' after object literal");
+	emit_bytes(OP_NEW_OBJECT, num_elements);
+	for (auto x : key_constants)
+		emit_byte(x);
 }
 
 void Compiler::binary(bool can_assign)

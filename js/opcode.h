@@ -42,5 +42,6 @@ enum Opcode : u8
 	OP_CLASS,
 	OP_GET_PROPERTY,
 	OP_SET_PROPERTY,
+	OP_NEW_OBJECT,
 };
 }

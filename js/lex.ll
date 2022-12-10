@@ -123,6 +123,7 @@
 "*"                         { return STAR; }
 "%"                         { return MOD; }
 ";"                         { return SEMICOLON; }
+":"                         { return COLON; }
 "!"                         { return BANG; }
 "="                         { return EQUAL; }
 ">"                         { return GREATER; }

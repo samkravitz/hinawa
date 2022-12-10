@@ -1,7 +1,9 @@
 #include "value.h"
 
 #include <cassert>
+#include <sstream>
 
+#include "object.h"
 #include "function.h"
 
 namespace js
@@ -36,6 +38,7 @@ std::string Value::to_string() const
 		case Type::Bool: return as_bool() ? "true" : "false";
 		case Type::Null: return "null";
 		case Type::Number: return std::to_string(as_number());
+		case Type::Object: return as_object()->to_string();
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
 		case Type::Function: return as_function()->to_string();

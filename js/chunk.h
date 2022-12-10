@@ -30,5 +30,6 @@ private:
 	size_t byte_instruction(const char *, size_t);
 	size_t jump_instruction(const char *, int, size_t);
 	size_t array_instruction(const char *, size_t);
+	size_t new_object_instruction(const char *, size_t);
 };
 }

@@ -107,6 +107,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return constant_instruction("OP_GET_PROPERTY", offset);
 		case OP_SET_PROPERTY:
 			return constant_instruction("OP_SET_PROPERTY", offset);
+		case OP_NEW_OBJECT:
+			return new_object_instruction("OP_NEW_OBJECT", offset);
 		default:
 			std::printf("Unknown opcode: %d\n", instruction);
 			return offset + 1;
@@ -149,5 +151,12 @@ size_t Chunk::array_instruction(const char *name, size_t offset)
 	std::printf("%s ", constants[constant].to_string().c_str());
 	std::printf("%s\n", constants[constant2].to_string().c_str());
 	return offset + 3;
+}
+
+size_t Chunk::new_object_instruction(const char *name, size_t offset)
+{
+	u8 num_properties = code[offset + 1];
+	std::printf("%-16s %4d\n", name, num_properties);
+	return offset + 2 + num_properties;
 }
 }

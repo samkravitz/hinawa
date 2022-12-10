@@ -19,6 +19,7 @@ enum TokenType : int
 	STAR,              // *
 	MOD,               // %
 	SEMICOLON,         // ;
+	COLON,             // :
 	BANG,              // !
 	EQUAL,             // =
 	GREATER,           // >

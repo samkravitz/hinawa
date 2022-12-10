@@ -5,6 +5,7 @@
 
 namespace js
 {
+class Object;
 class Function;
 
 class Value
@@ -15,6 +16,7 @@ public:
 		Array,
 		Bool,
 		Function,
+		Object,
 		Null,
 		Number,
 		String,
@@ -55,10 +57,16 @@ public:
 		function(function)
 	{ }
 
+	explicit Value(Object *object) :
+		m_type(Type::Object),
+		object(object)
+	{ }
+
 	inline Type type() const { return m_type; }
 
 	inline bool is_array() const { return m_type == Type::Array; }
 	inline bool is_bool() const { return m_type == Type::Bool; }
+	inline bool is_object() const { return m_type == Type::Object; }
 	inline bool is_function() const { return m_type == Type::Function; }
 	inline bool is_null() const { return m_type == Type::Null; }
 	inline bool is_number() const { return m_type == Type::Number; }
@@ -66,6 +74,7 @@ public:
 	inline bool is_undefined() const { return m_type == Type::Undefined; }
 
 	inline bool as_bool() const { return boolean; }
+	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
 	inline std::string *as_string() const { return string; }
 	inline std::vector<Value> *as_array() const { return array; }
@@ -81,11 +90,12 @@ private:
 	Type m_type;
 	union
 	{
+		std::vector<Value> *array;
 		bool boolean;
+		Function *function;
+		Object *object;
 		double number;
 		std::string *string;
-		std::vector<Value> *array;
-		Function *function;
 	};
 };
 }

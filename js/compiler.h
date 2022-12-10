@@ -43,6 +43,7 @@ public:
 	void grouping(bool);
 	void literal(bool);
 	void number(bool);
+	void object(bool);
 	void string(bool);
 	void subscript(bool);
 	void unary(bool);

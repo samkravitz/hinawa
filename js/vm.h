@@ -56,6 +56,7 @@ private:
 	u8 read_byte();
 	u16 read_short();
 	Value read_constant();
+	std::string read_string();
 
 	void runtime_error(std::string const &);
 };
