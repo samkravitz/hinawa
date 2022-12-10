@@ -131,15 +131,13 @@ static ParseRule *get_rule(TokenType type)
 	return &rules[type];
 }
 
-Compiler::Compiler(const char *src)
-	: scanner(src)
-{
-
-}
+Compiler::Compiler(const char *src) :
+    scanner(src)
+{ }
 
 Function Compiler::compile()
 {
-	functions.push(Function {""});
+	functions.push(Function{ "" });
 	advance();
 
 	while (!match(TOKEN_EOF))
@@ -159,7 +157,7 @@ void Compiler::consume(TokenType type, const char *msg)
 {
 	if (current.type() != type)
 		error_at_current(msg);
-	
+
 	advance();
 }
 
@@ -344,7 +342,7 @@ void Compiler::dot(bool can_assign)
 		expression();
 		emit_bytes(OP_SET_PROPERTY, constant);
 	}
-	
+
 	else
 	{
 		emit_bytes(OP_GET_PROPERTY, constant);
@@ -395,7 +393,7 @@ void Compiler::subscript(bool can_assign)
 		expression();
 		emit_byte(OP_SET_SUBSCRIPT);
 	}
-	
+
 	else
 	{
 		emit_byte(OP_GET_SUBSCRIPT);
@@ -409,12 +407,8 @@ void Compiler::unary(bool can_assign)
 
 	switch (op)
 	{
-		case MINUS:
-			emit_byte(OP_NEGATE);
-			break;
-		case BANG:
-			emit_byte(OP_NOT);
-			break;
+		case MINUS: emit_byte(OP_NEGATE); break;
+		case BANG: emit_byte(OP_NOT); break;
 	}
 }
 
@@ -437,7 +431,6 @@ void Compiler::variable(bool can_assign)
 		get_op = OP_GET_LOCAL;
 		set_op = OP_SET_LOCAL;
 	}
-
 
 	if (can_assign && match(EQUAL))
 	{
@@ -466,7 +459,7 @@ void Compiler::block()
 {
 	while (current.type() != RIGHT_BRACE)
 		declaration();
-	
+
 	consume(RIGHT_BRACE, "Expect '}' after block");
 }
 
@@ -498,7 +491,7 @@ void Compiler::if_statement()
 	// insert nil when there is an if without else
 	else
 		emit_byte(OP_NULL);
-	
+
 	patch_jump(else_offset);
 }
 
@@ -508,7 +501,7 @@ void Compiler::while_statement()
 	expression();
 	auto exit_offset = emit_jump(OP_JUMP_IF_FALSE);
 	emit_byte(OP_POP);
-	
+
 	consume(LEFT_BRACE, "Expect '{' before while block");
 	block();
 	emit_loop(loop_start);
@@ -532,7 +525,7 @@ void Compiler::var_declaration()
 		expression();
 	else
 		emit_byte(OP_UNDEFINED);
-	
+
 	define_variable(global);
 }
 
@@ -560,7 +553,7 @@ void Compiler::function_declaration()
 
 	if (current_function().chunk.code.empty())
 		emit_constant(Value(nullptr));
-	
+
 	emit_byte(OP_RETURN);
 	auto fn = current_function();
 
@@ -626,7 +619,7 @@ void Compiler::patch_jump(size_t offset)
 	auto jump = current_function().chunk.size() - offset - 2;
 	if (jump > 0xffff)
 		error("Jump is out of bounds");
-	
+
 	current_function().chunk.code[offset] = (jump >> 8) & 0xff;
 	current_function().chunk.code[offset + 1] = jump & 0xff;
 }
@@ -659,7 +652,7 @@ void Compiler::error_at(Token t, const char *msg)
 
 void Compiler::add_local(Token t)
 {
-	auto local = Local { t, -1 };
+	auto local = Local{ t, -1 };
 	current_function().locals.push_back(local);
 }
 
@@ -680,10 +673,7 @@ void Compiler::define_variable(u8 global)
 	emit_bytes(OP_DEFINE_GLOBAL, global);
 }
 
-void Compiler::declare_variable()
-{
-
-}
+void Compiler::declare_variable() { }
 
 u8 Compiler::identifier_constant(Token const &name)
 {
@@ -694,10 +684,9 @@ void Compiler::mark_initialized()
 {
 	if (is_global())
 		return;
-	
+
 	current_function().locals[current_function().local_count() - 1].depth = current_function().scope_depth;
 }
-
 
 int Compiler::resolve_local(Token t)
 {
