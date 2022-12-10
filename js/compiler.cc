@@ -320,7 +320,7 @@ void Compiler::literal(bool can_assign)
 			emit_byte(OP_FALSE);
 			break;
 		case KEY_NULL:
-			emit_byte(OP_NIL);
+			emit_byte(OP_NULL);
 			break;
 		case KEY_TRUE:
 			emit_byte(OP_TRUE);

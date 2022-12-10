@@ -77,8 +77,12 @@ Value Vm::run(Function f)
 				binary_op(Operator::Mod);
 				break;
 			
-			case OP_NIL:
+			case OP_NULL:
 				push(Value(Value::Type::Null));
+				break;
+
+			case OP_UNDEFINED:
+				push(Value());
 				break;
 			
 			case OP_TRUE:

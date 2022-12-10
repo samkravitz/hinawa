@@ -49,8 +49,10 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_RETURN", offset);
 		case OP_CONSTANT:
       		return constant_instruction("OP_CONSTANT", offset);
-		case OP_NIL:
-			return simple_instruction("OP_NIL", offset);
+		case OP_NULL:
+			return simple_instruction("OP_NULL", offset);
+		case OP_UNDEFINED:
+			return simple_instruction("OP_UNDEFINED", offset);
 		case OP_TRUE:
 			return simple_instruction("OP_TRUE", offset);
 		case OP_FALSE:
