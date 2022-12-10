@@ -34,7 +34,20 @@ std::string Value::to_string() const
 {
 	switch (type())
 	{
-		case Type::Array: return "[ TODO ]";			
+		case Type::Array:
+		{
+			std::stringstream stream;
+			std::vector<Value> vec = *as_array();
+			stream <<  "[";
+			for (uint i = 0; i < vec.size(); i++)
+			{
+				stream << vec[i].to_string();
+				if (i != vec.size() - 1)
+					stream << ", ";
+			}
+			stream << "]";
+			return stream.str();
+		}			
 		case Type::Bool: return as_bool() ? "true" : "false";
 		case Type::Native: return "<native fn>";
 		case Type::Null: return "null";
@@ -57,12 +70,5 @@ bool Value::is_falsy() const
 		return true;
 	
 	return false;
-}
-
-void Value::store_at(int index, Value v)
-{
-	auto array = *as_array();
-	array[index] = v;
-	//value = array;
 }
 }

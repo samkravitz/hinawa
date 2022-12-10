@@ -280,7 +280,7 @@ Value Vm::run(Function f)
 				break;
 			}
 
-			case OP_BUILD_ARRAY:
+			case OP_NEW_ARRAY:
 			{
 				auto num_elements = read_byte();
 				std::vector<Value> *array = new std::vector<Value>;
@@ -297,22 +297,62 @@ Value Vm::run(Function f)
 				auto index = pop();
 				auto array_value = pop();
 
-				auto array = *array_value.as_array();
-				push(Value(array[(int) index.as_number()]));
+				if (!array_value.is_array())
+				{
+					runtime_error("Error: value is not an array");
+					break;
+				}
 
+				auto array = array_value.as_array();
+
+				if (!index.is_number())
+				{
+					runtime_error("Error: array index is not a number");
+					break;
+				}
+
+				int idx = (int) index.as_number();
+				if (idx < 0 || idx >= (int) array->size())
+				{
+					runtime_error("Error: array index out of bounds");
+					break;
+				}
+
+				push(Value(array->at(idx)));
 				break;
 			}
 
-			//case OP_SET_SUBSCRIPT:
-			//{
-			//	auto element = pop();
-			//	auto index = pop();
-			//	auto array = pop();
+			case OP_SET_SUBSCRIPT:
+			{
+				auto element = pop();
+				auto index = pop();
+				auto array_value = pop();
 
-			//	array->store_at((int) index->as_number(), *element);
-			//	push(element);
-			//	break;
-			//}
+				if (!array_value.is_array())
+				{
+					runtime_error("Error: value is not an array");
+					break;
+				}
+
+				auto array = array_value.as_array();
+
+				if (!index.is_number())
+				{
+					runtime_error("Error: array index is not a number");
+					break;
+				}
+
+				int idx = (int) index.as_number();
+				if (idx < 0 || idx >= (int) array->size())
+				{
+					runtime_error("Error: array index out of bounds");
+					break;
+				}
+
+				array->at(idx) = element;
+				push(element);
+				break;
+			}
 
 			//case OP_CLASS:
 			//{

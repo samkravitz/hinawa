@@ -259,7 +259,7 @@ void Compiler::array(bool can_assign)
 	}
 
 	consume(RIGHT_BRACKET, "Expect ']' after array literal");
-	emit_bytes(OP_BUILD_ARRAY, num_elements);
+	emit_bytes(OP_NEW_ARRAY, num_elements);
 }
 
 void Compiler::object(bool can_assign)

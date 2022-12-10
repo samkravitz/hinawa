@@ -93,7 +93,6 @@ public:
 
 	bool is_falsy() const;
 	std::string to_string() const;
-	void store_at(int, Value);
 
 private:
 	Type m_type;
