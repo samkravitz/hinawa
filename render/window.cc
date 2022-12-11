@@ -5,6 +5,8 @@
 #include "../document/text.h"
 #include "../layout/box.h"
 
+// #define DEBUG_DRAW_OUTLINE
+
 auto font = sf::Font{};
 
 Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
@@ -17,9 +19,9 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 	viewport.content.width = width;
 	viewport.content.height = 0;
 
-	if (!font.loadFromFile("../data/fonts/FiraSans-Book.otf"))
+	if (!font.loadFromFile("../data/fonts/arial.ttf"))
 		exit(2);
-	
+
 	layout_tree->layout(viewport);
 	layout_tree->print("Layout Tree");
 
@@ -34,7 +36,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 			{
 				width = event.size.width;
 				height = event.size.height;
-				window.setView(sf::View(sf::FloatRect { 0, 0, (float) width, (float) height }));
+				window.setView(sf::View(sf::FloatRect{ 0, 0, (float) width, (float) height }));
 				viewport = layout::Box{};
 				viewport.content.width = width;
 				viewport.content.height = 0;
@@ -58,6 +60,14 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 
 			auto x = dimensions.content.x;
 			auto y = dimensions.content.y;
+
+#ifdef DEBUG_DRAW_OUTLINE
+			sf::RectangleShape r(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+			r.setPosition(sf::Vector2f(x, y));
+			r.setOutlineThickness(2);
+			r.setOutlineColor(sf::Color::Blue);
+			window.draw(r);
+#endif
 
 			if (background)
 			{
