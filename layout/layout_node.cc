@@ -143,7 +143,7 @@ void LayoutNode::layout_inline(Box container)
 void LayoutNode::layout_inline_element(Box container, int x)
 {
 	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
-	line_items.clear();
+	lines.clear();
 
 	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
 	auto str = text_element->trim();
@@ -154,6 +154,8 @@ void LayoutNode::layout_inline_element(Box container, int x)
 	int current_x = start_x;
 	int current_y = start_y;
 	float max_height = 0;
+
+	lines.push_back(Line(current_x, current_y));
 
 	auto space = sf::Text(" ", font, px);
 	sf::Text text;
@@ -168,27 +170,41 @@ void LayoutNode::layout_inline_element(Box container, int x)
 		item.str = word;
 		text.setString(word);
 		max_height = std::max(max_height, text.getLocalBounds().height);
+		lines.back().height = max_height;
 
 		int len = text.getLocalBounds().width;
+
+		// item would overflow the current width, so make a new line
 		if (current_x + len > width)
 		{
 			current_x = start_x;
 			current_y += max_height;
+			lines.push_back(Line(current_x, current_y));
+			lines.back().height = max_height;
+			lines.back().width = len;
 			max_height = 0;
 		}
 
-		item.x = current_x;
-		item.y = current_y;
+		// item can fit on the same line
+		else
+		{
+			lines.back().width += len;
+		}
+
+		item.offset = current_x - start_x;
+		item.len = len;
 
 		current_x += len;
 		current_x += space.getLocalBounds().width;
-		line_items.push_back(item);
+		lines.back().items.push_back(item);
 	}
 
-	float height = current_y - start_y;
-	m_dimensions.content.height = std::max(height, max_height);
-	m_dimensions.content.width = current_x - start_x;
+	int height = 0;
+	for (auto const &line : lines)
+		height += line.height;
 
+	m_dimensions.content.height = height;
+	m_dimensions.content.width = current_x - start_x;
 	m_dimensions.content.y = container.content.y;
 }
 
@@ -250,7 +266,7 @@ void LayoutNode::calculate_block_height(Box container) { }
 void LayoutNode::reset()
 {
 	m_dimensions = Box();
-	line_items.clear();
+	lines.clear();
 }
 
 std::string LayoutNode::to_string() const

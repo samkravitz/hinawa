@@ -25,8 +25,26 @@ enum class FormatContext
 struct LineItem
 {
 	std::string str;
+
+	// horizontal offset in pixels from the first element in the line
+	int offset;
+
+	// length in pixels of the line item
+	int len;
+};
+
+struct Line
+{
+	Line(int x, int y) :
+		x(x),
+		y(y)
+	{ }
+
 	int x;
 	int y;
+	int height = 0;
+	int width = 0;
+	std::vector<LineItem> items;
 };
 
 class LayoutNode : public util::TreeNode<LayoutNode>
@@ -49,7 +67,7 @@ public:
 	void calculate_block_height(Box);
 
 	std::string to_string() const;
-	std::vector<LineItem> line_items;
+	std::vector<Line> lines;
 
 private:
 	// pointer to the styled node to be rendered

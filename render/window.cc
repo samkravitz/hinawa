@@ -82,27 +82,29 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 			if (style->node()->type() == NodeType::Text)
 			{
 				auto text_element = std::dynamic_pointer_cast<Text>(style->node());
-				auto color = sf::Color::Black;
+				bool is_link = text_element->is_link();
+				auto color = is_link ? sf::Color::Blue : sf::Color::Black;
 				auto *font_size = dynamic_cast<css::Length *>(style->lookup("font-size"));
 
-				for (auto item : layout_node->line_items)
+				for (auto line : layout_node->lines)
 				{
-					sf::Text text(item.str, font);
-					text.setCharacterSize(font_size->to_px());
-
-					if (text_element->is_link())
+					for (auto item : line.items)
 					{
-						color = sf::Color::Blue;
-						sf::RectangleShape rect;
-						rect.setPosition(item.x, item.y + font_size->to_px() + 2);
-						rect.setSize(sf::Vector2f(text.getLocalBounds().width, 2));
-						rect.setFillColor(color);
-						window.draw(rect);
+						sf::Text text(item.str, font);
+						text.setCharacterSize(font_size->to_px());
+						text.setFillColor(color);
+						text.setPosition(line.x + item.offset, line.y);
+						window.draw(text);
 					}
 
-					text.setFillColor(color);
-					text.setPosition(item.x, item.y);
-					window.draw(text);
+					if (is_link)
+					{
+						sf::RectangleShape rect;
+						rect.setPosition(line.x, line.y + font_size->to_px() + 2);
+						rect.setSize(sf::Vector2f(line.width, 2));
+						rect.setFillColor(sf::Color::Blue);
+						window.draw(rect);
+					}
 				}
 			}
 		};
