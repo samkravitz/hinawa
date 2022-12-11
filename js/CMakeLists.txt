@@ -8,6 +8,7 @@ set(SOURCES
 	compiler.cc
 	object.cc
 	scanner.cc
+	string.cc
 	token.cc
 	value.cc
 	vm.cc
@@ -20,6 +21,7 @@ set(HEADERS
 	object.h
 	opcode.h
 	scanner.h
+	string.hh
 	token_type.h
 	token.h
 	value.h

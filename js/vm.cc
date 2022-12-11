@@ -25,7 +25,7 @@ Vm::Vm(bool headless)
 	global->set("window", Value(global));
 
 	auto *console = new Object();
-	console->set("log", Value(new NativeFunction([](std::vector<Value> argv) -> Value
+	console->set_native("log", [](std::vector<Value> argv) -> Value
 	{
 		auto undefined = Value();
 		if (argv.empty())
@@ -40,7 +40,7 @@ Vm::Vm(bool headless)
 		
 		std::cout << "\n";
 		return undefined;
-	})));
+	});
 	
 	global->set("console", Value(console));
 }
