@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include <fmt/format.h>
+
 #include "chunk.h"
 #include "object.h"
 #include "opcode.h"

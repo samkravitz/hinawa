@@ -21,6 +21,7 @@ endif()
 
 project(hinawa)
 
+find_package(fmt)
 find_package(FLEX REQUIRED)
 flex_target(CssLexer css/lex.ll css/lex.yy.cc)
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
@@ -36,4 +37,4 @@ add_subdirectory(js)
 add_subdirectory(layout)
 add_subdirectory(render)
 
-target_link_libraries(hinawa sfml-graphics sfml-window sfml-system)
+target_link_libraries(hinawa sfml-graphics sfml-window sfml-system fmt::fmt)
