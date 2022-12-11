@@ -3,6 +3,8 @@
 #include <cassert>
 #include <functional>
 
+#include <fmt/format.h>
+
 namespace js
 {
 struct ParseRule
@@ -340,7 +342,7 @@ void Compiler::binary(bool can_assign)
 			emit_byte(OP_LOGICAL_OR);
 			break;
 		default:
-			assert(!"Unknown binary op!");
+			fmt::print("Unknown binary op {}\n", previous.value());
 	}
 }
 

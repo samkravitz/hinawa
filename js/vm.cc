@@ -45,7 +45,7 @@ Vm::Vm(bool headless)
 	global->set("console", Value(console));
 }
 
-Value Vm::run(Function f)
+bool Vm::run(Function f)
 {
 	auto cf = CallFrame { f, 0 };
 	frames.push(cf);
@@ -71,7 +71,7 @@ Value Vm::run(Function f)
 				frames.pop();
 
 				if (frames.empty())
-					return result;
+					return true;
 				
 				auto diff = stack.size() - frame.base;
 				for (uint i = 0; i < diff; i++)
@@ -183,8 +183,8 @@ Value Vm::run(Function f)
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
-					runtime_error("Undefined variable");
-					break;
+					runtime_error(fmt::format("Undefined variable '{}'", ident));
+					return false;
 				}
 
 				push(global->get(ident));
@@ -196,8 +196,8 @@ Value Vm::run(Function f)
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
-					runtime_error("Undefined variable");
-					break;
+					runtime_error(fmt::format("Undefined variable '{}'", ident));
+					return false;
 				}
 
 				global->set(ident, peek(0));
@@ -298,7 +298,7 @@ Value Vm::run(Function f)
 				if (!array_value.is_array())
 				{
 					runtime_error("Error: value is not an array");
-					break;
+					return false;
 				}
 
 				auto array = array_value.as_array();
@@ -312,8 +312,8 @@ Value Vm::run(Function f)
 				int idx = (int) index.as_number();
 				if (idx < 0 || idx >= (int) array->size())
 				{
-					runtime_error("Error: array index out of bounds");
-					break;
+					runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size()));
+					return false;
 				}
 
 				push(Value(array->at(idx)));
@@ -329,7 +329,7 @@ Value Vm::run(Function f)
 				if (!array_value.is_array())
 				{
 					runtime_error("Error: value is not an array");
-					break;
+					return false;
 				}
 
 				auto array = array_value.as_array();
@@ -337,14 +337,14 @@ Value Vm::run(Function f)
 				if (!index.is_number())
 				{
 					runtime_error("Error: array index is not a number");
-					break;
+					return false;
 				}
 
 				int idx = (int) index.as_number();
 				if (idx < 0 || idx >= (int) array->size())
 				{
-					runtime_error("Error: array index out of bounds");
-					break;
+					runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size()));
+					return false;
 				}
 
 				array->at(idx) = element;
@@ -365,7 +365,7 @@ Value Vm::run(Function f)
 				if (!peek().is_object())
 				{
 					runtime_error("Error: tried to get property on a non-object");
-					break;
+					return false;
 				}
 
 				auto *obj = peek().as_object();
@@ -380,7 +380,7 @@ Value Vm::run(Function f)
 				if (!peek(1).is_object())
 				{
 					runtime_error("Error: tried to get property on a non-object");
-					break;
+					return false;
 				}
 
 				auto *obj = peek(1).as_object();
@@ -544,6 +544,6 @@ void Vm::runtime_error(std::string const &msg)
 {
 	auto ip = frames.top().ip;
 	auto line = frames.top().function.chunk.lines[ip - 1];
-	std::printf("%s [line %d]\n", msg.c_str(), line);
+	fmt::print("[line {}] {}\n", line, msg);
 }
 }

@@ -25,5 +25,5 @@ int main(int argc, char **argv)
 	#endif
 
 	auto vm = js::Vm{};
-	auto res = vm.run(fn);
+	vm.run(fn);
 }
