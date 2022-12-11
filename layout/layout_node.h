@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../css/styled_node.h"
+#include "../util/hinawa.h"
 #include "../util/tree_node.h"
 #include "box.h"
 
@@ -31,6 +32,8 @@ struct LineItem
 
 	// length in pixels of the line item
 	int len;
+
+	css::StyledNode *styled_node;
 };
 
 struct Line
@@ -61,7 +64,8 @@ public:
 	void layout(Box);
 	void layout_block(Box);
 	void layout_inline(Box);
-	void layout_inline_element(Box, int);
+	Point split_into_lines(const Box &, const Point &, LayoutNode *);
+
 	void calculate_block_width(Box);
 	void calculate_block_position(Box);
 	void calculate_block_height(Box);

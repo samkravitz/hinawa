@@ -129,33 +129,36 @@ void LayoutNode::layout_block(Box container)
 void LayoutNode::layout_inline(Box container)
 {
 	m_dimensions = container;
-	m_dimensions.content.y += container.content.height;
-	int x = container.content.x;
+	m_dimensions.content.y = container.content.height;
+	Point offset = Point{ m_dimensions.content.x, m_dimensions.content.y };
+	lines.clear();
 
-	for (auto child : children)
+	preorder([this, &offset](std::shared_ptr<LayoutNode>(child))
 	{
-		child->layout_inline_element(m_dimensions, x);
-		x += child->dimensions().content.width;
-		m_dimensions.content.height = child->dimensions().margin_box().height;
-	}
+		offset = child->split_into_lines(m_dimensions, offset, this);
+	});
+
+	m_dimensions.content.height = 0;
+	for (auto const &line : lines)
+		m_dimensions.content.height += line.height;
 }
 
-void LayoutNode::layout_inline_element(Box container, int x)
+Point LayoutNode::split_into_lines(const Box &container_start, const Point &offset, LayoutNode *containing_block)
 {
 	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
-	lines.clear();
 
 	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
 	auto str = text_element->trim();
 	auto px = font_size->to_px();
-	int width = container.content.width;
-	int start_y = container.content.y;
-	int start_x = container.content.x;
+	const int max_width = container_start.content.width;
+	int start_y = offset.y;
+	int start_x = offset.x;
 	int current_x = start_x;
 	int current_y = start_y;
 	float max_height = 0;
 
-	lines.push_back(Line(current_x, current_y));
+	if (containing_block->lines.empty())
+		containing_block->lines.push_back(Line(current_x, current_y));
 
 	auto space = sf::Text(" ", font, px);
 	sf::Text text;
@@ -170,42 +173,41 @@ void LayoutNode::layout_inline_element(Box container, int x)
 		item.str = word;
 		text.setString(word);
 		max_height = std::max(max_height, text.getLocalBounds().height);
-		lines.back().height = max_height;
+		containing_block->lines.back().height = max_height;
 
 		int len = text.getLocalBounds().width;
 
-		// item would overflow the current width, so make a new line
-		if (current_x + len > width)
+		// item would overflow the max allowed width, so make a new line
+		if (current_x + len > max_width)
 		{
-			current_x = start_x;
+			current_x = container_start.content.x;
 			current_y += max_height;
-			lines.push_back(Line(current_x, current_y));
-			lines.back().height = max_height;
-			lines.back().width = len;
+			containing_block->lines.push_back(Line(current_x, current_y));
+			containing_block->lines.back().height = max_height;
+			containing_block->lines.back().width = len;
 			max_height = 0;
 		}
 
 		// item can fit on the same line
 		else
 		{
-			lines.back().width += len;
+			containing_block->lines.back().width += len;
 		}
-
-		item.offset = current_x - start_x;
-		item.len = len;
 
 		current_x += len;
 		current_x += space.getLocalBounds().width;
-		lines.back().items.push_back(item);
+
+		item.offset = current_x - container_start.content.x - len;
+		item.len = len;
+		item.styled_node = node().get();
+		containing_block->lines.back().items.push_back(item);
 	}
 
 	int height = 0;
-	for (auto const &line : lines)
+	for (auto const &line : containing_block->lines)
 		height += line.height;
 
-	m_dimensions.content.height = height;
-	m_dimensions.content.width = current_x - start_x;
-	m_dimensions.content.y = container.content.y;
+	return Point{ current_x, current_y };
 }
 
 void LayoutNode::calculate_block_width(Box container)
