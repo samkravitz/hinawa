@@ -81,28 +81,28 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 
 			for (auto const &line : layout_node->lines)
 			{
-				for (auto const &item : line.items)
+				for (auto const &frag : line.fragments)
 				{
-					auto *styled_node = item.styled_node;
+					auto *styled_node = frag.styled_node;
 					auto text_element = dynamic_cast<Text*>(styled_node->node().get());
 					bool is_link = text_element->is_link();
 					auto color = is_link ? sf::Color::Blue : sf::Color::Black;
 					auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
 
-					sf::Text text(item.str, font);
+					sf::Text text(frag.str, font);
 					text.setCharacterSize(font_size->to_px());
 					text.setFillColor(color);
-					text.setPosition(line.x + item.offset, line.y);
+					text.setPosition(line.x + frag.offset, line.y);
 					window.draw(text);
 
-					//if (is_link)
-					//{
-					//	sf::RectangleShape rect;
-					//	rect.setPosition(line.x, line.y + font_size->to_px() + 2);
-					//	rect.setSize(sf::Vector2f(line.width, 2));
-					//	rect.setFillColor(sf::Color::Blue);
-					//	window.draw(rect);
-					//}
+					if (is_link)
+					{
+						sf::RectangleShape rect;
+						rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
+						rect.setSize(sf::Vector2f(frag.len, 2));
+						rect.setFillColor(sf::Color::Blue);
+						window.draw(rect);
+					}
 				}
 			}
 		};

@@ -23,14 +23,22 @@ enum class FormatContext
 	Inline,
 };
 
-struct LineItem
+struct LineFragment
 {
+	LineFragment()
+	{
+		str = "";
+		offset = 0;
+		len = 0;
+		styled_node = nullptr;
+	}
+
 	std::string str;
 
 	// horizontal offset in pixels from the first element in the line
 	int offset;
 
-	// length in pixels of the line item
+	// length in pixels of the line fragment
 	int len;
 
 	css::StyledNode *styled_node;
@@ -47,7 +55,7 @@ struct Line
 	int y;
 	int height = 0;
 	int width = 0;
-	std::vector<LineItem> items;
+	std::vector<LineFragment> fragments;
 };
 
 class LayoutNode : public util::TreeNode<LayoutNode>

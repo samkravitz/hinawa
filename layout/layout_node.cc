@@ -136,6 +136,16 @@ void LayoutNode::layout_inline(Box container)
 	preorder([this, &offset](std::shared_ptr<LayoutNode>(child))
 	{
 		offset = child->split_into_lines(m_dimensions, offset, this);
+
+		// remove trailing " " from fragment
+		if (!lines.empty())
+		{
+			auto &frag = lines.back().fragments.back();
+			frag.str.pop_back();
+
+			// len(" ") is usually about 4 px, but that's just an approximation
+			frag.len -= 4;
+		}
 	});
 
 	m_dimensions.content.height = 0;
@@ -151,10 +161,8 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 	auto str = text_element->trim();
 	auto px = font_size->to_px();
 	const int max_width = container_start.content.width;
-	int start_y = offset.y;
-	int start_x = offset.x;
-	int current_x = start_x;
-	int current_y = start_y;
+	int current_x = offset.x;
+	int current_y = offset.y;
 	float max_height = 0;
 
 	if (containing_block->lines.empty())
@@ -167,45 +175,43 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 
 	std::istringstream ss(str);
 	std::string word;
+	LineFragment frag;
+	frag.styled_node = m_node.get();
+
 	while (std::getline(ss, word, ' '))
 	{
-		LineItem item;
-		item.str = word;
 		text.setString(word);
 		max_height = std::max(max_height, text.getLocalBounds().height);
 		containing_block->lines.back().height = max_height;
-
 		int len = text.getLocalBounds().width;
 
-		// item would overflow the max allowed width, so make a new line
+		// fragment would overflow the max allowed width, so it must be put on a new line
 		if (current_x + len > max_width)
 		{
+			frag.offset = current_x - container_start.content.x - frag.len;
 			current_x = container_start.content.x;
 			current_y += max_height;
-			containing_block->lines.push_back(Line(current_x, current_y));
+
+			containing_block->lines.back().fragments.push_back(frag);
 			containing_block->lines.back().height = max_height;
 			containing_block->lines.back().width = len;
+			containing_block->lines.push_back(Line(current_x, current_y));
 			max_height = 0;
+			frag = LineFragment();
+			frag.styled_node = m_node.get();
 		}
 
-		// item can fit on the same line
-		else
-		{
-			containing_block->lines.back().width += len;
-		}
-
+		frag.str += word + " ";
+		frag.len += len + space.getLocalBounds().width;
 		current_x += len;
 		current_x += space.getLocalBounds().width;
-
-		item.offset = current_x - container_start.content.x - len;
-		item.len = len;
-		item.styled_node = node().get();
-		containing_block->lines.back().items.push_back(item);
 	}
 
-	int height = 0;
-	for (auto const &line : containing_block->lines)
-		height += line.height;
+	if (!frag.str.empty())
+	{
+		frag.offset = current_x - container_start.content.x - frag.len;
+		containing_block->lines.back().fragments.push_back(frag);
+	}
 
 	return Point{ current_x, current_y };
 }
