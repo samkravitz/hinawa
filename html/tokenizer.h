@@ -1,5 +1,7 @@
 #pragma once
 
+#include <initializer_list>
+#include <list>
 #include <string>
 
 #include "token.h"
@@ -107,6 +109,8 @@ private:
 	void consume_next_input_character();
 	void reconsume_in(State);
 	bool consume_if_match(std::string const &str, bool case_sensitive = false);
+	void emit_token(Token);
+	void emit_tokens(const std::initializer_list<Token> &);
 
 	State state = State::Data;
 	State return_state = State::Data;
@@ -118,5 +122,8 @@ private:
 	std::string temporary_buffer;
 	bool flush_temporary_buffer = false;
 	unsigned int character_reference_code = 0;
+
+	// tokens that have been emitted but are still waiting to be returned
+	std::list<Token> emitted_tokens;
 };
-}    // namespace html
+}

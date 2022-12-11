@@ -29,6 +29,13 @@ Token Tokenizer::next()
 {
 	while (1)
 	{
+		while (!emitted_tokens.empty())
+		{
+			auto token = emitted_tokens.front();
+			emitted_tokens.pop_front();
+			return token;
+		}
+
 		if (flush_temporary_buffer)
 		{
 			auto char_token = Token::make_character(temporary_buffer[0]);
@@ -181,10 +188,40 @@ Token Tokenizer::next()
 				break;
 
 			// 13.2.5.9 RCDATA less-than sign state
-			case State::RCDATALessThanSign: break;
+			case State::RCDATALessThanSign:
+			{
+				if (current_input_character == '/')
+				{
+					temporary_buffer = "";
+					state = State::RCDATAEndTagOpen;
+				}
+
+				else
+				{
+					reconsume_in(State::RCDATA);
+					return Token::make_character('<');
+				}
+
+				break;
+			}
 
 			// 13.2.5.10 RCDATA end tag open state
-			case State::RCDATAEndTagOpen: break;
+			case State::RCDATAEndTagOpen:
+			{
+				if (isalpha(current_input_character))
+				{
+					current_token = Token::make_end_tag();
+					reconsume_in(State::RCDATAEndTagOpen);
+				}
+
+				else
+				{
+					emit_tokens({ Token::make_character('<'), Token::make_character('/') });
+					reconsume_in(State::RCDATA);
+				}
+
+				break;
+			}
 
 			// 13.2.5.11 RCDATA end tag name state
 			case State::RCDATAEndTagName: break;
@@ -199,31 +236,206 @@ Token Tokenizer::next()
 			case State::RAWTEXTEndTagName: break;
 
 			// 13.2.5.15 Script data less-than sign state
-			case State::ScriptDataLessThanSign: break;
+			case State::ScriptDataLessThanSign:
+			{
+				switch (current_input_character)
+				{
+					case '/':
+						temporary_buffer = "";
+						state = State::ScriptDataEndTagOpen;
+						break;
+					case '!':
+						state = State::ScriptDataEscapeStart;
+						emit_tokens({ Token::make_character('<'), Token::make_character('!') });
+						break;
+					default:
+						reconsume_in(State::ScriptData); return Token::make_character('<');
+				}
+				break;
+			}
 
 			// 13.2.5.16 Script data end tag open state
-			case State::ScriptDataEndTagOpen: break;
+			case State::ScriptDataEndTagOpen:
+			{
+				if (isalpha(current_input_character))
+				{
+					current_token = Token::make_end_tag();
+					reconsume_in(State::ScriptDataEscapedEndTagName);
+				}
+
+				else
+				{
+					reconsume_in(State::ScriptData);
+					emit_tokens({ Token::make_character('<'), Token::make_character('/') });
+				}
+
+				break;
+			}
 
 			// 13.2.5.17 Script data end tag name state
-			case State::ScriptDataEndTagName: break;
+			case State::ScriptDataEndTagName:
+			{
+				if (isalpha(current_input_character))
+				{
+					auto c = current_input_character;
+					if (isupper(c))
+						c += 0x20;
+
+					current_token.append_attribute_name(c);
+					temporary_buffer += current_input_character;
+					break;
+				}
+
+				switch (current_input_character)
+				{
+					case '\t':
+					case '\n':
+					case '\f':
+					case ' ': state = State::BeforeAttributeName; break;
+
+					case '/': state = State::SelfClosingStartTag; break;
+
+					case '>':
+						state = State::Data;
+						return current_token;
+						break;
+
+					default:
+					{
+						reconsume_in(State::ScriptData);
+						emit_tokens({ Token::make_character('<'), Token::make_character('/') });
+						flush_temporary_buffer = true;
+					}
+				}
+				break;
+			}
 
 			// 13.2.5.18 Script data escape start state
-			case State::ScriptDataEscapeStart: break;
+			case State::ScriptDataEscapeStart:
+			{
+				if (current_input_character == '-')
+				{
+					state = State::ScriptDataEscapeStartDash;
+					emit_token(Token::make_character('-'));
+				}
+
+				else
+				{
+					reconsume_in(State::ScriptData);
+				}
+				break;
+			}
 
 			// 13.2.5.19 Script data escape start dash state
-			case State::ScriptDataEscapeStartDash: break;
+			case State::ScriptDataEscapeStartDash:
+			{
+				if (current_input_character == '-')
+				{
+					state = State::ScriptDataEscapeStartDash;
+					emit_token(Token::make_character('-'));
+				}
+
+				else
+				{
+					reconsume_in(State::ScriptData);
+				}
+				break;
+			}
 
 			// 13.2.5.20 Script data escaped state
-			case State::ScriptDataEscaped: break;
+			case State::ScriptDataEscaped:
+			{
+				switch (current_input_character)
+				{
+					case '-':
+						state = State::ScriptDataEscapedDash;
+						emit_token(Token::make_character('-'));
+						break;
+					case '<':
+						state = State::ScriptDataDoubleEscapedLessThanSign;
+						break;
+					case '\0':
+						// TODO - emit a U+fffd token
+						emit_token(Token::make_character('\0'));
+						break;
+					default:
+						emit_token(Token::make_character(current_input_character));
+				}
+				break;
+			};
 
 			// 13.2.5.21 Script data escaped dash state
-			case State::ScriptDataEscapedDash: break;
+			case State::ScriptDataEscapedDash:
+			{
+				switch (current_input_character)
+				{
+					case '-':
+						state = State::ScriptDataEscapedDashDash;
+						emit_token(Token::make_character('-'));
+						break;
+					case '<':
+						state = State::ScriptDataDoubleEscapedLessThanSign;
+						break;
+					case '\0':
+						// TODO - emit a U+fffd token
+						emit_token(Token::make_character('\0'));
+						break;
+					default:
+						state = State::ScriptDataEscaped;
+						emit_token(Token::make_character(current_input_character));
+				}
+				break;
+			}
 
 			// 13.2.5.22 Script data escaped dash dash state
-			case State::ScriptDataEscapedDashDash: break;
+			case State::ScriptDataEscapedDashDash:
+			{
+				switch (current_input_character)
+				{
+					case '-':
+						emit_token(Token::make_character('-'));
+						break;
+					case '<':
+						state = State::ScriptDataDoubleEscapedLessThanSign;
+						break;
+					case '>':
+						state = State::ScriptData;
+						emit_token(Token::make_character('>'));
+						break;
+					case '\0':
+						// TODO - emit a U+fffd token
+						emit_token(Token::make_character('\0'));
+						break;
+					default:
+						state = State::ScriptDataEscaped;
+						emit_token(Token::make_character(current_input_character));
+				}
+				break;
+			}
 
 			// 13.2.5.23 Script data escaped less-than sign state
-			case State::ScriptDataEscapedLessThanSign: break;
+			case State::ScriptDataEscapedLessThanSign:
+			{
+				if (isalpha(current_input_character))
+				{
+					temporary_buffer = "";
+					emit_token(Token::make_character('<'));
+					reconsume_in(State::ScriptDataDoubleEscapeStart);
+				}
+
+				else if (current_input_character == '/')
+				{
+					temporary_buffer = "";
+					state = State::ScriptDataEndTagOpen;
+				}
+
+				else
+				{
+					emit_token(Token::make_character('<'));
+					reconsume_in(State::ScriptDataEscaped);
+				}
+				break;
+			}
 
 			// 13.2.5.24 Script data escaped end tag open state
 			case State::ScriptDataEscapedEndTagOpen: break;
@@ -970,5 +1182,16 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 		consume_next_input_character();
 
 	return true;
+}
+
+void Tokenizer::emit_token(Token token)
+{
+	emitted_tokens.push_back(token);
+}
+
+void Tokenizer::emit_tokens(const std::initializer_list<Token> &tokens)
+{
+	for (auto const &token : tokens)
+		emitted_tokens.push_back(token);
 }
 }
