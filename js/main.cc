@@ -19,7 +19,10 @@ int main(int argc, char **argv)
 
 	auto compiler = js::Compiler(buffer.str().c_str());
 	auto fn = compiler.compile();
+
+	#ifdef DEBUG_PRINT_CODE
 	fn.chunk.disassemble("script");
+	#endif
 
 	auto vm = js::Vm{};
 	auto res = vm.run(fn);

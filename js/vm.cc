@@ -50,7 +50,7 @@ Value Vm::run(Function f)
 
 	while (1)
 	{
-		#ifdef DEBUG
+		#ifdef DEBUG_PRINT_STACK
 		std::printf("stack:          ");
 		std::printf("[ ");
 		for (auto &x : stack)

@@ -590,7 +590,7 @@ void Compiler::function_declaration()
 	emit_byte(OP_RETURN);
 	auto fn = current_function();
 
-	#ifdef DEBUG
+	#ifdef DEBUG_PRINT_CODE
 	fn.chunk.disassemble(fn.name.c_str());
 	#endif
 

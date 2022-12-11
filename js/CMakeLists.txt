@@ -1,3 +1,8 @@
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_options("-DDEBUG_PRINT_CODE")
+	add_compile_options("-DDEBUG_PRINT_STACK")
+endif()
+
 set(SOURCES
 	chunk.cc
 	compiler.cc
