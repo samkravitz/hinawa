@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "../document/node.h"
+
 namespace js
 {
 class Function;
@@ -17,6 +19,7 @@ public:
 		Array,
 		Bool,
 		Function,
+		HtmlElement,
 		Native,
 		Null,
 		Number,
@@ -59,6 +62,11 @@ public:
 		function(function)
 	{ }
 
+	explicit Value(Node *html_element) :
+		m_type(Type::HtmlElement),
+		html_element(html_element)
+	{ }
+
 	explicit Value(NativeFunction *native) :
 		m_type(Type::Native),
 		native(native)
@@ -74,6 +82,7 @@ public:
 	inline bool is_array() const { return m_type == Type::Array; }
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_function() const { return m_type == Type::Function; }
+	inline bool is_html_element() const { return m_type == Type::HtmlElement; }
 	inline bool is_native() const { return m_type == Type::Native; }
 	inline bool is_null() const { return m_type == Type::Null; }
 	inline bool is_number() const { return m_type == Type::Number; }
@@ -84,6 +93,7 @@ public:
 	inline std::vector<Value> *as_array() const { return array; }
 	inline bool as_bool() const { return boolean; }
 	inline Function *as_function() const { return function; }
+	inline Node *as_html_element() const { return html_element; }
 	inline NativeFunction *as_native() const { return native; }
 	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
@@ -101,6 +111,7 @@ private:
 		std::vector<Value> *array;
 		bool boolean;
 		Function *function;
+		Node *html_element;
 		NativeFunction *native;
 		Object *object;
 		double number;

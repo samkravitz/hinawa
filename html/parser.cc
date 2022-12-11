@@ -10,6 +10,9 @@
 #include "../document/text.h"
 #include "token.h"
 
+#include "../js/compiler.h"
+#include "../js/vm.h"
+
 namespace html
 {
 static inline bool is_whitespace(char c)
@@ -273,6 +276,26 @@ std::shared_ptr<Node> Parser::parse()
 					case EndTag:
 					{
 						auto tag_name = token.tag_name();
+						if (tag_name == "script")
+						{
+							std::cout << "hi script\n";
+							auto script = open_elements.back();
+							auto script_text = std::dynamic_pointer_cast<Text>(script->last_child());
+							document->print("test pre");
+							document->pop_back();
+							document->pop_back();
+							document->print("test dom");
+							auto compiler = js::Compiler(script_text->text().c_str());
+							auto fn = compiler.compile();
+
+							//#ifdef DEBUG_PRINT_CODE
+							fn.chunk.disassemble("script");
+							//#endif
+
+							auto vm = js::Vm(document.get());
+							vm.run(fn);
+						}
+
 						if (tag_name == "body")
 						{
 							insertion_mode = InsertionMode::AfterBody;

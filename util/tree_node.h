@@ -77,6 +77,20 @@ public:
 		print_subtree("");
 	}
 
+	void pop_back()
+	{
+		auto x = last_child();
+		for (x; x->has_children(); x = x->last_child())
+			;
+		
+		x->parent()->pop();
+	}
+
+	void pop()
+	{
+		children.pop_back();
+	}
+
 protected:
 	T *m_parent = nullptr;
 	std::vector<std::shared_ptr<T>> children;

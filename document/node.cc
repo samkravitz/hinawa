@@ -1,6 +1,7 @@
 #include "node.h"
 
 #include "element.h"
+#include "text.h"
 
 bool Node::is_link() const
 {
@@ -37,4 +38,16 @@ std::string Node::element_name() const
 	}
 
 	return "<non-element>";
+}
+
+namespace document {
+Node *create_element(std::string name)
+{
+	return new Element(name);
+}
+
+Node *create_text_node(std::string name)
+{
+	return new Text(name);
+}
 }

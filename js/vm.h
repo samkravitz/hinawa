@@ -8,6 +8,8 @@
 #include "function.h"
 #include "value.h"
 
+class Node;
+
 namespace js
 {
 enum class Operator
@@ -40,12 +42,13 @@ struct CallFrame
 class Vm
 {
 public:
-	Vm(bool headless = false);
+	Vm(Node* = nullptr, bool headless = false);
 	bool run(Function);
 
 private:
 	// pointer to the global object
 	Object *global = nullptr;
+	Node *dom = nullptr;
 
 	std::vector<Value> stack;
 	std::stack<CallFrame> frames;

@@ -56,6 +56,7 @@ std::string Value::to_string() const
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
 		case Type::Function: return as_function()->to_string();
+		case Type::HtmlElement: return "HtmlElement";
 		default:
 			assert(!"Unknown value type!");
 	}

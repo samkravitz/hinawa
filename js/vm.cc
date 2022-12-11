@@ -4,12 +4,16 @@
 #include <cassert>
 #include <cstdio>
 #include <iostream>
+#include <memory>
 
 #include <fmt/format.h>
 
 #include "chunk.h"
 #include "object.h"
 #include "opcode.h"
+#include "../document/node.h"
+#include "../document/element.h"
+#include "../document/text.h"
 
 namespace js
 {
@@ -19,7 +23,8 @@ namespace js
  * that are present in the javascript browser environment (i.e. window)
  * 
 */
-Vm::Vm(bool headless)
+Vm::Vm(Node *dom, bool headless)
+	: dom(dom)
 {
 	global = new Object();
 	global->set("window", Value(global));
@@ -41,7 +46,30 @@ Vm::Vm(bool headless)
 		std::cout << "\n";
 		return undefined;
 	})));
+
+	auto *document = new Object();
+	document->set("createElement", Value(new NativeFunction([](std::vector<Value> argv) -> Value
+	{
+		auto element_name = argv[0].to_string();
+		auto element = document::create_element(element_name);
+		return Value(element);
+	})));
+
+	document->set("createTextNode", Value(new NativeFunction([](std::vector<Value> argv) -> Value
+	{
+		auto text = argv[0].to_string();
+		return Value(document::create_text_node(text));
+	})));
+
+	document->set("appendChild", Value(new NativeFunction([dom](std::vector<Value> argv) -> Value
+	{
+		auto child = argv[0].as_html_element();
+		auto *element = dynamic_cast<Element*>(child);
+		dom->last_child()->last_child()->add_child(std::make_shared<Element>(*element));
+		return Value();
+	})));
 	
+	global->set("document", Value(document));
 	global->set("console", Value(console));
 }
 
@@ -362,6 +390,24 @@ bool Vm::run(Function f)
 
 			case OP_GET_PROPERTY:
 			{
+				if (peek().is_html_element())
+				{
+					//auto *obj = peek().as_object();
+					auto str = read_string();
+					auto *val = global->get("p").as_html_element();
+
+					std::cout << str << "\n";
+					auto fn = Value(new NativeFunction([val](std::vector<Value> argv) -> Value
+					{
+						auto child = argv[0].as_html_element();
+						auto *text = dynamic_cast<Text*>(child);
+						val->add_child(std::make_shared<Text>(*text));
+						return Value();
+					}));
+					push(fn);
+					break;
+				}
+
 				if (!peek().is_object())
 				{
 					runtime_error("Error: tried to get property on a non-object");
