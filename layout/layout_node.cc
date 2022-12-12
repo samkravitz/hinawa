@@ -155,6 +155,8 @@ void LayoutNode::layout_inline(Box container)
 
 Point LayoutNode::split_into_lines(const Box &container_start, const Point &offset, LayoutNode *containing_block)
 {
+	m_dimensions.content.x = container_start.content.x;
+	m_dimensions.content.y = container_start.content.y;
 	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
 
 	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
@@ -191,6 +193,8 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 			frag.offset = current_x - container_start.content.x - frag.len;
 			current_x = container_start.content.x;
 			current_y += max_height;
+			m_dimensions.content.width += frag.len;
+			m_dimensions.content.height += max_height;
 
 			containing_block->lines.back().fragments.push_back(frag);
 			containing_block->lines.back().height = max_height;
@@ -210,6 +214,8 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 	if (!frag.str.empty())
 	{
 		frag.offset = current_x - container_start.content.x - frag.len;
+		m_dimensions.content.width += frag.len;
+		m_dimensions.content.height += max_height;
 		containing_block->lines.back().fragments.push_back(frag);
 	}
 
@@ -270,6 +276,24 @@ void LayoutNode::calculate_block_position(Box container)
 }
 
 void LayoutNode::calculate_block_height(Box container) { }
+
+std::optional<Node *> LayoutNode::hit_test(const Point &p)
+{
+	if (!m_dimensions.content.contains(p))
+		return {};
+
+	if (!m_node || !m_node->node())
+		return {};
+
+	std::optional<Node *> result = { m_node->node().get() };
+	for_each_child([&](const auto &child)
+	{
+		auto child_result = child->hit_test(p);
+		if (child_result.has_value())
+			result = child_result;
+	});
+	return result;
+}
 
 void LayoutNode::reset()
 {

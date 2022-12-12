@@ -47,6 +47,20 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 
 		window.clear();
 		window.draw(bg);
+			if (event.type == sf::Event::MouseMoved)
+			{
+				auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
+				if (result.has_value() && result.value()->is_link())
+				{
+					auto cursor = sf::Cursor{};
+					cursor.loadFromSystem(sf::Cursor::Hand);
+					window.setMouseCursor(cursor);
+
+					// grabs the most specific node (Text), when we want the Element to see the href
+					auto *element = dynamic_cast<Element *>(result.value()->parent());
+					auto href = element->get_attribute("href");
+					std::cout << "Hover over link! href: " << href << "\n";
+				}
 
 		auto draw_fn = [this](std::shared_ptr<layout::LayoutNode> layout_node)
 		{

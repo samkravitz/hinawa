@@ -4,6 +4,7 @@
 #include <string>
 
 #include "edges.h"
+#include "../util/hinawa.h"
 
 namespace layout
 {
@@ -24,6 +25,18 @@ struct Rect
 		rect.height = height + edges.top + edges.bottom;
 
 		return rect;
+	}
+
+	bool contains(const Point &p) const
+	{
+		int x2 = x + width;
+		int y2 = y + height;
+		return (
+			p.x >= x &&
+			p.x <= x2 &&
+			p.y >= y &&
+			p.y <= y2
+		);
 	}
 
 	std::string to_string() const

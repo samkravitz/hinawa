@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -78,6 +79,7 @@ public:
 	void calculate_block_position(Box);
 	void calculate_block_height(Box);
 
+	std::optional<Node *> hit_test(const Point &p);
 	std::string to_string() const;
 	std::vector<Line> lines;
 
