@@ -121,6 +121,7 @@ ParseRule rules[] = {
 	[KEY_TRY]           = { nullptr, nullptr, PREC_NONE },
 	[KEY_TRUE]          = { nullptr, &Compiler::literal, PREC_NONE },
 	[KEY_TYPEOF]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_UNDEFINED]     = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_VAR]           = { nullptr, nullptr, PREC_NONE },
 	[KEY_VOID]          = { nullptr, nullptr, PREC_NONE },
 	[KEY_WHILE]         = { nullptr, nullptr, PREC_NONE },
@@ -411,6 +412,9 @@ void Compiler::literal(bool can_assign)
 			break;
 		case KEY_TRUE:
 			emit_byte(OP_TRUE);
+			break;
+		case KEY_UNDEFINED:
+			emit_byte(OP_UNDEFINED);
 			break;
 		default:
 			assert(!"Unknown literal!");

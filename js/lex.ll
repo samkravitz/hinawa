@@ -59,6 +59,7 @@
 "try"                       { return KEY_TRY; }
 "true"                      { return KEY_TRUE; }
 "typeof"                    { return KEY_TYPEOF; }
+"undefined"                 { return KEY_UNDEFINED; }
 "var"                       { return KEY_VAR; }
 "void"                      { return KEY_VOID; }
 "while"                     { return KEY_WHILE; }

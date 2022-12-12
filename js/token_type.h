@@ -112,6 +112,7 @@ enum TokenType : int
 	KEY_TRY,
 	KEY_TRUE,
 	KEY_TYPEOF,
+	KEY_UNDEFINED,
 	KEY_VAR,
 	KEY_VOID,
 	KEY_WHILE,
