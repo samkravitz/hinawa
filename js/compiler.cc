@@ -95,7 +95,7 @@ ParseRule rules[] = {
 	[KEY_ENUM]          = { nullptr, nullptr, PREC_NONE },
 	[KEY_EXPORT]        = { nullptr, nullptr, PREC_NONE },
 	[KEY_EXTENDS]       = { nullptr, nullptr, PREC_NONE },
-	[KEY_FALSE]         = { nullptr, &Compiler::literal, PREC_NONE },
+	[KEY_FALSE]         = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_FINALLY]       = { nullptr, nullptr, PREC_NONE },
 	[KEY_FOR]           = { nullptr, nullptr, PREC_NONE },
 	[KEY_FUNCTION]      = { nullptr, nullptr, PREC_NONE },
@@ -107,7 +107,7 @@ ParseRule rules[] = {
 	[KEY_INTERFACE]     = { nullptr, nullptr, PREC_NONE },
 	[KEY_LET]           = { nullptr, nullptr, PREC_NONE },
 	[KEY_NEW]           = { nullptr, nullptr, PREC_NONE },
-	[KEY_NULL]          = { nullptr, &Compiler::literal, PREC_NONE },
+	[KEY_NULL]          = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_PACKAGE]       = { nullptr, nullptr, PREC_NONE },
 	[KEY_PRIVATE]       = { nullptr, nullptr, PREC_NONE },
 	[KEY_PROTECTED]     = { nullptr, nullptr, PREC_NONE },
@@ -119,7 +119,7 @@ ParseRule rules[] = {
 	[KEY_THIS]          = { nullptr, nullptr, PREC_NONE },
 	[KEY_THROW]         = { nullptr, nullptr, PREC_NONE },
 	[KEY_TRY]           = { nullptr, nullptr, PREC_NONE },
-	[KEY_TRUE]          = { nullptr, &Compiler::literal, PREC_NONE },
+	[KEY_TRUE]          = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_TYPEOF]        = { nullptr, nullptr, PREC_NONE },
 	[KEY_UNDEFINED]     = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_VAR]           = { nullptr, nullptr, PREC_NONE },
@@ -331,6 +331,9 @@ void Compiler::binary(bool can_assign)
 		case EQUAL_EQUAL:
 			emit_byte(OP_EQUAL);
 			break;
+		case EQUAL_EQUAL_EQUAL:
+			emit_byte(OP_EQUAL);
+			break;
 		case GREATER:
 			emit_byte(OP_GREATER);
 			break;
@@ -517,32 +520,20 @@ void Compiler::block()
 
 void Compiler::if_statement()
 {
+	consume(LEFT_PAREN, "Expect '(' after if");
 	expression();
+	consume(RIGHT_PAREN, "Expect ')' after condition");
+
 	auto then_offset = emit_jump(OP_JUMP_IF_FALSE);
 	emit_byte(OP_POP);
-
-	consume(LEFT_BRACE, "Expect '{' before if block");
-	block();
+	statement();
 
 	auto else_offset = emit_jump(OP_JUMP);
 	emit_byte(OP_POP);
 	patch_jump(then_offset);
 
 	if (match(KEY_ELSE))
-	{
-		if (match(KEY_IF))
-		{
-			if_statement();
-			return;
-		}
-
-		consume(LEFT_BRACE, "Expect '{' before else block");
-		block();
-	}
-
-	// insert nil when there is an if without else
-	else
-		emit_byte(OP_NULL);
+		statement();
 
 	patch_jump(else_offset);
 }
@@ -606,6 +597,7 @@ void Compiler::function_declaration()
 	}
 
 	current_function().num_params = arity;
+	consume(RIGHT_PAREN, "Expect ')' after parameters");
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
 
