@@ -1,10 +1,12 @@
 #include "url.h"
 
+#include "url_parser.h"
+
 Url::Url(const std::string &url_string) :
-    m_url_string(url_string)
+	Url(UrlParser().parse(url_string))
 { }
 
 std::string Url::to_string() const
 {
-	return m_url_string;
+	return "";
 }
