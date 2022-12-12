@@ -146,7 +146,7 @@
 	// Whitespace / comment
 %}
 
-"//"[^(\n|"\r\n")]*         { /* Comment */ }
+"//".*(\n|"\r\n")           { /* Comment */ }
 "/*"[^"*/"]*"*/"            { /* Comment */ }
 [ \t\n]                     { }
 

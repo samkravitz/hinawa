@@ -177,6 +177,11 @@ bool Compiler::match(TokenType type)
 	return false;
 }
 
+bool Compiler::check(TokenType type)
+{
+	return current.type() == type;
+}
+
 void Compiler::statement()
 {
 	if (match(KEY_IF))
@@ -574,15 +579,21 @@ void Compiler::function_declaration()
 	begin_scope();
 	consume(LEFT_PAREN, "Expect '(' after function name");
 
-	int num_params = 0;
-	while (!match(RIGHT_PAREN))
+	int arity = 0;
+	if (!check(RIGHT_PAREN))
 	{
-		num_params += 1;
-		add_local(current);
-		consume(IDENTIFIER, "Expect identifier");
+		do
+		{
+			arity++;
+			if (arity > 0xff)
+				error_at_current("Can't have more than 255 parameters");
+
+			auto constant = parse_variable("Expect parameter name");
+			define_variable(constant);
+		} while (match(COMMA));
 	}
 
-	current_function().num_params = num_params;
+	current_function().num_params = arity;
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
 

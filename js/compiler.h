@@ -58,6 +58,7 @@ private:
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);
+	bool check(TokenType);
 
 	void parse_precedence(Precedence);
 
