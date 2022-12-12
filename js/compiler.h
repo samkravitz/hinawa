@@ -36,6 +36,7 @@ public:
 
 	Function compile();
 
+	void anonymous(bool);
 	void array(bool);
 	void binary(bool);
 	void call(bool);

@@ -24,22 +24,33 @@ struct Local
 class Function
 {
 public:
-	Function(std::string const &name) :
-		name(name)
+	Function()
 	{
-		num_params = 0;
+		anonymous = true;
+	}
+
+	Function(std::string const &name) :
+	    name(name)
+	{
+		anonymous = false;
 	}
 
 	std::vector<Local> locals;
-	size_t num_params;
+	size_t arity = 0;
 	Chunk chunk;
 	std::string name;
 	int scope_depth = 0;
+	bool anonymous;
 
 	int local_count() const { return locals.size(); }
 
 	std::string to_string() const
 	{
+		if (anonymous)
+		{
+			return "<anonymous fn>";
+		}
+
 		std::string res = "<fn ";
 		res += name;
 		res += ">";

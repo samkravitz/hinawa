@@ -98,7 +98,7 @@ ParseRule rules[] = {
 	[KEY_FALSE]         = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_FINALLY]       = { nullptr, nullptr, PREC_NONE },
 	[KEY_FOR]           = { nullptr, nullptr, PREC_NONE },
-	[KEY_FUNCTION]      = { nullptr, nullptr, PREC_NONE },
+	[KEY_FUNCTION]      = { &Compiler::anonymous, nullptr, PREC_NONE },
 	[KEY_IF]            = { nullptr, nullptr, PREC_NONE },
 	[KEY_IMPLEMENTS]    = { nullptr, nullptr, PREC_NONE },
 	[KEY_IMPORT]        = { nullptr, nullptr, PREC_NONE },
@@ -259,6 +259,46 @@ void Compiler::parse_precedence(Precedence precedence)
 		if (can_assign && match(EQUAL))
 			error("Invalid assignment target");
 	}
+}
+
+void Compiler::anonymous(bool can_assign)
+{
+	functions.push(Function());
+
+	begin_scope();
+	consume(LEFT_PAREN, "Expect '(' after function");
+
+	int arity = 0;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			arity++;
+			if (arity > 0xff)
+				error_at_current("Can't have more than 255 parameters");
+
+			auto constant = parse_variable("Expect parameter name");
+			define_variable(constant);
+		} while (match(COMMA));
+	}
+
+	current_function().arity = arity;
+	consume(RIGHT_PAREN, "Expect ')' after parameters");
+	consume(LEFT_BRACE, "Expect '{' before function body");
+	block();
+
+	if (current_function().chunk.code.empty())
+		emit_constant(Value(nullptr));
+
+	emit_byte(OP_RETURN);
+	auto fn = current_function();
+
+	#ifdef DEBUG_PRINT_CODE
+	fn.chunk.disassemble("anonymous");
+	#endif
+
+	functions.pop();
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(fn))));
 }
 
 void Compiler::array(bool can_assign)
@@ -606,7 +646,7 @@ void Compiler::function_declaration()
 		} while (match(COMMA));
 	}
 
-	current_function().num_params = arity;
+	current_function().arity = arity;
 	consume(RIGHT_PAREN, "Expect ')' after parameters");
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
@@ -778,7 +818,7 @@ int Compiler::resolve_local(Token t)
 	{
 		auto local = current_function().locals[i];
 		if (t.value() == local.name.value())
-			return i;
+			return i + 1;
 	}
 
 	return -1;
