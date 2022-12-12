@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../util/hinawa.h"
+#include "util/hinawa.h"
 
 namespace css
 {

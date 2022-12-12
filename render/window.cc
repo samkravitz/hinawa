@@ -2,10 +2,10 @@
 
 #include <unordered_map>
 
-#include "../document/element.h"
-#include "../document/text.h"
-#include "../layout/box.h"
-#include "../util/hinawa.h"
+#include "document/element.h"
+#include "document/text.h"
+#include "layout/box.h"
+#include "util/hinawa.h"
 
 // #define DEBUG_DRAW_OUTLINE
 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../css/value.h"
+#include "css/value.h"
 #include "block.h"
 #include "inline.h"
 #include "text.h"

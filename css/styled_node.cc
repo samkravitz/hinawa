@@ -1,7 +1,7 @@
 #include "styled_node.h"
 
-#include "../document/element.h"
-#include "../document/text.h"
+#include "document/element.h"
+#include "document/text.h"
 
 #include <iostream>
 

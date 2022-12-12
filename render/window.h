@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../layout/layout_node.h"
+#include "layout/layout_node.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>

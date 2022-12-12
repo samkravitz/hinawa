@@ -5,7 +5,7 @@
 
 #include "token.h"
 #include "value.h"
-#include "../util/hinawa.h"
+#include "util/hinawa.h"
 
 namespace js
 {

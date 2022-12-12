@@ -31,7 +31,7 @@ set(HEADERS
 flex_target(JsLexer2 lex.ll lex.yy.cc)
 
 add_executable(js main.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer2_OUTPUTS})
-target_include_directories(js PUBLIC .)
 
+target_include_directories(js PRIVATE . ..)
 target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS})
 target_link_libraries(js fmt::fmt)

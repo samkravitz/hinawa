@@ -4,7 +4,7 @@
 #include <string>
 
 #include "edges.h"
-#include "../util/hinawa.h"
+#include "util/hinawa.h"
 
 namespace layout
 {

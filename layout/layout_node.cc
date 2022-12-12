@@ -4,9 +4,9 @@
 #include <iostream>
 #include <memory>
 
-#include "../css/value.h"
-#include "../document/text.h"
-#include "../render/window.h"
+#include "css/value.h"
+#include "document/text.h"
+#include "render/window.h"
 
 #include <SFML/Graphics.hpp>
 

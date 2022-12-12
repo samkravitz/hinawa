@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../css/styled_node.h"
-#include "../util/tree_node.h"
+#include "css/styled_node.h"
+#include "util/tree_node.h"
 #include "box.h"
 
 namespace layout

@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "../document/node.h"
-#include "../util/tree_node.h"
+#include "document/node.h"
+#include "util/tree_node.h"
 #include "stylesheet.h"
 #include "value.h"
 

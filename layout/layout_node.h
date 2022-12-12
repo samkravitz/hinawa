@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "../css/styled_node.h"
-#include "../util/hinawa.h"
-#include "../util/tree_node.h"
+#include "css/styled_node.h"
+#include "util/hinawa.h"
+#include "util/tree_node.h"
 #include "box.h"
 
 namespace layout

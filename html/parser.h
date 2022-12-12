@@ -1,8 +1,8 @@
 #pragma once
 
 #include "tokenizer.h"
-#include "../document/dom.h"
-#include "../document/element.h"
+#include "document/dom.h"
+#include "document/element.h"
 
 #include <memory>
 #include <vector>

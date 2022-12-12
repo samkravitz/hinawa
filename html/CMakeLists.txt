@@ -10,4 +10,5 @@ set(HEADERS
 	tokenizer.h
 )
 
+target_include_directories(hinawa PRIVATE ..)
 target_sources(hinawa PRIVATE ${SOURCES} ${HEADERS})

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../util/tree_node.h"
+#include "util/tree_node.h"
 
 enum class NodeType
 {
