@@ -21,4 +21,6 @@ private:
 	int height = 600;
 
 	sf::RenderWindow window{ sf::VideoMode(width, height), "hinawa" };
+
+	void render(const std::shared_ptr<layout::LayoutNode> &);
 };
