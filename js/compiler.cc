@@ -197,6 +197,12 @@ void Compiler::statement()
 		return;
 	}
 
+	if (match(KEY_TRY))
+	{
+		try_statement();
+		return;
+	}
+
 	if (match(KEY_WHILE))
 	{
 		while_statement();
@@ -584,6 +590,52 @@ void Compiler::if_statement()
 	patch_jump(else_offset);
 }
 
+void Compiler::try_statement()
+{
+	int catch_jump = emit_jump(OP_PUSH_EXCEPTION);
+	consume(LEFT_BRACE, "Expect '{' after try");
+	begin_scope();
+	block();
+	end_scope();
+
+	int finally_jump = emit_jump(OP_JUMP);
+	bool has_catch = false;
+	bool has_finally = false;
+
+	if (match(KEY_CATCH))
+	{
+		has_catch = true;
+		if (match(LEFT_PAREN))
+		{
+			auto catch_var = parse_variable("Expect catch variable");
+			define_variable(catch_var);
+			consume(RIGHT_PAREN, "Expect ')' after catch variable");
+		}
+
+		consume(LEFT_BRACE, "Expect '{' after catch");
+		begin_scope();
+		block();
+		end_scope();
+	}
+
+	patch_jump(catch_jump);
+	emit_byte(OP_POP_EXCEPTION);
+	patch_jump(finally_jump);
+
+	if (match(KEY_FINALLY))
+	{
+		has_finally = true;
+		consume(LEFT_BRACE, "Expect '{' after finally");
+		begin_scope();
+		block();
+		end_scope();
+	}
+
+	if (!has_catch && !has_finally)
+		error("Expected catch or finally");
+
+}
+
 void Compiler::while_statement()
 {
 	auto loop_start = functions.top().chunk.size();
@@ -839,10 +891,10 @@ void Compiler::end_scope()
 	current_function().scope_depth -= 1;
 	auto local_count = current_function().local_count();
 
-	while (local_count > 0 && current_function().locals[local_count - 1].depth > current_function().scope_depth)
+	while (!current_function().locals.empty() > 0 && current_function().locals.back().depth > current_function().scope_depth)
 	{
 		emit_byte(OP_POP);
-		local_count -= 1;
+		current_function().locals.pop_back();
 	}
 }
 

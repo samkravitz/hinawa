@@ -183,8 +183,9 @@ bool Vm::run(Function f)
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
-					runtime_error(fmt::format("Undefined variable '{}'", ident));
-					return false;
+					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
+						return false;
+					break;
 				}
 
 				push(global->get(ident));
@@ -196,8 +197,9 @@ bool Vm::run(Function f)
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
-					runtime_error(fmt::format("Undefined variable '{}'", ident));
-					return false;
+					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
+						return false;
+					break;
 				}
 
 				global->set(ident, peek(0));
@@ -297,23 +299,26 @@ bool Vm::run(Function f)
 
 				if (!array_value.is_array())
 				{
-					runtime_error("Error: value is not an array");
-					return false;
+					if (!runtime_error("Error: value is not an array"))
+						return false;
+					break;
 				}
 
 				auto array = array_value.as_array();
 
 				if (!index.is_number())
 				{
-					runtime_error("Error: array index is not a number");
+					if (!runtime_error("Error: array index is not a number"))
+						return false;
 					break;
 				}
 
 				int idx = (int) index.as_number();
 				if (idx < 0 || idx >= (int) array->size())
 				{
-					runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size()));
-					return false;
+					if (!runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+						return false;
+					break;
 				}
 
 				push(Value(array->at(idx)));
@@ -328,23 +333,26 @@ bool Vm::run(Function f)
 
 				if (!array_value.is_array())
 				{
-					runtime_error("Error: value is not an array");
-					return false;
+					if (!runtime_error("Error: value is not an array"))
+						return false;
+					break;
 				}
 
 				auto array = array_value.as_array();
 
 				if (!index.is_number())
 				{
-					runtime_error("Error: array index is not a number");
-					return false;
+					if (!runtime_error("Error: array index is not a number"))
+						return false;
+					break;
 				}
 
 				int idx = (int) index.as_number();
 				if (idx < 0 || idx >= (int) array->size())
 				{
-					runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size()));
-					return false;
+					if (!runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+						return false;
+					break;
 				}
 
 				array->at(idx) = element;
@@ -364,8 +372,9 @@ bool Vm::run(Function f)
 			{
 				if (!peek().is_object())
 				{
-					runtime_error("Error: tried to get property on a non-object");
-					return false;
+					if (!runtime_error("Error: tried to get property on a non-object"))
+						return false;
+					break;
 				}
 
 				auto *obj = peek().as_object();
@@ -379,8 +388,9 @@ bool Vm::run(Function f)
 			{
 				if (!peek(1).is_object())
 				{
-					runtime_error("Error: tried to get property on a non-object");
-					return false;
+					if (!runtime_error("Error: tried to get property on a non-object"))
+						return false;
+					break;
 				}
 
 				auto *obj = peek(1).as_object();
@@ -407,6 +417,20 @@ bool Vm::run(Function f)
 					pop();
 
 				push(Value(obj));
+				break;
+			}
+
+			case OP_PUSH_EXCEPTION:
+			{
+				auto offset = read_short();
+				catchv.push_back(offset);
+				break;
+			}
+
+			case OP_POP_EXCEPTION:
+			{
+				assert(!catchv.empty());
+				catchv.pop_back();
 				break;
 			}
 
@@ -437,8 +461,8 @@ void Vm::binary_op(Operator op)
 {
 	if (!peek(0).is_number() || !peek(1).is_number())
 	{
-		runtime_error("Operands must be numbers");
-		exit(1);
+		if (!runtime_error("Operands must be numbers"))
+			exit(1);
 		return;
 	}
 
@@ -540,10 +564,18 @@ std::string Vm::read_string()
 	return *constant.as_string();
 }
 
-void Vm::runtime_error(std::string const &msg)
+bool Vm::runtime_error(std::string const &msg)
 {
-	auto ip = frames.top().ip;
-	auto line = frames.top().function.chunk.lines[ip - 1];
-	fmt::print("[line {}] {}\n", line, msg);
+	if (catchv.empty())
+	{
+		auto ip = frames.top().ip;
+		auto line = frames.top().function.chunk.lines[ip - 1];
+		fmt::print("[line {}] Uncaught {}\n", line, msg);
+		return false;
+	}
+	
+	auto ip = catchv.back();
+	frames.top().ip = ip;
+	return true;
 }
 }

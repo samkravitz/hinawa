@@ -36,6 +36,7 @@ public:
 
 	Function compile();
 
+	// expressions
 	void anonymous(bool);
 	void array(bool);
 	void binary(bool);
@@ -63,17 +64,22 @@ private:
 
 	void parse_precedence(Precedence);
 
-	void statement();
+	// declarations
 	void declaration();
-	void expression();
-	void expression_statement();
-	void block();
-	void if_statement();
-	void while_statement();
-	void return_statement();
-	void var_declaration();
-	void function_declaration();
 	void class_declaration();
+	void function_declaration();
+	void var_declaration();
+
+	// statements
+	void statement();
+	void block();
+	void expression_statement();
+	void if_statement();
+	void return_statement();
+	void try_statement();
+	void while_statement();
+
+	void expression();
 
 	size_t make_constant(Value);
 	void emit_byte(u8);

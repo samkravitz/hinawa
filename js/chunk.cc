@@ -109,6 +109,10 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return constant_instruction("OP_SET_PROPERTY", offset);
 		case OP_NEW_OBJECT:
 			return new_object_instruction("OP_NEW_OBJECT", offset);
+		case OP_PUSH_EXCEPTION:
+			return jump_instruction("OP_PUSH_EXCEPTION", 1, offset);
+		case OP_POP_EXCEPTION:
+			return simple_instruction("OP_POP_EXCEPTION", offset);
 		default:
 			std::printf("Unknown opcode: %d\n", instruction);
 			return offset + 1;

@@ -48,6 +48,7 @@ private:
 	Object *global = nullptr;
 
 	std::vector<Value> stack;
+	std::vector<uint> catchv;
 	std::stack<CallFrame> frames;
 
 	void push(Value);
@@ -61,6 +62,6 @@ private:
 	Value read_constant();
 	std::string read_string();
 
-	void runtime_error(std::string const &);
+	bool runtime_error(std::string const &);
 };
 }
