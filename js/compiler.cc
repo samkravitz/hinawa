@@ -31,7 +31,7 @@ ParseRule rules[] = {
 	[SLASH]             = { nullptr, &Compiler::binary, PREC_FACTOR },
 	[STAR]              = { nullptr, &Compiler::binary, PREC_FACTOR },
 	[MOD]               = { nullptr, &Compiler::binary, PREC_FACTOR },
-	[SEMICOLON]         = { nullptr, nullptr, PREC_FACTOR },
+	[SEMICOLON]         = { nullptr, nullptr, PREC_NONE },
 	[COLON]             = { nullptr, nullptr, PREC_NONE },
 	[BANG]              = { nullptr, nullptr, PREC_NONE },
 	[EQUAL]             = { nullptr, nullptr, PREC_NONE },
@@ -502,6 +502,7 @@ void Compiler::variable(bool can_assign)
 void Compiler::expression_statement()
 {
 	expression();
+	match(SEMICOLON);
 	emit_byte(OP_POP);
 }
 
@@ -556,7 +557,15 @@ void Compiler::while_statement()
 void Compiler::return_statement()
 {
 	// TODO: don't parse expression if return is followed immediately by \n
+
+	if (match(SEMICOLON))
+	{
+		emit_bytes(OP_UNDEFINED, OP_RETURN);
+		return;
+	}
+
 	expression();
+	match(SEMICOLON);
 	emit_byte(OP_RETURN);
 }
 
@@ -569,6 +578,7 @@ void Compiler::var_declaration()
 	else
 		emit_byte(OP_UNDEFINED);
 
+	match(SEMICOLON);
 	define_variable(global);
 }
 
