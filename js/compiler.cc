@@ -202,6 +202,14 @@ void Compiler::statement()
 		return;
 	}
 
+	if (match(LEFT_BRACE))
+	{
+		begin_scope();
+		block();
+		end_scope();
+		return;
+	}
+
 	expression_statement();
 }
 
@@ -705,6 +713,10 @@ void Compiler::add_local(Token t)
 u8 Compiler::parse_variable(const char *msg)
 {
 	consume(IDENTIFIER, msg);
+	declare_variable();
+	if (!is_global())
+		return 0;
+
 	return identifier_constant(previous);
 }
 
@@ -719,7 +731,26 @@ void Compiler::define_variable(u8 global)
 	emit_bytes(OP_DEFINE_GLOBAL, global);
 }
 
-void Compiler::declare_variable() { }
+void Compiler::declare_variable()
+{
+	if (is_global())
+		return;
+
+	auto t = previous;
+
+	auto local_count = current_function().locals.size();
+	for (int i = local_count - 1; i >= 0; i--)
+	{
+		auto local = current_function().locals[i];
+		if (local.depth != -1 && local.depth < current_function().scope_depth)
+			break;
+
+		if (t.value() == local.name.value())
+			error("Already a variable with this name in this scope.");
+	}
+
+	add_local(t);
+}
 
 u8 Compiler::identifier_constant(Token const &name)
 {
@@ -741,7 +772,7 @@ int Compiler::resolve_local(Token t)
 	{
 		auto local = current_function().locals[i];
 		if (t.value() == local.name.value())
-			return i + 1;
+			return i;
 	}
 
 	return -1;
@@ -755,9 +786,9 @@ void Compiler::begin_scope()
 void Compiler::end_scope()
 {
 	current_function().scope_depth -= 1;
-	auto local_count = current_function().locals.size();
+	auto local_count = current_function().local_count();
 
-	while (local_count > 0 && current_function().locals[local_count - 1].depth > functions.top().scope_depth)
+	while (local_count > 0 && current_function().locals[local_count - 1].depth > current_function().scope_depth)
 	{
 		emit_byte(OP_POP);
 		local_count -= 1;
