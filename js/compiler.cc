@@ -305,11 +305,13 @@ void Compiler::array(bool can_assign)
 {
 	auto num_elements = 0;
 
-	if (current.type() != RIGHT_BRACKET)
+	if (!check(RIGHT_BRACKET))
 	{
 		do
 		{
 			num_elements += 1;
+			if (num_elements > 0xff)
+				error("Can't have more than 255 items in an array literal");
 			expression();
 		} while (match(COMMA));
 	}
@@ -320,7 +322,6 @@ void Compiler::array(bool can_assign)
 
 void Compiler::object(bool can_assign)
 {
-
 	auto num_elements = 0;
 	std::vector<u8> key_constants;
 
@@ -329,6 +330,9 @@ void Compiler::object(bool can_assign)
 		do
 		{
 			num_elements += 1;
+			if (num_elements > 0xff)
+				error("Can't have more than 255 properties in an object literal");
+
 			auto constant = parse_variable("Expected object key name");
 			key_constants.push_back(constant);
 			consume(COLON, "Expect : after object key name");
@@ -405,19 +409,20 @@ void Compiler::binary(bool can_assign)
 
 void Compiler::call(bool can_assign)
 {
-	auto num_arguments = 0;
-
-	if (current.type() != RIGHT_PAREN)
+	int argc = 0;
+	if (!check(RIGHT_PAREN))
 	{
 		do
 		{
-			num_arguments += 1;
 			expression();
+			argc++;
+			if (argc > 0xff)
+				error("Can't have more than 255 arguments");
 		} while (match(COMMA));
 	}
 
 	consume(RIGHT_PAREN, "Expect ')' after arguments");
-	emit_bytes(OP_CALL, num_arguments);
+	emit_bytes(OP_CALL, argc);
 }
 
 void Compiler::dot(bool can_assign)
