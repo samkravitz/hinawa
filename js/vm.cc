@@ -49,6 +49,7 @@ bool Vm::run(Function f)
 {
 	auto cf = CallFrame { f, 0 };
 	frames.push(cf);
+	push(Value(&f));
 
 	while (1)
 	{

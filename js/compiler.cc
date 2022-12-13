@@ -141,27 +141,53 @@ Compiler::Compiler(const char *src) :
     scanner(src)
 { }
 
+void Compiler::init_compiler(FunctionCompiler *compiler)
+{
+	compiler->enclosing = current;
+	current = compiler;
+
+	current->locals.push_back({ "", 0 });
+}
+
+void Compiler::end_compiler()
+{
+	if (current->function->chunk.code.empty())
+		emit_constant(Value(nullptr));
+	
+	emit_byte(OP_RETURN);
+
+	auto function = *current->function;
+	#ifdef DEBUG_PRINT_CODE
+	function.chunk.disassemble(function.name.c_str());
+	#endif
+
+	current = current->enclosing;
+}
+
 Function Compiler::compile()
 {
-	functions.push(Function{ "" });
+	Function script("script");
+	FunctionCompiler compiler(current, &script);
+	init_compiler(&compiler);
+
 	advance();
 
 	while (!match(TOKEN_EOF))
 		declaration();
 
-	emit_byte(OP_RETURN);
-	return current_function();
+	end_compiler();
+	return script;
 }
 
 void Compiler::advance()
 {
-	previous = current;
-	current = scanner.next();
+	parser.previous = parser.current;
+	parser.current = scanner.next();
 }
 
 void Compiler::consume(TokenType type, const char *msg)
 {
-	if (current.type() != type)
+	if (parser.current.type() != type)
 		error_at_current(msg);
 
 	advance();
@@ -169,7 +195,7 @@ void Compiler::consume(TokenType type, const char *msg)
 
 bool Compiler::match(TokenType type)
 {
-	if (current.type() == type)
+	if (parser.current.type() == type)
 	{
 		advance();
 		return true;
@@ -180,7 +206,7 @@ bool Compiler::match(TokenType type)
 
 bool Compiler::check(TokenType type)
 {
-	return current.type() == type;
+	return parser.current.type() == type;
 }
 
 void Compiler::statement()
@@ -246,7 +272,7 @@ void Compiler::declaration()
 void Compiler::parse_precedence(Precedence precedence)
 {
 	advance();
-	auto prefix = get_rule(previous.type())->prefix;
+	auto prefix = get_rule(parser.previous.type())->prefix;
 	if (!prefix)
 	{
 		error("Expect expression");
@@ -256,10 +282,10 @@ void Compiler::parse_precedence(Precedence precedence)
 	auto can_assign = precedence <= PREC_ASSIGNMENT;
 	prefix(this, can_assign);
 
-	while (precedence <= get_rule(current.type())->precedence)
+	while (precedence <= get_rule(parser.current.type())->precedence)
 	{
 		advance();
-		auto infix = get_rule(previous.type())->infix;
+		auto infix = get_rule(parser.previous.type())->infix;
 		infix(this, can_assign);
 
 		if (can_assign && match(EQUAL))
@@ -269,8 +295,6 @@ void Compiler::parse_precedence(Precedence precedence)
 
 void Compiler::anonymous(bool can_assign)
 {
-	functions.push(Function());
-
 	begin_scope();
 	consume(LEFT_PAREN, "Expect '(' after function");
 
@@ -303,7 +327,6 @@ void Compiler::anonymous(bool can_assign)
 	fn.chunk.disassemble("anonymous");
 	#endif
 
-	functions.pop();
 	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(fn))));
 }
 
@@ -331,7 +354,7 @@ void Compiler::object(bool can_assign)
 	auto num_elements = 0;
 	std::vector<u8> key_constants;
 
-	if (current.type() != RIGHT_BRACE)
+	if (!check(RIGHT_BRACE))
 	{
 		do
 		{
@@ -354,7 +377,7 @@ void Compiler::object(bool can_assign)
 
 void Compiler::binary(bool can_assign)
 {
-	auto op = previous.type();
+	auto op = parser.previous.type();
 	auto precedence = get_rule(op)->precedence;
 	parse_precedence(precedence);
 
@@ -409,7 +432,7 @@ void Compiler::binary(bool can_assign)
 			emit_byte(OP_LOGICAL_OR);
 			break;
 		default:
-			fmt::print("Unknown binary op {}\n", previous.value());
+			fmt::print("Unknown binary op {}\n", parser.previous.value());
 	}
 }
 
@@ -434,7 +457,7 @@ void Compiler::call(bool can_assign)
 void Compiler::dot(bool can_assign)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
-	auto constant = make_constant(Value(new std::string(previous.value())));
+	auto constant = make_constant(Value(new std::string(parser.previous.value())));
 
 	if (can_assign && match(EQUAL))
 	{
@@ -456,7 +479,7 @@ void Compiler::grouping(bool can_assign)
 
 void Compiler::literal(bool can_assign)
 {
-	switch (previous.type())
+	switch (parser.previous.type())
 	{
 		case KEY_FALSE:
 			emit_byte(OP_FALSE);
@@ -477,13 +500,13 @@ void Compiler::literal(bool can_assign)
 
 void Compiler::number(bool can_assign)
 {
-	auto d = std::stod(previous.value());
+	auto d = std::stod(parser.previous.value());
 	emit_constant(Value(d));
 }
 
 void Compiler::string(bool can_assign)
 {
-	auto str = previous.value();
+	auto str = parser.previous.value();
 	emit_constant(Value(new std::string(str.substr(1, str.size() - 2))));
 }
 
@@ -506,7 +529,7 @@ void Compiler::subscript(bool can_assign)
 
 void Compiler::unary(bool can_assign)
 {
-	auto op = previous.type();
+	auto op = parser.previous.type();
 	parse_precedence(PREC_UNARY);
 
 	switch (op)
@@ -520,7 +543,7 @@ void Compiler::unary(bool can_assign)
 
 void Compiler::variable(bool can_assign)
 {
-	auto identifier = previous;
+	auto identifier = parser.previous;
 
 	Opcode get_op, set_op;
 	int value = resolve_local(identifier);
@@ -564,7 +587,7 @@ void Compiler::expression()
 
 void Compiler::block()
 {
-	while (current.type() != RIGHT_BRACE)
+	while (!check(RIGHT_BRACE))
 		declaration();
 
 	consume(RIGHT_BRACE, "Expect '}' after block");
@@ -638,7 +661,7 @@ void Compiler::try_statement()
 
 void Compiler::while_statement()
 {
-	auto loop_start = functions.top().chunk.size();
+	auto loop_start = current_function().chunk.size();
 	expression();
 	auto exit_offset = emit_jump(OP_JUMP_IF_FALSE);
 	emit_byte(OP_POP);
@@ -681,10 +704,12 @@ void Compiler::var_declaration()
 
 void Compiler::function_declaration()
 {
-	auto name = current.value();
+	auto name = parser.current.value();
 	auto global = parse_variable("Expect function name");
 
-	functions.push(Function(name));
+	auto function = Function(name);
+	FunctionCompiler compiler(current, &function);
+	init_compiler(&compiler);
 
 	begin_scope();
 	consume(LEFT_PAREN, "Expect '(' after function name");
@@ -703,30 +728,20 @@ void Compiler::function_declaration()
 		} while (match(COMMA));
 	}
 
-	current_function().arity = arity;
+	current->function->arity = arity;
 	consume(RIGHT_PAREN, "Expect ')' after parameters");
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
 
-	if (current_function().chunk.code.empty())
-		emit_constant(Value(nullptr));
-
-	emit_byte(OP_RETURN);
-	auto fn = current_function();
-
-	#ifdef DEBUG_PRINT_CODE
-	fn.chunk.disassemble(fn.name.c_str());
-	#endif
-
-	functions.pop();
-	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(fn))));
+	end_compiler();
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
 	define_variable(global);
 }
 
 void Compiler::class_declaration()
 {
 	//consume(IDENTIFIER, "Expect class name");
-	//auto klass = make_constant(Value(previous.value()));
+	//auto klass = make_constant(Value(parser.previous.value()));
 
 	//emit_bytes(OP_CLASS, klass);
 	//emit_bytes(OP_SET_GLOBAL, klass);
@@ -749,7 +764,7 @@ size_t Compiler::make_constant(Value value)
 
 void Compiler::emit_byte(u8 byte)
 {
-	current_function().chunk.write(byte, previous.line());
+	current_function().chunk.write(byte, parser.previous.line());
 }
 
 void Compiler::emit_bytes(u8 a, u8 b)
@@ -794,12 +809,12 @@ void Compiler::emit_loop(size_t loop_start)
 
 void Compiler::error(const char *msg)
 {
-	error_at(previous, msg);
+	error_at(parser.previous, msg);
 }
 
 void Compiler::error_at_current(const char *msg)
 {
-	error_at(current, msg);
+	error_at(parser.current, msg);
 }
 
 void Compiler::error_at(Token t, const char *msg)
@@ -809,8 +824,8 @@ void Compiler::error_at(Token t, const char *msg)
 
 void Compiler::add_local(Token t)
 {
-	auto local = Local{ t, -1 };
-	current_function().locals.push_back(local);
+	auto local = Local{ t.value(), -1 };
+	current->locals.push_back(local);
 }
 
 u8 Compiler::parse_variable(const char *msg)
@@ -820,7 +835,7 @@ u8 Compiler::parse_variable(const char *msg)
 	if (!is_global())
 		return 0;
 
-	return identifier_constant(previous);
+	return identifier_constant(parser.previous);
 }
 
 void Compiler::define_variable(u8 global)
@@ -839,16 +854,16 @@ void Compiler::declare_variable()
 	if (is_global())
 		return;
 
-	auto t = previous;
+	auto t = parser.previous;
 
-	auto local_count = current_function().locals.size();
+	auto local_count = current->local_count();
 	for (int i = local_count - 1; i >= 0; i--)
 	{
-		auto local = current_function().locals[i];
-		if (local.depth != -1 && local.depth < current_function().scope_depth)
+		auto local = current->locals[i];
+		if (local.depth != -1 && local.depth < current->scope_depth)
 			break;
 
-		if (t.value() == local.name.value())
+		if (t.value() == local.name)
 			error("Already a variable with this name in this scope.");
 	}
 
@@ -865,17 +880,17 @@ void Compiler::mark_initialized()
 	if (is_global())
 		return;
 
-	current_function().locals[current_function().local_count() - 1].depth = current_function().scope_depth;
+	current->locals[current->local_count() - 1].depth = current->scope_depth;
 }
 
 int Compiler::resolve_local(Token t)
 {
-	auto local_count = current_function().locals.size();
+	auto local_count = current->local_count();
 	for (int i = local_count - 1; i >= 0; i--)
 	{
-		auto local = current_function().locals[i];
-		if (t.value() == local.name.value())
-			return i + 1;
+		auto local = current->locals[i];
+		if (t.value() == local.name)
+			return i;
 	}
 
 	return -1;
@@ -883,18 +898,23 @@ int Compiler::resolve_local(Token t)
 
 void Compiler::begin_scope()
 {
-	current_function().scope_depth += 1;
+	current->scope_depth += 1;
 }
 
 void Compiler::end_scope()
 {
-	current_function().scope_depth -= 1;
-	auto local_count = current_function().local_count();
+	current->scope_depth -= 1;
+	//auto local_count = current_function().local_count();
 
-	while (!current_function().locals.empty() > 0 && current_function().locals.back().depth > current_function().scope_depth)
+	//while (!current_function().locals.empty() > 0 && current_function().locals.back().depth > current_function().scope_depth)
+	//{
+	//	emit_byte(OP_POP);
+	//	current_function().locals.pop_back();
+	//}
+	while (!current->locals.empty() && (current->locals.back().depth > current->scope_depth))
 	{
 		emit_byte(OP_POP);
-		current_function().locals.pop_back();
+		current->locals.pop_back();
 	}
 }
 
@@ -903,6 +923,6 @@ void Compiler::end_scope()
 */
 bool Compiler::is_global()
 {
-	return current_function().scope_depth == 0;
+	return current->scope_depth == 0;
 }
 }

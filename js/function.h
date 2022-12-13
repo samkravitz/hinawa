@@ -12,12 +12,12 @@ namespace js
 {
 struct Local
 {
-	Local(Token name, int depth) :
+	Local(std::string name, int depth) :
 	    name(name),
 	    depth(depth)
 	{ }
 
-	Token name;
+	std::string name;
 	int depth;
 };
 
@@ -35,14 +35,10 @@ public:
 		anonymous = false;
 	}
 
-	std::vector<Local> locals;
 	size_t arity = 0;
 	Chunk chunk;
 	std::string name;
-	int scope_depth = 0;
 	bool anonymous;
-
-	int local_count() const { return locals.size(); }
 
 	std::string to_string() const
 	{

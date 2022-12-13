@@ -28,7 +28,6 @@ enum Precedence : int
 	PREC_PRIMARY
 };
 
-
 class Compiler
 {
 public:
@@ -53,9 +52,28 @@ public:
 
 private:
 	Scanner scanner;
-	Token current;
-	Token previous;
-	std::stack<Function> functions;
+	struct Parser
+	{
+		Token current;
+		Token previous;
+	} parser;
+
+	struct FunctionCompiler
+	{
+		FunctionCompiler(FunctionCompiler *enclosing, Function *function) :
+		    enclosing(enclosing),
+		    function(function)
+		{ }
+
+		FunctionCompiler *enclosing;
+		Function *function;
+		int scope_depth{ 0 };
+		std::vector<Local> locals;
+		int local_count() { return locals.size(); }
+	} *current;
+
+	void init_compiler(FunctionCompiler *);
+	void end_compiler();
 
 	void advance();
 	void consume(TokenType, const char *);
@@ -106,6 +124,6 @@ private:
 
 	bool is_global();
 
-	inline Function &current_function() { return functions.top(); }
+	inline Function &current_function() { return *current->function; }
 };
 }
