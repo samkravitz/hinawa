@@ -1,8 +1,8 @@
 #pragma once
 
-#include "tokenizer.h"
-#include "document/dom.h"
+#include "document/document.h"
 #include "document/element.h"
+#include "tokenizer.h"
 
 #include <memory>
 #include <vector>
@@ -32,13 +32,13 @@ namespace html
 	MODE(InFrameset) \
 	MODE(AfterFrameset) \
 	MODE(AfterAfterBody) \
-	MODE(AfterAfterFrameset) \
+	MODE(AfterAfterFrameset)
 
 class Parser
 {
 public:
 	Parser(std::string const &input) :
-		tokenizer(input)
+	    tokenizer(input)
 	{ }
 
 	enum class InsertionMode
@@ -48,7 +48,7 @@ public:
 #undef MODE
 	};
 
-	std::shared_ptr<Node> parse();
+	Document parse();
 
 private:
 	InsertionMode insertion_mode = InsertionMode::Initial;

@@ -17,7 +17,7 @@ static inline bool is_whitespace(char c)
 	return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
 }
 
-std::shared_ptr<Node> Parser::parse()
+Document Parser::parse()
 {
 	auto document = std::make_shared<Node>();
 	Token token;
@@ -394,7 +394,7 @@ std::shared_ptr<Node> Parser::parse()
 		}
 	}
 
-	return document;
+	return Document(document);
 }
 
 std::shared_ptr<Node> Parser::current_node()

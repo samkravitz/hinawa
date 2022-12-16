@@ -1,12 +1,12 @@
 set(SOURCES
-	dom.cc
+	document.cc
 	element.cc
 	node.cc
 	text.cc
 )
 
 set(HEADERS
-	dom.h
+	document.h
 	element.h
 	node.h
 	text.h

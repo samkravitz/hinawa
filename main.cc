@@ -3,12 +3,12 @@
 #include <sstream>
 #include <vector>
 
-#include "css/stylesheet.h"
 #include "css/styled_node.h"
+#include "css/stylesheet.h"
 #include "html/parser.h"
-#include "render/window.h"
 #include "layout/layout_node.h"
 #include "layout/node.h"
+#include "render/window.h"
 
 int main(int argc, char **argv)
 {
@@ -22,10 +22,10 @@ int main(int argc, char **argv)
 
 	auto parser = html::Parser(buffer.str());
 	auto document = parser.parse();
-	document->print("Document");
+	document.root()->print("Document");
 
 	auto stylesheet = css::read_default_stylesheet();
-	auto style_tree = std::make_shared<css::StyledNode>(document, stylesheet);
+	auto style_tree = std::make_shared<css::StyledNode>(document.root(), stylesheet);
 
 	auto html = style_tree->last_child();
 	auto body = html->last_child();
