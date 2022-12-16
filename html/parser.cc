@@ -22,7 +22,7 @@ Document Parser::parse()
 	auto document = std::make_shared<Node>();
 	Token token;
 
-	while (!(token = tokenizer.next()).is_eof())
+	while ((token = tokenizer.next()))
 	{
 		// std::cout << token.to_string() << "\n";
 

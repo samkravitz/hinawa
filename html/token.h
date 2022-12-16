@@ -38,6 +38,8 @@ public:
 	Token(TokenType);
 	Token() = default;
 
+	operator bool() const { return m_type != Eof; }
+
 	inline bool is_doctype() { return m_type == Doctype; }
 	inline bool is_start_tag() { return m_type == StartTag; }
 	inline bool is_end_tag() { return m_type == EndTag; }
