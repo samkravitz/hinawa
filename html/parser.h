@@ -52,6 +52,7 @@ public:
 
 private:
 	InsertionMode insertion_mode = InsertionMode::Initial;
+	InsertionMode original_insertion_mode = InsertionMode::Initial;
 	std::vector<std::shared_ptr<Node>> open_elements;
 	Tokenizer tokenizer;
 
@@ -60,5 +61,6 @@ private:
 	void insert_element(std::shared_ptr<Node>);
 	void insert_character(Token);
 	std::shared_ptr<Node> insert_location();
+	void parse_raw_text(Token);
 };
 }

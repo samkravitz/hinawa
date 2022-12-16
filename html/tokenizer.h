@@ -103,6 +103,7 @@ public:
 
 	std::vector<Token> scan_all();
 	Token next();
+	void set_state(State state) { state = state; }
 
 private:
 	bool eof();

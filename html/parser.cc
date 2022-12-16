@@ -205,6 +205,13 @@ std::shared_ptr<Node> Parser::parse()
 						// insert_comment(token);
 						break;
 
+					case StartTag:
+					{
+						if (token.tag_name() == "noframes" || token.tag_name() == "style")
+							parse_raw_text(token);
+						break;
+					}
+
 					in_head_anything_else:
 					default:
 						// pop head element off stack of open elements
@@ -292,7 +299,29 @@ std::shared_ptr<Node> Parser::parse()
 				break;
 
 			// 13.2.6.4.8 The "text" insertion mode
-			case InsertionMode::Text: break;
+			case InsertionMode::Text:
+				switch (token.type())
+				{
+					case Character: insert_character(token); break;
+
+					// TODO
+					case Eof: break;
+
+					case EndTag:
+					{
+						// TODO
+						if (token.tag_name() == "script")
+						{ }
+
+						else
+						{
+							open_elements.pop_back();
+							insertion_mode = original_insertion_mode;
+						}
+						break;
+					}
+				}
+				break;
 
 			// 13.2.6.4.9 The "in table" insertion mode
 			case InsertionMode::InTable: break;
@@ -464,5 +493,27 @@ void Parser::insert_character(Token t)
 		auto text_element = std::make_shared<Text>(data);
 		target->add_child(text_element);
 	}
+}
+
+/**
+ * parsing elements that contain only text
+ * 
+ * @ref https://html.spec.whatwg.org/multipage/parsing.html#generic-raw-text-element-parsing-algorithm
+*/
+void Parser::parse_raw_text(Token t)
+{
+	// 1. insert an html element for the token
+	auto element = std::make_shared<Element>(t.tag_name());
+	insert_element(element);
+
+	// 2. if the algorithm that was invoked is the generic raw text element parsing algorithm, switch the tokenizer to the RAWTEXT state;
+	// otherwise the algorithm invoked was the generic RCDATA element parsing algorithm, switch the tokenizer to the RCDATA state
+	tokenizer.set_state(Tokenizer::State::RAWTEXT);
+
+	// 3. let the original insertion mode be the current insertion mode
+	original_insertion_mode = insertion_mode;
+
+	// 4. Then, switch the insertion mode to "text"
+	insertion_mode = InsertionMode::Text;
 }
 }
