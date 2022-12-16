@@ -209,6 +209,9 @@ Document Parser::parse()
 					{
 						if (token.tag_name() == "noframes" || token.tag_name() == "style")
 							parse_raw_text(token);
+
+						else
+							goto in_head_anything_else;
 						break;
 					}
 
