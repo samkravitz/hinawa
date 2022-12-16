@@ -12,19 +12,19 @@ Parser::Parser(std::string input) :
 	advance();
 }
 
-std::shared_ptr<Stylesheet> Parser::parse()
+Stylesheet Parser::parse()
 {
 	return parse_stylesheet();
 }
 
-std::shared_ptr<Stylesheet> Parser::parse_stylesheet()
+Stylesheet Parser::parse_stylesheet()
 {
-	auto stylesheet = std::make_shared<Stylesheet>();
+	auto stylesheet = Stylesheet{};
 	std::shared_ptr<Rule> rule = nullptr;
 
 	while ((rule = parse_rule()))
 	{
-		stylesheet->rules.push_back(*rule);
+		stylesheet.rules.push_back(*rule);
 	}
 
 	return stylesheet;

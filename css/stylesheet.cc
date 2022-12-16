@@ -7,7 +7,7 @@
 
 namespace css
 {
-std::shared_ptr<Stylesheet> read_default_stylesheet()
+Stylesheet read_default_stylesheet()
 {
 	std::ifstream file("../data/default.css");
 	std::stringstream buffer;
@@ -17,7 +17,7 @@ std::shared_ptr<Stylesheet> read_default_stylesheet()
 	return parser.parse();
 }
 
-std::vector<Declaration> Stylesheet::rules_for_tag(std::string const tag)
+std::vector<Declaration> Stylesheet::rules_for_tag(std::string const tag) const
 {
 	std::vector<Declaration> declarations;
 
@@ -38,7 +38,7 @@ std::vector<Declaration> Stylesheet::rules_for_tag(std::string const tag)
 	return declarations;
 }
 
-std::vector<Declaration> Stylesheet::rules_for_class(std::string const class_name)
+std::vector<Declaration> Stylesheet::rules_for_class(std::string const class_name) const
 {
 	std::vector<Declaration> declarations;
 
@@ -59,7 +59,7 @@ std::vector<Declaration> Stylesheet::rules_for_class(std::string const class_nam
 	return declarations;
 }
 
-std::vector<Declaration> Stylesheet::universal_rules()
+std::vector<Declaration> Stylesheet::universal_rules() const
 {
 	std::vector<Declaration> declarations;
 

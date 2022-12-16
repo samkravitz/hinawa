@@ -19,7 +19,7 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 }
 
 StyledNode::StyledNode(std::shared_ptr<Node> node,
-                       std::shared_ptr<Stylesheet> stylesheet,
+                       const Stylesheet &stylesheet,
                        std::unordered_map<std::string, Value *> *parent_values) :
     m_node(node)
 {
@@ -33,15 +33,15 @@ StyledNode::StyledNode(std::shared_ptr<Node> node,
 	{
 		auto element = std::dynamic_pointer_cast<Element>(node);
 
-		for (auto decl : stylesheet->universal_rules())
+		for (auto decl : stylesheet.universal_rules())
 			m_values[decl.name] = decl.value;
 
-		for (auto decl : stylesheet->rules_for_tag(element->tag()))
+		for (auto decl : stylesheet.rules_for_tag(element->tag()))
 			m_values[decl.name] = decl.value;
 
 		if (element->has_attribute("class"))
 		{
-			for (auto decl : stylesheet->rules_for_class(element->get_attribute("class")))
+			for (auto decl : stylesheet.rules_for_class(element->get_attribute("class")))
 				m_values[decl.name] = decl.value;
 		}
 	}

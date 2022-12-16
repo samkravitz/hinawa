@@ -15,7 +15,7 @@ class Parser
 public:
 	Parser(std::string);
 
-	std::shared_ptr<Stylesheet> parse();
+	Stylesheet parse();
 
 private:
 	Scanner scanner;
@@ -27,7 +27,7 @@ private:
 	bool match(TokenType);
 	TokenType peek();
 
-	std::shared_ptr<Stylesheet> parse_stylesheet();
+	Stylesheet parse_stylesheet();
 	std::shared_ptr<Rule> parse_rule();
 	std::shared_ptr<Selector> parse_selector();
 	std::shared_ptr<Declaration> parse_declaration();

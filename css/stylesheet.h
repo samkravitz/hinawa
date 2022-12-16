@@ -71,11 +71,11 @@ struct Stylesheet
 
 	std::vector<Rule> rules;
 
-	std::vector<Declaration> universal_rules();
-	std::vector<Declaration> rules_for_tag(std::string const);
-	std::vector<Declaration> rules_for_class(std::string const);
+	std::vector<Declaration> universal_rules() const;
+	std::vector<Declaration> rules_for_tag(std::string const) const;
+	std::vector<Declaration> rules_for_class(std::string const) const;
 
-	std::string to_string()
+	std::string to_string() const
 	{
 		std::string res = "Stylesheet\n";
 		for (auto rule : rules)
@@ -87,5 +87,5 @@ struct Stylesheet
 	}
 };
 
-std::shared_ptr<Stylesheet> read_default_stylesheet();
+Stylesheet read_default_stylesheet();
 }
