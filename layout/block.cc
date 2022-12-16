@@ -8,7 +8,7 @@ Block::Block() :
 	m_anonymous = true;
 }
 
-Block::Block(std::shared_ptr<css::StyledNode> node) :
+Block::Block(css::StyledNode *node) :
     Node(node)
 {
 	m_anonymous = false;

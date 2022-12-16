@@ -7,10 +7,10 @@ Document::Document(std::shared_ptr<Node> root) :
     m_root(root)
 { }
 
-std::shared_ptr<Node> Document::get_body() const
+Node *Document::get_body() const
 {
-	std::shared_ptr<Node> body = nullptr;
-	m_root->preorder([&](const auto &child)
+	Node *body = nullptr;
+	m_root->preorder([&](auto *child)
 	{
 		if (child->element_name() == "body")
 			body = child;
@@ -21,11 +21,11 @@ std::shared_ptr<Node> Document::get_body() const
 std::string Document::get_style() const
 {
 	std::string style_text = "";
-	m_root->preorder([&](const auto &child)
+	m_root->preorder([&](auto *child)
 	{
 		if (child->element_name() == "style")
 		{
-			auto text_element = std::dynamic_pointer_cast<Text>(child->last_child());
+			auto *text_element = dynamic_cast<Text*>(child->last_child());
 			style_text = text_element->text();
 		}
 	});

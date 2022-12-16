@@ -7,7 +7,7 @@ namespace layout
 class Inline : public Node
 {
 public:
-	Inline(std::shared_ptr<css::StyledNode>);
+	Inline(css::StyledNode *);
 	Inline() = delete;
 
 	void layout(Box);

@@ -9,7 +9,7 @@
 
 namespace layout
 {
-std::shared_ptr<Node> build_tree(std::shared_ptr<css::StyledNode> styled_node)
+std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 {
 	std::shared_ptr<Node> node = nullptr;
 
@@ -31,9 +31,9 @@ std::shared_ptr<Node> build_tree(std::shared_ptr<css::StyledNode> styled_node)
 	bool contains_block_children = false;
 
 	styled_node->for_each_child(
-	    [node, &contains_inline_children, &contains_block_children](std::shared_ptr<css::StyledNode> styled_child)
+	    [node, &contains_inline_children, &contains_block_children](auto *styled_child)
 	    {
-		    auto child = build_tree(styled_child);
+		    auto child = build_layout_tree(styled_child);
 		    node->add_child(child);
 
 		    if (child->is_inline())
@@ -55,7 +55,7 @@ Node::Node() :
     m_node(nullptr)
 { }
 
-Node::Node(std::shared_ptr<css::StyledNode> node) :
+Node::Node(css::StyledNode *node) :
     m_node(node)
 { }
 

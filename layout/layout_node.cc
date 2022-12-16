@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <memory>
 
 #include "css/value.h"
 #include "document/text.h"
@@ -23,7 +22,7 @@ LayoutNode::LayoutNode() :
 	m_box_type = ANONYMOUS;
 }
 
-LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
+LayoutNode::LayoutNode(css::StyledNode *node) :
     m_node(node)
 {
 	switch (node->display())
@@ -37,14 +36,14 @@ LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
 	bool contains_block_children = false;
 
 	node->for_each_child(
-	    [this, &contains_inline_children, &contains_block_children](std::shared_ptr<css::StyledNode> child)
+	    [this, &contains_inline_children, &contains_block_children](auto *child)
 	    {
 		    switch (child->display())
 		    {
 			    case css::Display::Inline:
 			    {
 				    contains_inline_children = true;
-				    auto inline_child = std::make_shared<LayoutNode>(LayoutNode(child));
+				    auto inline_child = std::make_shared<LayoutNode>(child);
 				    if (inline_child->children.size() == 0)
 				    {
 					    add_child(inline_child);
@@ -61,7 +60,7 @@ LayoutNode::LayoutNode(std::shared_ptr<css::StyledNode> node) :
 			    case css::Display::Block:
 			    {
 				    contains_block_children = true;
-				    add_child(std::make_shared<LayoutNode>(LayoutNode(child)));
+				    add_child(std::make_shared<LayoutNode>(child));
 				    break;
 			    }
 
@@ -133,7 +132,7 @@ void LayoutNode::layout_inline(Box container)
 	Point offset = Point{ m_dimensions.content.x, m_dimensions.content.y };
 	lines.clear();
 
-	preorder([this, &offset](std::shared_ptr<LayoutNode>(child))
+	preorder([this, &offset](auto *child)
 	{
 		offset = child->split_into_lines(m_dimensions, offset, this);
 
@@ -159,7 +158,7 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 	m_dimensions.content.y = container_start.content.y;
 	auto *font_size = dynamic_cast<css::Length *>(m_node->lookup("font-size"));
 
-	auto text_element = std::dynamic_pointer_cast<Text>(m_node->node());
+	auto *text_element = dynamic_cast<Text *>(m_node->node());
 	auto str = text_element->trim();
 	auto px = font_size->to_px();
 	const int max_width = container_start.content.width;
@@ -178,7 +177,7 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 	std::istringstream ss(str);
 	std::string word;
 	LineFragment frag;
-	frag.styled_node = m_node.get();
+	frag.styled_node = m_node;
 
 	while (std::getline(ss, word, ' '))
 	{
@@ -202,7 +201,7 @@ Point LayoutNode::split_into_lines(const Box &container_start, const Point &offs
 			containing_block->lines.push_back(Line(current_x, current_y));
 			max_height = 0;
 			frag = LineFragment();
-			frag.styled_node = m_node.get();
+			frag.styled_node = m_node;
 		}
 
 		frag.str += word + " ";
@@ -285,7 +284,7 @@ std::optional<Node *> LayoutNode::hit_test(const Point &p)
 	if (!m_node || !m_node->node())
 		return {};
 
-	std::optional<Node *> result = { m_node->node().get() };
+	std::optional<Node *> result = { m_node->node() };
 	for_each_child([&](const auto &child)
 	{
 		auto child_result = child->hit_test(p);

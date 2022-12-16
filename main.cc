@@ -25,8 +25,8 @@ int main(int argc, char **argv)
 	document.print("Document");
 
 	auto style_tree = css::build_style_tree(document);
-	auto layout_tree = std::make_shared<layout::LayoutNode>(style_tree);
-	auto tree = layout::build_tree(style_tree);
+	auto layout_tree = std::make_shared<layout::LayoutNode>(style_tree.get());
+	auto tree = layout::build_layout_tree(style_tree.get());
 	tree->print("Layout Tree 2.0");
 
 	Window window(layout_tree);

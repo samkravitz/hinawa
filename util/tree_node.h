@@ -13,48 +13,48 @@ class TreeNode
 {
 public:
 	TreeNode() = default;
-	~TreeNode() = default;
+	virtual ~TreeNode() = default;
 
 	virtual std::string to_string() const { return "TREE BASE"; };
 
-	void add_child(std::shared_ptr<T> node)
+	void add_child(const std::shared_ptr<T> &node)
 	{
 		node->m_parent = static_cast<T *>(this);
 		children.push_back(node);
 	}
 
-	TreeNode<T> *parent() const { return m_parent; }
+	T *parent() const { return m_parent; }
 
-	void preorder(std::function<void(std::shared_ptr<T>)> f)
+	void preorder(std::function<void(T *)> f)
 	{
 		for (auto child : children)
 		{
 			child->preorder(f);
-			f(child);
+			f(child.get());
 		}
 	}
 
-	void postorder(std::function<void(std::shared_ptr<T>)> f)
+	void postorder(std::function<void(T *)> f)
 	{
 		for (auto child : children)
 		{
-			f(child);
+			f(child.get());
 			child->postorder(f);
 		}
 	}
 
-	void for_each_child(std::function<void(std::shared_ptr<T>)> f)
+	void for_each_child(std::function<void(T *)> f)
 	{
 		for (auto child : children)
-			f(child);
+			f(child.get());
 	}
 
-	std::shared_ptr<T> last_child()
+	T *last_child()
 	{
 		if (!has_children())
 			return nullptr;
 
-		return children.back();
+		return children.back().get();
 	}
 
 	bool has_children() const { return children.size() != 0; }

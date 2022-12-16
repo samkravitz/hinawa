@@ -2,7 +2,7 @@
 
 namespace layout
 {
-Inline::Inline(std::shared_ptr<css::StyledNode> node) :
+Inline::Inline(css::StyledNode *node) :
     Node(node)
 { }
 

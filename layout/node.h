@@ -10,12 +10,12 @@ class Node : public util::TreeNode<Node>
 {
 public:
 	Node();
-	Node(std::shared_ptr<css::StyledNode>);
+	Node(css::StyledNode *);
 
 	void insert_anonymous_container();
 	std::string tag_name() const;
 
-	inline std::shared_ptr<css::StyledNode> node() const { return m_node; }
+	inline css::StyledNode *node() const { return m_node; }
 	inline Box dimensions() const { return m_dimensions; }
 	inline void reset() { m_dimensions = Box{}; }
 	inline void set_block_format_context() { m_inline_format_context = false; }
@@ -30,12 +30,12 @@ public:
 
 protected:
 	// pointer to the styled node to be rendered
-	std::shared_ptr<css::StyledNode> m_node;
+	css::StyledNode *m_node;
 
 	Box m_dimensions;
 
 	bool m_inline_format_context = true;
 };
 
-std::shared_ptr<Node> build_tree(std::shared_ptr<css::StyledNode>);
+std::shared_ptr<Node> build_layout_tree(css::StyledNode *);
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,11 +13,11 @@ namespace css
 class StyledNode : public util::TreeNode<StyledNode>
 {
 public:
-	StyledNode(std::shared_ptr<Node>,
+	StyledNode(Node *,
 	           const std::vector<Stylesheet> &stylesheets,
 	           std::unordered_map<std::string, Value *> *parent_values = nullptr);
 
-	inline std::shared_ptr<Node> node() const { return m_node; }
+	inline Node *node() const { return m_node; }
 	inline std::unordered_map<std::string, Value *> values() const { return m_values; }
 
 	Value *lookup(std::string property_name, Value *const fallback = nullptr);
@@ -27,7 +26,7 @@ public:
 
 private:
 	// pointer to the DOM node being styled
-	std::shared_ptr<Node> m_node;
+	Node *m_node;
 	std::unordered_map<std::string, Value *> m_values;
 };
 

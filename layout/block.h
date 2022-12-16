@@ -7,7 +7,7 @@ namespace layout
 class Block : public Node
 {
 public:
-	Block(std::shared_ptr<css::StyledNode>);
+	Block(css::StyledNode *);
 	Block();
 
 	void layout(Box);

@@ -23,7 +23,7 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 	return node;
 }
 
-StyledNode::StyledNode(std::shared_ptr<Node> node,
+StyledNode::StyledNode(Node *node,
                        const std::vector<Stylesheet> &stylesheets,
                        std::unordered_map<std::string, Value *> *parent_values) :
     m_node(node)
@@ -36,7 +36,7 @@ StyledNode::StyledNode(std::shared_ptr<Node> node,
 
 	if (node->type() == NodeType::Element)
 	{
-		auto element = std::dynamic_pointer_cast<Element>(node);
+		auto *element = dynamic_cast<Element*>(node);
 
 		for (const auto &stylesheet : stylesheets)
 		{
@@ -55,13 +55,13 @@ StyledNode::StyledNode(std::shared_ptr<Node> node,
 	}
 
 	node->for_each_child(
-	    [this, stylesheets](std::shared_ptr<Node> child)
+	    [this, stylesheets](auto *child)
 	    {
 		    // skip text nodes that are only whitespace;
 		    // they don't belong in the style tree
 		    if (child->type() == NodeType::Text)
 		    {
-			    auto text = std::dynamic_pointer_cast<Text>(child);
+			    auto *text = dynamic_cast<Text*>(child);
 			    if (text->whitespace_only())
 				    return;
 		    }

@@ -2,7 +2,7 @@
 
 namespace layout
 {
-Text::Text(std::shared_ptr<css::StyledNode> node) :
+Text::Text(css::StyledNode *node) :
     Node(node)
 { }
 

@@ -13,7 +13,7 @@ public:
 
 	void print(std::string const &title) const { m_root->print(title); }
 	inline std::shared_ptr<Node> root() const { return m_root; }
-	std::shared_ptr<Node> get_body() const;
+	Node *get_body() const;
 	std::string get_style() const;
 
 private:
