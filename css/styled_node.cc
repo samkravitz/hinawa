@@ -2,6 +2,7 @@
 
 #include "document/element.h"
 #include "document/text.h"
+#include "stylesheet.h"
 
 #include <iostream>
 
@@ -9,12 +10,20 @@ namespace css
 {
 Value *const default_font_size = new Length(16, Length::PX);
 
+std::shared_ptr<StyledNode> build_style_tree(const Document &document)
+{
+	auto stylesheet = read_default_stylesheet();
+	auto body = document.get_body();
+	std::shared_ptr<StyledNode> node = std::make_shared<StyledNode>(body, stylesheet);
+	return node;
+}
+
 StyledNode::StyledNode(std::shared_ptr<Node> node,
                        std::shared_ptr<Stylesheet> stylesheet,
                        std::unordered_map<std::string, Value *> *parent_values) :
     m_node(node)
 {
-	if (!node->parent())
+	if (!parent())
 		m_values["font-size"] = default_font_size;
 
 	if (parent_values)

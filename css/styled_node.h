@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "document/node.h"
-#include "util/tree_node.h"
+#include "document/document.h"
 #include "stylesheet.h"
+#include "util/tree_node.h"
 #include "value.h"
 
 namespace css
@@ -30,4 +30,6 @@ private:
 	std::shared_ptr<Node> m_node;
 	std::unordered_map<std::string, Value *> m_values;
 };
+
+std::shared_ptr<StyledNode> build_style_tree(const Document &document);
 }

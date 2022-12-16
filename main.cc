@@ -22,16 +22,11 @@ int main(int argc, char **argv)
 
 	auto parser = html::Parser(buffer.str());
 	auto document = parser.parse();
-	document.root()->print("Document");
+	document.print("Document");
 
-	auto stylesheet = css::read_default_stylesheet();
-	auto style_tree = std::make_shared<css::StyledNode>(document.root(), stylesheet);
-
-	auto html = style_tree->last_child();
-	auto body = html->last_child();
-	auto layout_tree = std::make_shared<layout::LayoutNode>(body);
-
-	auto tree = layout::build_tree(body);
+	auto style_tree = css::build_style_tree(document);
+	auto layout_tree = std::make_shared<layout::LayoutNode>(style_tree);
+	auto tree = layout::build_tree(style_tree);
 	tree->print("Layout Tree 2.0");
 
 	Window window(layout_tree);
