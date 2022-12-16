@@ -15,7 +15,7 @@ class StyledNode : public util::TreeNode<StyledNode>
 {
 public:
 	StyledNode(std::shared_ptr<Node>,
-	           const Stylesheet &,
+	           const std::vector<Stylesheet> &stylesheets,
 	           std::unordered_map<std::string, Value *> *parent_values = nullptr);
 
 	inline std::shared_ptr<Node> node() const { return m_node; }

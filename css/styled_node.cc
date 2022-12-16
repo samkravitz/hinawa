@@ -2,6 +2,7 @@
 
 #include "document/element.h"
 #include "document/text.h"
+#include "parser.h"
 #include "stylesheet.h"
 
 #include <iostream>
@@ -12,14 +13,18 @@ Value *const default_font_size = new Length(16, Length::PX);
 
 std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 {
-	auto stylesheet = read_default_stylesheet();
+	auto default_stylesheet = read_default_stylesheet();
 	auto body = document.get_body();
-	std::shared_ptr<StyledNode> node = std::make_shared<StyledNode>(body, stylesheet);
+	auto user_stylesheet = Parser(document.get_style()).parse();
+	std::vector<Stylesheet> stylesheets;
+	stylesheets.push_back(default_stylesheet);
+	stylesheets.push_back(user_stylesheet);
+	std::shared_ptr<StyledNode> node = std::make_shared<StyledNode>(body, stylesheets);
 	return node;
 }
 
 StyledNode::StyledNode(std::shared_ptr<Node> node,
-                       const Stylesheet &stylesheet,
+                       const std::vector<Stylesheet> &stylesheets,
                        std::unordered_map<std::string, Value *> *parent_values) :
     m_node(node)
 {
@@ -33,21 +38,24 @@ StyledNode::StyledNode(std::shared_ptr<Node> node,
 	{
 		auto element = std::dynamic_pointer_cast<Element>(node);
 
-		for (auto decl : stylesheet.universal_rules())
-			m_values[decl.name] = decl.value;
-
-		for (auto decl : stylesheet.rules_for_tag(element->tag()))
-			m_values[decl.name] = decl.value;
-
-		if (element->has_attribute("class"))
+		for (const auto &stylesheet : stylesheets)
 		{
-			for (auto decl : stylesheet.rules_for_class(element->get_attribute("class")))
+			for (auto decl : stylesheet.universal_rules())
 				m_values[decl.name] = decl.value;
+
+			for (auto decl : stylesheet.rules_for_tag(element->tag()))
+				m_values[decl.name] = decl.value;
+
+			if (element->has_attribute("class"))
+			{
+				for (auto decl : stylesheet.rules_for_class(element->get_attribute("class")))
+					m_values[decl.name] = decl.value;
+			}
 		}
 	}
 
 	node->for_each_child(
-	    [this, stylesheet](std::shared_ptr<Node> child)
+	    [this, stylesheets](std::shared_ptr<Node> child)
 	    {
 		    // skip text nodes that are only whitespace;
 		    // they don't belong in the style tree
@@ -58,7 +66,7 @@ StyledNode::StyledNode(std::shared_ptr<Node> node,
 				    return;
 		    }
 
-		    add_child(std::make_shared<StyledNode>(StyledNode(child, stylesheet, &m_values)));
+		    add_child(std::make_shared<StyledNode>(StyledNode(child, stylesheets, &m_values)));
 	    });
 }
 
