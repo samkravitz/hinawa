@@ -85,13 +85,8 @@ void Window::render(const std::shared_ptr<layout::LayoutNode> &layout_tree)
 {
 	auto paint = [this](auto const &layout_node)
 	{
-		// anonymous boxes don't get drawn
-		if (layout_node->box_type() == layout::ANONYMOUS)
-			return;
-
 		auto style = layout_node->node();
 		auto dimensions = layout_node->dimensions();
-		auto *background = style->lookup("background");
 
 		auto x = dimensions.content.x;
 		auto y = dimensions.content.y;
@@ -104,14 +99,17 @@ void Window::render(const std::shared_ptr<layout::LayoutNode> &layout_tree)
 		window.draw(r);
 #endif
 
-		if (background)
+		if (layout_node->box_type() != layout::ANONYMOUS)
 		{
-			auto *color = dynamic_cast<css::Color *>(background);
-			sf::RectangleShape rect;
-			rect.setPosition(x, y);
-			rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
-			rect.setFillColor(sf::Color(color->r, color->g, color->b));
-			window.draw(rect);
+			if (auto *background = style->lookup("background"))
+			{
+				auto *color = dynamic_cast<css::Color *>(background);
+				sf::RectangleShape rect;
+				rect.setPosition(x, y);
+				rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+				rect.setFillColor(sf::Color(color->r, color->g, color->b));
+				window.draw(rect);
+			}
 		}
 
 		for (auto const &line : layout_node->lines)
