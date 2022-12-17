@@ -215,6 +215,20 @@ Document Parser::parse()
 						break;
 					}
 
+					case EndTag:
+					{
+						if (token.tag_name() == "head")
+						{
+							open_elements.pop_back();
+							insertion_mode = InsertionMode::AfterHead;
+						}
+
+						else
+							goto in_head_anything_else;
+
+						break;
+					}
+
 					in_head_anything_else:
 					default:
 						// pop head element off stack of open elements
@@ -231,6 +245,18 @@ Document Parser::parse()
 			case InsertionMode::AfterHead:
 				switch (token.type())
 				{
+					case Character:
+					{
+						auto c = token.get_char();
+						if (is_whitespace(c))
+						{
+							insert_character(token);
+						}
+
+						else
+							goto after_head_anything_else;
+						break;
+					}
 					case StartTag:
 					{
 						auto tag_name = token.tag_name();
@@ -485,7 +511,7 @@ void Parser::insert_character(Token t)
 	auto previous_node = target->last_child();
 	if (previous_node && previous_node->type() == NodeType::Text)
 	{
-		auto *text_element = dynamic_cast<Text*>(previous_node);
+		auto *text_element = dynamic_cast<Text *>(previous_node);
 		text_element->append(data);
 	}
 
