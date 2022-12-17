@@ -9,6 +9,55 @@
 
 namespace css
 {
+/**
+ * list of all property names which get inherited from their parent
+ * 
+ * @ref https://www.w3.org/TR/CSS21/propidx.html
+*/
+static std::string INHERITED_PROPERTIES[] = {
+	"azimuth",
+	"border-collapse",
+	"border-spacing",
+	"caption-side",
+	"color",
+	"cursor",
+	"direction",
+	"elevation",
+	"empty-cells",
+	"font-family",
+	"font-size",
+	"font-style",
+	"font-variant",
+	"font-weight",
+	"font",
+	"letter-spacing",
+	"line-height",
+	"list-style-image",
+	"list-style-position",
+	"list-style-type",
+	"list-style",
+	"orphans",
+	"pitch-range",
+	"pitch",
+	"quotes",
+	"richness",
+	"speak-header",
+	"speak-numeral",
+	"speak-punctuation",
+	"speak",
+	"speech-rate",
+	"stress",
+	"text-align",
+	"text-indent",
+	"text-transform",
+	"visibility",
+	"voice-family",
+	"volume",
+	"white-space",
+	"widows",
+	"word-spacing",
+};
+
 Value *const default_font_size = new Length(16, Length::PX);
 
 std::shared_ptr<StyledNode> build_style_tree(const Document &document)
@@ -23,20 +72,15 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 	return node;
 }
 
-StyledNode::StyledNode(Node *node,
-                       const std::vector<Stylesheet> &stylesheets,
-                       std::unordered_map<std::string, Value *> *parent_values) :
+StyledNode::StyledNode(Node *node, const std::vector<Stylesheet> &stylesheets, StyledNode *parent) :
     m_node(node)
 {
-	if (!parent())
-		m_values["font-size"] = default_font_size;
-
-	if (parent_values)
-		m_values["font-size"] = parent_values->at("font-size");
+	if (parent)
+		inherit_properties(*parent);
 
 	if (node->type() == NodeType::Element)
 	{
-		auto *element = dynamic_cast<Element*>(node);
+		auto *element = dynamic_cast<Element *>(node);
 
 		for (const auto &stylesheet : stylesheets)
 		{
@@ -55,38 +99,47 @@ StyledNode::StyledNode(Node *node,
 	}
 
 	node->for_each_child(
-	    [this, stylesheets](auto *child)
+	    [this, &stylesheets](auto *child)
 	    {
 		    // skip text nodes that are only whitespace;
 		    // they don't belong in the style tree
 		    if (child->type() == NodeType::Text)
 		    {
-			    auto *text = dynamic_cast<Text*>(child);
+			    auto *text = dynamic_cast<Text *>(child);
 			    if (text->whitespace_only())
 				    return;
 		    }
 
-		    add_child(std::make_shared<StyledNode>(StyledNode(child, stylesheets, &m_values)));
+		    add_child(std::make_shared<StyledNode>(child, stylesheets, this));
 	    });
 }
 
-Value *StyledNode::lookup(std::string property_name, Value *const fallback)
+Value *StyledNode::lookup(const std::string &property_name, Value *const fallback) const
 {
 	if (m_values.find(property_name) != m_values.end())
-		return m_values[property_name];
+		return m_values.at(property_name);
 
 	return fallback;
 }
 
-Value *StyledNode::lookup(std::string property_name1, std::string property_name2, Value *const fallback)
+Value *
+StyledNode::lookup(const std::string &property_name1, const std::string &property_name2, Value *const fallback) const
 {
 	if (m_values.find(property_name1) != m_values.end())
-		return m_values[property_name1];
+		return m_values.at(property_name1);
 
 	if (m_values.find(property_name2) != m_values.end())
-		return m_values[property_name2];
+		return m_values.at(property_name2);
 
 	return fallback;
+}
+
+void StyledNode::inherit_properties(const StyledNode &parent)
+{
+	for (const auto &property : INHERITED_PROPERTIES)
+	{
+		m_values[property] = parent.lookup(property);
+	}
 }
 
 Display StyledNode::display()
