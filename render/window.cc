@@ -119,7 +119,8 @@ void Window::render(const std::shared_ptr<layout::LayoutNode> &layout_tree)
 				auto *styled_node = frag.styled_node;
 				auto text_element = dynamic_cast<Text *>(styled_node->node());
 				bool is_link = text_element->is_link();
-				auto color = is_link ? sf::Color::Blue : sf::Color::Black;
+				auto *color_value = dynamic_cast<css::Color *>(style->lookup("color"));
+				auto color = is_link ? sf::Color::Blue : sf::Color(color_value->r, color_value->g, color_value->b);
 				auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
 
 				sf::Text text(frag.str, font);

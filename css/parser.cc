@@ -7,7 +7,7 @@
 namespace css
 {
 Parser::Parser(std::string input) :
-	scanner(input.c_str())
+    scanner(input.c_str())
 {
 	advance();
 }
@@ -37,7 +37,7 @@ std::shared_ptr<Rule> Parser::parse_rule()
 
 	if (!selector)
 		return nullptr;
-	
+
 	rule->selectors.push_back(*selector);
 
 	while (peek() != OPEN_BRACE)
@@ -49,7 +49,7 @@ std::shared_ptr<Rule> Parser::parse_rule()
 
 		rule->selectors.push_back(*selector);
 	}
-	
+
 	if (match(OPEN_BRACE))
 	{
 		do
@@ -58,7 +58,7 @@ std::shared_ptr<Rule> Parser::parse_rule()
 			rule->declarations.push_back(*declaration);
 		} while (!match(CLOSE_BRACE));
 	}
-	
+
 	return rule;
 }
 
@@ -89,7 +89,7 @@ std::shared_ptr<Selector> Parser::parse_selector()
 		auto identifier = current_token.value();
 
 		if (is_classname)
-			selector->class_name = identifier;		
+			selector->class_name = identifier;
 		else
 			selector->tag_name = identifier;
 
@@ -106,7 +106,7 @@ std::shared_ptr<Declaration> Parser::parse_declaration()
 	consume(COLON, "expected ':'");
 	auto *value = parse_value();
 	consume(SEMICOLON, "expected ;");
-	
+
 	auto declaration = std::make_shared<Declaration>();
 	declaration->name = name;
 	declaration->value = value;
@@ -133,9 +133,18 @@ Value *Parser::parse_value()
 
 		case IDENT:
 		{
-			auto *keyword = new Keyword();
-			keyword->value = current_token.value();
-			value = keyword;
+			if (auto *color = Color::from_color_string(current_token.value()))
+			{
+				value = color;
+			}
+
+			else
+			{
+				auto *keyword = new Keyword();
+				keyword->value = current_token.value();
+				value = keyword;
+			}
+
 			advance();
 			break;
 		}
@@ -151,22 +160,22 @@ Value *Parser::parse_value()
 
 			if (unitstr == "in")
 				unit = Length::IN;
-			
+
 			if (unitstr == "cm")
 				unit = Length::CM;
-			
+
 			if (unitstr == "mm")
 				unit = Length::MM;
-			
+
 			if (unitstr == "pt")
 				unit = Length::PT;
-			
+
 			if (unitstr == "pc")
 				unit = Length::PC;
-			
+
 			if (unitstr == "px")
 				unit = Length::PX;
-			
+
 			length->value = std::stof(valstr.substr(0, valstr.size() - 2));
 			length->unit = unit;
 			value = length;

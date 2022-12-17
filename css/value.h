@@ -33,10 +33,64 @@ struct Value
 
 struct Color : public Value
 {
+	Color() = default;
+
+	Color(u8 r, u8 g, u8 b) :
+	    r(r),
+	    g(g),
+	    b(b),
+	    a(0)
+	{ }
+
+	Color(u8 r, u8 g, u8 b, u8 a) :
+	    r(r),
+	    g(g),
+	    b(b),
+	    a(a)
+	{ }
+
 	u8 r;
 	u8 g;
 	u8 b;
 	u8 a;
+
+	static Color *from_color_string(std::string const &color)
+	{
+		if (color == "black")
+			return new Color(0, 0, 0);
+		if (color == "white")
+			return new Color(0xff, 0xff, 0xff);
+		if (color == "gray")
+			return new Color(0x80, 0x80, 0x80);
+		if (color == "silver")
+			return new Color(0xc0, 0xc0, 0xc0);
+		if (color == "maroon")
+			return new Color(0x80, 0, 0);
+		if (color == "red")
+			return new Color(0xff, 0, 0);
+		if (color == "purple")
+			return new Color(0x80, 0, 0x80);
+		if (color == "fushsia")
+			return new Color(0xff, 0, 0xff);
+		if (color == "green")
+			return new Color(0, 0xff, 0);
+		if (color == "lime")
+			return new Color(0, 0xff, 0);
+		if (color == "olive")
+			return new Color(0x80, 0x80, 0);
+		if (color == "yellow")
+			return new Color(0xff, 0xff, 0);
+		if (color == "navy")
+			return new Color(0, 0, 0x80);
+		if (color == "blue")
+			return new Color(0, 0, 0xff);
+		if (color == "teal")
+			return new Color(0, 0x80, 0x80);
+		if (color == "aqua")
+			return new Color(0, 0xff, 0xff);
+
+		return nullptr;
+	}
 
 	inline ValueType type() { return ValueType::Color; }
 	std::string to_string()
