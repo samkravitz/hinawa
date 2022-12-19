@@ -78,6 +78,18 @@ void Url::shorten_path()
 	m_path.pop_back();
 }
 
+std::string Url::path_str() const
+{
+	std::string p = "/";
+	for (uint i = 0; i < path().size(); i++)
+	{
+		p += path()[i];
+		if (i != path().size() - 1)
+			p += "/";
+	}
+	return p;
+}
+
 std::string Url::to_string() const
 {
 	std::stringstream ss;

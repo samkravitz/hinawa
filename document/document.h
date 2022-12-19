@@ -9,7 +9,7 @@ class Document
 {
 public:
 	Document(std::shared_ptr<Node>);
-	Document();
+	Document() = default;
 
 	void print(std::string const &title) const { m_root->print(title); }
 	inline std::shared_ptr<Node> root() const { return m_root; }

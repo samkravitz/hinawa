@@ -31,11 +31,11 @@ target_sources(hinawa PRIVATE main.cc)
 target_include_directories(hinawa PRIVATE css js)
 
 add_subdirectory(css)
+add_subdirectory(browser)
 add_subdirectory(document)
 add_subdirectory(html)
 add_subdirectory(js)
 add_subdirectory(layout)
-add_subdirectory(render)
 add_subdirectory(web)
 
 target_link_libraries(hinawa sfml-graphics sfml-window sfml-system fmt::fmt)

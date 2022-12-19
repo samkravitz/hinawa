@@ -44,10 +44,11 @@ public:
 	inline void clear_path() { m_path.clear(); }
 	inline void set_port(int port) { m_port = port; }
 
-	std::string to_string() const;
 	bool is_special() const;
 	bool has_opaque_path() const { return false; }
 	void shorten_path();
+	std::string path_str() const;
+	std::string to_string() const;
 
 private:
 	std::string m_scheme;

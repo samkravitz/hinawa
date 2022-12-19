@@ -1,31 +1,34 @@
-#include "window.h"
+#include "browser.h"
 
-#include <unordered_map>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include "document/element.h"
 #include "document/text.h"
-#include "layout/box.h"
-#include "util/hinawa.h"
-
-// #define DEBUG_DRAW_OUTLINE
+#include "html/parser.h"
+#include "layout/node.h"
 
 auto font = sf::Font{};
 
-Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
+// #define DEBUG_DRAW_OUTLINE
+
+namespace browser
 {
+Browser::Browser(const std::string &url_string)
+{
+	if (!font.loadFromFile("../data/fonts/arial.ttf"))
+		exit(2);
+
+	url = Url(url_string);
+	load(url);
+
 	auto event = sf::Event{};
-	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-	bg.setFillColor(sf::Color::White);
 
 	layout::Box viewport;
 	viewport.content.width = width;
 	viewport.content.height = 0;
-
-	if (!font.loadFromFile("../data/fonts/arial.ttf"))
-		exit(2);
-
 	layout_tree->layout(viewport);
-	layout_tree->print("Layout Tree");
 
 	while (window.isOpen())
 	{
@@ -33,7 +36,9 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 		{
 			switch (event.type)
 			{
-				case sf::Event::Closed: window.close(); break;
+				case sf::Event::Closed:
+					window.close();
+					break;
 
 				case sf::Event::Resized:
 				{
@@ -44,10 +49,7 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 					viewport.content.width = width;
 					viewport.content.height = 0;
 					layout_tree->layout(viewport);
-					bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-					window.clear();
-					window.draw(bg);
-					render(layout_tree);
+					render();
 					break;
 				}
 
@@ -81,8 +83,35 @@ Window::Window(std::shared_ptr<layout::LayoutNode> layout_tree)
 	}
 }
 
-void Window::render(const std::shared_ptr<layout::LayoutNode> &layout_tree)
+void Browser::load(const Url &new_url)
 {
+	url = new_url;
+	std::cout << "Loading url " << url.to_string() << "\n";
+	if (url.scheme() != "file")
+		std::cout << "Error: unsupported scheme\n";
+
+	std::ifstream file(url.path_str());
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+
+	auto parser = html::Parser(buffer.str());
+	document = parser.parse();
+	document.print("Document");
+
+	style_tree = css::build_style_tree(document);
+	layout_tree = std::make_shared<layout::LayoutNode>(style_tree.get());
+	auto layout2 = layout::build_layout_tree(style_tree.get());
+	layout_tree->print("Layout Tree");
+	layout2->print("Layout Tree 2.0");
+}
+
+void Browser::render()
+{
+	window.clear();
+	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
+	bg.setFillColor(sf::Color::White);
+	window.draw(bg);
+
 	auto paint = [this](auto const &layout_node)
 	{
 		auto style = layout_node->node();
@@ -143,4 +172,5 @@ void Window::render(const std::shared_ptr<layout::LayoutNode> &layout_tree)
 
 	layout_tree->postorder(paint);
 	window.display();
+}
 }

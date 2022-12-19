@@ -5,7 +5,7 @@
 
 #include "css/value.h"
 #include "document/text.h"
-#include "render/window.h"
+#include "browser/browser.h"
 
 #include <SFML/Graphics.hpp>
 

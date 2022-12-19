@@ -1,9 +1,9 @@
 set(SOURCES
-	window.cc
+	browser.cc
 )
 
-set(HEADERS
-	window.h
+set(browser
+	browser.h
 )
 
 target_include_directories(hinawa PRIVATE ..)
