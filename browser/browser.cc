@@ -1,5 +1,6 @@
 #include "browser.h"
 
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -19,6 +20,9 @@ Browser::Browser(const std::string &url_string)
 {
 	if (!font.loadFromFile("../data/fonts/arial.ttf"))
 		exit(2);
+
+	assert(arrow_cursor.loadFromSystem(sf::Cursor::Arrow));
+	assert(hand_cursor.loadFromSystem(sf::Cursor::Hand));
 
 	url = Url(url_string);
 	load(url);
@@ -58,23 +62,32 @@ Browser::Browser(const std::string &url_string)
 					auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
 					if (result.has_value() && result.value()->is_link())
 					{
-						auto cursor = sf::Cursor{};
-						cursor.loadFromSystem(sf::Cursor::Hand);
-						window.setMouseCursor(cursor);
+						window.setMouseCursor(hand_cursor);
 
 						// grabs the most specific node (Text), when we want the Element to see the href
 						auto *element = dynamic_cast<Element *>(result.value()->parent());
 						auto href = element->get_attribute("href");
-						std::cout << "Hover over link! href: " << href << "\n";
+						hovered_href = href;
 					}
 
 					else
 					{
-						auto cursor = sf::Cursor{};
-						cursor.loadFromSystem(sf::Cursor::Arrow);
-						window.setMouseCursor(cursor);
+						window.setMouseCursor(arrow_cursor);
+						hovered_href = "";
 					}
 					break;
+				}
+
+				case sf::Event::MouseButtonPressed:
+				{
+					if (!hovered_href.empty())
+					{
+						auto new_url = Url(hovered_href, &url);
+						load(new_url);
+						layout_tree->layout(viewport);
+						render();
+						break;
+					}
 				}
 				default:
 					break;
@@ -86,7 +99,8 @@ Browser::Browser(const std::string &url_string)
 void Browser::load(const Url &new_url)
 {
 	url = new_url;
-	std::cout << "Loading url " << url.to_string() << "\n";
+	std::cout << "Loading url: " << url.path_str() << "\n";
+	std::cout << url.to_string() << "\n";
 	if (url.scheme() != "file")
 		std::cout << "Error: unsupported scheme\n";
 

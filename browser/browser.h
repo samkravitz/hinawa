@@ -25,11 +25,15 @@ private:
 	std::shared_ptr<css::StyledNode> style_tree;
 	std::shared_ptr<layout::LayoutNode> layout_tree;
 
+	// href of the current hovered link
+	std::string hovered_href = "";
+
 	// width, height of window in px
 	int width = 800;
 	int height = 600;
 
 	sf::RenderWindow window{ sf::VideoMode(width, height), "hinawa" };
+	sf::Cursor arrow_cursor, hand_cursor;
 
 	void load(const Url &);
 	void render();
