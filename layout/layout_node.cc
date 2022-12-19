@@ -132,7 +132,7 @@ void LayoutNode::layout_inline(Box container)
 	Point offset = Point{ m_dimensions.content.x, m_dimensions.content.y };
 	lines.clear();
 
-	preorder([this, &offset](auto *child)
+	for_each_child([this, &offset](auto *child)
 	{
 		offset = child->split_into_lines(m_dimensions, offset, this);
 

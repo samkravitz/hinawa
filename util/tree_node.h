@@ -19,31 +19,31 @@ public:
 
 	void add_child(const std::shared_ptr<T> &node)
 	{
-		node->m_parent = static_cast<T *>(this);
+		node->m_parent = static_cast<T*>(this);
 		children.push_back(node);
 	}
 
 	T *parent() const { return m_parent; }
 
-	void preorder(std::function<void(T *)> f)
+	void preorder(std::function<void(T*)> f)
 	{
+		auto *p = static_cast<T*>(this);
+		f(p);
+
 		for (auto child : children)
-		{
 			child->preorder(f);
-			f(child.get());
-		}
 	}
 
-	void postorder(std::function<void(T *)> f)
+	void postorder(std::function<void(T*)> f)
 	{
 		for (auto child : children)
-		{
-			f(child.get());
 			child->postorder(f);
-		}
+
+		auto *p = static_cast<T*>(this);
+		f(p);
 	}
 
-	void for_each_child(std::function<void(T *)> f)
+	void for_each_child(std::function<void(T*)> f)
 	{
 		for (auto child : children)
 			f(child.get());
