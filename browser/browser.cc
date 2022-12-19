@@ -122,8 +122,25 @@ void Browser::load(const Url &new_url)
 void Browser::render()
 {
 	window.clear();
+
+	/**
+	 * Before rendering, paint the entire canvas white.
+	 * Here we will also check for an edge condition, where the background property of the <body>
+	 * element is set. If it is, instead of just covering the dimensions that the body element
+	 * takes up, the entire canvas is to be covered with that background color
+	 * 
+	 * @ref https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
+	*/
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
-	bg.setFillColor(sf::Color::White);
+	auto bg_color = sf::Color::White;
+
+	if (auto *c = layout_tree->node()->lookup("background"))
+	{
+		auto *color_value = dynamic_cast<css::Color *>(c);
+		bg_color = sf::Color(color_value->r, color_value->g, color_value->b);
+	}
+
+	bg.setFillColor(bg_color);
 	window.draw(bg);
 
 	auto paint = [this](auto const &layout_node)
@@ -184,7 +201,7 @@ void Browser::render()
 		}
 	};
 
-	layout_tree->postorder(paint);
+	layout_tree->preorder(paint);
 	window.display();
 }
 }
