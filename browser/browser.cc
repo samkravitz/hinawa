@@ -62,22 +62,22 @@ Browser::Browser(const std::string &url_string)
 
 				case sf::Event::MouseMoved:
 				{
-					//auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
-					//if (result.has_value() && result.value()->is_link())
-					//{
-					//	window.setMouseCursor(hand_cursor);
+					auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
+					if (result && result.value()->is_link())
+					{
+						window.setMouseCursor(hand_cursor);
 
-					//	// grabs the most specific node (Text), when we want the Element to see the href
-					//	auto *element = dynamic_cast<Element *>(result.value()->parent());
-					//	auto href = element->get_attribute("href");
-					//	hovered_href = href;
-					//}
+						// grabs the most specific node (Text), when we want the Element to see the href
+						auto *element = dynamic_cast<Element *>(result.value()->parent());
+						auto href = element->get_attribute("href");
+						hovered_href = href;
+					}
 
-					//else
-					//{
-					//	window.setMouseCursor(arrow_cursor);
-					//	hovered_href = "";
-					//}
+					else
+					{
+						window.setMouseCursor(arrow_cursor);
+						hovered_href = "";
+					}
 					break;
 				}
 

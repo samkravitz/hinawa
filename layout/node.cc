@@ -6,6 +6,7 @@
 #include "css/value.h"
 #include "inline.h"
 #include "text.h"
+#include "document/node.h"
 
 namespace layout
 {
@@ -87,6 +88,24 @@ loop:
 std::string Node::tag_name() const
 {
 	return m_node->node()->element_name();
+}
+
+std::optional<::Node *> Node::hit_test(const Point &p)
+{
+	if (!m_dimensions.content.contains(p))
+		return {};
+
+	if (!m_node || !m_node->node())
+		return {};
+
+	std::optional<::Node *> result = { m_node->node() };
+	for_each_child([&](auto *child)
+	{
+		auto child_result = child->hit_test(p);
+		if (child_result.has_value())
+			result = child_result;
+	});
+	return result;
 }
 
 void print_tree_with_lines(Node *root)

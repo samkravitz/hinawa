@@ -3,7 +3,6 @@ set(SOURCES
 	inline.cc
 	node.cc
 	text.cc
-	layout_node.cc
 )
 
 set(HEADERS
@@ -13,7 +12,6 @@ set(HEADERS
 	edges.h
 	inline.h
 	node.h
-	layout_node.h
 	text.h
 	rect.h
 )
