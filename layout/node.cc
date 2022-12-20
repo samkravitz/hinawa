@@ -62,26 +62,20 @@ Node::Node(css::StyledNode *node) :
 
 void Node::insert_anonymous_container()
 {
-loop:
-	for (unsigned int i = 0; i < children.size(); i++)
+	auto it = children.begin();
+	while (it != children.end())
 	{
-		auto child = children[i];
-		if (child->is_inline())
+		if (it->get()->is_inline())
 		{
-			auto first_inline_index = i;
-			auto last_inline_index = i;
 			auto anonymous_box = std::make_shared<Block>();
-			while (last_inline_index < children.size() && (children[last_inline_index]->is_inline()))
-			{
-				anonymous_box->add_child(children[last_inline_index]);
-				last_inline_index++;
-			}
-
-			children.erase(children.begin() + first_inline_index, children.begin() + last_inline_index);
-			children.insert(children.begin() + first_inline_index, anonymous_box);
 			anonymous_box->m_parent = this;
-			goto loop;
+			anonymous_box->add_child(*it);
+			it = children.erase(it);
+			it = children.insert(it, anonymous_box);
 		}
+
+		else
+			it++;
 	}
 }
 
