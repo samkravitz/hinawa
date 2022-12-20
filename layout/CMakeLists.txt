@@ -7,7 +7,6 @@ set(SOURCES
 
 set(HEADERS
 	block.h
-	coordinate.h
 	box.h
 	edges.h
 	inline.h
