@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "css/value.h"
 #include "block.h"
+#include "css/value.h"
 #include "inline.h"
 #include "text.h"
 
@@ -78,6 +78,7 @@ loop:
 
 			children.erase(children.begin() + first_inline_index, children.begin() + last_inline_index);
 			children.insert(children.begin() + first_inline_index, anonymous_box);
+			anonymous_box->m_parent = this;
 			goto loop;
 		}
 	}
@@ -86,5 +87,48 @@ loop:
 std::string Node::tag_name() const
 {
 	return m_node->node()->element_name();
+}
+
+void print_tree_with_lines(Node *root)
+{
+	static int indent = 0;
+	for (int i = 0; i < indent * 2; i++)
+		std::cout << " ";
+
+	std::cout << root->to_string() << "\n";
+	if (root->is_block())
+	{
+		auto *block = static_cast<Block *>(root);
+		int saved_indent = indent;
+		indent++;
+		for (uint i = 0; i < block->lines.size(); i++)
+		{
+			auto line = block->lines[i];
+			for (int i = 0; i < indent * 2; i++)
+				std::cout << " ";
+			std::cout << "line " << i << ": "
+			          << "(" << line.x << ", " << line.y << ") "
+			          << "[" << line.width << "x" << line.height << "]\n";
+
+			indent++;
+			for (uint j = 0; j < line.fragments.size(); j++)
+			{
+				auto frag = line.fragments[j];
+				for (int i = 0; i < indent * 2; i++)
+					std::cout << " ";
+				std::cout << "frag " << j << ": "
+				          << " offset: " << frag.offset << " len: " << frag.len << " str: " << frag.str << "\n";
+			}
+			indent--;
+		}
+		indent = saved_indent;
+	}
+
+	root->for_each_child([](auto *child)
+	{
+		indent++;
+		print_tree_with_lines(child);
+		indent--;
+	});
 }
 }

@@ -6,6 +6,7 @@
 #include "css/styled_node.h"
 #include "document/document.h"
 #include "layout/layout_node.h"
+#include "layout/node.h"
 #include "web/url.h"
 
 #include <SFML/Graphics.hpp>
@@ -23,7 +24,7 @@ private:
 	Url url;
 	Document document;
 	std::shared_ptr<css::StyledNode> style_tree;
-	std::shared_ptr<layout::LayoutNode> layout_tree;
+	std::shared_ptr<layout::Node> layout_tree;
 
 	// href of the current hovered link
 	std::string hovered_href = "";

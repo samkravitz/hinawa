@@ -8,6 +8,7 @@
 #include "document/element.h"
 #include "document/text.h"
 #include "html/parser.h"
+#include "layout/block.h"
 #include "layout/node.h"
 
 auto font = sf::Font{};
@@ -33,6 +34,7 @@ Browser::Browser(const std::string &url_string)
 	viewport.content.width = width;
 	viewport.content.height = 0;
 	layout_tree->layout(viewport);
+	layout::print_tree_with_lines(layout_tree.get());
 
 	while (window.isOpen())
 	{
@@ -53,28 +55,29 @@ Browser::Browser(const std::string &url_string)
 					viewport.content.width = width;
 					viewport.content.height = 0;
 					layout_tree->layout(viewport);
+					layout_tree->print("Layout Tree");
 					render();
 					break;
 				}
 
 				case sf::Event::MouseMoved:
 				{
-					auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
-					if (result.has_value() && result.value()->is_link())
-					{
-						window.setMouseCursor(hand_cursor);
+					//auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
+					//if (result.has_value() && result.value()->is_link())
+					//{
+					//	window.setMouseCursor(hand_cursor);
 
-						// grabs the most specific node (Text), when we want the Element to see the href
-						auto *element = dynamic_cast<Element *>(result.value()->parent());
-						auto href = element->get_attribute("href");
-						hovered_href = href;
-					}
+					//	// grabs the most specific node (Text), when we want the Element to see the href
+					//	auto *element = dynamic_cast<Element *>(result.value()->parent());
+					//	auto href = element->get_attribute("href");
+					//	hovered_href = href;
+					//}
 
-					else
-					{
-						window.setMouseCursor(arrow_cursor);
-						hovered_href = "";
-					}
+					//else
+					//{
+					//	window.setMouseCursor(arrow_cursor);
+					//	hovered_href = "";
+					//}
 					break;
 				}
 
@@ -113,10 +116,7 @@ void Browser::load(const Url &new_url)
 	document.print("Document");
 
 	style_tree = css::build_style_tree(document);
-	layout_tree = std::make_shared<layout::LayoutNode>(style_tree.get());
-	auto layout2 = layout::build_layout_tree(style_tree.get());
-	layout_tree->print("Layout Tree");
-	layout2->print("Layout Tree 2.0");
+	layout_tree = layout::build_layout_tree(style_tree.get());
 }
 
 void Browser::render()
@@ -159,7 +159,7 @@ void Browser::render()
 		window.draw(r);
 #endif
 
-		if (layout_node->box_type() != layout::ANONYMOUS)
+		if (!layout_node->is_anonymous())
 		{
 			if (auto *background = style->lookup("background"))
 			{
@@ -172,30 +172,34 @@ void Browser::render()
 			}
 		}
 
-		for (auto const &line : layout_node->lines)
+		if (layout_node->is_block())
 		{
-			for (auto const &frag : line.fragments)
+			auto *block = static_cast<layout::Block *>(layout_node);
+			for (auto const &line : block->lines)
 			{
-				auto *styled_node = frag.styled_node;
-				auto text_element = dynamic_cast<Text *>(styled_node->node());
-				bool is_link = text_element->is_link();
-				auto *color_value = dynamic_cast<css::Color *>(style->lookup("color"));
-				auto color = is_link ? sf::Color::Blue : sf::Color(color_value->r, color_value->g, color_value->b);
-				auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
-
-				sf::Text text(frag.str, font);
-				text.setCharacterSize(font_size->to_px());
-				text.setFillColor(color);
-				text.setPosition(line.x + frag.offset, line.y);
-				window.draw(text);
-
-				if (is_link)
+				for (auto const &frag : line.fragments)
 				{
-					sf::RectangleShape rect;
-					rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
-					rect.setSize(sf::Vector2f(frag.len, 2));
-					rect.setFillColor(sf::Color::Blue);
-					window.draw(rect);
+					auto *styled_node = frag.styled_node;
+					auto text_element = dynamic_cast<Text *>(styled_node->node());
+					bool is_link = text_element->is_link();
+					auto *color_value = dynamic_cast<css::Color *>(style->lookup("color"));
+					auto color = is_link ? sf::Color::Blue : sf::Color(color_value->r, color_value->g, color_value->b);
+					auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
+
+					sf::Text text(frag.str, font);
+					text.setCharacterSize(font_size->to_px());
+					text.setFillColor(color);
+					text.setPosition(line.x + frag.offset, line.y);
+					window.draw(text);
+
+					if (is_link)
+					{
+						sf::RectangleShape rect;
+						rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
+						rect.setSize(sf::Vector2f(frag.len, 2));
+						rect.setFillColor(sf::Color::Blue);
+						window.draw(rect);
+					}
 				}
 			}
 		}

@@ -276,7 +276,7 @@ void LayoutNode::calculate_block_position(Box container)
 
 void LayoutNode::calculate_block_height(Box container) { }
 
-std::optional<Node *> LayoutNode::hit_test(const Point &p)
+std::optional<::Node *> LayoutNode::hit_test(const Point &p)
 {
 	if (!m_dimensions.content.contains(p))
 		return {};
@@ -284,7 +284,7 @@ std::optional<Node *> LayoutNode::hit_test(const Point &p)
 	if (!m_node || !m_node->node())
 		return {};
 
-	std::optional<Node *> result = { m_node->node() };
+	std::optional<::Node *> result = { m_node->node() };
 	for_each_child([&](const auto &child)
 	{
 		auto child_result = child->hit_test(p);
