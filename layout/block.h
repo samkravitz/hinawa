@@ -50,8 +50,8 @@ public:
 
 	std::vector<Line> lines;
 
-	bool is_block() const { return true; }
-	bool is_anonymous() const { return m_anonymous; }
+	bool is_block() const override { return true; }
+	bool is_anonymous() const override { return m_anonymous; }
 
 	std::string to_string() const;
 

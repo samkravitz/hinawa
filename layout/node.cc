@@ -16,13 +16,17 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 
 	switch (styled_node->display())
 	{
-		case css::Display::Block: node = std::make_shared<Block>(styled_node); break;
+		case css::Display::Block:
+			node = std::make_shared<Block>(styled_node);
+			break;
+
 		case css::Display::Inline:
 			if (styled_node->node()->type() == NodeType::Text)
 				node = std::make_shared<Text>(styled_node);
 			else
 				node = std::make_shared<Inline>(styled_node);
 			break;
+
 		default:
 			std::cerr << "Found display: none!\n";
 			return nullptr;
@@ -31,17 +35,16 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 	bool contains_inline_children = false;
 	bool contains_block_children = false;
 
-	styled_node->for_each_child(
-	    [node, &contains_inline_children, &contains_block_children](auto *styled_child)
-	    {
-		    auto child = build_layout_tree(styled_child);
-		    node->add_child(child);
+	styled_node->for_each_child([&](auto *styled_child)
+	{
+		auto child = build_layout_tree(styled_child);
+		node->add_child(child);
 
-		    if (child->is_inline())
-			    contains_inline_children = true;
-		    else
-			    contains_block_children = true;
-	    });
+		if (child->is_inline())
+			contains_inline_children = true;
+		else
+			contains_block_children = true;
+	});
 
 	if (contains_inline_children && contains_block_children)
 		node->insert_anonymous_container();
