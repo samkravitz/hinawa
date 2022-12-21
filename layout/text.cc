@@ -58,7 +58,7 @@ void Text::split_into_lines(Box container)
 	std::istringstream ss(str);
 	std::string word;
 	LineFragment frag;
-	frag.styled_node = m_node;
+	frag.styled_node = m_style;
 
 	while (std::getline(ss, word, ' '))
 	{
@@ -77,7 +77,7 @@ void Text::split_into_lines(Box container)
 			lines.back().fragments.push_back(frag);
 			lines.push_back(Line(current_x, current_y));
 			frag = LineFragment();
-			frag.styled_node = m_node;
+			frag.styled_node = m_style;
 		}
 
 		frag.str += word + " ";

@@ -56,11 +56,11 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 }
 
 Node::Node() :
-    m_node(nullptr)
+    m_style(nullptr)
 { }
 
 Node::Node(css::StyledNode *node) :
-    m_node(node)
+    m_style(node)
 { }
 
 void Node::insert_anonymous_container()
@@ -84,7 +84,7 @@ void Node::insert_anonymous_container()
 
 std::string Node::tag_name() const
 {
-	return m_node->node()->element_name();
+	return m_style->node()->element_name();
 }
 
 std::optional<::Node *> Node::hit_test(const Point &p)
@@ -92,10 +92,10 @@ std::optional<::Node *> Node::hit_test(const Point &p)
 	if (!m_dimensions.content.contains(p))
 		return {};
 
-	if (!m_node || !m_node->node())
+	if (!m_style || !m_style->node())
 		return {};
 
-	std::optional<::Node *> result = { m_node->node() };
+	std::optional<::Node *> result = { m_style->node() };
 	for_each_child([&](auto *child)
 	{
 		auto child_result = child->hit_test(p);
