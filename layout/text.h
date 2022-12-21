@@ -16,8 +16,6 @@ public:
 	std::string to_string() const;
 
 private:
-	void calculate_width(Box);
-	void calculate_position(Box);
-	void calculate_height(Box);
+	void split_into_lines(Box container);
 };
 }

@@ -24,9 +24,6 @@ public:
 	inline void set_block_format_context() { m_inline_format_context = false; }
 
 	virtual void layout(Box) = 0;
-	virtual void calculate_width(Box) = 0;
-	virtual void calculate_position(Box) = 0;
-	virtual void calculate_height(Box) = 0;
 	virtual bool is_inline() const { return false; }
 	virtual bool is_text() const { return false; }
 	virtual bool is_anonymous() const { return false; }
