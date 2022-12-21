@@ -40,3 +40,8 @@ h1 {
 	font-size: 32px;
 	margin-bottom: 16px;
 }
+
+a {
+	color: blue;
+	text-decoration: underline;
+}

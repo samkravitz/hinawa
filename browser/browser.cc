@@ -145,7 +145,7 @@ void Browser::render()
 
 	auto paint = [this](auto const &layout_node)
 	{
-		auto style = layout_node->node();
+		auto *style = layout_node->node();
 		auto dimensions = layout_node->dimensions();
 
 		auto x = dimensions.content.x;
@@ -180,10 +180,8 @@ void Browser::render()
 				for (auto const &frag : line.fragments)
 				{
 					auto *styled_node = frag.styled_node;
-					auto text_element = dynamic_cast<Text *>(styled_node->node());
-					bool is_link = text_element->is_link();
-					auto *color_value = dynamic_cast<css::Color *>(style->lookup("color"));
-					auto color = is_link ? sf::Color::Blue : sf::Color(color_value->r, color_value->g, color_value->b);
+					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->lookup("color"));
+					auto color = sf::Color(color_value->r, color_value->g, color_value->b);
 					auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
 
 					sf::Text text(frag.str, font);
@@ -192,13 +190,17 @@ void Browser::render()
 					text.setPosition(line.x + frag.offset, line.y);
 					window.draw(text);
 
-					if (is_link)
+					if (auto *decoration = styled_node->lookup("text-decoration"))
 					{
-						sf::RectangleShape rect;
-						rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
-						rect.setSize(sf::Vector2f(frag.len, 2));
-						rect.setFillColor(sf::Color::Blue);
-						window.draw(rect);
+						auto *keyword = dynamic_cast<css::Keyword *>(decoration);
+						if (keyword->value == "underline")
+						{
+							sf::RectangleShape rect;
+							rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
+							rect.setSize(sf::Vector2f(frag.len, 2));
+							rect.setFillColor(color);
+							window.draw(rect);
+						}
 					}
 				}
 			}

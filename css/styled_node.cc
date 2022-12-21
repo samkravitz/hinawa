@@ -48,6 +48,7 @@ static std::string INHERITED_PROPERTIES[] = {
 	"speech-rate",
 	"stress",
 	"text-align",
+	"text-decoration", // TODO - remove this
 	"text-indent",
 	"text-transform",
 	"visibility",
