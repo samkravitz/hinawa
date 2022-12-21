@@ -15,7 +15,7 @@ public:
 	Node(css::StyledNode *);
 
 	void insert_anonymous_container();
-	std::optional<::Node *> hit_test(const Point &);
+	virtual std::optional<::Node *> hit_test(const Point &);
 	std::string tag_name() const;
 
 	inline css::StyledNode *node() const { return m_node; }

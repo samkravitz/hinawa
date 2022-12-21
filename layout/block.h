@@ -47,6 +47,7 @@ public:
 	Block();
 
 	void layout(Box);
+	std::optional<::Node *> hit_test(const Point &) override;
 
 	std::vector<Line> lines;
 

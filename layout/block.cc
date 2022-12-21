@@ -26,7 +26,7 @@ void Block::layout(Box container)
 	{
 		for (auto child : children)
 			child->layout(m_dimensions);
-		
+
 		for (const auto &line : lines)
 			m_dimensions.content.height += line.height;
 	}
@@ -101,6 +101,25 @@ void Block::calculate_position(Box container)
 }
 
 void Block::calculate_height(Box container) { }
+
+std::optional<::Node *> Block::hit_test(const Point &p)
+{
+	if (!m_inline_format_context)
+		return Node::hit_test(p);
+
+	for (auto const &line : lines)
+	{
+		int x = line.x;
+		int y = line.y;
+		int height = line.height;
+		for (auto const &fragment : line.fragments)
+		{
+			if (Rect(x + fragment.offset, y, fragment.len, height).contains(p))
+				return { fragment.styled_node->node() };
+		}
+	}
+	return {};
+}
 
 std::string Block::to_string() const
 {
