@@ -30,7 +30,7 @@ BraceWrapping:
   AfterExternBlock: true
   BeforeCatch: true
   BeforeElse: true
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
   BeforeWhile: false
   IndentBraces: false
   SplitEmptyFunction: false
@@ -55,6 +55,7 @@ IncludeCategories:
 IndentAccessModifiers: false
 IndentCaseLabels: true
 IndentExternBlock: Indent
+IndentGotoLabels: true
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 IndentWrappedFunctionNames: false
@@ -62,6 +63,7 @@ InsertTrailingCommas: Wrapped
 JavaScriptQuotes: Single
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
+LambdaBodyIndentation: Signature
 Language: Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
