@@ -12,9 +12,10 @@ Parser::Parser(std::string input) :
 	advance();
 }
 
-Stylesheet Parser::parse()
+Stylesheet Parser::parse(std::string input)
 {
-	return parse_stylesheet();
+	Parser parser(input);
+	return parser.parse_stylesheet();
 }
 
 Stylesheet Parser::parse_stylesheet()

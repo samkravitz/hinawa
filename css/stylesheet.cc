@@ -13,8 +13,7 @@ Stylesheet read_default_stylesheet()
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	auto parser = Parser(buffer.str());
-	return parser.parse();
+	return Parser::parse(buffer.str());
 }
 
 std::vector<Declaration> Stylesheet::rules_for_tag(std::string const tag) const

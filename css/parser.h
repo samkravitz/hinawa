@@ -13,11 +13,11 @@ namespace css
 class Parser
 {
 public:
-	Parser(std::string);
-
-	Stylesheet parse();
+	Parser() = delete;
+	static Stylesheet parse(std::string);
 
 private:
+	Parser(std::string);
 	Scanner scanner;
 	Token current_token;
 	Token previous_token;
