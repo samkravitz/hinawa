@@ -20,9 +20,8 @@ Stylesheet Parser::parse()
 Stylesheet Parser::parse_stylesheet()
 {
 	auto stylesheet = Stylesheet{};
-	std::shared_ptr<Rule> rule = nullptr;
 
-	while ((rule = parse_rule()))
+	while (auto rule = parse_rule())
 	{
 		stylesheet.rules.push_back(*rule);
 	}
@@ -30,15 +29,15 @@ Stylesheet Parser::parse_stylesheet()
 	return stylesheet;
 }
 
-std::shared_ptr<Rule> Parser::parse_rule()
+auto Parser::parse_rule() -> std::optional<Rule>
 {
-	auto rule = std::make_shared<Rule>();
+	auto rule = Rule{};
 	auto selector = parse_selector();
 
 	if (!selector)
-		return nullptr;
+		return {};
 
-	rule->selectors.push_back(*selector);
+	rule.selectors.push_back(*selector);
 
 	while (peek() != OPEN_BRACE)
 	{
@@ -47,7 +46,7 @@ std::shared_ptr<Rule> Parser::parse_rule()
 		if (!selector)
 			std::cout << "expected selector\n";
 
-		rule->selectors.push_back(*selector);
+		rule.selectors.push_back(*selector);
 	}
 
 	if (match(OPEN_BRACE))
@@ -55,21 +54,21 @@ std::shared_ptr<Rule> Parser::parse_rule()
 		do
 		{
 			auto declaration = parse_declaration();
-			rule->declarations.push_back(*declaration);
+			rule.declarations.push_back(*declaration);
 		} while (!match(CLOSE_BRACE));
 	}
 
 	return rule;
 }
 
-std::shared_ptr<Selector> Parser::parse_selector()
+auto Parser::parse_selector() -> std::optional<Selector>
 {
-	std::shared_ptr<Selector> selector = nullptr;
+	std::optional<Selector> selector = {};
 
 	// universal selector *
 	if (current_token.value() == "*")
 	{
-		selector = std::make_shared<Selector>();
+		selector = Selector{};
 		selector->is_universal = true;
 		advance();
 		return selector;
@@ -84,7 +83,7 @@ std::shared_ptr<Selector> Parser::parse_selector()
 
 	if (current_token.type() == IDENT)
 	{
-		selector = std::make_shared<Selector>();
+		selector = Selector{};
 
 		auto identifier = current_token.value();
 
@@ -99,7 +98,7 @@ std::shared_ptr<Selector> Parser::parse_selector()
 	return selector;
 }
 
-std::shared_ptr<Declaration> Parser::parse_declaration()
+auto Parser::parse_declaration() -> std::optional<Declaration>
 {
 	consume(IDENT, "expected identifier");
 	auto name = previous_token.value();
@@ -107,9 +106,9 @@ std::shared_ptr<Declaration> Parser::parse_declaration()
 	auto *value = parse_value();
 	consume(SEMICOLON, "expected ;");
 
-	auto declaration = std::make_shared<Declaration>();
-	declaration->name = name;
-	declaration->value = value;
+	auto declaration = Declaration{};
+	declaration.name = name;
+	declaration.value = value;
 	return declaration;
 }
 

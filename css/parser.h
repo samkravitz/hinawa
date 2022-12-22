@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <optional>
 #include <string>
 
 #include "stylesheet.h"
@@ -28,9 +28,9 @@ private:
 	TokenType peek();
 
 	Stylesheet parse_stylesheet();
-	std::shared_ptr<Rule> parse_rule();
-	std::shared_ptr<Selector> parse_selector();
-	std::shared_ptr<Declaration> parse_declaration();
+	std::optional<Rule> parse_rule();
+	std::optional<Selector> parse_selector();
+	std::optional<Declaration> parse_declaration();
 	Value *parse_value();
 };
 };
