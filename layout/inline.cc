@@ -20,10 +20,6 @@ std::string Inline::to_string() const
 	ss << "Inline";
 	ss << "<" << tag_name() << ">";
 
-	ss << " @ ";
-	ss << "(" << m_dimensions.content.x << ", " << m_dimensions.content.y << ") ";
-	ss << "[" << m_dimensions.content.width << "x" << m_dimensions.content.height << "]";
-
 	return ss.str();
 }
 }

@@ -111,13 +111,6 @@ void Text::split_into_lines(Box container)
 
 std::string Text::to_string() const
 {
-	std::stringstream ss;
-	ss << "Text";
-
-	ss << " @ ";
-	ss << "(" << m_dimensions.content.x << ", " << m_dimensions.content.y << ") ";
-	ss << "[" << m_dimensions.content.width << "x" << m_dimensions.content.height << "]";
-
-	return ss.str();
+	return "Text";
 }
 }
