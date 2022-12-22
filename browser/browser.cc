@@ -143,21 +143,12 @@ void Browser::render()
 	bg.setFillColor(bg_color);
 	window.draw(bg);
 
-	auto paint = [this](auto const &layout_node)
-	{
+	auto paint = [this](auto const &layout_node) {
 		auto *style = layout_node->node();
 		auto dimensions = layout_node->dimensions();
 
 		auto x = dimensions.content.x;
 		auto y = dimensions.content.y;
-
-#ifdef DEBUG_DRAW_OUTLINE
-		sf::RectangleShape r(sf::Vector2f(dimensions.content.width, dimensions.content.height));
-		r.setPosition(sf::Vector2f(x, y));
-		r.setOutlineThickness(2);
-		r.setOutlineColor(sf::Color::Blue);
-		window.draw(r);
-#endif
 
 		if (!layout_node->is_anonymous())
 		{
@@ -174,6 +165,14 @@ void Browser::render()
 
 		if (layout_node->is_block())
 		{
+#ifdef DEBUG_DRAW_OUTLINE
+			sf::RectangleShape r(sf::Vector2f(dimensions.margin_box().width, dimensions.margin_box().height));
+			r.setPosition(sf::Vector2f(x, y));
+			r.setOutlineThickness(2);
+			r.setOutlineColor(sf::Color::Blue);
+			window.draw(r);
+#endif
+
 			auto *block = static_cast<layout::Block *>(layout_node);
 			for (auto const &line : block->lines)
 			{

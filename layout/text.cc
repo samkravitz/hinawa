@@ -64,7 +64,7 @@ void Text::split_into_lines(Box container)
 	{
 		text.setString(word);
 		float len = text.getLocalBounds().width;
-		float height = text.getLocalBounds().height;
+		float height = px;
 
 		// fragment would overflow the max allowed width, so it must be put on a new line
 		if (current_x + len > available_width)
