@@ -15,6 +15,7 @@ class Parser
 public:
 	Parser() = delete;
 	static Stylesheet parse(std::string);
+	static std::vector<Declaration> parse_inline(std::string);
 
 private:
 	Parser(std::string);
@@ -25,6 +26,7 @@ private:
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);
+	bool is_eof() const;
 	TokenType peek();
 
 	Stylesheet parse_stylesheet();

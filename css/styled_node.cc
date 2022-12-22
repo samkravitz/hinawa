@@ -48,7 +48,7 @@ static std::string INHERITED_PROPERTIES[] = {
 	"speech-rate",
 	"stress",
 	"text-align",
-	"text-decoration", // TODO - remove this
+	"text-decoration",    // TODO - remove this
 	"text-indent",
 	"text-transform",
 	"visibility",
@@ -81,7 +81,7 @@ StyledNode::StyledNode(Node *node, const std::vector<Stylesheet> &stylesheets, S
 
 	if (node->type() == NodeType::Element)
 	{
-		auto *element = dynamic_cast<Element *>(node);
+		auto *element = static_cast<Element *>(node);
 
 		for (const auto &stylesheet : stylesheets)
 		{
@@ -96,23 +96,27 @@ StyledNode::StyledNode(Node *node, const std::vector<Stylesheet> &stylesheets, S
 				for (auto decl : stylesheet.rules_for_class(element->get_attribute("class")))
 					m_values[decl.name] = decl.value;
 			}
+
+			if (element->has_attribute("style"))
+			{
+				for (auto decl : Parser::parse_inline(element->get_attribute("style")))
+					m_values[decl.name] = decl.value;
+			}
 		}
 	}
 
-	node->for_each_child(
-	    [this, &stylesheets](auto *child)
-	    {
-		    // skip text nodes that are only whitespace;
-		    // they don't belong in the style tree
-		    if (child->type() == NodeType::Text)
-		    {
-			    auto *text = dynamic_cast<Text *>(child);
-			    if (text->whitespace_only())
-				    return;
-		    }
+	node->for_each_child([this, &stylesheets](auto *child) {
+		// skip text nodes that are only whitespace;
+		// they don't belong in the style tree
+		if (child->type() == NodeType::Text)
+		{
+			auto *text = dynamic_cast<Text *>(child);
+			if (text->whitespace_only())
+				return;
+		}
 
-		    add_child(std::make_shared<StyledNode>(child, stylesheets, this));
-	    });
+		add_child(std::make_shared<StyledNode>(child, stylesheets, this));
+	});
 }
 
 Value *StyledNode::lookup(const std::string &property_name, Value *const fallback) const

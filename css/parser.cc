@@ -18,6 +18,21 @@ Stylesheet Parser::parse(std::string input)
 	return parser.parse_stylesheet();
 }
 
+auto Parser::parse_inline(std::string input) -> std::vector<Declaration>
+{
+	Parser parser(input);
+	std::vector<Declaration> declarations;
+	while (auto declaration = parser.parse_declaration())
+	{
+		declarations.push_back(*declaration);
+		if (parser.is_eof())
+			break;
+	}
+	
+	return declarations;
+}
+
+
 Stylesheet Parser::parse_stylesheet()
 {
 	auto stylesheet = Stylesheet{};
@@ -218,5 +233,10 @@ void Parser::consume(TokenType type, const char *msg)
 TokenType Parser::peek()
 {
 	return current_token.type();
+}
+
+bool Parser::is_eof() const
+{
+	return current_token.type() == 0;
 }
 }

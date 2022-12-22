@@ -47,9 +47,9 @@ public:
 
 	std::string to_string();
 
-	inline TokenType type() { return m_type; }
-	inline std::string value() { return m_value; }
-	inline int line() { return m_line; }
+	inline TokenType type() const { return m_type; }
+	inline std::string value() const { return m_value; }
+	inline int line() const { return m_line; }
 
 private:
 	std::string m_value;
