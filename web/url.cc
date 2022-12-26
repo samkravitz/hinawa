@@ -78,6 +78,14 @@ void Url::shorten_path()
 	m_path.pop_back();
 }
 
+int Url::port() const
+{
+	if (m_port == PORT_NULL && is_special())
+		return default_port(scheme());
+
+	return m_port;
+}
+
 std::string Url::path_str() const
 {
 	std::string p = "/";
@@ -95,6 +103,8 @@ std::string Url::to_string() const
 	std::stringstream ss;
 	ss << "scheme: " << scheme() << "\n";
 	ss << "authority: " << authority() << "\n";
+	ss << "host: " << host() << "\n";
+	ss << "port: " << port() << "\n";
 	ss << "drive: " << drive() << "\n";
 	ss << "path_root: " << path_root() << "\n";
 	ss << "dir: " << dir() << "\n";

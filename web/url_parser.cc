@@ -429,8 +429,9 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 
 					// 2. Decrease pointer by the number of code points in buffer plus one, set buffer to the empty string, and set state to host state
 					pointer -= buffer.size() + 1;
-					buffer == "";
+					buffer = "";
 					state = State::Host;
+					continue;
 				}
 
 				// 3. Otherwise, append c to buffer
@@ -492,12 +493,18 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 					// TODO
 
 					// 3. Let host be the result of host parsing buffer with url is not special
+					auto host = parse_host(buffer);
 
 					// 4. If host is failure, then return failure
 
 					// 5. Set url’s host to host, buffer to the empty string, and state to path start state
+					url.set_host(host);
+					buffer = "";
+					state = State::PathStart;
 
 					// 6. If state override is given, then return
+					if (state_override_given)
+						return url;
 				}
 
 				// Otherwise:

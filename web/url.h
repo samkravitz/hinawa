@@ -28,7 +28,7 @@ public:
 	std::string fragment() const { return m_fragment; }
 	std::string host() const { return m_host; }
 	std::vector<std::string> path() const { return m_path; }
-	int port() const { return m_port; }
+	int port() const;
 
 	inline void set_scheme(const std::string &scheme) { m_scheme = scheme; }
 	inline void set_authority(const std::string &authority) { m_authority = authority; }

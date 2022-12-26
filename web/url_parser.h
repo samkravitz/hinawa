@@ -23,7 +23,6 @@
 	STATE(FileHost) \
 	STATE(PathStart) \
 	STATE(Path) \
-	STATE(CannotBeABaseUrlPath) \
 	STATE(OpaquePath) \
 	STATE(Query) \
 	STATE(Fragment)
