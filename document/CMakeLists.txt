@@ -1,6 +1,7 @@
 set(SOURCES
 	document.cc
 	element.cc
+	html_image_element.cc
 	node.cc
 	text.cc
 )
@@ -8,6 +9,7 @@ set(SOURCES
 set(HEADERS
 	document.h
 	element.h
+	html_image_element.h
 	node.h
 	text.h
 )

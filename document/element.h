@@ -12,7 +12,7 @@ public:
 	inline NodeType type() const { return NodeType::Element; }
 	inline std::string tag() const { return m_tag; }
 
-	void add_attribute(std::string, std::string);
+	virtual void add_attribute(std::string, std::string);
 	bool has_attribute(std::string) const;
 	std::string get_attribute(std::string);
 	std::string to_string() const;
