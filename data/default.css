@@ -25,6 +25,11 @@ span {
 	display: inline;
 }
 
+/* inline-block elements */
+img {
+	display: inline-block;
+}
+
 /* visual-less elements */
 br {
 	display: none;

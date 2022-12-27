@@ -159,6 +159,9 @@ Display StyledNode::display()
 
 	if (keyword->value == "inline")
 		return Display::Inline;
+	
+	if (keyword->value == "inline-block")
+		return Display::InlineBlock;
 
 	if (keyword->value == "none")
 		return Display::None;

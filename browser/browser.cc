@@ -9,6 +9,7 @@
 #include "document/text.h"
 #include "html/parser.h"
 #include "layout/block.h"
+#include "layout/image.h"
 #include "layout/node.h"
 
 auto font = sf::Font{};
@@ -203,6 +204,15 @@ void Browser::render()
 					}
 				}
 			}
+		}
+
+		if (layout_node->is_image())
+		{
+			auto *image_node = static_cast<layout::Image *>(layout_node);
+			auto image = image_node->image_element()->image();
+			auto texture = sf::Texture{};
+			texture.loadFromImage(image, sf::IntRect(x, y, dimensions.content.width, dimensions.content.height));
+			window.draw(sf::Sprite(texture));
 		}
 	};
 

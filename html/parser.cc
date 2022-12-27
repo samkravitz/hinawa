@@ -304,6 +304,13 @@ Document Parser::parse()
 
 						if (tag_data.self_closing)
 							open_elements.pop_back();
+
+						else if (token.tag_name() == "area" || token.tag_name() == "br" ||
+						         token.tag_name() == "embed" || token.tag_name() == "img" ||
+						         token.tag_name() == "keygen" || token.tag_name() == "wbr")
+						{
+							open_elements.pop_back();
+						}
 						break;
 					}
 

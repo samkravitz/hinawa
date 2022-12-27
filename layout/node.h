@@ -28,6 +28,7 @@ public:
 	virtual bool is_text() const { return false; }
 	virtual bool is_anonymous() const { return false; }
 	virtual bool is_block() const { return false; }
+	virtual bool is_image() const { return false; }
 
 	virtual std::string to_string() const = 0;
 

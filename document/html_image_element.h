@@ -12,7 +12,10 @@ public:
 	{ }
 
 	void add_attribute(std::string, std::string) override;
+	float width() const;
+	float height() const;
+	sf::Image image() const { return m_image; }
 
 private:
-	sf::Image image;
+	sf::Image m_image;
 };

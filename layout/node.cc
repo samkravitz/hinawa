@@ -4,9 +4,11 @@
 
 #include "block.h"
 #include "css/value.h"
+#include "document/html_image_element.h"
+#include "document/node.h"
+#include "image.h"
 #include "inline.h"
 #include "text.h"
-#include "document/node.h"
 
 namespace layout
 {
@@ -27,6 +29,11 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 				node = std::make_shared<Inline>(styled_node);
 			break;
 
+		case css::Display::InlineBlock:
+			if (dynamic_cast<HtmlImageElement *>(styled_node->node()))
+				node = std::make_shared<Image>(styled_node);
+			break;
+
 		default:
 			std::cerr << "Found display: none!\n";
 			return nullptr;
@@ -35,8 +42,7 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 	bool contains_inline_children = false;
 	bool contains_block_children = false;
 
-	styled_node->for_each_child([&](auto *styled_child)
-	{
+	styled_node->for_each_child([&](auto *styled_child) {
 		auto child = build_layout_tree(styled_child);
 		node->add_child(child);
 
@@ -96,8 +102,7 @@ std::optional<::Node *> Node::hit_test(const Point &p)
 		return {};
 
 	std::optional<::Node *> result = { m_style->node() };
-	for_each_child([&](auto *child)
-	{
+	for_each_child([&](auto *child) {
 		auto child_result = child->hit_test(p);
 		if (child_result.has_value())
 			result = child_result;
@@ -140,8 +145,7 @@ void print_tree_with_lines(Node *root)
 		indent = saved_indent;
 	}
 
-	root->for_each_child([](auto *child)
-	{
+	root->for_each_child([](auto *child) {
 		indent++;
 		print_tree_with_lines(child);
 		indent--;
