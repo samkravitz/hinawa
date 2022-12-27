@@ -21,10 +21,16 @@ class Http
 {
 public:
 	Http() = default;
-	Http(const std::string &uri_string);
+	Http(const std::string &uri_string) :
+	    Http(Url{ uri_string })
+	{ }
+
 	Http(const Url &url) :
 	    uri(url)
-	{ }
+	{
+		headers["Host"] = uri.host();
+		headers["Accept-Language"] = "en-us";
+	}
 
 	Http send() const;
 

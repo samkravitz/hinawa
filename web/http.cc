@@ -13,13 +13,6 @@
 
 #define CRLF "\r\n"
 
-Http::Http(const std::string &uri_string)
-{
-	uri = Url(uri_string);
-	headers["Host"] = uri.host();
-	headers["Accept-Language"] = "en-us";
-}
-
 Http Http::send() const
 {
 	const int port = uri.port();
@@ -63,6 +56,7 @@ Http Http::send() const
 	std::cout << "SSL connection using " << SSL_get_cipher(ssl) << "\n";
 
 	auto req = to_string();
+	std::cout << req << "\n";
 	uint bytes_sent = SSL_write(ssl, req.c_str(), req.size());
 	if (bytes_sent != req.size())
 		perror("error writing message to socket");
