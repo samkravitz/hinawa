@@ -22,6 +22,9 @@ class Http
 public:
 	Http() = default;
 	Http(const std::string &uri_string);
+	Http(const Url &url) :
+	    uri(url)
+	{ }
 
 	Http send() const;
 

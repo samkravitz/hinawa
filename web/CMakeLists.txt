@@ -1,11 +1,13 @@
 set(SOURCES
 	http.cc
+	resource.cc
 	url_parser.cc
 	url.cc
 )
 
 set(HEADERS
 	http.h
+	resource.h
 	url_parser.h
 	url.h
 )
