@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "document/element.h"
+#include "document/element_factory.h"
 #include "document/node.h"
 #include "document/text.h"
 #include "token.h"
@@ -295,7 +296,7 @@ Document Parser::parse()
 					case StartTag:
 					{
 						auto tag_data = token.as_tag_data();
-						auto element = std::make_shared<Element>(tag_data.name);
+						auto element = create_element(tag_data.name);
 						for (auto attribute : tag_data.attributes)
 							element->add_attribute(attribute.first, attribute.second);
 
