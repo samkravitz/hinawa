@@ -35,8 +35,8 @@ void Text::split_into_lines(Box container)
 	assert(block_ancestor);
 	auto &lines = block_ancestor->lines;
 
-	auto *font_size = dynamic_cast<css::Length *>(node()->lookup("font-size"));
-	auto *text_element = dynamic_cast<::Text *>(node()->node());
+	auto *font_size = dynamic_cast<css::Length *>(style()->lookup("font-size"));
+	auto *text_element = dynamic_cast<::Text *>(style()->node());
 	auto str = text_element->trim();
 	auto px = font_size->to_px();
 	const int max_width = container.content.width;

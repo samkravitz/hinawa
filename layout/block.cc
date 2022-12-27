@@ -46,7 +46,7 @@ void Block::layout(Box container)
 void Block::calculate_width(Box container)
 {
 	if (m_anonymous)
-		m_style = parent()->node();
+		m_style = parent()->style();
 	auto zero = css::Length{};
 
 	auto *margin_left = m_style->lookup("margin-left", "margin", &zero);
@@ -82,7 +82,7 @@ void Block::calculate_width(Box container)
 void Block::calculate_position(Box container)
 {
 	if (m_anonymous)
-		m_style = parent()->node();
+		m_style = parent()->style();
 	auto zero = css::Length{};
 
 	m_dimensions.margin.top = m_style->lookup("margin-top", "margin", &zero)->to_px();

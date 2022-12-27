@@ -135,7 +135,7 @@ void Browser::render()
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
 	auto bg_color = sf::Color::White;
 
-	if (auto *c = layout_tree->node()->lookup("background"))
+	if (auto *c = layout_tree->style()->lookup("background"))
 	{
 		auto *color_value = dynamic_cast<css::Color *>(c);
 		bg_color = sf::Color(color_value->r, color_value->g, color_value->b);
@@ -145,7 +145,7 @@ void Browser::render()
 	window.draw(bg);
 
 	auto paint = [this](auto const &layout_node) {
-		auto *style = layout_node->node();
+		auto *style = layout_node->style();
 		auto dimensions = layout_node->dimensions();
 
 		auto x = dimensions.content.x;

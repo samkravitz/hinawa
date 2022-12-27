@@ -18,7 +18,7 @@ public:
 	virtual std::optional<::Node *> hit_test(const Point &);
 	std::string tag_name() const;
 
-	inline css::StyledNode *node() const { return m_style; }
+	inline css::StyledNode *style() const { return m_style; }
 	inline Box dimensions() const { return m_dimensions; }
 	inline void reset() { m_dimensions = Box{}; }
 	inline void set_block_format_context() { m_inline_format_context = false; }
