@@ -12,7 +12,8 @@ h3,
 h4,
 h5,
 h6,
-p {
+p,
+ul {
 	display: block;
 }
 
@@ -28,6 +29,11 @@ span {
 /* inline-block elements */
 img {
 	display: inline-block;
+}
+
+/* list-item elements */
+li {
+	display: list-item;
 }
 
 /* visual-less elements */

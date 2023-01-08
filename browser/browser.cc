@@ -214,6 +214,14 @@ void Browser::render()
 			texture.loadFromImage(image, sf::IntRect(x, y, dimensions.content.width, dimensions.content.height));
 			window.draw(sf::Sprite(texture));
 		}
+
+		if (layout_node->is_list_item_marker())
+		{
+			sf::RectangleShape rect(sf::Vector2f(dimensions.margin_box().width, dimensions.margin_box().height));
+			rect.setPosition(sf::Vector2f(x, y));
+			rect.setFillColor(sf::Color::Black);
+			window.draw(rect);
+		}
 	};
 
 	layout_tree->preorder(paint);

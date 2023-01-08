@@ -23,6 +23,12 @@ public:
 		children.push_back(node);
 	}
 
+	void prepend_child(const std::shared_ptr<T> &node)
+	{
+		node->m_parent = static_cast<T*>(this);
+		children.insert(children.begin(), 1, node);
+	}
+
 	T *parent() const { return m_parent; }
 
 	void preorder(std::function<void(T*)> f)

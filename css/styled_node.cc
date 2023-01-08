@@ -162,6 +162,9 @@ Display StyledNode::display()
 	
 	if (keyword->value == "inline-block")
 		return Display::InlineBlock;
+	
+	if (keyword->value == "list-item")
+		return Display::ListItem;
 
 	if (keyword->value == "none")
 		return Display::None;

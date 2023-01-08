@@ -2,6 +2,7 @@ set(SOURCES
 	block.cc
 	image.cc
 	inline.cc
+	list.cc
 	node.cc
 	text.cc
 )
@@ -12,6 +13,7 @@ set(HEADERS
 	edges.h
 	image.h
 	inline.h
+	list.h
 	node.h
 	text.h
 	rect.h

@@ -8,6 +8,7 @@
 #include "document/node.h"
 #include "image.h"
 #include "inline.h"
+#include "list.h"
 #include "text.h"
 
 namespace layout
@@ -34,8 +35,12 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 				node = std::make_shared<Image>(styled_node);
 			break;
 
+		case css::Display::ListItem:
+			node = std::make_shared<ListItem>(styled_node);
+			break;
+
 		default:
-			std::cerr << "Found display: none!\n";
+			std::cerr << "Found display: none!\n"; 
 			return nullptr;
 	}
 

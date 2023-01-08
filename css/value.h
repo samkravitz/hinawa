@@ -19,6 +19,7 @@ enum class Display
 	Block,
 	Inline,
 	InlineBlock,
+	ListItem,
 	None,
 };
 
