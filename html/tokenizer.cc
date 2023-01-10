@@ -396,14 +396,14 @@ loop_start:
 
 				ON_ASCII_UPPER_ALPHA
 				{
-					current_token.append_tag_name(current_input_character + 0x20);
+					current_token.tag_name() += (current_input_character + 0x20);
 					continue;
 				}
 
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_tag_name(U'\ufffd');
+					current_token.tag_name() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
@@ -415,7 +415,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_tag_name(current_input_character);
+					current_token.tag_name() += (current_input_character);
 					continue;
 				}
 			}
@@ -542,14 +542,14 @@ loop_start:
 
 				ON_ASCII_UPPER_ALPHA
 				{
-					current_token.append_attribute_name(current_input_character + 0x20);
+					current_token.attribute_name() += current_input_character + 0x20;
 					temporary_buffer += current_input_character;
 					continue;
 				}
 
 				ON_ASCII_LOWER_ALPHA
 				{
-					current_token.append_attribute_name(current_input_character + 0x20);
+					current_token.attribute_name() += current_input_character;
 					temporary_buffer += current_input_character;
 					continue;
 				}
@@ -790,7 +790,7 @@ loop_start:
 				{
 					parse_error("unexpected-equals-sign-before-attribute-name");
 					current_token.new_attribute();
-					current_token.append_attribute_name(current_input_character);
+					current_token.attribute_name() += current_input_character;
 					SWITCH_TO(AttributeName);
 				}
 
@@ -833,41 +833,41 @@ loop_start:
 
 				ON_ASCII_UPPER_ALPHA
 				{
-					current_token.append_attribute_name(current_input_character + 0x20);
+					current_token.attribute_name() += current_input_character + 0x20;
 					continue;
 				}
 
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_attribute_name(U'\ufffd');
+					current_token.attribute_name() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
 				ON('"')
 				{
 					parse_error("unexpected-character-in-attribute-name");
-					current_token.append_attribute_name(current_input_character);
+					current_token.attribute_name() += current_input_character;
 					continue;
 				}
 
 				ON('\'')
 				{
 					parse_error("unexpected-character-in-attribute-name");
-					current_token.append_attribute_name(current_input_character);
+					current_token.attribute_name() += current_input_character;
 					continue;
 				}
 
 				ON('<')
 				{
 					parse_error("unexpected-character-in-attribute-name");
-					current_token.append_attribute_name(current_input_character);
+					current_token.attribute_name() += current_input_character;
 					continue;
 				}
 
 				ANYTHING_ELSE
 				{
-					current_token.append_attribute_name(current_input_character);
+					current_token.attribute_name() += current_input_character;
 					continue;
 				}
 			}
@@ -961,7 +961,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_attribute_value(U'\ufffd');
+					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
@@ -973,7 +973,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 			}
@@ -997,7 +997,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_attribute_value(U'\ufffd');
+					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
@@ -1009,7 +1009,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 			}
@@ -1038,42 +1038,42 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_attribute_value(U'\ufffd');
+					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
 				ON('"')
 				{
 					parse_error("unexpected-character-in-unquoted-attribute-value");
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 
 				ON('\'')
 				{
 					parse_error("unexpected-character-in-unquoted-attribute-value");
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 
 				ON('<')
 				{
 					parse_error("unexpected-character-in-unquoted-attribute-value");
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 
 				ON('=')
 				{
 					parse_error("unexpected-character-in-unquoted-attribute-value");
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 
 				ON('`')
 				{
 					parse_error("unexpected-character-in-unquoted-attribute-value");
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 
@@ -1085,7 +1085,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_attribute_value(current_input_character);
+					current_token.attribute_value() += current_input_character;
 					continue;
 				}
 			}
@@ -1168,13 +1168,13 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-parse-error");
-					current_token.append_comment(U'\ufffd');
+					current_token.comment() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment(current_input_character);
+					current_token.comment() += current_input_character;
 				}
 			}
 			END_STATE
@@ -1257,7 +1257,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment('-');
+					current_token.comment() += '-';
 					RECONSUME_IN(Comment);
 				}
 			}
@@ -1269,7 +1269,7 @@ loop_start:
 				consume_next_input_character();
 				ON('<')
 				{
-					current_token.append_comment('-');
+					current_token.comment() += '-';
 					SWITCH_TO(CommentLessThanSign);
 				}
 
@@ -1281,7 +1281,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_comment(U'\ufffd');
+					current_token.comment() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
@@ -1296,7 +1296,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment(current_input_character);
+					current_token.comment() += current_input_character;
 					continue;
 				}
 			}
@@ -1308,13 +1308,13 @@ loop_start:
 				consume_next_input_character();
 				ON('!')
 				{
-					current_token.append_comment(current_input_character);
+					current_token.comment() += current_input_character;
 					SWITCH_TO(CommentLessThanSignBang);
 				}
 
 				ON('<')
 				{
-					current_token.append_comment(current_input_character);
+					current_token.comment() += current_input_character;
 					continue;
 				}
 
@@ -1399,7 +1399,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment('-');
+					current_token.comment() += '-';
 					RECONSUME_IN(Comment);
 				}
 			}
@@ -1421,7 +1421,7 @@ loop_start:
 
 				ON('-')
 				{
-					current_token.append_comment('-');
+					current_token.comment() += '-';
 					continue;
 				}
 
@@ -1436,8 +1436,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment('-');
-					current_token.append_comment('-');
+					current_token.comment() += "--";
 					RECONSUME_IN(Comment);
 				}
 			}
@@ -1449,9 +1448,7 @@ loop_start:
 				consume_next_input_character();
 				ON('-')
 				{
-					current_token.append_comment('-');
-					current_token.append_comment('-');
-					current_token.append_comment('!');
+					current_token.comment() += "--!";
 					SWITCH_TO(CommentEndDash);
 				}
 
@@ -1472,8 +1469,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_comment('-');
-					current_token.append_comment('!');
+					current_token.comment() += "-!";
 					RECONSUME_IN(Comment);
 				}
 			}
@@ -1519,7 +1515,7 @@ loop_start:
 				ON_ASCII_UPPER_ALPHA
 				{
 					current_token = Token::make_doctype();
-					current_token.doctype_set_name(current_input_character + 0x20);
+					current_token.doctype_name() = current_input_character + 0x20;
 					SWITCH_TO(DOCTYPEName);
 				}
 
@@ -1527,7 +1523,7 @@ loop_start:
 				{
 					parse_error("unexpected-null-character");
 					current_token = Token::make_doctype();
-					current_token.doctype_set_name(U'\ufffd');
+					current_token.doctype_name() = reinterpret_cast<const char *>(u8"\ufffd");
 					SWITCH_TO(DOCTYPEName);
 				}
 
@@ -1542,14 +1538,14 @@ loop_start:
 				ON_EOF
 				{
 					parse_error("eof-in-doctype");
-					current_token.doctype_set_name(current_input_character);
+					current_token.doctype_name() = current_input_character;
 					SWITCH_TO(DOCTYPEName);
 				}
 
 				ANYTHING_ELSE
 				{
 					current_token = Token::make_doctype();
-					current_token.doctype_set_name(current_input_character);
+					current_token.doctype_name() = current_input_character;
 					SWITCH_TO(DOCTYPEName);
 				}
 			}
@@ -1571,14 +1567,14 @@ loop_start:
 
 				ON_ASCII_UPPER_ALPHA
 				{
-					current_token.append_doctype_name(current_input_character + 0x20);
+					current_token.doctype_name() += current_input_character + 0x20;
 					continue;
 				}
 
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.append_doctype_name(U'\ufffd');
+					current_token.doctype_name() += reinterpret_cast<const char *>(u8"\ufffd");
 					continue;
 				}
 
@@ -1593,7 +1589,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.append_doctype_name(current_input_character);
+					current_token.doctype_name() += current_input_character;
 					continue;
 				}
 			}
@@ -1769,7 +1765,7 @@ loop_start:
 				{
 					if (consumed_as_part_of_an_attribute())
 					{
-						current_token.append_attribute_value(current_input_character);
+						current_token.attribute_value() += current_input_character;
 						continue;
 					}
 					else

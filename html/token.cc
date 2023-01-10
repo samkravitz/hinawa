@@ -13,67 +13,48 @@ void Token::new_attribute()
 	assert(is_tag());
 
 	auto tag_data = std::get<TagData>(data);
-	tag_data.attributes.push_back(std::make_pair("", ""));
+	tag_data.attributes.push_back({});
 	data = tag_data;
 }
 
-void Token::append_tag_name(u32 c)
-{
-	assert(is_tag());
-	auto *tag_data = std::get_if<TagData>(&data);
-	tag_data->name += c;
-}
-
-void Token::append_attribute_name(u32 c)
-{
-	assert(is_tag());
-	auto tag_data = std::get<TagData>(data);
-	auto [name, value] = tag_data.attributes.back();
-	tag_data.attributes.pop_back();
-	name += c;
-	tag_data.attributes.push_back(std::make_pair(name, value));
-	data = tag_data;
-}
-
-void Token::append_attribute_value(u32 c)
-{
-	assert(is_tag());
-	auto tag_data = std::get<TagData>(data);
-	auto [name, value] = tag_data.attributes.back();
-	tag_data.attributes.pop_back();
-	value += c;
-	tag_data.attributes.push_back(std::make_pair(name, value));
-	data = tag_data;
-}
-
-void Token::doctype_set_name(u32 c)
-{
-	assert(is_doctype());
-	std::get<DoctypeData>(data).name = c;
-}
-
-void Token::append_doctype_name(u32 c)
-{
-	assert(is_doctype());
-	std::get<DoctypeData>(data).name += c;
-}
-
-void Token::set_force_quirks()
-{
-	assert(is_doctype());
-	std::get<DoctypeData>(data).force_quirks = true;
-}
-
-u32 Token::get_char()
+u32 Token::get_char() const
 {
 	assert(is_character());
 	return std::get<u32>(data);
 }
 
-std::string Token::tag_name()
+std::string &Token::tag_name()
 {
 	assert(is_tag());
 	return std::get<TagData>(data).name;
+}
+
+std::string &Token::attribute_name()
+{
+	assert(is_tag());
+	auto &tag_data = std::get<TagData>(data);
+	assert(!tag_data.attributes.empty());
+	return tag_data.attributes.back().first;
+}
+
+std::string &Token::attribute_value()
+{
+	assert(is_tag());
+	auto &tag_data = std::get<TagData>(data);
+	assert(!tag_data.attributes.empty());
+	return tag_data.attributes.back().second;
+}
+
+std::string &Token::doctype_name()
+{
+	assert(is_doctype());
+	return std::get<DoctypeData>(data).name;
+}
+
+std::string &Token::comment()
+{
+	assert(is_comment());
+	return std::get<std::string>(data);
 }
 
 void Token::set_self_closing()
@@ -82,13 +63,13 @@ void Token::set_self_closing()
 	std::get<TagData>(data).self_closing = true;
 }
 
-void Token::append_comment(u32 c)
+void Token::set_force_quirks()
 {
-	assert(is_comment());
-	std::get<std::string>(data) += c;
+	assert(is_doctype());
+	std::get<DoctypeData>(data).force_quirks = true;
 }
 
-std::string Token::to_string()
+std::string Token::to_string() const
 {
 	return std::visit(
 	    [this](auto &&arg) -> std::string {

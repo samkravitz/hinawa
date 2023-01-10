@@ -42,14 +42,14 @@ public:
 
 	operator bool() const { return m_type != Eof; }
 
-	inline bool is_doctype() { return m_type == Doctype; }
-	inline bool is_start_tag() { return m_type == StartTag; }
-	inline bool is_end_tag() { return m_type == EndTag; }
-	inline bool is_character() { return m_type == Character; }
-	inline bool is_comment() { return m_type == Comment; }
-	inline bool is_eof() { return m_type == Eof; }
-	inline bool is_tag() { return is_start_tag() || is_end_tag(); }
-	inline TokenType type() { return m_type; }
+	inline bool is_doctype() const { return m_type == Doctype; }
+	inline bool is_start_tag() const { return m_type == StartTag; }
+	inline bool is_end_tag() const { return m_type == EndTag; }
+	inline bool is_character() const { return m_type == Character; }
+	inline bool is_comment() const { return m_type == Comment; }
+	inline bool is_eof() const { return m_type == Eof; }
+	inline bool is_tag() const { return is_start_tag() || is_end_tag(); }
+	inline TokenType type() const { return m_type; }
 
 	static Token make_doctype()
 	{
@@ -93,21 +93,19 @@ public:
 		return t;
 	}
 
-	inline TagData as_tag_data() { return std::get<TagData>(data); }
+	inline TagData as_tag_data() const { return std::get<TagData>(data); }
 
 	void new_attribute();
-	void append_tag_name(u32 c);
-	void append_attribute_name(u32 c);
-	void append_attribute_value(u32 c);
-	void append_doctype_name(u32 c);
-	void append_comment(u32 c);
-	void doctype_set_name(u32 c);
+	std::string &tag_name();
+	std::string &attribute_name();
+	std::string &attribute_value();
+	std::string &doctype_name();
+	std::string &comment();
 	void set_force_quirks();
 	void set_self_closing();
-	u32 get_char();
-	std::string tag_name();
+	u32 get_char() const;
 
-	std::string to_string();
+	std::string to_string() const;
 
 private:
 	TokenType m_type;
