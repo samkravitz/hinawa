@@ -104,7 +104,7 @@ public:
 
 	std::vector<Token> scan_all();
 	Token next();
-	void set_state(State state) { state = state; }
+	void set_state(State s) { state = s; }
 
 private:
 	bool eof();
@@ -112,6 +112,7 @@ private:
 	bool consume_if_match(std::string const &str, bool case_sensitive = false);
 	void parse_error(const char *);
 	bool consumed_as_part_of_an_attribute() const;
+	bool appropriate_end_tag_token() const;
 
 	State state = State::Data;
 	State return_state = State::Data;

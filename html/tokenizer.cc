@@ -61,7 +61,7 @@ namespace html
 #define ON_ASCII_ALPHA           if (isalpha(current_input_character))
 #define ON_ASCII_DIGIT           if (isdigit(current_input_character))
 #define ON_ASCII_UPPER_ALPHA     if (isupper(current_input_character))
-#define ON_ASCII_LOWER_ALPHA     if (isalpha(current_input_character) && isupper(current_input_character))
+#define ON_ASCII_LOWER_ALPHA     if (isalpha(current_input_character) && !isupper(current_input_character))
 #define ON_ASCII_UPPER_HEX_DIGIT if (current_input_character >= 'A' && current_input_character <= 'F')
 #define ON_ASCII_LOWER_HEX_DIGIT if (current_input_character >= 'a' && current_input_character <= 'f')
 #define ON_ASCII_ALPHANUMERIC    if (isalpha(current_input_character) || isdigit(current_input_character))
@@ -459,25 +459,205 @@ loop_start:
 			}
 			END_STATE
 
-		// 13.2.5.11 RCDATA end tag name state
-		RCDATAEndTagName:
-		case State::RCDATAEndTagName:
-			break;
+			// 13.2.5.11 RCDATA end tag name state
+			BEGIN_STATE(RCDATAEndTagName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO(BeforeAttributeName);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RCDATA);
+					}
+				}
 
-		// 13.2.5.12 RAWTEXT less-than sign state
-		RAWTEXTLessThanSign:
-		case State::RAWTEXTLessThanSign:
-			break;
+				ON('/')
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO(SelfClosingStartTag);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RCDATA);
+					}
+				}
 
-		// 13.2.5.13 RAWTEXT end tag open state
-		RAWTEXTEndTagOpen:
-		case State::RAWTEXTEndTagOpen:
-			break;
+				ON('>')
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RCDATA);
+					}
+				}
 
-		// 13.2.5.14 RAWTEXT end tag name state
-		RAWTEXTEndTagName:
-		case State::RAWTEXTEndTagName:
-			break;
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.tag_name() += current_input_character + 0x20;
+					temporary_buffer += current_input_character;
+					continue;
+				}
+
+				ON_ASCII_LOWER_ALPHA
+				{
+					current_token.tag_name() += current_input_character;
+					temporary_buffer += current_input_character;
+					continue;
+				}
+
+				ANYTHING_ELSE
+				{
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					flush_temporary_buffer = true;
+					RECONSUME_IN(RCDATA);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.12 RAWTEXT less-than sign state
+			BEGIN_STATE(RAWTEXTLessThanSign)
+			{
+				consume_next_input_character();
+				ON('/')
+				{
+					temporary_buffer = "";
+					SWITCH_TO(RAWTEXTEndTagOpen);
+				}
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_AND_EMIT_CHARACTER(RAWTEXT, '<');
+				}
+			}
+			END_STATE
+
+			// 13.2.5.13 RAWTEXT end tag open state
+			BEGIN_STATE(RAWTEXTEndTagOpen)
+			{
+				consume_next_input_character();
+				ON_ASCII_ALPHA
+				{
+					current_token = Token::make_end_tag();
+					RECONSUME_IN(RAWTEXTEndTagName);
+				}
+
+				ANYTHING_ELSE
+				{
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					RECONSUME_IN(RAWTEXT);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.14 RAWTEXT end tag name state
+			BEGIN_STATE(RAWTEXTEndTagName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO(BeforeAttributeName);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RAWTEXT);
+					}
+				}
+
+				ON('/')
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO(SelfClosingStartTag);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RAWTEXT);
+					}
+				}
+
+				ON('>')
+				{
+					if (appropriate_end_tag_token())
+					{
+						SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+					}
+					else
+					{
+						// TODO - handle multiple emits
+						assert(false);
+						EMIT_CHARACTER('<');
+						EMIT_CHARACTER('/');
+						flush_temporary_buffer = true;
+						RECONSUME_IN(RAWTEXT);
+					}
+				}
+
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.tag_name() += current_input_character + 0x20;
+					temporary_buffer += current_input_character;
+					continue;
+				}
+
+				ON_ASCII_LOWER_ALPHA
+				{
+					current_token.tag_name() += current_input_character;
+					temporary_buffer += current_input_character;
+					continue;
+				}
+
+				ANYTHING_ELSE
+				{
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					flush_temporary_buffer = true;
+					RECONSUME_IN(RAWTEXT);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.15 Script data less-than sign state
 			BEGIN_STATE(ScriptDataLessThanSign)
@@ -1970,6 +2150,13 @@ bool Tokenizer::consumed_as_part_of_an_attribute() const
 {
 	return return_state == State::AttributeValueDoubleQuoted || return_state == State::AttributeValueSingleQuoted ||
 	       return_state == State::AttributeValueUnquoted;
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#appropriate-end-tag-token
+bool Tokenizer::appropriate_end_tag_token() const
+{
+	// TODO: implement
+	return true;
 }
 }
 
