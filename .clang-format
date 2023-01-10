@@ -4,7 +4,7 @@ AlignConsecutiveAssignments: None
 AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
 AlignConsecutiveDeclarations: None
 AlignConsecutiveMacros: AcrossEmptyLinesAndComments
-AlignEscapedNewlines: DontAlign
+AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 AllowShortBlocksOnASingleLine: Empty
@@ -53,6 +53,7 @@ IncludeCategories:
   - Regex: '".*"'
   - Priority: 1
 IndentAccessModifiers: false
+IndentCaseBlocks: true
 IndentCaseLabels: true
 IndentExternBlock: Indent
 IndentGotoLabels: true
