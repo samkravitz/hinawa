@@ -34,6 +34,7 @@ img {
 /* list-item elements */
 li {
 	display: list-item;
+	padding: 8px;
 }
 
 /* visual-less elements */

@@ -217,10 +217,10 @@ void Browser::render()
 
 		if (layout_node->is_list_item_marker())
 		{
-			sf::RectangleShape rect(sf::Vector2f(dimensions.margin_box().width, dimensions.margin_box().height));
-			rect.setPosition(sf::Vector2f(x, y));
-			rect.setFillColor(sf::Color::Black);
-			window.draw(rect);
+			auto marker = sf::CircleShape{ dimensions.content.width / 2.0f };
+			marker.setPosition(sf::Vector2f(x, y));
+			marker.setFillColor(sf::Color::Black);
+			window.draw(marker);
 		}
 	};
 
