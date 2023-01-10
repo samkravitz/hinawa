@@ -1582,8 +1582,9 @@ loop_start:
 				{
 					parse_error("eof-in-doctype");
 					current_token.set_force_quirks();
-					// TODO - use EMIT macro
-					emit_token(current_token);
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
 					EMIT_EOF();
 				}
 
@@ -1613,8 +1614,9 @@ loop_start:
 				{
 					parse_error("eof-in-doctype");
 					current_token.set_force_quirks();
-					// TODO - use EMIT macro
-					emit_token(current_token);
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
 					EMIT_EOF();
 				}
 
@@ -1933,13 +1935,6 @@ void Tokenizer::consume_next_input_character()
 	next_input_character = input[++pos];
 }
 
-void Tokenizer::reconsume_in(State s)
-{
-	state = s;
-	next_input_character = current_input_character;
-	current_input_character = input[--pos];
-}
-
 bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 {
 	auto size = str.size();
@@ -1964,17 +1959,6 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 		consume_next_input_character();
 
 	return true;
-}
-
-void Tokenizer::emit_token(Token token)
-{
-	emitted_tokens.push_back(token);
-}
-
-void Tokenizer::emit_tokens(const std::initializer_list<Token> &tokens)
-{
-	for (auto const &token : tokens)
-		emitted_tokens.push_back(token);
 }
 
 void Tokenizer::parse_error(const char *msg)
