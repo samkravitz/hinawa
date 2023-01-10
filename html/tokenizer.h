@@ -113,6 +113,8 @@ private:
 	bool consume_if_match(std::string const &str, bool case_sensitive = false);
 	void emit_token(Token);
 	void emit_tokens(const std::initializer_list<Token> &);
+	void parse_error(const char *);
+	bool consumed_as_part_of_an_attribute() const;
 
 	State state = State::Data;
 	State return_state = State::Data;

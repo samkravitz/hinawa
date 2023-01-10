@@ -3,10 +3,118 @@
 
 #include "tokenizer.h"
 
+#include <cassert>
 #include <iostream>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-label"
 
 namespace html
 {
+
+#define BEGIN_STATE(state) \
+	state:                 \
+	case State::state:     \
+	{                      \
+		{
+#define END_STATE  \
+	assert(false); \
+	break;         \
+	}              \
+	}
+
+#define IGNORE_CHARACTER() ;
+
+#define SWITCH_TO(new_state)      \
+	do                            \
+	{                             \
+		state = State::new_state; \
+		goto new_state;           \
+	} while (false)
+
+#define RECONSUME_IN(new_state)                         \
+	do                                                  \
+	{                                                   \
+		state = State::new_state;                       \
+		next_input_character = current_input_character; \
+		current_input_character = input[--pos];         \
+		goto new_state;                                 \
+	} while (false)
+
+#define RECONSUME_IN_RETURN_STATE()                     \
+	do                                                  \
+	{                                                   \
+		state = return_state;                           \
+		next_input_character = current_input_character; \
+		current_input_character = input[--pos];         \
+		goto loop_start;                                \
+	} while (false)
+
+#define ON(codepoint) if (current_input_character == codepoint)
+#define ON_NULL       if (current_input_character == 0xcafebabe)
+#define ON_EOF        if (eof())
+
+#define ON_WHITESPACE                                                                                            \
+	if (current_input_character == '\t' || current_input_character == '\n' || current_input_character == '\f' || \
+	    current_input_character == ' ')
+
+#define ON_ASCII_ALPHA           if (isalpha(current_input_character))
+#define ON_ASCII_DIGIT           if (isdigit(current_input_character))
+#define ON_ASCII_UPPER_ALPHA     if (isupper(current_input_character))
+#define ON_ASCII_LOWER_ALPHA     if (isalpha(current_input_character) && isupper(current_input_character))
+#define ON_ASCII_UPPER_HEX_DIGIT if (current_input_character >= 'A' && current_input_character <= 'F')
+#define ON_ASCII_LOWER_HEX_DIGIT if (current_input_character >= 'a' && current_input_character <= 'f')
+#define ON_ASCII_ALPHANUMERIC    if (isalpha(current_input_character) || isdigit(current_input_character))
+
+#define ANYTHING_ELSE            if (1)
+
+#define EMIT_CURRENT_INPUT_CHARACTER()                         \
+	do                                                         \
+	{                                                          \
+		return Token::make_character(current_input_character); \
+	} while (false)
+
+#define EMIT_EOF()                \
+	do                            \
+	{                             \
+		return Token::make_eof(); \
+	} while (false)
+
+#define EMIT_CHARACTER(codepoint)                \
+	do                                           \
+	{                                            \
+		return Token::make_character(codepoint); \
+	} while (false)
+
+#define EMIT_CURRENT_TOKEN()  \
+	do                        \
+	{                         \
+		return current_token; \
+	} while (false)
+
+#define SWITCH_TO_AND_EMIT_CHARACTER(new_state, codepoint) \
+	do                                                     \
+	{                                                      \
+		state = State::new_state;                          \
+		return Token::make_character(codepoint);           \
+	} while (false)
+
+#define SWITCH_TO_AND_EMIT_TOKEN(new_state, token) \
+	do                                             \
+	{                                              \
+		state = State::new_state;                  \
+		return token;                              \
+	} while (false)
+
+#define RECONSUME_AND_EMIT_CHARACTER(new_state, codepoint) \
+	do                                                     \
+	{                                                      \
+		state = State::new_state;                          \
+		next_input_character = current_input_character;    \
+		current_input_character = input[--pos];            \
+		return Token::make_character(codepoint);           \
+	} while (false)
+
 Tokenizer::Tokenizer(std::string const input) :
     input(input)
 {
@@ -27,6 +135,7 @@ std::vector<Token> Tokenizer::scan_all()
 
 Token Tokenizer::next()
 {
+loop_start:
 	while (1)
 	{
 		while (!emitted_tokens.empty())
@@ -46,970 +155,1598 @@ Token Tokenizer::next()
 			return char_token;
 		}
 
-		consume_next_input_character();
-
 		switch (state)
 		{
 			// 13.2.5.1 Data state
-			case State::Data:
-				switch (current_input_character)
+			BEGIN_STATE(Data)
+			{
+				consume_next_input_character();
+				ON('&')
 				{
-					case '&':
-						return_state = State::Data;
-						state = State::CharacterReference;
-						break;
-					case '<': state = State::TagOpen; break;
-					case '\0': return Token::make_eof(); break;
-					// case EOF
-					default: return Token::make_character(current_input_character);
+					return_state = State::Data;
+					SWITCH_TO(CharacterReference);
 				}
-				break;
+
+				ON('<')
+				{
+					SWITCH_TO(TagOpen);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.2 RCDATA state
-			case State::RCDATA:
-				switch (current_input_character)
+			BEGIN_STATE(RCDATA)
+			{
+				consume_next_input_character();
+				ON('&')
 				{
-					case '&':
-						return_state = State::RCDATA;
-						state = State::CharacterReference;
-						break;
-					case '<': state = State::RCDATALessThanSign; break;
-					case '\0': break;
-					// case EOF
-					default: return Token::make_character(current_input_character);
+					return_state = State::RCDATA;
+					SWITCH_TO(CharacterReference);
 				}
-				break;
+
+				ON('<')
+				{
+					SWITCH_TO(RCDATALessThanSign);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CHARACTER(U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.3 RAWTEXT state
-			case State::RAWTEXT:
-				switch (current_input_character)
+			BEGIN_STATE(RAWTEXT)
+			{
+				consume_next_input_character();
+				ON('<')
 				{
-					case '<': state = State::RAWTEXTLessThanSign; break;
-					case '\0': break;
-					// case EOF
-					default: Token::make_character(current_input_character);
+					SWITCH_TO(RAWTEXTLessThanSign);
 				}
-				break;
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CHARACTER(U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.4 Script data state
-			case State::ScriptData:
-				switch (current_input_character)
+			BEGIN_STATE(ScriptData)
+			{
+				consume_next_input_character();
+				ON('<')
 				{
-					case '<': state = State::ScriptDataDoubleEscapedLessThanSign; break;
-					case '\0': break;
-					// case EOF
-					default: return Token::make_character(current_input_character);
+					SWITCH_TO(ScriptDataLessThanSign);
 				}
-				break;
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CHARACTER(U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.5 PLAINTEXT state
-			case State::PLAINTEXT: break;
+			BEGIN_STATE(PLAINTEXT)
+			{
+				consume_next_input_character();
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CHARACTER(U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.6 Tag open state
-			case State::TagOpen:
-				if (current_input_character == '!')
-					state = State::MarkupDeclarationOpen;
+			BEGIN_STATE(TagOpen)
+			{
+				consume_next_input_character();
+				ON('!')
+				{
+					SWITCH_TO(MarkupDeclarationOpen);
+				}
 
-				else if (current_input_character == '/')
-					state = State::EndTagOpen;
+				ON('/')
+				{
+					SWITCH_TO(EndTagOpen);
+				}
 
-				else if (isalpha(current_input_character))
+				ON_ASCII_ALPHA
 				{
 					current_token = Token::make_start_tag();
-					reconsume_in(State::TagName);
+					RECONSUME_IN(TagName);
 				}
 
-				else if (current_input_character == '?')
+				ON('?')
 				{
+					parse_error("unexpected-question-mark-instead-of-tag-name");
 					current_token = Token::make_comment();
-					reconsume_in(State::BogusComment);
+					RECONSUME_IN(BogusComment);
 				}
 
-				// TODO: EOF
-
-				else
+				ON_EOF
 				{
-					return Token::make_character('<');
-					reconsume_in(State::Data);
+					parse_error("eof-before-tag-name");
+					// TODO - handle multiple emits
+					EMIT_CHARACTER('<');
+					EMIT_EOF();
 				}
-				break;
+
+				ANYTHING_ELSE
+				{
+					parse_error("invalid-first-character-of-tag-name");
+					RECONSUME_AND_EMIT_CHARACTER(Data, '<');
+				}
+			}
+			END_STATE
 
 			// 13.2.5.7 End tag open state
-			case State::EndTagOpen:
-				if (isalpha(current_input_character))
+			BEGIN_STATE(EndTagOpen)
+			{
+				consume_next_input_character();
+				ON_ASCII_ALPHA
 				{
 					current_token = Token::make_end_tag();
-					reconsume_in(State::TagName);
+					RECONSUME_IN(TagName);
 				}
 
-				else if (current_input_character == '>')
+				ON('>')
 				{
-					state = State::Data;
+					parse_error("missing-end-tag-name");
+					SWITCH_TO(Data);
 				}
 
-				// TODO: EOF
-
-				else
+				ON_EOF
 				{
+					parse_error("eof-before-tag-name");
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("invalid-first-character-of-tag-name");
 					current_token = Token::make_comment();
-					reconsume_in(State::BogusComment);
+					RECONSUME_IN(BogusComment);
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.8 Tag name state
-			case State::TagName:
-				switch (current_input_character)
+			BEGIN_STATE(TagName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::BeforeAttributeName; break;
-
-					case '/': state = State::SelfClosingStartTag; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					case '\0':
-						// case EOF:
-						break;
-
-					default:
-					{
-						auto c = current_input_character;
-						if (isupper(c))
-							c += 32;
-
-						current_token.append_tag_name(c);
-					}
+					SWITCH_TO(BeforeAttributeName);
 				}
-				break;
+
+				ON('/')
+				{
+					SWITCH_TO(SelfClosingStartTag);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.append_tag_name(current_input_character + 0x20);
+					continue;
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_tag_name(U'\ufffd');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_tag_name(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.9 RCDATA less-than sign state
-			case State::RCDATALessThanSign:
+			BEGIN_STATE(RCDATALessThanSign)
 			{
-				if (current_input_character == '/')
+				consume_next_input_character();
+				ON('/')
 				{
 					temporary_buffer = "";
-					state = State::RCDATAEndTagOpen;
+					SWITCH_TO(RCDATAEndTagOpen);
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					reconsume_in(State::RCDATA);
-					return Token::make_character('<');
+					RECONSUME_AND_EMIT_CHARACTER(RCDATA, '<');
 				}
-
-				break;
 			}
+			END_STATE
 
 			// 13.2.5.10 RCDATA end tag open state
-			case State::RCDATAEndTagOpen:
+			BEGIN_STATE(RCDATAEndTagOpen)
 			{
-				if (isalpha(current_input_character))
+				consume_next_input_character();
+				ON_ASCII_ALPHA
 				{
 					current_token = Token::make_end_tag();
-					reconsume_in(State::RCDATAEndTagOpen);
+					RECONSUME_IN(RCDATAEndTagName);
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					emit_tokens({ Token::make_character('<'), Token::make_character('/') });
-					reconsume_in(State::RCDATA);
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					RECONSUME_IN(RCDATA);
 				}
-
-				break;
 			}
+			END_STATE
 
-			// 13.2.5.11 RCDATA end tag name state
-			case State::RCDATAEndTagName: break;
+		// 13.2.5.11 RCDATA end tag name state
+		RCDATAEndTagName:
+		case State::RCDATAEndTagName:
+			break;
 
-			// 13.2.5.12 RAWTEXT less-than sign state
-			case State::RAWTEXTLessThanSign: break;
+		// 13.2.5.12 RAWTEXT less-than sign state
+		RAWTEXTLessThanSign:
+		case State::RAWTEXTLessThanSign:
+			break;
 
-			// 13.2.5.13 RAWTEXT end tag open state
-			case State::RAWTEXTEndTagOpen: break;
+		// 13.2.5.13 RAWTEXT end tag open state
+		RAWTEXTEndTagOpen:
+		case State::RAWTEXTEndTagOpen:
+			break;
 
-			// 13.2.5.14 RAWTEXT end tag name state
-			case State::RAWTEXTEndTagName: break;
+		// 13.2.5.14 RAWTEXT end tag name state
+		RAWTEXTEndTagName:
+		case State::RAWTEXTEndTagName:
+			break;
 
 			// 13.2.5.15 Script data less-than sign state
-			case State::ScriptDataLessThanSign:
+			BEGIN_STATE(ScriptDataLessThanSign)
 			{
-				switch (current_input_character)
+				consume_next_input_character();
+				ON('/')
 				{
-					case '/':
-						temporary_buffer = "";
-						state = State::ScriptDataEndTagOpen;
-						break;
-					case '!':
-						state = State::ScriptDataEscapeStart;
-						emit_tokens({ Token::make_character('<'), Token::make_character('!') });
-						break;
-					default:
-						reconsume_in(State::ScriptData); return Token::make_character('<');
+					temporary_buffer = "";
+					SWITCH_TO(ScriptDataEndTagOpen);
 				}
-				break;
+
+				ON('!')
+				{
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('!');
+					SWITCH_TO(ScriptData);
+				}
 			}
+			END_STATE
 
 			// 13.2.5.16 Script data end tag open state
-			case State::ScriptDataEndTagOpen:
+			BEGIN_STATE(ScriptDataEndTagOpen)
 			{
-				if (isalpha(current_input_character))
+				consume_next_input_character();
+				ON_ASCII_ALPHA
 				{
 					current_token = Token::make_end_tag();
-					reconsume_in(State::ScriptDataEscapedEndTagName);
+					RECONSUME_IN(ScriptData);
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					reconsume_in(State::ScriptData);
-					emit_tokens({ Token::make_character('<'), Token::make_character('/') });
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					RECONSUME_IN(ScriptData);
 				}
-
-				break;
 			}
+			END_STATE
 
 			// 13.2.5.17 Script data end tag name state
-			case State::ScriptDataEndTagName:
+			BEGIN_STATE(ScriptDataEndTagName)
 			{
-				if (isalpha(current_input_character))
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					auto c = current_input_character;
-					if (isupper(c))
-						c += 0x20;
+					// TODO
+				}
 
-					current_token.append_attribute_name(c);
+				ON('/')
+				{
+					// TODO
+				}
+
+				ON('>')
+				{
+					// TODO
+				}
+
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.append_attribute_name(current_input_character + 0x20);
 					temporary_buffer += current_input_character;
-					break;
+					continue;
 				}
 
-				switch (current_input_character)
+				ON_ASCII_LOWER_ALPHA
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::BeforeAttributeName; break;
-
-					case '/': state = State::SelfClosingStartTag; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					default:
-					{
-						reconsume_in(State::ScriptData);
-						emit_tokens({ Token::make_character('<'), Token::make_character('/') });
-						flush_temporary_buffer = true;
-					}
+					current_token.append_attribute_name(current_input_character + 0x20);
+					temporary_buffer += current_input_character;
+					continue;
 				}
-				break;
+
+				ANYTHING_ELSE
+				{
+					EMIT_CHARACTER('<');
+					EMIT_CHARACTER('/');
+					// TODO
+				}
 			}
+			END_STATE
 
 			// 13.2.5.18 Script data escape start state
-			case State::ScriptDataEscapeStart:
+			BEGIN_STATE(ScriptDataEscapeStart)
 			{
-				if (current_input_character == '-')
+				consume_next_input_character();
+				ON('-')
 				{
-					state = State::ScriptDataEscapeStartDash;
-					emit_token(Token::make_character('-'));
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscapeStartDash, '-');
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					reconsume_in(State::ScriptData);
+					RECONSUME_IN(ScriptData);
 				}
-				break;
 			}
+			END_STATE
 
 			// 13.2.5.19 Script data escape start dash state
-			case State::ScriptDataEscapeStartDash:
+			BEGIN_STATE(ScriptDataEscapeStartDash)
 			{
-				if (current_input_character == '-')
+				consume_next_input_character();
+				ON('-')
 				{
-					state = State::ScriptDataEscapeStartDash;
-					emit_token(Token::make_character('-'));
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscapedDashDash, '-');
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					reconsume_in(State::ScriptData);
+					RECONSUME_IN(ScriptData);
 				}
-				break;
 			}
+			END_STATE
 
 			// 13.2.5.20 Script data escaped state
-			case State::ScriptDataEscaped:
+			BEGIN_STATE(ScriptDataEscaped)
 			{
-				switch (current_input_character)
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-':
-						state = State::ScriptDataEscapedDash;
-						emit_token(Token::make_character('-'));
-						break;
-					case '<':
-						state = State::ScriptDataDoubleEscapedLessThanSign;
-						break;
-					case '\0':
-						// TODO - emit a U+fffd token
-						emit_token(Token::make_character('\0'));
-						break;
-					default:
-						emit_token(Token::make_character(current_input_character));
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscapedDash, '-');
 				}
-				break;
-			};
+
+				ON('<')
+				{
+					SWITCH_TO(ScriptDataEscapedLessThanSign);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					EMIT_CHARACTER(U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-script-html-comment-like-text");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					EMIT_CURRENT_INPUT_CHARACTER();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.21 Script data escaped dash state
-			case State::ScriptDataEscapedDash:
+			BEGIN_STATE(ScriptDataEscapedDash)
 			{
-				switch (current_input_character)
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-':
-						state = State::ScriptDataEscapedDashDash;
-						emit_token(Token::make_character('-'));
-						break;
-					case '<':
-						state = State::ScriptDataDoubleEscapedLessThanSign;
-						break;
-					case '\0':
-						// TODO - emit a U+fffd token
-						emit_token(Token::make_character('\0'));
-						break;
-					default:
-						state = State::ScriptDataEscaped;
-						emit_token(Token::make_character(current_input_character));
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscapedDashDash, '-');
 				}
-				break;
+
+				ON('<')
+				{
+					SWITCH_TO(ScriptDataEscapedLessThanSign);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscaped, U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-script-html-comment-like-text");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscaped, current_input_character);
+				}
 			}
+			END_STATE
 
 			// 13.2.5.22 Script data escaped dash dash state
-			case State::ScriptDataEscapedDashDash:
+			BEGIN_STATE(ScriptDataEscapedDashDash)
 			{
-				switch (current_input_character)
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-':
-						emit_token(Token::make_character('-'));
-						break;
-					case '<':
-						state = State::ScriptDataDoubleEscapedLessThanSign;
-						break;
-					case '>':
-						state = State::ScriptData;
-						emit_token(Token::make_character('>'));
-						break;
-					case '\0':
-						// TODO - emit a U+fffd token
-						emit_token(Token::make_character('\0'));
-						break;
-					default:
-						state = State::ScriptDataEscaped;
-						emit_token(Token::make_character(current_input_character));
+					EMIT_CHARACTER('-');
 				}
-				break;
+
+				ON('<')
+				{
+					SWITCH_TO(ScriptDataEscapedLessThanSign);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptData, '>');
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscaped, U'\ufffd');
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-script-html-comment-like-text");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					SWITCH_TO_AND_EMIT_CHARACTER(ScriptDataEscaped, current_input_character);
+				}
 			}
+			END_STATE
 
 			// 13.2.5.23 Script data escaped less-than sign state
-			case State::ScriptDataEscapedLessThanSign:
+			BEGIN_STATE(ScriptDataEscapedLessThanSign)
 			{
-				if (isalpha(current_input_character))
+				consume_next_input_character();
+				ON('/')
 				{
 					temporary_buffer = "";
-					emit_token(Token::make_character('<'));
-					reconsume_in(State::ScriptDataDoubleEscapeStart);
+					SWITCH_TO(ScriptDataEscapedEndTagOpen);
 				}
 
-				else if (current_input_character == '/')
+				ON_ASCII_ALPHA
 				{
 					temporary_buffer = "";
-					state = State::ScriptDataEndTagOpen;
+					RECONSUME_AND_EMIT_CHARACTER(ScriptDataEscaped, '<');
 				}
 
-				else
+				ANYTHING_ELSE
 				{
-					emit_token(Token::make_character('<'));
-					reconsume_in(State::ScriptDataEscaped);
+					RECONSUME_AND_EMIT_CHARACTER(ScriptDataEscaped, '<');
 				}
-				break;
 			}
+			END_STATE
 
-			// 13.2.5.24 Script data escaped end tag open state
-			case State::ScriptDataEscapedEndTagOpen: break;
+		// 13.2.5.24 Script data escaped end tag open state
+		ScriptDataEscapedEndTagOpen:
+		case State::ScriptDataEscapedEndTagOpen:
+			break;
 
-			// 13.2.5.25 Script data escaped end tag name state
-			case State::ScriptDataEscapedEndTagName: break;
+		// 13.2.5.25 Script data escaped end tag name state
+		ScriptDataEscapedEndTagName:
+		case State::ScriptDataEscapedEndTagName:
+			break;
 
-			// 13.2.5.26 Script data double escape start state
-			case State::ScriptDataDoubleEscapeStart: break;
+		// 13.2.5.26 Script data double escape start state
+		ScriptDataDoubleEscapeStart:
+		case State::ScriptDataDoubleEscapeStart:
+			break;
 
-			// 13.2.5.27 Script data double escaped state
-			case State::ScriptDataDoubleEscaped: break;
+		// 13.2.5.27 Script data double escaped state
+		ScriptDataDoubleEscaped:
+		case State::ScriptDataDoubleEscaped:
+			break;
 
-			// 13.2.5.28 Script data double escaped dash state
-			case State::ScriptDataDoubleEscapedDash: break;
+		// 13.2.5.28 Script data double escaped dash state
+		ScriptDataDoubleEscapedDash:
+		case State::ScriptDataDoubleEscapedDash:
+			break;
 
-			// 13.2.5.29 Script data double escaped dash dash state
-			case State::ScriptDataDoubleEscapedDashDash: break;
+		// 13.2.5.29 Script data double escaped dash dash state
+		ScriptDataDoubleEscapedDashDash:
+		case State::ScriptDataDoubleEscapedDashDash:
+			break;
 
-			// 13.2.5.30 Script data double escaped less-than sign state
-			case State::ScriptDataDoubleEscapedLessThanSign: break;
+		// 13.2.5.30 Script data double escaped less-than sign state
+		ScriptDataDoubleEscapedLessThanSign:
+		case State::ScriptDataDoubleEscapedLessThanSign:
+			break;
 
-			// 13.2.5.31 Script data double escape end state
-			case State::ScriptDataDoubleEscapeEnd: break;
+		// 13.2.5.31 Script data double escape end state
+		ScriptDataDoubleEscapeEnd:
+		case State::ScriptDataDoubleEscapeEnd:
+			break;
 
 			// 13.2.5.32 Before attribute name state
-			case State::BeforeAttributeName:
-				switch (current_input_character)
+			BEGIN_STATE(BeforeAttributeName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': break;    // ignore the character
-
-					case '/':
-					case '>':
-						// case EOF:
-						reconsume_in(State::AfterAttributeName);
-						break;
-
-					case '=':
-						current_token.new_attribute();
-						current_token.append_attribute_name(current_input_character);
-						state = State::AttributeName;
-						break;
-
-					default: current_token.new_attribute(); reconsume_in(State::AttributeName);
+					IGNORE_CHARACTER();
 				}
-				break;
+
+				ON('/')
+				{
+					RECONSUME_IN(AfterAttributeName);
+				}
+
+				ON('>')
+				{
+					RECONSUME_IN(AfterAttributeName);
+				}
+
+				ON_EOF
+				{
+					RECONSUME_IN(AfterAttributeName);
+				}
+
+				ON('=')
+				{
+					parse_error("unexpected-equals-sign-before-attribute-name");
+					current_token.new_attribute();
+					current_token.append_attribute_name(current_input_character);
+					SWITCH_TO(AttributeName);
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.new_attribute();
+					RECONSUME_IN(AttributeName);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.33 Attribute name state
-			case State::AttributeName:
-				if (current_input_character == '\t' || current_input_character == '\n' ||
-				    current_input_character == '\f' || current_input_character == ' ' ||
-				    current_input_character == '/' || current_input_character == '>'
-				    // TODO: EOF
-				)
+			BEGIN_STATE(AttributeName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					reconsume_in(State::AfterAttributeName);
+					RECONSUME_IN(AfterAttributeName);
 				}
 
-				else if (current_input_character == '=')
+				ON('/')
 				{
-					state = State::BeforeAttributeValue;
+					RECONSUME_IN(AfterAttributeName);
 				}
 
-				else if (isupper(current_input_character))
+				ON('>')
 				{
-					current_token.append_attribute_name(current_input_character + 32);
+					RECONSUME_IN(AfterAttributeName);
 				}
 
-				else if (current_input_character == '\0')
-				{ }
+				ON_EOF
+				{
+					RECONSUME_IN(AfterAttributeName);
+				}
 
-				else
+				ON('=')
+				{
+					SWITCH_TO(BeforeAttributeValue);
+				}
+
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.append_attribute_name(current_input_character + 0x20);
+					continue;
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_attribute_name(U'\ufffd');
+					continue;
+				}
+
+				ON('"')
+				{
+					parse_error("unexpected-character-in-attribute-name");
+					current_token.append_attribute_name(current_input_character);
+					continue;
+				}
+
+				ON('\'')
+				{
+					parse_error("unexpected-character-in-attribute-name");
+					current_token.append_attribute_name(current_input_character);
+					continue;
+				}
+
+				ON('<')
+				{
+					parse_error("unexpected-character-in-attribute-name");
+					current_token.append_attribute_name(current_input_character);
+					continue;
+				}
+
+				ANYTHING_ELSE
 				{
 					current_token.append_attribute_name(current_input_character);
+					continue;
 				}
-
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.34 After attribute name state
-			case State::AfterAttributeName:
-				switch (current_input_character)
+			BEGIN_STATE(AfterAttributeName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ':
-						// ignore the character
-						break;
-
-					case '/': state = State::SelfClosingStartTag; break;
-
-					case '=': state = State::BeforeAttributeValue; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-						// case EOF:
-
-					default: current_token.new_attribute(); reconsume_in(State::AttributeName);
+					IGNORE_CHARACTER();
 				}
-				break;
+
+				ON('/')
+				{
+					SWITCH_TO(SelfClosingStartTag);
+				}
+
+				ON('=')
+				{
+					SWITCH_TO(BeforeAttributeValue);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.new_attribute();
+					RECONSUME_IN(AttributeName);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.35 Before attribute value state
-			case State::BeforeAttributeValue:
-				switch (current_input_character)
+			BEGIN_STATE(BeforeAttributeValue)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ':
-						// ignore the character
-						break;
-
-					case '\"': state = State::AttributeValueDoubleQuoted; break;
-
-					case '\'': state = State::AttributeValueSingleQuoted; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					default: current_token.new_attribute(); reconsume_in(State::AttributeValueUnquoted);
+					IGNORE_CHARACTER();
 				}
-				break;
+
+				ON('"')
+				{
+					SWITCH_TO(AttributeValueDoubleQuoted);
+				}
+
+				ON('\'')
+				{
+					SWITCH_TO(AttributeValueSingleQuoted);
+				}
+
+				ON('>')
+				{
+					parse_error("missing-attribute-value");
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN(AttributeValueUnquoted);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.36 Attribute value (double-quoted) state
-			case State::AttributeValueDoubleQuoted:
-				switch (current_input_character)
+			BEGIN_STATE(AttributeValueDoubleQuoted)
+			{
+				consume_next_input_character();
+				ON('"')
 				{
-					case '\"': state = State::AfterAttributeValueQuoted; break;
-
-					case '&':
-						return_state = State::AttributeValueDoubleQuoted;
-						state = State::CharacterReference;
-						break;
-
-					default: current_token.append_attribute_value(current_input_character);
+					SWITCH_TO(AfterAttributeValueQuoted);
 				}
-				break;
+
+				ON('&')
+				{
+					return_state = State::AttributeValueDoubleQuoted;
+					SWITCH_TO(CharacterReference);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_attribute_value(U'\ufffd');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.37 Attribute value (single-quoted) state
-			case State::AttributeValueSingleQuoted:
-				switch (current_input_character)
+			BEGIN_STATE(AttributeValueSingleQuoted)
+			{
+				consume_next_input_character();
+				ON('"')
 				{
-					case '\'': state = State::AfterAttributeValueQuoted; break;
-
-					case '&':
-						return_state = State::AttributeValueSingleQuoted;
-						state = State::CharacterReference;
-						break;
-
-					default: current_token.append_attribute_value(current_input_character);
+					SWITCH_TO(AfterAttributeValueQuoted);
 				}
-				break;
+
+				ON('&')
+				{
+					return_state = State::AttributeValueSingleQuoted;
+					SWITCH_TO(CharacterReference);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_attribute_value(U'\ufffd');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.38 Attribute value (unquoted) state
-			case State::AttributeValueUnquoted:
-				switch (current_input_character)
+			BEGIN_STATE(AttributeValueUnquoted)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::BeforeAttributeName; break;
-
-					case '&':
-						return_state = State::AttributeValueUnquoted;
-						state = State::CharacterReference;
-						break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					case '\0':
-						break;
-
-						// case EOF:
-
-					default: current_token.append_attribute_value(current_input_character);
+					SWITCH_TO(BeforeAttributeName);
 				}
-				break;
+
+				ON('&')
+				{
+					return_state = State::AttributeValueUnquoted;
+					SWITCH_TO(CharacterReference);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_attribute_value(U'\ufffd');
+					continue;
+				}
+
+				ON('"')
+				{
+					parse_error("unexpected-character-in-unquoted-attribute-value");
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+
+				ON('\'')
+				{
+					parse_error("unexpected-character-in-unquoted-attribute-value");
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+
+				ON('<')
+				{
+					parse_error("unexpected-character-in-unquoted-attribute-value");
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+
+				ON('=')
+				{
+					parse_error("unexpected-character-in-unquoted-attribute-value");
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+
+				ON('`')
+				{
+					parse_error("unexpected-character-in-unquoted-attribute-value");
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_attribute_value(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.39 After attribute value (quoted) state
-			case State::AfterAttributeValueQuoted:
-				switch (current_input_character)
+			BEGIN_STATE(AfterAttributeValueQuoted)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::BeforeAttributeName; break;
-
-					case '/': state = State::SelfClosingStartTag; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					default: reconsume_in(State::BeforeAttributeName);
+					SWITCH_TO(BeforeAttributeName);
 				}
-				break;
+
+				ON('/')
+				{
+					SWITCH_TO(SelfClosingStartTag);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-whitespace-between-attributes parse error");
+					RECONSUME_IN(BeforeAttributeName);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.40 Self-closing start tag state
-			case State::SelfClosingStartTag:
-				switch (current_input_character)
+			BEGIN_STATE(SelfClosingStartTag)
+			{
+				consume_next_input_character();
+				ON('>')
 				{
-					case '>':
-						current_token.set_self_closing();
-						state = State::Data;
-						return current_token;
-						break;
-
-					default: reconsume_in(State::BeforeAttributeName);
+					current_token.set_self_closing();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
 				}
-				break;
+
+				ON_EOF
+				{
+					parse_error("eof-in-tag");
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("unexpected-solidus-in-tag");
+					RECONSUME_IN(BeforeAttributeName);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.41 Bogus comment state
-			case State::BogusComment: break;
+			BEGIN_STATE(BogusComment)
+			{
+				consume_next_input_character();
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-parse-error");
+					current_token.append_comment(U'\ufffd');
+					continue;
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment(current_input_character);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.42 Markup declaration open state
-			case State::MarkupDeclarationOpen:
+			BEGIN_STATE(MarkupDeclarationOpen)
+			{
+				// TODO - this is not what the spec says.
+				consume_next_input_character();
 				if (consume_if_match("--"))
 				{
 					current_token = Token::make_comment();
-					state = State::CommentStart;
+					SWITCH_TO(CommentStart);
 				}
 
 				else if (consume_if_match("doctype"))
 				{
-					state = State::DOCTYPE;
+					SWITCH_TO(DOCTYPE);
 				}
 
 				else if (consume_if_match("[CDATA["))
-				{ }
+				{
+					// TODO
+				}
 
 				else
 				{
+					parse_error("incorrectly-opened-comment");
 					current_token = Token::make_comment();
-					state = State::BogusComment;
+					SWITCH_TO(BogusComment);
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.43 Comment start state
-			case State::CommentStart:
-				switch (next_input_character)
+			BEGIN_STATE(CommentStart)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-': state = State::CommentStartDash; break;
-
-					case '>': state = State::Data; return current_token;
-
-					default: reconsume_in(State::Comment);
+					SWITCH_TO(CommentStartDash);
 				}
-				break;
+
+				ON('>')
+				{
+					parse_error("abrupt-closing-of-empty-comment");
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.44 Comment start dash state
-			case State::CommentStartDash:
-				switch (next_input_character)
+			BEGIN_STATE(CommentStartDash)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-': state = State::CommentEnd; break;
-
-					case '>': state = State::Data; return current_token;
-
-					default: current_token.append_comment(current_input_character); reconsume_in(State::Comment);
+					SWITCH_TO(CommentEnd);
 				}
-				break;
+
+				ON('>')
+				{
+					parse_error("abrupt-closing-of-empty-comment");
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-comment");
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment('-');
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.45 Comment state
-			case State::Comment:
-				switch (next_input_character)
+			BEGIN_STATE(Comment)
+			{
+				consume_next_input_character();
+				ON('<')
 				{
-					case '<':
-						current_token.append_comment(next_input_character);
-						state = State::CommentLessThanSign;
-						break;
-
-					case '-': state = State::CommentEndDash; break;
-
-					case '/0': current_token.append_comment('\ufffd'); break;
-
-					default: current_token.append_comment(current_input_character);
+					current_token.append_comment('-');
+					SWITCH_TO(CommentLessThanSign);
 				}
-				break;
+
+				ON('-')
+				{
+					SWITCH_TO(CommentEndDash);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_comment(U'\ufffd');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-comment");
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.46 Comment less-than sign state
-			case State::CommentLessThanSign:
-				switch (next_input_character)
+			BEGIN_STATE(CommentLessThanSign)
+			{
+				consume_next_input_character();
+				ON('!')
 				{
-					case '!':
-						current_token.append_comment(current_input_character);
-						state = State::CommentLessThanSignBang;
-						break;
-
-					case '<': current_token.append_comment(current_input_character); break;
-
-					default: reconsume_in(State::Comment);
+					current_token.append_comment(current_input_character);
+					SWITCH_TO(CommentLessThanSignBang);
 				}
-				break;
+
+				ON('<')
+				{
+					current_token.append_comment(current_input_character);
+					continue;
+				}
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.47 Comment less-than sign bang state
-			case State::CommentLessThanSignBang:
-				switch (next_input_character)
+			BEGIN_STATE(CommentLessThanSignBang)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-': state = State::CommentLessThanSignBangDash; break;
-
-					default: reconsume_in(State::Comment);
+					SWITCH_TO(CommentLessThanSignBangDash);
 				}
-				break;
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.48 Comment less-than sign bang dash state
-			case State::CommentLessThanSignBangDash:
-				switch (next_input_character)
+			BEGIN_STATE(CommentLessThanSignBangDash)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-': state = State::CommentLessThanSignBangDashDash; break;
-
-					default: reconsume_in(State::CommentEndDash);
+					SWITCH_TO(CommentLessThanSignBangDashDash);
 				}
-				break;
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.49 Comment less-than sign bang dash dash state
-			case State::CommentLessThanSignBangDashDash:
-				switch (next_input_character)
+			BEGIN_STATE(CommentLessThanSignBangDashDash)
+			{
+				consume_next_input_character();
+				ON('>')
 				{
-					case '>': state = State::CommentEnd; break;
-
-					default: reconsume_in(State::CommentEnd);
+					RECONSUME_IN(CommentEnd);
 				}
-				break;
+
+				ON_EOF
+				{
+					RECONSUME_IN(CommentEnd);
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("nested-comment");
+					RECONSUME_IN(CommentEnd);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.50 Comment end dash state
-			case State::CommentEndDash:
-				switch (next_input_character)
+			BEGIN_STATE(CommentEndDash)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-': state = State::CommentEnd; break;
-
-					default: current_token.append_comment('-'); reconsume_in(State::Comment);
+					RECONSUME_IN(CommentEnd);
 				}
-				break;
+
+				ON_EOF
+				{
+					parse_error("eof-in-comment");
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment('-');
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.51 Comment end state
-			case State::CommentEnd:
-				switch (next_input_character)
+			BEGIN_STATE(CommentEnd)
+			{
+				consume_next_input_character();
+				ON('>')
 				{
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					case '!': state = State::CommentEndBang; break;
-
-					case '-': current_token.append_comment('-'); break;
-
-					default:
-						current_token.append_comment('-');
-						current_token.append_comment('-');
-						reconsume_in(State::Comment);
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
 				}
-				break;
+
+				ON('!')
+				{
+					SWITCH_TO(CommentEndBang);
+				}
+
+				ON('-')
+				{
+					current_token.append_comment('-');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-comment");
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment('-');
+					current_token.append_comment('-');
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.52 Comment end bang state
-			case State::CommentEndBang:
-				switch (next_input_character)
+			BEGIN_STATE(CommentEndBang)
+			{
+				consume_next_input_character();
+				ON('-')
 				{
-					case '-':
-						current_token.append_comment('-');
-						current_token.append_comment('-');
-						current_token.append_comment('!');
-						state = State::CommentEndDash;
-						break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-					default:
-						current_token.append_comment('-');
-						current_token.append_comment('-');
-						current_token.append_comment('!');
-						reconsume_in(State::Comment);
+					current_token.append_comment('-');
+					current_token.append_comment('-');
+					current_token.append_comment('!');
+					SWITCH_TO(CommentEndDash);
 				}
-				break;
+
+				ON('>')
+				{
+					parse_error("incorrectly-closed-comment");
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-comment");
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_comment('-');
+					current_token.append_comment('!');
+					RECONSUME_IN(Comment);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.53 DOCTYPE state
-			case State::DOCTYPE:
-				switch (current_input_character)
+			BEGIN_STATE(DOCTYPE)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::BeforeDOCTYPEName; break;
-
-					case '>':
-						reconsume_in(State::BeforeDOCTYPEName);
-						break;
-
-						// case EOF:
-
-					default: reconsume_in(State::BeforeDOCTYPEName);
+					SWITCH_TO(BeforeDOCTYPEName);
 				}
-				break;
+
+				ON('>')
+				{
+					RECONSUME_IN(BeforeDOCTYPEName);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					// TODO
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-whitespace-before-doctype-name");
+					RECONSUME_IN(BeforeDOCTYPEName);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.54 Before DOCTYPE name state
-			case State::BeforeDOCTYPEName:
-				if (current_input_character == '\t' || current_input_character == '\n' ||
-				    current_input_character == '\f' || current_input_character == ' ')
+			BEGIN_STATE(BeforeDOCTYPEName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					// ignore the character
-					;
+					IGNORE_CHARACTER();
 				}
 
-				else if (isupper(current_input_character))
+				ON_ASCII_UPPER_ALPHA
 				{
 					current_token = Token::make_doctype();
-					current_token.doctype_set_name(current_input_character + 32);
+					current_token.doctype_set_name(current_input_character + 0x20);
+					SWITCH_TO(DOCTYPEName);
 				}
 
-				else if (current_input_character == '\0')
+				ON_NULL
 				{
+					parse_error("unexpected-null-character");
 					current_token = Token::make_doctype();
-					current_token.doctype_set_name('\ufffd');
-					state = State::DOCTYPEName;
+					current_token.doctype_set_name(U'\ufffd');
+					SWITCH_TO(DOCTYPEName);
 				}
 
-				else if (current_input_character == '>')
+				ON('>')
 				{
+					parse_error("missing-doctype-name");
 					current_token = Token::make_doctype();
 					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
 				}
 
-				// TODO: EOF
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.doctype_set_name(current_input_character);
+					SWITCH_TO(DOCTYPEName);
+				}
 
-				else
+				ANYTHING_ELSE
 				{
 					current_token = Token::make_doctype();
 					current_token.doctype_set_name(current_input_character);
-					state = State::DOCTYPEName;
+					SWITCH_TO(DOCTYPEName);
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.55 DOCTYPE name state
-			case State::DOCTYPEName:
-				switch (current_input_character)
+			BEGIN_STATE(DOCTYPEName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ': state = State::AfterDOCTYPEName; break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-						// case EOF:
-
-					default:
-						if (std::isupper(current_input_character))
-							current_input_character -= 32;
-
-						current_token.append_doctype_name(current_input_character);
+					SWITCH_TO(AfterDOCTYPEName);
 				}
-				break;
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_ASCII_UPPER_ALPHA
+				{
+					current_token.append_doctype_name(current_input_character + 0x20);
+					continue;
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.append_doctype_name(U'\ufffd');
+					continue;
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - use EMIT macro
+					emit_token(current_token);
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.append_doctype_name(current_input_character);
+					continue;
+				}
+			}
+			END_STATE
 
 			// 13.2.5.56 After DOCTYPE name state
-			case State::AfterDOCTYPEName:
-				switch (current_input_character)
+			BEGIN_STATE(AfterDOCTYPEName)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
 				{
-					case '\t':
-					case '\n':
-					case '\f':
-					case ' ':
-						// ignore the character
-						break;
-
-					case '>':
-						state = State::Data;
-						return current_token;
-						break;
-
-						// case EOF:
-
-					default:
-						if (consume_if_match("public"))
-						{
-							state = State::AfterDOCTYPEPublicKeyword;
-						}
-
-						else if (consume_if_match("system"))
-						{
-							state = State::AfterDOCTYPESystemKeyword;
-						}
-
-						else
-						{
-							current_token.set_force_quirks();
-							reconsume_in(State::BogusDOCTYPE);
-						}
+					IGNORE_CHARACTER();
 				}
-				break;
 
-			// 13.2.5.57 After DOCTYPE public keyword state
-			case State::AfterDOCTYPEPublicKeyword: break;
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
 
-			// 13.2.5.58 Before DOCTYPE public identifier state
-			case State::BeforeDOCTYPEPublicIdentifier: break;
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - use EMIT macro
+					emit_token(current_token);
+					EMIT_EOF();
+				}
 
-			// 13.2.5.59 DOCTYPE public identifier (double-quoted) state
-			case State::DOCTYPEPublicIdentifierDoubleQuoted: break;
+				ANYTHING_ELSE
+				{
+					if (consume_if_match("public"))
+					{
+						SWITCH_TO(AfterDOCTYPEPublicKeyword);
+					}
 
-			// 13.2.5.60 DOCTYPE public identifier (single-quoted) state
-			case State::DOCTYPEPublicIdentifierSingleQuoted: break;
+					else if (consume_if_match("system"))
+					{
+						SWITCH_TO(AfterDOCTYPESystemKeyword);
+					}
 
-			// 13.2.5.61 After DOCTYPE public identifier state
-			case State::AfterDOCTYPEPublicIdentifier: break;
+					else
+					{
+						parse_error("invalid-character-sequence-after-doctype-name");
+						current_token.set_force_quirks();
+						RECONSUME_IN(BogusDOCTYPE);
+					}
+				}
+			}
+			END_STATE
 
-			// 13.2.5.62 Between DOCTYPE public and system identifiers state
-			case State::BetweenDOCTYPEPublicAndSystemIdentifiers: break;
+		// 13.2.5.57 After DOCTYPE public keyword state
+		AfterDOCTYPEPublicKeyword:
+		case State::AfterDOCTYPEPublicKeyword:
+			break;
 
-			// 13.2.5.63 After DOCTYPE system keyword state
-			case State::AfterDOCTYPESystemKeyword: break;
+		// 13.2.5.58 Before DOCTYPE public identifier state
+		BeforeDOCTYPEPublicIdentifier:
+		case State::BeforeDOCTYPEPublicIdentifier:
+			break;
 
-			// 13.2.5.64 Before DOCTYPE system identifier state
-			case State::BeforeDOCTYPESystemIdentifier: break;
+		// 13.2.5.59 DOCTYPE public identifier (double-quoted) state
+		DOCTYPEPublicIdentifierDoubleQuoted:
+		case State::DOCTYPEPublicIdentifierDoubleQuoted:
+			break;
 
-			// 13.2.5.65 DOCTYPE system identifier (double-quoted) state
-			case State::DOCTYPESystemIdentifierDoubleQuoted: break;
+		// 13.2.5.60 DOCTYPE public identifier (single-quoted) state
+		DOCTYPEPublicIdentifierSingleQuoted:
+		case State::DOCTYPEPublicIdentifierSingleQuoted:
+			break;
 
-			// 13.2.5.66 DOCTYPE system identifier (single-quoted) state
-			case State::DOCTYPESystemIdentifierSingleQuoted: break;
+		// 13.2.5.61 After DOCTYPE public identifier state
+		AfterDOCTYPEPublicIdentifier:
+		case State::AfterDOCTYPEPublicIdentifier:
+			break;
 
-			// 13.2.5.67 After DOCTYPE system identifier state
-			case State::AfterDOCTYPESystemIdentifier: break;
+		// 13.2.5.62 Between DOCTYPE public and system identifiers state
+		BetweenDOCTYPEPublicAndSystemIdentifiers:
+		case State::BetweenDOCTYPEPublicAndSystemIdentifiers:
+			break;
 
-			// 13.2.5.68 Bogus DOCTYPE state
-			case State::BogusDOCTYPE: break;
+		// 13.2.5.63 After DOCTYPE system keyword state
+		AfterDOCTYPESystemKeyword:
+		case State::AfterDOCTYPESystemKeyword:
+			break;
 
-			// 13.2.5.69 CDATA section state
-			case State::CDATASection: break;
+		// 13.2.5.64 Before DOCTYPE system identifier state
+		BeforeDOCTYPESystemIdentifier:
+		case State::BeforeDOCTYPESystemIdentifier:
+			break;
 
-			// 13.2.5.70 CDATA section bracket state
-			case State::CDATASectionBracket: break;
+		// 13.2.5.65 DOCTYPE system identifier (double-quoted) state
+		DOCTYPESystemIdentifierDoubleQuoted:
+		case State::DOCTYPESystemIdentifierDoubleQuoted:
+			break;
 
-			// 13.2.5.71 CDATA section end state
-			case State::CDATASectionEnd: break;
+		// 13.2.5.66 DOCTYPE system identifier (single-quoted) state
+		DOCTYPESystemIdentifierSingleQuoted:
+		case State::DOCTYPESystemIdentifierSingleQuoted:
+			break;
+
+		// 13.2.5.67 After DOCTYPE system identifier state
+		AfterDOCTYPESystemIdentifier:
+		case State::AfterDOCTYPESystemIdentifier:
+			break;
+
+		// 13.2.5.68 Bogus DOCTYPE state
+		BogusDOCTYPE:
+		case State::BogusDOCTYPE:
+			break;
+
+		// 13.2.5.69 CDATA section state
+		CDATASection:
+		case State::CDATASection:
+			break;
+
+		// 13.2.5.70 CDATA section bracket state
+		CDATASectionBracket:
+		case State::CDATASectionBracket:
+			break;
+
+		// 13.2.5.71 CDATA section end state
+		CDATASectionEnd:
+		case State::CDATASectionEnd:
+			break;
 
 			// 13.2.5.72 Character reference state
-			case State::CharacterReference:
+			BEGIN_STATE(CharacterReference)
+			{
 				temporary_buffer = "&";
-				if (std::isalnum(current_input_character))
-					reconsume_in(State::NamedCharacterReference);
+				consume_next_input_character();
+				ON_ASCII_ALPHANUMERIC
+				{
+					RECONSUME_IN(NamedCharacterReference);
+				}
 
-				else if (current_input_character == '#')
+				ON('#')
 				{
 					temporary_buffer += current_input_character;
-					state = State::NumericCharacterReference;
+					SWITCH_TO(NumericCharacterReference);
 				}
 
-				else
+				ANYTHING_ELSE
 				{
 					flush_temporary_buffer = true;
-					reconsume_in(return_state);
+					RECONSUME_IN_RETURN_STATE();
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.73 Named character reference state
-			case State::NamedCharacterReference:
-				// TODO - add other named characters other than &nbsp and &copy
+			// TODO - didn't follow the spec too closely for this one
+			BEGIN_STATE(NamedCharacterReference)
+			{
 				if (consume_if_match("nbsp;"))
 				{
 					temporary_buffer += "nbsp;";
@@ -1017,118 +1754,167 @@ Token Tokenizer::next()
 					state = return_state;
 				}
 
-				else if (consume_if_match("copy;"))
-				{
-					temporary_buffer += "copy;";
-					flush_temporary_buffer = true;
-					state = return_state;
-				}
-
 				else
 				{
-					std::cout << "Unknown named character reference\n";
-					exit(1);
+					SWITCH_TO(AmbiguousAmpersand);
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.74 Ambiguous ampersand state
-			case State::AmbiguousAmpersand: break;
+			BEGIN_STATE(AmbiguousAmpersand)
+			{
+				consume_next_input_character();
+				ON_ASCII_ALPHANUMERIC
+				{
+					if (consumed_as_part_of_an_attribute())
+					{
+						current_token.append_attribute_value(current_input_character);
+						continue;
+					}
+					else
+					{
+						EMIT_CURRENT_INPUT_CHARACTER();
+					}
+				}
+
+				ON(';')
+				{
+					parse_error("unknown-named-character-reference");
+					RECONSUME_IN_RETURN_STATE();
+				}
+
+				ANYTHING_ELSE
+				{
+					RECONSUME_IN_RETURN_STATE();
+				}
+			}
+			END_STATE
 
 			// 13.2.5.75 Numeric character reference state
-			case State::NumericCharacterReference:
-				switch (current_input_character)
-				{
-					case 'x':
-					case 'X':
-						temporary_buffer += current_input_character;
-						state = State::HexadecimalCharacterReferenceStart;
-						break;
+			BEGIN_STATE(NumericCharacterReference)
+			{
+				character_reference_code = 0;
+				consume_next_input_character();
 
-					default: reconsume_in(State::DecimalCharacterReferenceStart);
+				if (current_input_character == 'x' || current_input_character == 'X')
+				{
+					temporary_buffer += current_input_character;
+					SWITCH_TO(HexadecimalCharacterReferenceStart);
 				}
-				break;
+
+				else
+				{
+					RECONSUME_IN(DecimalCharacterReferenceStart);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.76 Hexadecimal character reference start state
-			case State::HexadecimalCharacterReferenceStart:
+			BEGIN_STATE(HexadecimalCharacterReferenceStart)
+			{
+				consume_next_input_character();
 				if (std::isxdigit(current_input_character))
-					reconsume_in(State::HexadecimalCharacterReference);
+				{
+					RECONSUME_IN(HexadecimalCharacterReference);
+				}
 
 				else
 				{
+					parse_error("absence-of-digits-in-numeric-character-reference");
 					flush_temporary_buffer = true;
-					reconsume_in(return_state);
+					RECONSUME_IN_RETURN_STATE();
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.77 Decimal character reference start state
-			case State::DecimalCharacterReferenceStart:
-				if (std::isdigit(current_input_character))
-					reconsume_in(State::DecimalCharacterReference);
+			BEGIN_STATE(DecimalCharacterReferenceStart)
+			{
+				consume_next_input_character();
+				ON_ASCII_DIGIT
+				{
+					RECONSUME_IN(DecimalCharacterReference);
+				}
 
 				else
 				{
+					parse_error("absence-of-digits-in-numeric-character-reference");
 					flush_temporary_buffer = true;
-					reconsume_in(return_state);
+					RECONSUME_IN_RETURN_STATE();
 				}
-				break;
+			}
+			END_STATE
 
 			// 13.2.5.78 Hexadecimal character reference state
-			case State::HexadecimalCharacterReference:
-				if (std::isdigit(current_input_character))
+			BEGIN_STATE(HexadecimalCharacterReference)
+			{
+				consume_next_input_character();
+				ON_ASCII_DIGIT
 				{
 					character_reference_code *= 16;
 					character_reference_code += current_input_character - 0x30;
+					continue;
 				}
 
-				else if (std::isxdigit(current_input_character))
+				ON_ASCII_UPPER_HEX_DIGIT
 				{
 					character_reference_code *= 16;
-					int hex_digit;
-
-					if (std::isupper(current_input_character))
-						hex_digit = current_input_character - 0x37;
-					else
-						hex_digit = current_input_character - 0x57;
-
-					character_reference_code += hex_digit;
+					character_reference_code += current_input_character - 0x37;
+					continue;
 				}
 
-				else if (current_input_character == ';')
-					state = State::NumericCharacterReferenceEnd;
+				ON_ASCII_LOWER_HEX_DIGIT
+				{
+					character_reference_code *= 16;
+					character_reference_code += current_input_character - 0x57;
+					continue;
+				}
 
-				else
-					reconsume_in(State::NumericCharacterReferenceEnd);
-				break;
+				ON(';')
+				{
+					SWITCH_TO(NumericCharacterReferenceEnd);
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-semicolon-after-character-reference");
+					RECONSUME_IN(NumericCharacterReferenceEnd);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.79 Decimal character reference state
-			case State::DecimalCharacterReference:
-				if (std::isdigit(current_input_character))
+			BEGIN_STATE(DecimalCharacterReference)
+			{
+				consume_next_input_character();
+				ON_ASCII_DIGIT
 				{
 					character_reference_code *= 10;
 					character_reference_code += current_input_character - 0x30;
+					continue;
 				}
 
-				else if (current_input_character == ';')
-					state = State::NumericCharacterReferenceEnd;
+				ON(';')
+				{
+					SWITCH_TO(NumericCharacterReferenceEnd);
+				}
 
-				else
-					reconsume_in(State::NumericCharacterReferenceEnd);
-				break;
+				ANYTHING_ELSE
+				{
+					parse_error("missing-semicolon-after-character-reference");
+					RECONSUME_IN(NumericCharacterReferenceEnd);
+				}
+			}
+			END_STATE
 
 			// 13.2.5.80 Numeric character reference end state
-			case State::NumericCharacterReferenceEnd:
-				if (character_reference_code == 0x0 || character_reference_code > 0x10ffff)
-					character_reference_code = 0xfffd;
-
-				else if (character_reference_code >= 0xd800 && character_reference_code <= 0xdfff)
-					character_reference_code = 0xfffd;
-
-				std::cout << std::to_string(character_reference_code) << "\n";
-
-				temporary_buffer += std::to_string(character_reference_code);
-				flush_temporary_buffer = true;
-				reconsume_in(return_state);
-				break;
+			BEGIN_STATE(NumericCharacterReferenceEnd)
+			{
+				// TODO
+				assert(false);
+			}
+			END_STATE
 		}
 	}
 }
@@ -1144,7 +1930,7 @@ void Tokenizer::consume_next_input_character()
 
 	if (eof())
 	{
-		next_input_character = '\0';
+		next_input_character = 0xcafebabe;
 		return;
 	}
 
@@ -1194,4 +1980,17 @@ void Tokenizer::emit_tokens(const std::initializer_list<Token> &tokens)
 	for (auto const &token : tokens)
 		emitted_tokens.push_back(token);
 }
+
+void Tokenizer::parse_error(const char *msg)
+{
+	std::cout << "Parse error: " << msg << "\n";
 }
+// https://html.spec.whatwg.org/multipage/parsing.html#charref-in-attribute
+bool Tokenizer::consumed_as_part_of_an_attribute() const
+{
+	return return_state == State::AttributeValueDoubleQuoted || return_state == State::AttributeValueSingleQuoted ||
+	       return_state == State::AttributeValueUnquoted;
+}
+}
+
+#pragma GCC diagnostic pop
