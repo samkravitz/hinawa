@@ -53,7 +53,7 @@ IncludeCategories:
   - Regex: '".*"'
   - Priority: 1
 IndentAccessModifiers: false
-IndentCaseBlocks: true
+IndentCaseBlocks: false
 IndentCaseLabels: true
 IndentExternBlock: Indent
 IndentGotoLabels: true
