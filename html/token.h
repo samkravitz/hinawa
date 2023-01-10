@@ -1,9 +1,11 @@
 #pragma once
 
-#include <utility>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
+
+#include "util/hinawa.h"
 
 namespace html
 {
@@ -52,7 +54,7 @@ public:
 	static Token make_doctype()
 	{
 		Token t(Doctype);
-		t.data = DoctypeData {};
+		t.data = DoctypeData{};
 		return t;
 	}
 
@@ -70,7 +72,7 @@ public:
 		return t;
 	}
 
-	static Token make_character(char c)
+	static Token make_character(u32 c)
 	{
 		Token t(Character);
 		t.data = c;
@@ -94,15 +96,15 @@ public:
 	inline TagData as_tag_data() { return std::get<TagData>(data); }
 
 	void new_attribute();
-	void append_tag_name(char c);
-	void append_attribute_name(char c);
-	void append_attribute_value(char c);
-	void append_doctype_name(char c);
-	void append_comment(char c);
-	void doctype_set_name(char c);
+	void append_tag_name(u32 c);
+	void append_attribute_name(u32 c);
+	void append_attribute_value(u32 c);
+	void append_doctype_name(u32 c);
+	void append_comment(u32 c);
+	void doctype_set_name(u32 c);
 	void set_force_quirks();
 	void set_self_closing();
-	char get_char();
+	u32 get_char();
 	std::string tag_name();
 
 	std::string to_string();
@@ -110,11 +112,11 @@ public:
 private:
 	TokenType m_type;
 	std::variant<
-		DoctypeData,   // Doctype
-		TagData,       // StartTag, EndTag
-		char,          // Character
-		std::string,   // Comment
-		std::monostate // EOF
+		DoctypeData,      // Doctype
+		TagData,          // StartTag, EndTag
+		u32,              // Character
+		std::string,      // Comment
+		std::monostate    // EOF
 	> data;
 };
 }

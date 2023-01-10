@@ -5,6 +5,7 @@
 #include <string>
 
 #include "token.h"
+#include "util/hinawa.h"
 
 namespace html
 {
@@ -117,8 +118,8 @@ private:
 	State return_state = State::Data;
 	std::string input;
 	std::size_t pos = 0;
-	char current_input_character;
-	char next_input_character;
+	u32 current_input_character;
+	u32 next_input_character;
 	Token current_token;
 	std::string temporary_buffer;
 	bool flush_temporary_buffer = false;
