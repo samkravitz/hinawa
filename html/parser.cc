@@ -18,12 +18,14 @@ static inline bool is_whitespace(char c)
 	return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
 }
 
-Document Parser::parse()
-{
-	auto document = std::make_shared<Node>();
-	Token token;
+Parser::Parser(Document &document) :
+    m_document(document)
+{ }
 
-	while ((token = tokenizer.next()))
+Document &Parser::parse(std::string const &input)
+{
+	tokenizer = Tokenizer(input);
+	while (auto token = tokenizer.next())
 	{
 		// std::cout << token.to_string() << "\n";
 
@@ -73,7 +75,7 @@ Document Parser::parse()
 						if (tag_name == "html")
 						{
 							auto html_element = std::make_shared<Element>("html");
-							document->add_child(html_element);
+							document().add_child(html_element);
 							stack_of_open_elements.push_back(html_element);
 							insertion_mode = InsertionMode::BeforeHead;
 							break;
@@ -102,7 +104,7 @@ Document Parser::parse()
 					default:
 					{
 						auto html_element = std::make_shared<Element>("html");
-						document->add_child(html_element);
+						document().add_child(html_element);
 						stack_of_open_elements.push_back(html_element);
 						insertion_mode = InsertionMode::BeforeHead;
 						goto reprocess_token;
@@ -208,7 +210,8 @@ Document Parser::parse()
 
 					case StartTag:
 					{
-						if (token.tag_name() == "noframes" || token.tag_name() == "style" || token.tag_name() == "title")
+						if (token.tag_name() == "noframes" || token.tag_name() == "style" ||
+						    token.tag_name() == "title")
 							parse_raw_text(token);
 
 						else
@@ -410,7 +413,7 @@ Document Parser::parse()
 						break;
 					}
 
-					case Eof: return document;
+					case Eof: return m_document;
 
 					    after_body_anything_else:
 					default:;
@@ -431,7 +434,7 @@ Document Parser::parse()
 		}
 	}
 
-	return Document(document);
+	return m_document;
 }
 
 std::shared_ptr<Node> Parser::current_node()

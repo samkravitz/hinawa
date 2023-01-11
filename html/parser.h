@@ -9,37 +9,38 @@
 
 namespace html
 {
-#define INSERTION_MODES \
-	MODE(Initial) \
-	MODE(BeforeHtml) \
-	MODE(BeforeHead) \
-	MODE(InHead) \
-	MODE(InHeadNoScript) \
-	MODE(AfterHead) \
-	MODE(InBody) \
-	MODE(Text) \
-	MODE(InTable) \
-	MODE(InTableText) \
-	MODE(InCaption) \
-	MODE(InColumnBody) \
-	MODE(InTableBody) \
-	MODE(InRow) \
-	MODE(InCell) \
-	MODE(InSelect) \
+#define INSERTION_MODES   \
+	MODE(Initial)         \
+	MODE(BeforeHtml)      \
+	MODE(BeforeHead)      \
+	MODE(InHead)          \
+	MODE(InHeadNoScript)  \
+	MODE(AfterHead)       \
+	MODE(InBody)          \
+	MODE(Text)            \
+	MODE(InTable)         \
+	MODE(InTableText)     \
+	MODE(InCaption)       \
+	MODE(InColumnBody)    \
+	MODE(InTableBody)     \
+	MODE(InRow)           \
+	MODE(InCell)          \
+	MODE(InSelect)        \
 	MODE(InSelectInTable) \
-	MODE(InTemplate) \
-	MODE(AfterBody) \
-	MODE(InFrameset) \
-	MODE(AfterFrameset) \
-	MODE(AfterAfterBody) \
+	MODE(InTemplate)      \
+	MODE(AfterBody)       \
+	MODE(InFrameset)      \
+	MODE(AfterFrameset)   \
+	MODE(AfterAfterBody)  \
 	MODE(AfterAfterFrameset)
 
 class Parser
 {
 public:
-	Parser(std::string const &input) :
-	    tokenizer(input)
-	{ }
+	// The parser is associated with a document when it is created
+	// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction
+	Parser() = delete;
+	Parser(Document &);
 
 	enum class InsertionMode
 	{
@@ -48,13 +49,15 @@ public:
 #undef MODE
 	};
 
-	Document parse();
+	Document &parse(std::string const &input);
+	Document &document() { return m_document; }
 
 private:
 	InsertionMode insertion_mode = InsertionMode::Initial;
 	InsertionMode original_insertion_mode = InsertionMode::Initial;
 	std::vector<std::shared_ptr<Node>> stack_of_open_elements;
 	Tokenizer tokenizer;
+	Document m_document;
 
 	std::shared_ptr<Node> current_node();
 	std::shared_ptr<Node> adjusted_current_node();

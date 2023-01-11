@@ -94,6 +94,7 @@ namespace html
 class Tokenizer
 {
 public:
+	Tokenizer() = default;
 	Tokenizer(std::string const input);
 	enum class State
 	{

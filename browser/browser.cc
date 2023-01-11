@@ -105,8 +105,9 @@ void Browser::load(const Url &new_url)
 {
 	url = new_url;
 	::load(url, [&](const auto &data) {
-		auto parser = html::Parser(std::string((const char *) data.data(), data.size()));
-		document = parser.parse();
+		document = Document(url);
+		auto parser = html::Parser(document);
+		document = parser.parse(std::string((const char *) data.data(), data.size()));
 		document.print("Document");
 
 		style_tree = css::build_style_tree(document);
