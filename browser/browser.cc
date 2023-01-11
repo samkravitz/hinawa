@@ -11,6 +11,7 @@
 #include "layout/block.h"
 #include "layout/image.h"
 #include "layout/node.h"
+#include "web/resource.h"
 
 auto font = sf::Font{};
 
@@ -103,21 +104,14 @@ Browser::Browser(const std::string &url_string)
 void Browser::load(const Url &new_url)
 {
 	url = new_url;
-	std::cout << "Loading url: " << url.path_str() << "\n";
-	std::cout << url.to_string() << "\n";
-	if (url.scheme() != "file")
-		std::cout << "Error: unsupported scheme\n";
+	::load(url, [&](const auto &data) {
+		auto parser = html::Parser(std::string((const char *) data.data(), data.size()));
+		document = parser.parse();
+		document.print("Document");
 
-	std::ifstream file(url.path_str());
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-
-	auto parser = html::Parser(buffer.str());
-	document = parser.parse();
-	document.print("Document");
-
-	style_tree = css::build_style_tree(document);
-	layout_tree = layout::build_layout_tree(style_tree.get());
+		style_tree = css::build_style_tree(document);
+		layout_tree = layout::build_layout_tree(style_tree.get());
+	});
 }
 
 void Browser::render()
