@@ -53,7 +53,7 @@ public:
 private:
 	InsertionMode insertion_mode = InsertionMode::Initial;
 	InsertionMode original_insertion_mode = InsertionMode::Initial;
-	std::vector<std::shared_ptr<Node>> open_elements;
+	std::vector<std::shared_ptr<Node>> stack_of_open_elements;
 	Tokenizer tokenizer;
 
 	std::shared_ptr<Node> current_node();

@@ -74,7 +74,7 @@ Document Parser::parse()
 						{
 							auto html_element = std::make_shared<Element>("html");
 							document->add_child(html_element);
-							open_elements.push_back(html_element);
+							stack_of_open_elements.push_back(html_element);
 							insertion_mode = InsertionMode::BeforeHead;
 							break;
 						}
@@ -103,7 +103,7 @@ Document Parser::parse()
 					{
 						auto html_element = std::make_shared<Element>("html");
 						document->add_child(html_element);
-						open_elements.push_back(html_element);
+						stack_of_open_elements.push_back(html_element);
 						insertion_mode = InsertionMode::BeforeHead;
 						goto reprocess_token;
 					}
@@ -220,7 +220,7 @@ Document Parser::parse()
 					{
 						if (token.tag_name() == "head")
 						{
-							open_elements.pop_back();
+							stack_of_open_elements.pop_back();
 							insertion_mode = InsertionMode::AfterHead;
 						}
 
@@ -233,7 +233,7 @@ Document Parser::parse()
 					in_head_anything_else:
 					default:
 						// pop head element off stack of open elements
-						open_elements.pop_back();
+						stack_of_open_elements.pop_back();
 						insertion_mode = InsertionMode::AfterHead;
 						goto reprocess_token;
 				}
@@ -303,13 +303,13 @@ Document Parser::parse()
 						insert_element(element);
 
 						if (tag_data.self_closing)
-							open_elements.pop_back();
+							stack_of_open_elements.pop_back();
 
 						else if (token.tag_name() == "area" || token.tag_name() == "br" ||
 						         token.tag_name() == "embed" || token.tag_name() == "img" ||
 						         token.tag_name() == "keygen" || token.tag_name() == "wbr")
 						{
-							open_elements.pop_back();
+							stack_of_open_elements.pop_back();
 						}
 						break;
 					}
@@ -325,7 +325,7 @@ Document Parser::parse()
 
 						else
 						{
-							open_elements.pop_back();
+							stack_of_open_elements.pop_back();
 						}
 						break;
 					}
@@ -352,7 +352,7 @@ Document Parser::parse()
 
 						else
 						{
-							open_elements.pop_back();
+							stack_of_open_elements.pop_back();
 							insertion_mode = original_insertion_mode;
 						}
 						break;
@@ -436,7 +436,7 @@ Document Parser::parse()
 
 std::shared_ptr<Node> Parser::current_node()
 {
-	return open_elements.back();
+	return stack_of_open_elements.back();
 }
 
 std::shared_ptr<Node> Parser::adjusted_current_node()
@@ -495,7 +495,7 @@ void Parser::insert_element(std::shared_ptr<Node> element)
 	// then pop the element queue from element's relevant agent's custom element reactions stack, and invoke custom element reactions in that queue
 
 	// 4. push element onto the stack of open elements so that it is the new current node
-	open_elements.push_back(element);
+	stack_of_open_elements.push_back(element);
 }
 
 /**
