@@ -1,5 +1,6 @@
 #include "http.h"
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -65,23 +66,77 @@ Http Http::send() const
 	bzero(buf, 32768);
 
 	uint bytes_read;
-	std::string res;
+
+	// first, try to read headers from the network
+	if ((bytes_read = SSL_read(ssl, buf, 32768)) < 0)
+	{
+		std::cerr << "Error reading http headers from network\n";
+		free(buf);
+		return {};
+	}
+
+	// headers were read, so try to parse them to find the content length of body
+	Http response;
+	response.parse_headers(buf);
+	unsigned content_length = 0xffffffff;
+
+	// now, make the second read to the socket to get the body
+	if (auto s = response.header("Content-Length"); !s.empty())
+	{
+		content_length = std::stoi(s);
+		std::cout << "Content-Length: " << content_length << "\n";
+	}
+
+	std::string body;
+	unsigned total_bytes = 0;
 	do
 	{
-		bytes_read = SSL_read(ssl, buf, 1024);
-		buf[bytes_read] = 0;
-		res += std::string(buf);
-	} while (bytes_read > 0);
+		bytes_read = SSL_read(ssl, buf, 32768);
+		total_bytes += bytes_read;
+		body += std::string(buf, bytes_read);
+	} while (total_bytes < content_length && bytes_read > 0);
 
-	// find last instance of /r/f in the response, and sets the body to that position
-	// TODO - actually parse the http response
-	auto pos = res.rfind(CRLF);
-	auto body = res.substr(pos + 1);
-	Http response;
 	response.set_body(body);
 
 	free(buf);
 	return response;
+}
+
+void Http::parse_headers(const std::string &input)
+{
+	assert(!input.empty());
+
+	std::istringstream iss(input);
+	std::string header;
+
+	// read the first line, which should be something like
+	// GET / HTTP/1.1
+	assert(std::getline(iss, header));
+
+	while (std::getline(iss, header) && header != "\r")
+	{
+		auto index = header.find(':');
+		if (index == std::string::npos)
+		{
+			std::cerr << "Invalid HTTP header: " << header << "\n";
+			break;
+		}
+
+		auto value = header.substr(index + 2);
+		value.pop_back();
+		headers[header.substr(0, index)] = value;
+	}
+
+	for (const auto &h : headers)
+		std::cout << h.first << ": " << h.second << "\n";
+}
+
+std::string Http::header(const std::string &key)
+{
+	if (headers.find(key) == headers.end())
+		return {};
+	
+	return headers[key];
 }
 
 std::string Http::to_string() const

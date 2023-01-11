@@ -36,6 +36,8 @@ public:
 
 	void set_body(const std::string &body) { m_body = body; }
 	std::string body() const { return m_body; }
+	void parse_headers(const std::string &);
+	std::string header(const std::string &);
 
 	std::string to_string() const;
 
