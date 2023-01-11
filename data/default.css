@@ -39,7 +39,7 @@ li {
 
 /* visual-less elements */
 br {
-	display: none;
+	display: inline;
 }
 
 body {

@@ -208,7 +208,7 @@ Document Parser::parse()
 
 					case StartTag:
 					{
-						if (token.tag_name() == "noframes" || token.tag_name() == "style")
+						if (token.tag_name() == "noframes" || token.tag_name() == "style" || token.tag_name() == "title")
 							parse_raw_text(token);
 
 						else
