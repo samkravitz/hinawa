@@ -16,8 +16,8 @@ Block::Block(css::StyledNode *node) :
 
 void Block::layout(Box container)
 {
-	m_dimensions = Box();
-	lines.clear();
+	m_dimensions = {};
+	lines = {};
 
 	calculate_width(container);
 	calculate_position(container);

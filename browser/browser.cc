@@ -206,8 +206,10 @@ void Browser::render()
 			auto *image_node = static_cast<layout::Image *>(layout_node);
 			auto image = image_node->image_element()->image();
 			auto texture = sf::Texture{};
-			texture.loadFromImage(image, sf::IntRect(x, y, dimensions.content.width, dimensions.content.height));
-			window.draw(sf::Sprite(texture));
+			texture.loadFromImage(image);
+			sf::Sprite sprite(texture);
+			sprite.setPosition(x, y);
+			window.draw(sprite);
 		}
 
 		if (layout_node->is_list_item_marker())
