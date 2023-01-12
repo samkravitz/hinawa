@@ -20,8 +20,11 @@ public:
 	Node *get_body() const;
 	std::string get_style() const;
 	void add_child(const std::shared_ptr<Node> &);
+	inline void set_needs_reflow(bool b = true) { m_needs_reflow = b; }
+	inline bool needs_reflow() const { return m_needs_reflow; }
 
 private:
 	std::shared_ptr<Node> m_root{ nullptr };
 	Url m_origin;
+	bool m_needs_reflow{ false };
 };

@@ -40,6 +40,16 @@ Browser::Browser(const std::string &url_string)
 
 	while (window.isOpen())
 	{
+		if (document.needs_reflow())
+		{
+			viewport.content.height = 0;
+			layout_tree->layout(viewport);
+			layout_tree->print("Layout Tree");
+			render();
+			document.set_needs_reflow(false);
+			continue;
+		}
+
 		while (window.pollEvent(event))
 		{
 			switch (event.type)
