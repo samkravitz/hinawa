@@ -51,9 +51,8 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 	start_over:
 	for (auto pointer = input.begin();; pointer++)
 	{
-		if (pointer >= input.end())
-			c = '\0';
-		else
+		c = '\0';
+		if (pointer != input.end())
 			c = *pointer;
 
 		switch (state)
@@ -908,7 +907,7 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 			}
 		}
 
-		if (c == '\0')
+		if (pointer == input.end())
 			break;
 	}
 
