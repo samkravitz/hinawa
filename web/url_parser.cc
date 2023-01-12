@@ -48,6 +48,7 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 		return remainder == rem;
 	};
 
+	start_over:
 	for (auto pointer = input.begin();; pointer++)
 	{
 		if (pointer >= input.end())
@@ -169,7 +170,7 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 				{
 					buffer = "";
 					state = State::NoScheme;
-					pointer = input.begin() - 1;
+					goto start_over;
 				}
 
 				// 4. Otherwise, validation error, return failure
