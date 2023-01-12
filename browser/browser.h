@@ -29,8 +29,8 @@ private:
 	std::string hovered_href = "";
 
 	// width, height of window in px
-	int width = 800;
-	int height = 600;
+	int width = 1600;
+	int height = 1200;
 
 	sf::RenderWindow window{ sf::VideoMode(width, height), "hinawa" };
 	sf::Cursor arrow_cursor, hand_cursor;
