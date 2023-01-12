@@ -7,8 +7,8 @@
 class HtmlImageElement final : public Element
 {
 public:
-	HtmlImageElement(std::string tag) :
-	    Element(tag)
+	HtmlImageElement(Document &document, std::string tag) :
+	    Element(document, tag)
 	{ }
 
 	void add_attribute(std::string, std::string) override;

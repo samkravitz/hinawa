@@ -6,7 +6,8 @@ void HtmlImageElement::add_attribute(std::string name, std::string value)
 {
 	if (name == "src")
 	{
-		load(Url{ value }, [this](const auto &data) {
+		auto origin = document().origin();
+		load({ value, &origin }, [this](const auto &data) {
 			m_image.loadFromMemory(data.data(), data.size());
 		});
 	}

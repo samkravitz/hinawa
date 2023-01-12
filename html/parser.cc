@@ -299,7 +299,7 @@ Document &Parser::parse(std::string const &input)
 					case StartTag:
 					{
 						auto tag_data = token.as_tag_data();
-						auto element = create_element(tag_data.name);
+						auto element = create_element(document(), tag_data.name);
 						for (auto attribute : tag_data.attributes)
 							element->add_attribute(attribute.first, attribute.second);
 
