@@ -142,7 +142,11 @@ std::string Http::header(const std::string &key)
 std::string Http::to_string() const
 {
 	std::stringstream ss;
-	ss << "GET / HTTP/1.1" << CRLF;
+	ss << "GET ";
+	ss << uri.path_str() << " ";
+	ss << "HTTP/1.1";
+	ss << CRLF;
+
 	for (const auto &header : headers)
 		ss << header.first << ": " << header.second << CRLF;
 
