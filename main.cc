@@ -12,11 +12,16 @@ int main(int argc, char **argv)
 	std::string html_file = homepage_url;
 	if (argc > 1)
 	{
-		if (fs::exists(argv[1]))
-			html_file = argv[1];
+		html_file = argv[1];
 	}
-	
-	auto path = fs::canonical(html_file);
-	auto hinawa = browser::Browser("file://" + std::string(path.c_str()));
+
+	Url url;
+	if (fs::exists(html_file))
+		url = Url("file://" + fs::canonical(html_file).string());
+
+	else
+		url = Url(html_file);
+
+	auto hinawa = browser::Browser(url);
 	return 0;
 }

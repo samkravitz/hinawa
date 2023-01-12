@@ -18,6 +18,7 @@ class Browser
 public:
 	Browser() = default;
 	Browser(const std::string &);
+	Browser(const Url &);
 
 private:
 	Url url;

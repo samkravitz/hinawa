@@ -19,7 +19,12 @@ auto font = sf::Font{};
 
 namespace browser
 {
-Browser::Browser(const std::string &url_string)
+Browser::Browser(const std::string &url_string) :
+    Browser(Url(url_string))
+{ }
+
+Browser::Browser(const Url &u) :
+    url(u)
 {
 	if (!font.loadFromFile("../data/fonts/arial.ttf"))
 		exit(2);
@@ -27,7 +32,6 @@ Browser::Browser(const std::string &url_string)
 	assert(arrow_cursor.loadFromSystem(sf::Cursor::Arrow));
 	assert(hand_cursor.loadFromSystem(sf::Cursor::Hand));
 
-	url = Url(url_string);
 	load(url);
 
 	auto event = sf::Event{};
