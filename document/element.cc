@@ -1,10 +1,14 @@
 #include "element.h"
 
-Element::Element(std::string tag)
-	: m_tag(tag)
+Element::Element(Document &document, std::string tag) :
+    Node(document)
 {
-	
+	m_tag = tag;
 }
+
+Element::Element(std::string tag) :
+    m_tag(tag)
+{ }
 
 void Element::add_attribute(std::string name, std::string value)
 {

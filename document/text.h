@@ -7,6 +7,7 @@
 struct Text : public Node
 {
 public:
+	Text(Document &, std::string);
 	Text(std::string);
 	Text(char);
 

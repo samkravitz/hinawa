@@ -2,6 +2,10 @@
 
 #include "element.h"
 
+Node::Node(Document &document) :
+    m_document(document)
+{ }
+
 bool Node::is_link() const
 {
 	for (auto *tree_node = parent(); tree_node; tree_node = tree_node->parent())
@@ -37,4 +41,9 @@ std::string Node::element_name() const
 	}
 
 	return "<non-element>";
+}
+
+Document &Node::document()
+{
+	return m_document;
 }

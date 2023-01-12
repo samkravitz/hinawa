@@ -11,6 +11,11 @@ Document::Document(const Url &origin) :
     m_origin(origin)
 { }
 
+void Document::print(std::string const &title) const
+{
+	m_root->print(title);
+}
+
 Node *Document::get_body() const
 {
 	Node *body = nullptr;

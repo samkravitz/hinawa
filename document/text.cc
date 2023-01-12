@@ -17,6 +17,12 @@ auto rtrim(const std::string &s) -> std::string
 	return (end == std::string::npos) ? "" : s.substr(0, end + 1);
 };
 
+Text::Text(Document &document, std::string text) :
+    Node(document)
+{
+	m_text = text;
+}
+
 Text::Text(std::string text) :
     m_text(text)
 { }
@@ -51,17 +57,14 @@ std::string Text::trim()
 	// condense all adjacent whitespace into a single space
 	// "hello     world" => "hello world"
 	char prev = ' ';
-	auto iter = std::remove_if(whitespace_trimmed.begin(),
-	                           whitespace_trimmed.end(),
-	                           [&](char c) -> bool
-	                           {
-		                           bool ret = false;
-		                           if (std::isspace(c) && std::isspace(prev))
-			                           ret = true;
+	auto iter = std::remove_if(whitespace_trimmed.begin(), whitespace_trimmed.end(), [&](char c) -> bool {
+		bool ret = false;
+		if (std::isspace(c) && std::isspace(prev))
+			ret = true;
 
-		                           prev = c;
-		                           return ret;
-	                           });
+		prev = c;
+		return ret;
+	});
 	whitespace_trimmed.erase(iter, whitespace_trimmed.end());
 
 	whitespace_trimmed.erase(iter, whitespace_trimmed.end());

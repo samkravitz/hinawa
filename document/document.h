@@ -3,8 +3,9 @@
 #include <memory>
 #include <string>
 
-#include "node.h"
 #include "web/url.h"
+
+class Node;
 
 class Document
 {
@@ -13,7 +14,7 @@ public:
 	Document(std::shared_ptr<Node>);
 	Document(const Url &);
 
-	void print(std::string const &title) const { m_root->print(title); }
+	void print(std::string const &) const;
 	inline std::shared_ptr<Node> root() const { return m_root; }
 	Url origin() const { return m_origin; }
 	Node *get_body() const;
