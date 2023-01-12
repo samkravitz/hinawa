@@ -8,12 +8,12 @@
 
 void load(const Url &url, std::function<void(const std::vector<u8> &)> callback)
 {
-	std::cout << "Loading url: " << url.path_str() << "\n";
+	std::cout << "Loading url: " << url.serialize_path() << "\n";
 	std::cout << url.to_string() << "\n";
 
 	if (url.scheme() == "file")
 	{
-		std::ifstream file(url.path_str());
+		std::ifstream file(url.serialize_path());
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		const auto &str = buffer.str();

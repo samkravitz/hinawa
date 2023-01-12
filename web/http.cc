@@ -143,7 +143,7 @@ std::string Http::to_string() const
 {
 	std::stringstream ss;
 	ss << "GET ";
-	ss << uri.path_str() << " ";
+	ss << uri.serialize_path() << " ";
 	ss << "HTTP/1.1";
 	ss << CRLF;
 

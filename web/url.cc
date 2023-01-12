@@ -86,16 +86,22 @@ int Url::port() const
 	return m_port;
 }
 
-std::string Url::path_str() const
+// https://url.spec.whatwg.org/#url-path-serializer
+std::string Url::serialize_path() const
 {
-	std::string p = "/";
-	for (uint i = 0; i < path().size(); i++)
-	{
-		p += path()[i];
-		if (i != path().size() - 1)
-			p += "/";
-	}
-	return p;
+	// 1. If url has an opaque path, then return url's path
+	if (has_opaque_path())
+		return path()[0];
+
+	// 2. Let output be the empty string
+	std::string output = "";
+
+	// 3. For each segment of url's path: append '/' followed by segment to output.
+	for (const auto &segment : path())
+		output += "/" + segment;
+
+	// 4. return output
+	return output;
 }
 
 std::string Url::to_string() const
