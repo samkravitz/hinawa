@@ -66,7 +66,7 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 {
 	auto default_stylesheet = read_default_stylesheet();
 	auto body = document.get_body();
-	auto user_stylesheet = Parser::parse_stylesheet(document.get_style());
+	auto user_stylesheet = parse_stylesheet(document.get_style());
 	std::vector<Stylesheet> stylesheets;
 	stylesheets.push_back(default_stylesheet);
 	stylesheets.push_back(user_stylesheet);
