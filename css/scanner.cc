@@ -21,4 +21,13 @@ Token Scanner::next()
 	else
 		return { "EOF", static_cast<TokenType>(0), lexer->lineno() };
 }
+
+std::vector<Token> Scanner::tokenize()
+{
+	std::vector<Token> tokens;
+	while (auto token = next())
+		tokens.push_back(token);
+	
+	return tokens;
+}
 }

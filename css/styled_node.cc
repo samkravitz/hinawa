@@ -66,7 +66,7 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 {
 	auto default_stylesheet = read_default_stylesheet();
 	auto body = document.get_body();
-	auto user_stylesheet = Parser::parse(document.get_style());
+	auto user_stylesheet = Parser::parse_stylesheet(document.get_style());
 	std::vector<Stylesheet> stylesheets;
 	stylesheets.push_back(default_stylesheet);
 	stylesheets.push_back(user_stylesheet);
@@ -83,8 +83,8 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 
 			if (element->has_attribute("style"))
 			{
-				for (auto decl : Parser::parse_inline(element->get_attribute("style")))
-					n->assign(decl.name, decl.style_value());
+				//for (auto decl : Parser::parse_inline(element->get_attribute("style")))
+				//	m_values[decl.name] = decl.value;
 			}
 		}
 	});

@@ -1,3 +1,4 @@
+// https://www.w3.org/TR/css-syntax-3/#parsing
 #include "parser.h"
 
 #include <cassert>
@@ -7,216 +8,116 @@
 
 namespace css
 {
-Parser::Parser(std::string input) :
-    scanner(input.c_str())
+Parser::Parser(const std::string &input)
 {
-	advance();
+	Scanner scanner(input.c_str());
+	tokens = scanner.tokenize();
+	pos = tokens.begin();
 }
 
-Stylesheet Parser::parse(std::string input)
+// 5.3.3. Parse a stylesheet
+// https://www.w3.org/TR/css-syntax-3/#parse-stylesheet
+Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
 {
+	// To parse a stylesheet from an input given an optional url location:
+
+	// 1. If input is a byte stream for stylesheet, decode bytes from input, and set input to the result
+	// 2. Normalize input, and set input to the result
 	Parser parser(input);
-	return parser.parse_stylesheet();
-}
+	parser.normalize(input);
 
-auto Parser::parse_inline(std::string input) -> std::vector<Declaration>
-{
-	Parser parser(input);
-	std::vector<Declaration> declarations;
-	while (auto declaration = parser.parse_declaration())
-	{
-		declarations.push_back(*declaration);
-		if (parser.is_eof())
-			break;
-	}
+	// 3. Create a new stylesheet, with its location set to location (or null, if location was not passed).
+	Stylesheet stylesheet = {};
 
-	return declarations;
-}
+	// 4. Consume a list of rules from input, with the top-level flag set, and set the stylesheet's value to the result
+	stylesheet.rules = parser.consume_list_of_rules(true);
 
-Stylesheet Parser::parse_stylesheet()
-{
-	auto stylesheet = Stylesheet{};
-
-	while (auto rule = parse_rule())
-	{
-		stylesheet.rules.push_back(*rule);
-	}
-
+	// 5. Return the stylesheet
 	return stylesheet;
 }
 
-auto Parser::parse_rule() -> std::optional<Rule>
+// 5.4.1. Consume a list of rules
+// https://www.w3.org/TR/css-syntax-3/#consume-a-list-of-rules
+std::vector<Rule> Parser::consume_list_of_rules(bool top_level)
 {
-	auto rule = Rule{};
-	auto selector = parse_selector();
+	// To consume a list of rules, given a top-level flag:
 
-	if (!selector)
-		return {};
+	// Create an initially empty list of rules
+	std::vector<Rule> rules;
 
-	rule.selectors.push_back(*selector);
-
-	while (peek() != OPEN_BRACE)
+	// Repeatedly consume the next input token:
+	while (1)
 	{
-		consume(COMMA, "expected ','");
-		selector = parse_selector();
-		if (!selector)
-			std::cout << "expected selector\n";
+		consume_next_input_token();
 
-		rule.selectors.push_back(*selector);
-	}
-
-	if (match(OPEN_BRACE))
-	{
-		while (!match(CLOSE_BRACE))
+		// <whitespace-token>
+		if (current_input_token.is_whitespace())
 		{
-			auto declaration = parse_declaration();
-			rule.declarations.push_back(*declaration);
-		}
-	}
-
-	return rule;
-}
-
-auto Parser::parse_selector() -> std::optional<Selector>
-{
-	auto selector = Selector{};
-	std::vector<SimpleSelector> simple_selectors;
-
-	while (auto simple = parse_simple_selector())
-		simple_selectors.push_back(*simple);
-
-	if (simple_selectors.empty())
-		return {};
-
-	if (simple_selectors.size() == 1)
-	{
-		selector.type = Selector::Type::Simple;
-		selector.simple_selector = simple_selectors[0];
-	}
-
-	else
-	{
-		CompoundSelector compound_selector;
-		compound_selector.simple_selectors = simple_selectors;
-		selector.type = Selector::Type::Compound;
-		selector.compound_selector = compound_selector;
-	}
-
-	return selector;
-}
-
-auto Parser::parse_simple_selector() -> std::optional<SimpleSelector>
-{
-	// universal selector *
-	if (current_token.value() == "*")
-	{
-		auto simple = SimpleSelector{};
-		simple.type = SimpleSelector::Type::Universal;
-		advance();
-		return simple;
-	}
-
-	if (current_token.value() == ".")
-	{
-		auto simple = SimpleSelector{};
-		simple.type = SimpleSelector::Type::Class;
-		advance();
-		simple.value = current_token.value();
-		advance();
-		return simple;
-	}
-
-	if (current_token.type() == HASH)
-	{
-		auto simple = SimpleSelector{};
-		simple.type = SimpleSelector::Type::Id;
-		simple.value = current_token.value().substr(1);
-		advance();
-		return simple;
-	}
-
-	if (current_token.type() == IDENT)
-	{
-		auto simple = SimpleSelector{};
-		simple.type = SimpleSelector::Type::Type;
-		simple.value = current_token.value();
-		advance();
-
-		if (match(COLON))
-		{
-			advance();
-			simple.type = SimpleSelector::Type::PseudoClass;
+			// Do nothing
+			continue;
 		}
 
-		return simple;
-	}
-
-	return {};
-}
-
-auto Parser::parse_declaration() -> std::optional<Declaration>
-{
-	consume(IDENT, "expected identifier");
-	auto name = previous_token.value();
-	consume(COLON, "expected ':'");
-	auto value = parse_value();
-
-	auto declaration = Declaration{};
-	declaration.name = name;
-	declaration.value = value;
-	return declaration;
-}
-
-std::string Parser::parse_value()
-{
-	std::string value = "";
-	while (!match(SEMICOLON))
-	{
-		if (is_eof())
+		// <EOF-token>
+		if (current_input_token.is_eof())
 		{
-			fmt::print(stderr, "expected ';'\n");
-			return value;
+			// Return the list of rules
+			return rules;
 		}
 
-		value += current_token.value();
-		advance();
+		// <CDO-token>
+		// <CDC-token>
+		if (current_input_token.type() == CDO || current_input_token.type() == CDC)
+		{
+			// If the top-level flag is set, do nothing
+			if (top_level)
+				;
+			
+			// Otherwise, reconsume the current input token
+			// Consume a qualified rule. If anything is returned, append it to the list of rules
+			else
+			{
+				reconsume_current_input_token();
+				//auto qualified_rule = consume_qualified_rule();
+				//if (qualified_rule)
+				//	rules.push_back(*qualified_rule);
+			}
+		}
+
+		// <at-keyword_token>
+
+		// anything else
+		// Reconsume the current input token.
+		// Consume a qualified rule. If anything is returned, append it to the list of rules. 
 	}
 
-	return value;
+	return rules;
 }
 
-void Parser::advance()
+// https://www.w3.org/TR/css-syntax-3/#normalize-into-a-token-stream
+std::vector<Token> Parser::normalize(const std::string &input)
 {
-	previous_token = current_token;
-	current_token = scanner.next();
+	Scanner scanner(input.c_str());
+	tokens = scanner.tokenize();
+	pos = tokens.begin();
+	return tokens;
 }
 
-bool Parser::match(TokenType type)
+void Parser::consume_next_input_token()
 {
-	if (current_token.type() == type)
+	if (pos == tokens.end())
 	{
-		advance();
-		return true;
+		current_input_token = {};
+		return;
 	}
 
-	return false;
+	current_input_token = *pos++;
 }
 
-void Parser::consume(TokenType type, const char *msg)
+void Parser::reconsume_current_input_token()
 {
-	if (!match(type))
-	{
-		std::cout << msg << "\n";
-	}
-}
+	if (pos == tokens.begin())
+		return;
 
-TokenType Parser::peek()
-{
-	return current_token.type();
-}
-
-bool Parser::is_eof() const
-{
-	return current_token.type() == 0;
+	current_input_token = *pos--;
 }
 }

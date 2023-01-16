@@ -6,7 +6,8 @@ namespace css
 {
 enum TokenType
 {
-	S = 1,
+	Eof = 0,
+	S,
 	CDO,
 	CDC,
 	INCLUDES,
@@ -42,8 +43,13 @@ enum TokenType
 class Token
 {
 public:
+	Token();
 	Token(std::string, TokenType, int);
-	Token() = default;
+
+	operator bool() const { return m_type != Eof; }
+
+	bool is_whitespace() const { return false; }
+	bool is_eof() const { return m_type == Eof; }
 
 	std::string to_string();
 

@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "token.h"
 
@@ -18,6 +19,7 @@ public:
 	~Scanner();
 
 	Token next();
+	std::vector<Token> tokenize();
 
 private:
 	std::string source;

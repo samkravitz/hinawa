@@ -3,10 +3,11 @@
 #include <optional>
 #include <string>
 
-#include "stylesheet.h"
 #include "scanner.h"
+#include "stylesheet.h"
 #include "token.h"
 #include "value.h"
+#include "web/url.h"
 
 namespace css
 {
@@ -15,25 +16,19 @@ class Parser
 public:
 	Parser() = delete;
 	static Stylesheet parse(std::string);
+	static Stylesheet parse_stylesheet(const std::string &input, std::optional<Url> location = {});
 	static std::vector<Declaration> parse_inline(std::string);
 
 private:
-	Parser(std::string);
-	Scanner scanner;
-	Token current_token;
-	Token previous_token;
+	Parser(const std::string &);
+	Token current_input_token;
+	std::vector<Token> tokens;
+	std::vector<Token>::iterator pos; // points to next token
 
-	void advance();
-	void consume(TokenType, const char *);
-	bool match(TokenType);
-	bool is_eof() const;
-	TokenType peek();
+	std::vector<Token> normalize(const std::string &);
+	void consume_next_input_token();
+	void reconsume_current_input_token();
 
-	Stylesheet parse_stylesheet();
-	std::optional<Rule> parse_rule();
-	std::optional<SimpleSelector> parse_simple_selector();
-	std::optional<Selector> parse_selector();
-	std::optional<Declaration> parse_declaration();
-	std::string parse_value();
+	std::vector<Rule> consume_list_of_rules(bool top_level = false);
 };
 };
