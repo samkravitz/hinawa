@@ -23,7 +23,7 @@ namespace html
 	}              \
 	}
 
-#define IGNORE_CHARACTER() ;
+#define IGNORE_CHARACTER() continue;
 
 #define SWITCH_TO(new_state)      \
 	do                            \
@@ -415,7 +415,7 @@ loop_start:
 
 				ANYTHING_ELSE
 				{
-					current_token.tag_name() += (current_input_character);
+					current_token.tag_name() += current_input_character;
 					continue;
 				}
 			}
