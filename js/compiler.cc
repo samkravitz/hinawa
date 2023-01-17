@@ -166,7 +166,7 @@ void Compiler::end_compiler()
 
 Function Compiler::compile()
 {
-	Function script("script");
+	Function script("script", SCRIPT);
 	FunctionCompiler compiler(current, &script);
 	init_compiler(&compiler);
 

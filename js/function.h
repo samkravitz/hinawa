@@ -21,36 +21,46 @@ struct Local
 	int depth;
 };
 
+enum FunctionType
+{
+	SCRIPT,
+	FUNCTION,
+	ANONYMOUS,
+};
+
 class Function
 {
 public:
-	Function()
-	{
-		anonymous = true;
-	}
+	Function(FunctionType type) :
+	    type(type)
+	{ }
 
 	Function(std::string const &name) :
 	    name(name)
-	{
-		anonymous = false;
-	}
+	{ }
+
+	Function(std::string const &name, FunctionType type) :
+	    name(name),
+		type(type)
+	{ }
 
 	size_t arity = 0;
 	Chunk chunk;
 	std::string name;
-	bool anonymous;
+	FunctionType type{ FUNCTION };
 
 	std::string to_string() const
 	{
-		if (anonymous)
+		switch (type)
 		{
-			return "<anonymous fn>";
+			case ANONYMOUS: return "<anonymous fn>";
+			case SCRIPT: return "<script>";
+			default:
+				std::string res = "<fn ";
+				res += name;
+				res += ">";
+				return res;
 		}
-
-		std::string res = "<fn ";
-		res += name;
-		res += ">";
-		return res;
 	}
 };
 
@@ -61,10 +71,7 @@ public:
 	    fn(fn)
 	{ }
 
-	Value call(const std::vector<Value> &argv) const
-	{
-		return fn(argv);
-	}
+	Value call(const std::vector<Value> &argv) const { return fn(argv); }
 
 private:
 	std::function<Value(std::vector<Value>)> fn;
