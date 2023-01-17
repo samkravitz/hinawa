@@ -1,10 +1,5 @@
 #pragma once
 
-#undef yyFlexLexer
-#define yyFlexLexer cssFlexLexer
-#include <FlexLexer.h>
-
-#include <sstream>
 #include <string>
 #include <vector>
 

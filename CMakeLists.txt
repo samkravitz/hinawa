@@ -26,7 +26,6 @@ project(hinawa)
 find_package(CURL REQUIRED)
 find_package(fmt REQUIRED)
 find_package(FLEX REQUIRED)
-flex_target(CssLexer css/lex.ll css/lex.yy.cc)
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
 
 include(FetchContent)
