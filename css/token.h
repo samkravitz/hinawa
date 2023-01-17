@@ -33,8 +33,11 @@ enum TokenType
 	CLOSE_CURLY,
 };
 
-struct Token
+class Token
 {
+friend class Scanner;
+
+public:
 	Token() :
 	    Token(Eof)
 	{ }
@@ -72,8 +75,10 @@ struct Token
 	inline TokenType type() const { return m_type; }
 	inline std::string value() const { return m_value; }
 
+private:
 	TokenType m_type;
 	std::string m_value;
-	bool flag{ false };    // true if id, false if unrestricted
+	bool m_flag{ false };    // true if id, false if unrestricted
+	std::string m_unit;
 };
 }

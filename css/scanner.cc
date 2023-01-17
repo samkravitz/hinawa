@@ -73,7 +73,7 @@ Token Scanner::next()
 			auto token = Token(HASH);
 			if (would_start_ident_sequence())
 			{
-				token.flag = true;
+				token.m_flag = true;
 			}
 
 			token.m_value = consume_ident_sequence();
