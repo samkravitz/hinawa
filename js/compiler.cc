@@ -158,7 +158,8 @@ void Compiler::end_compiler()
 
 	auto function = *current->function;
 	#ifdef DEBUG_PRINT_CODE
-	function.chunk.disassemble(function.name.c_str());
+	const char *name = function.type == ANONYMOUS ? "anonymous" : function.name.c_str();
+	function.chunk.disassemble(name);
 	#endif
 
 	current = current->enclosing;
@@ -301,6 +302,9 @@ void Compiler::parse_precedence(Precedence precedence)
 
 void Compiler::anonymous(bool can_assign)
 {
+	auto function = Function(ANONYMOUS);
+	FunctionCompiler compiler(current, &function);
+	init_compiler(&compiler);
 	begin_scope();
 	consume(LEFT_PAREN, "Expect '(' after function");
 
@@ -318,22 +322,13 @@ void Compiler::anonymous(bool can_assign)
 		} while (match(COMMA));
 	}
 
-	current_function().arity = arity;
+	current->function->arity = arity;
 	consume(RIGHT_PAREN, "Expect ')' after parameters");
 	consume(LEFT_BRACE, "Expect '{' before function body");
 	block();
 
-	if (current_function().chunk.code.empty())
-		emit_constant(Value(nullptr));
-
-	emit_byte(OP_RETURN);
-	auto fn = current_function();
-
-	#ifdef DEBUG_PRINT_CODE
-	fn.chunk.disassemble("anonymous");
-	#endif
-
-	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(fn))));
+	end_compiler();
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
 }
 
 void Compiler::array(bool can_assign)
