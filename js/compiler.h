@@ -95,6 +95,7 @@ private:
 	void expression_statement();
 	void if_statement();
 	void return_statement();
+	void throw_statement();
 	void try_statement();
 	void while_statement();
 

@@ -113,6 +113,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return jump_instruction("OP_PUSH_EXCEPTION", 1, offset);
 		case OP_POP_EXCEPTION:
 			return simple_instruction("OP_POP_EXCEPTION", offset);
+		case OP_THROW:
+			return simple_instruction("OP_THROW", offset);
 		default:
 			std::printf("Unknown opcode: %d\n", instruction);
 			return offset + 1;

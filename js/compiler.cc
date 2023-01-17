@@ -235,6 +235,12 @@ void Compiler::statement()
 		return;
 	}
 
+	if (match(KEY_THROW))
+	{
+		throw_statement();
+		return;
+	}
+
 	if (match(LEFT_BRACE))
 	{
 		begin_scope();
@@ -680,7 +686,12 @@ void Compiler::try_statement()
 
 	if (!has_catch && !has_finally)
 		error("Expected catch or finally");
+}
 
+void Compiler::throw_statement()
+{
+	expression();
+	emit_byte(OP_THROW);
 }
 
 void Compiler::while_statement()

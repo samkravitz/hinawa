@@ -435,6 +435,12 @@ bool Vm::run(Function f)
 				break;
 			}
 
+			case OP_THROW:
+			{
+				pop();
+				break;
+			}
+
 			default:
 				assert(!"Unknown opcode");
 		}

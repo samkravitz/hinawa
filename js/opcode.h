@@ -45,5 +45,6 @@ enum Opcode : u8
 	OP_NEW_OBJECT,
 	OP_PUSH_EXCEPTION,
 	OP_POP_EXCEPTION,
+	OP_THROW,
 };
 }
