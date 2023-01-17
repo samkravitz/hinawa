@@ -8,6 +8,7 @@ set(SOURCES
 )
 
 set(HEADERS
+	component_value.h
 	css.h
 	parser.h
 	scanner.h
