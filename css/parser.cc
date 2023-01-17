@@ -114,7 +114,7 @@ std::optional<ParserRule> Parser::consume_qualified_rule()
 		}
 
 		// <{-token>
-		if (current_input_token.type() == OPEN_BRACE)
+		if (current_input_token.type() == OPEN_CURLY)
 		{
 			// Consume a simple block and assign it to the qualified rule's block. Return the qualified rule.
 			rule.block = consume_simple_block();
@@ -249,7 +249,7 @@ ParserBlock Parser::consume_simple_block()
 		consume_next_input_token();
 
 		// ending token
-		if (current_input_token.type() == CLOSE_BRACE)
+		if (current_input_token.type() == CLOSE_CURLY)
 		{
 			// Return the block
 			return block;

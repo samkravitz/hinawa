@@ -7,44 +7,60 @@ namespace css
 enum TokenType
 {
 	Eof = 0,
-	S,
-	CDO,
-	CDC,
-	INCLUDES,
-	DASHMATCH,
+	IDENT,
+	FUNCTION,
+	AT_KEYWORD,
+	HASH,
 	STRING,
 	BAD_STRING,
-	IDENT,
-	HASH,
-	IMPORT_SYM,
-	PAGE_SYM,
-	MEDIA_SYM,
-	CHARSET_SYM,
-	IMPORTANT_SYM,
-	EMS,
-	EXS,
-	LENGTH,
-	ANGLE,
-	TIME,
-	FREQ,
-	DIMENSION,
-	PERCENTAGE,
+	URL,
+	BAD_URL,
+	DELIM,
 	NUMBER,
-	URI,
-	BAD_URI,
-	FUNCTION,
-	COMMA,
+	PERCENTAGE,
+	DIMENSION,
+	WHITESPACE,
+	CDO,
+	CDC,
 	COLON,
 	SEMICOLON,
-	OPEN_BRACE,
-	CLOSE_BRACE,
+	COMMA,
+	OPEN_SQUARE,
+	CLOSE_SQUARE,
+	OPEN_PAREN,
+	CLOSE_PAREN,
+	OPEN_CURLY,
+	CLOSE_CURLY,
 };
 
-class Token
+struct Token
 {
-public:
-	Token();
-	Token(std::string, TokenType, int);
+	Token() :
+	    Token(Eof)
+	{ }
+
+	Token(TokenType type) :
+	    m_type(type)
+	{
+		switch (type)
+		{
+			case COMMA: m_value = ","; break;
+			case COLON: m_value = ":"; break;
+			case SEMICOLON: m_value = ";"; break;
+			case OPEN_CURLY: m_value = "{"; break;
+			case CLOSE_CURLY: m_value = "}"; break;
+			case OPEN_SQUARE: m_value = "["; break;
+			case CLOSE_SQUARE: m_value = "]"; break;
+			case OPEN_PAREN: m_value = "("; break;
+			case CLOSE_PAREN: m_value = ")"; break;
+			default: break;
+		}
+	}
+
+	Token(TokenType type, std::string value) :
+	    m_type(type),
+	    m_value(value)
+	{ }
 
 	operator bool() const { return m_type != Eof; }
 
@@ -55,11 +71,9 @@ public:
 
 	inline TokenType type() const { return m_type; }
 	inline std::string value() const { return m_value; }
-	inline int line() const { return m_line; }
 
-private:
-	std::string m_value;
 	TokenType m_type;
-	int m_line;
+	std::string m_value;
+	bool flag{ false };    // true if id, false if unrestricted
 };
 }
