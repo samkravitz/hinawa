@@ -106,7 +106,7 @@ ParseRule rules[] = {
 	[KEY_INSTANCEOF]    = { nullptr, nullptr, PREC_NONE },
 	[KEY_INTERFACE]     = { nullptr, nullptr, PREC_NONE },
 	[KEY_LET]           = { nullptr, nullptr, PREC_NONE },
-	[KEY_NEW]           = { nullptr, nullptr, PREC_NONE },
+	[KEY_NEW]           = { &Compiler::new_instance, nullptr, PREC_NONE },
 	[KEY_NULL]          = { &Compiler::literal, nullptr, PREC_NONE },
 	[KEY_PACKAGE]       = { nullptr, nullptr, PREC_NONE },
 	[KEY_PRIVATE]       = { nullptr, nullptr, PREC_NONE },
@@ -496,6 +496,30 @@ void Compiler::literal(bool can_assign)
 		default:
 			assert(!"Unknown literal!");
 	}
+}
+
+void Compiler::new_instance(bool can_assign)
+{
+	parse_variable("Expect identifier in new");
+	int argc = 0;
+
+	if (match(LEFT_PAREN))
+	{
+		if (!check(RIGHT_PAREN))
+		{
+			do
+			{
+				expression();
+				argc++;
+				if (argc > 0xff)
+					error("Can't have more than 255 arguments");
+			} while (match(COMMA));
+		}
+		consume(RIGHT_PAREN, "Expect ')' after arguments");
+	}
+
+	match(SEMICOLON);
+	emit_bytes(OP_CALL, argc);
 }
 
 void Compiler::number(bool can_assign)

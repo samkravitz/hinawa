@@ -43,6 +43,7 @@ public:
 	void dot(bool);
 	void grouping(bool);
 	void literal(bool);
+	void new_instance(bool);
 	void number(bool);
 	void object(bool);
 	void string(bool);
