@@ -67,7 +67,7 @@ public:
 
 	operator bool() const { return m_type != Eof; }
 
-	bool is_whitespace() const { return false; }
+	bool is_whitespace() const { return m_type == WHITESPACE; }
 	bool is_eof() const { return m_type == Eof; }
 
 	std::string to_string();

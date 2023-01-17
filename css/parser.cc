@@ -120,6 +120,10 @@ std::optional<ParserRule> Parser::consume_qualified_rule()
 			rule.block = consume_simple_block();
 			return rule;
 		}
+
+		// anything else
+		reconsume_current_input_token();
+		rule.prelude.push_back(consume_component_value());
 	}
 }
 
@@ -233,6 +237,7 @@ std::optional<ParserDeclaration> Parser::consume_declaration()
 Token Parser::consume_component_value()
 {
 	// TODO - implement correctly
+	consume_next_input_token();
 	return current_input_token;
 }
 
@@ -283,6 +288,9 @@ std::vector<Token> Parser::normalize(const std::string &input)
 Token Parser::next_input_token()
 {
 	if (pos == tokens.end())
+		return {};
+	
+	if (pos == --tokens.end())
 		return {};
 
 	return *(pos + 1);
