@@ -261,9 +261,9 @@ bool Scanner::would_start_ident_sequence() const
 	if (pos + 2 >= input.size())
 		return false;
 
-	first = current_codepoint;
-	second = input[pos];
-	third = input[pos + 1];
+	first = next_codepoint();
+	second = input[pos + 1];
+	third = input[pos + 2];
 
 	if (first == '-')
 	{
@@ -417,7 +417,21 @@ Token Scanner::consume_numeric()
 
 std::string Scanner::consume_number()
 {
-	return "";
+	std::string repr;
+
+	if (next_codepoint() == '+' || next_codepoint() == '-')
+	{
+		repr += next_codepoint();
+		consume_next_code_point();
+	}
+
+	while (is_digit(next_codepoint()))
+	{
+		repr += next_codepoint();
+		consume_next_code_point();
+	}
+
+	return repr;
 }
 
 Token Scanner::consume_ident_like()

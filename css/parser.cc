@@ -24,7 +24,7 @@ ParserStylesheet Parser::parse_stylesheet(const std::string &input, std::optiona
 	// 1. If input is a byte stream for stylesheet, decode bytes from input, and set input to the result
 	// 2. Normalize input, and set input to the result
 	Parser parser(input);
-	parser.normalize(input);
+	//parser.normalize(input);
 
 	// 3. Create a new stylesheet, with its location set to location (or null, if location was not passed).
 	ParserStylesheet stylesheet = {};
