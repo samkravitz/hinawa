@@ -53,14 +53,6 @@ bool Vm::run(Function f)
 
 	while (1)
 	{
-		#ifdef DEBUG_PRINT_STACK
-		std::printf("stack:          ");
-		std::printf("[ ");
-		for (auto &x : stack)
-			std::printf("%s ", x.to_string().c_str());
-		std::printf("]\n");
-		#endif
-
 		auto instruction = static_cast<Opcode>(read_byte());
 
 		switch (instruction)
@@ -444,6 +436,14 @@ bool Vm::run(Function f)
 			default:
 				assert(!"Unknown opcode");
 		}
+
+		#ifdef DEBUG_PRINT_STACK
+		std::printf("stack:          ");
+		std::printf("[ ");
+		for (auto &x : stack)
+			std::printf("%s ", x.to_string().c_str());
+		std::printf("]\n");
+		#endif
 	}
 }
 
