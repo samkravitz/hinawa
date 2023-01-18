@@ -70,19 +70,20 @@ public:
 	}
 };
 
+class Vm;
 class NativeFunction final : public Function
 {
 public:
-	NativeFunction(const std::function<Value(std::vector<Value>)> &fn) :
+	NativeFunction(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn) :
 	    fn(fn)
 	{ }
 
-	Value call(const std::vector<Value> &argv) const { return fn(argv); }
+	Value call(Vm &vm, const std::vector<Value> &argv) const { return fn(vm, argv); }
 	bool is_native() const { return true; }
 
 	std::string to_string() const { return "<native fn>"; }
 
 private:
-	std::function<Value(std::vector<Value>)> fn;
+	std::function<Value(Vm &, std::vector<Value>)> fn;
 };
 }

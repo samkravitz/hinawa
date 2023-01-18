@@ -25,11 +25,10 @@ Vm::Vm(bool headless)
 	global->set("window", Value(global));
 
 	auto *console = new Object();
-	console->set_native("log", [](std::vector<Value> argv) -> Value
+	console->set_native("log", [](auto &vm, const auto &argv) -> Value
 	{
-		auto undefined = Value();
 		if (argv.empty())
-			return undefined;
+			return {};
 
 		for (uint i = 0; i < argv.size(); i++)
 		{
@@ -39,7 +38,7 @@ Vm::Vm(bool headless)
 		}
 		
 		std::cout << "\n";
-		return undefined;
+		return {};
 	});
 	
 	global->set("console", Value(console));
@@ -251,7 +250,7 @@ bool Vm::run(Function f)
 					while (i--)
 						argv.push_back(peek(i));
 
-					auto result = callee.as_native()->call(argv);
+					auto result = callee.as_native()->call(*this, argv);
 					for (int i = 0; i < num_args + 1; i++)
 						pop();
 					

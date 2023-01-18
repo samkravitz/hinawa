@@ -9,6 +9,8 @@
 
 namespace js
 {
+class Vm;
+
 class Object
 {
 public:
@@ -16,7 +18,7 @@ public:
 
 	Value get(std::string const &);
 	void set(std::string, Value);
-	void set_native(const std::string &, const std::function<Value(std::vector<Value>)> &);
+	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value>&)> &);
 
 	bool is_defined(std::string const &) const;
 	virtual bool is_function() const { return false; }

@@ -1,9 +1,10 @@
 #include "object.h"
 
+#include <iostream>
 #include <sstream>
 
 #include "function.h"
-#include <iostream>
+#include "vm.h"
 
 namespace js
 {
@@ -32,7 +33,7 @@ void Object::set(std::string key, Value value)
 	properties[key] = value;
 }
 
-void Object::set_native(const std::string &name, const std::function<Value(std::vector<Value>)> &fn)
+void Object::set_native(const std::string &name, const std::function<Value(Vm &, const std::vector<Value> &)> &fn)
 {
 	properties[name] = Value(new NativeFunction(fn));
 }
