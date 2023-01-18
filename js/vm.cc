@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 
 #include "chunk.h"
+#include "object_string.h"
 #include "object.h"
 #include "opcode.h"
 
@@ -362,14 +363,26 @@ bool Vm::run(Function f)
 
 			case OP_GET_PROPERTY:
 			{
-				if (!peek().is_object())
+				Object *obj;
+
+				if (peek().is_string())
+				{
+					obj = new ObjectString(peek().as_string());
+				}
+
+				else if (peek().is_object())
+				{
+					obj = peek().as_object();
+				}
+
+				else
 				{
 					if (!runtime_error("Error: tried to get property on a non-object"))
 						return false;
 					break;
 				}
 
-				auto *obj = peek().as_object();
+				_this = obj;
 				auto val = obj->get(read_string());
 				pop();
 				push(val);
@@ -567,6 +580,7 @@ std::string Vm::read_string()
 {
 	auto constant = read_constant();
 	assert(constant.is_string());
+	auto str = *constant.as_string();
 	return *constant.as_string();
 }
 

@@ -6,9 +6,9 @@ endif()
 set(SOURCES
 	chunk.cc
 	compiler.cc
+	object_string.cc
 	object.cc
 	scanner.cc
-	string.cc
 	token.cc
 	value.cc
 	vm.cc
@@ -18,10 +18,10 @@ set(HEADERS
 	chunk.h
 	compiler.h
 	function.h
+	object_string.h
 	object.h
 	opcode.h
 	scanner.h
-	string.hh
 	token_type.h
 	token.h
 	value.h

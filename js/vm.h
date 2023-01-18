@@ -42,10 +42,14 @@ class Vm
 public:
 	Vm(bool headless = false);
 	bool run(Function);
+	Object *current_this() const { return _this; }
 
 private:
 	// pointer to the global object
 	Object *global = nullptr;
+
+	// pointer to the current this object
+	Object *_this = nullptr;
 
 	std::vector<Value> stack;
 	std::vector<uint> catchv;
