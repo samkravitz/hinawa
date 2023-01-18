@@ -60,7 +60,7 @@ std::string Object::to_string() const
 			stream << it->second.to_string();
 
 		if (std::next(it) != properties.end())
-			stream << ", ";
+			stream << ",";
 		else
 			stream << " ";
 	}
