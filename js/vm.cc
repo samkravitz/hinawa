@@ -243,14 +243,7 @@ bool Vm::run(Function f)
 				auto num_args = read_byte();
 				auto callee = peek(num_args);
 
-				if (callee.is_function())
-				{
-					auto base = static_cast<uint>(stack.size() - num_args - 1);
-					auto cf = CallFrame { *callee.as_function(), base };
-					frames.push(cf);
-				}
-
-				else if (callee.is_native())
+				if (callee.is_native())
 				{
 					int i = num_args;
 					std::vector<Value> argv;
@@ -263,6 +256,13 @@ bool Vm::run(Function f)
 						pop();
 					
 					push(result);
+				}
+
+				else if (callee.is_function())
+				{
+					auto base = static_cast<uint>(stack.size() - num_args - 1);
+					auto cf = CallFrame { *callee.as_function(), base };
+					frames.push(cf);
 				}
 
 				else

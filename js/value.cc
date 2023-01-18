@@ -30,6 +30,28 @@ bool Value::operator==(const Value &other) const
 	return false;
 }
 
+bool Value::is_function() const
+{
+	return is_object() && as_object()->is_function();
+}
+
+bool Value::is_native() const
+{
+	return is_object() && as_object()->is_native();
+}
+
+Function *Value::as_function() const
+{
+	assert(is_function());
+	return static_cast<Function*>(object);
+}
+
+NativeFunction *Value::as_native() const
+{
+	assert(is_native());
+	return static_cast<NativeFunction*>(object);
+}
+
 std::string Value::to_string() const
 {
 	switch (type())
@@ -49,13 +71,11 @@ std::string Value::to_string() const
 			return stream.str();
 		}			
 		case Type::Bool: return as_bool() ? "true" : "false";
-		case Type::Native: return "<native fn>";
 		case Type::Null: return "null";
 		case Type::Number: return std::to_string(as_number());
 		case Type::Object: return as_object()->to_string();
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
-		case Type::Function: return as_function()->to_string();
 		default:
 			assert(!"Unknown value type!");
 	}

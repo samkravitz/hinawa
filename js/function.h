@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "chunk.h"
+#include "object.h"
 #include "token.h"
 
 namespace js
@@ -28,9 +29,11 @@ enum FunctionType
 	ANONYMOUS,
 };
 
-class Function
+class Function : public Object
 {
 public:
+	Function() = default;
+
 	Function(FunctionType type) :
 	    type(type)
 	{ }
@@ -49,7 +52,10 @@ public:
 	std::string name;
 	FunctionType type{ FUNCTION };
 
-	std::string to_string() const
+	bool is_function() const { return true; }
+	virtual bool is_native() const { return false; }
+
+	virtual std::string to_string() const
 	{
 		switch (type)
 		{
@@ -64,7 +70,7 @@ public:
 	}
 };
 
-class NativeFunction
+class NativeFunction final : public Function
 {
 public:
 	NativeFunction(const std::function<Value(std::vector<Value>)> &fn) :
@@ -72,6 +78,9 @@ public:
 	{ }
 
 	Value call(const std::vector<Value> &argv) const { return fn(argv); }
+	bool is_native() const { return true; }
+
+	std::string to_string() const { return "<native fn>"; }
 
 private:
 	std::function<Value(std::vector<Value>)> fn;
