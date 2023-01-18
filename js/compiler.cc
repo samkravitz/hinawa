@@ -153,14 +153,14 @@ void Compiler::end_compiler()
 {
 	if (current->function->chunk.code.empty())
 		emit_constant(Value(nullptr));
-	
+
 	emit_byte(OP_RETURN);
 
 	auto function = *current->function;
-	#ifdef DEBUG_PRINT_CODE
+#ifdef DEBUG_PRINT_CODE
 	const char *name = function.type == ANONYMOUS ? "anonymous" : function.name.c_str();
 	function.chunk.disassemble(name);
-	#endif
+#endif
 
 	current = current->enclosing;
 }
@@ -212,6 +212,11 @@ bool Compiler::check(TokenType type)
 
 void Compiler::statement()
 {
+	if (match(KEY_FOR))
+	{
+		for_statement();
+		return;
+	}
 	if (match(KEY_IF))
 	{
 		if_statement();
@@ -561,6 +566,32 @@ void Compiler::unary(bool can_assign)
 	{
 		case MINUS: emit_byte(OP_NEGATE); break;
 		case BANG: emit_byte(OP_NOT); break;
+		case PLUS_PLUS:
+		case MINUS_MINUS:
+		{
+			auto identifier = parser.previous;
+			Opcode set_op;
+			int value = resolve_local(identifier);
+
+			if (value == -1)
+			{
+				set_op = OP_SET_GLOBAL;
+				value = make_constant(Value(new std::string(identifier.value())));
+			}
+
+			else
+			{
+				set_op = OP_SET_LOCAL;
+			}
+
+			if (op == PLUS_PLUS)
+				emit_byte(OP_INCREMENT);
+			else
+				emit_byte(OP_DECREMENT);
+
+			emit_bytes(set_op, value);
+			break;
+		}
 		default:
 			assert(!"Unknown unary operator!");
 	}
@@ -596,6 +627,54 @@ void Compiler::variable(bool can_assign)
 	{
 		emit_bytes(get_op, value);
 	}
+}
+
+void Compiler::for_statement()
+{
+	begin_scope();
+	consume(LEFT_PAREN, "Expect '(' after 'for'");
+
+	if (match(SEMICOLON))
+		;
+	else if (match(KEY_VAR))
+		var_declaration();
+	else
+		expression_statement();
+
+	int loop_start = current->function->chunk.size();
+	int exit_jump = -1;
+	if (!match(SEMICOLON))
+	{
+		expression();
+		consume(SEMICOLON, "Expect ';' after loop condition.");
+
+		exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+		emit_byte(OP_POP);
+	}
+
+	if (!match(RIGHT_PAREN))
+	{
+		int body_jump = emit_jump(OP_JUMP);
+		int increment_start = current->function->chunk.size();
+		expression();
+		emit_byte(OP_POP);
+		consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+		emit_loop(loop_start);
+		loop_start = increment_start;
+		patch_jump(body_jump);
+	}
+
+	statement();
+	emit_loop(loop_start);
+
+	if (exit_jump != -1)
+	{
+		patch_jump(exit_jump);
+		emit_byte(OP_POP);
+	}
+
+	end_scope();
 }
 
 void Compiler::expression_statement()

@@ -93,6 +93,7 @@ private:
 	void statement();
 	void block();
 	void expression_statement();
+	void for_statement();
 	void if_statement();
 	void return_statement();
 	void throw_statement();
