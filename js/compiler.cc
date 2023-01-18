@@ -62,8 +62,8 @@ ParseRule rules[] = {
 	[ARROW]             = { nullptr, &Compiler::binary, PREC_AND },
 	[QUESTION_QUESTION] = { nullptr, &Compiler::binary, PREC_AND },
 	[STAR_STAR]         = { nullptr, &Compiler::binary, PREC_AND },
-	[PLUS_PLUS]         = { nullptr, &Compiler::binary, PREC_AND },
-	[MINUS_MINUS]       = { nullptr, &Compiler::binary, PREC_AND },
+	[PLUS_PLUS]         = { &Compiler::unary, &Compiler::unary, PREC_UNARY },
+	[MINUS_MINUS]       = { &Compiler::unary, &Compiler::unary, PREC_UNARY },
 	[QUESTION_DOT]      = { nullptr, &Compiler::binary, PREC_AND },
 
 	[EQUAL_EQUAL_EQUAL] = { nullptr, &Compiler::binary, PREC_EQUALITY },

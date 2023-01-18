@@ -39,6 +39,11 @@ public:
 		m_type(Type::Null)
 	{ }
 
+	explicit Value(bool boolean) :
+	    m_type(Type::Bool),
+	    boolean(boolean)
+	{ }
+
 	explicit Value(double number) :
 	    m_type(Type::Number),
 	    number(number)

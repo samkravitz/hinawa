@@ -84,6 +84,20 @@ bool Vm::run(Function f)
 				// TODO
 				break;
 
+			case OP_INCREMENT:
+			{
+				auto value = pop();
+				push(Value(value.as_number() + 1));
+				break;
+			}
+
+			case OP_DECREMENT:
+			{
+				auto value = pop();
+				push(Value(value.as_number() - 1));
+				break;
+			}
+
 			case OP_ADD:
 				binary_op(Operator::Plus);
 				break;
