@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <string>
+#include <curl/curl.h>
 
 namespace fs = std::filesystem;
 
@@ -22,6 +23,8 @@ int main(int argc, char **argv)
 	else
 		url = Url(html_file);
 
+	curl_global_init(CURL_GLOBAL_ALL);
 	auto hinawa = browser::Browser(url);
+	curl_global_cleanup();
 	return 0;
 }

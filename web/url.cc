@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <iostream>
 
 #include "url_parser.h"
 

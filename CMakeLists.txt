@@ -22,6 +22,8 @@ endif()
 
 project(hinawa)
 
+find_package(CURL REQUIRED)
+
 find_package(fmt)
 find_package(FLEX REQUIRED)
 flex_target(CssLexer css/lex.ll css/lex.yy.cc)
@@ -39,4 +41,4 @@ add_subdirectory(js)
 add_subdirectory(layout)
 add_subdirectory(web)
 
-target_link_libraries(hinawa ssl crypto sfml-graphics sfml-window sfml-system fmt::fmt)
+target_link_libraries(hinawa ssl crypto sfml-graphics sfml-window sfml-system fmt::fmt curl)
