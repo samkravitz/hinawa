@@ -20,9 +20,9 @@ for test_file in test_files:
 		result = proc.stdout.decode('utf-8').strip()
 		
 		if result == expected_result:
-			print(f'{PASS}pass')
+			print(f'{PASS}PASS')
 		else:
-			print(f'{FAIL}fail')
+			print(f'{FAIL}FAIL')
 			print('expect:')
 			print(f'{expected_result}\n')
 			print('got:')

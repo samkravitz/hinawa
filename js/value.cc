@@ -1,6 +1,7 @@
 #include "value.h"
 
 #include <cassert>
+#include <cmath>
 #include <sstream>
 
 #include "object.h"
@@ -72,7 +73,13 @@ std::string Value::to_string() const
 		}			
 		case Type::Bool: return as_bool() ? "true" : "false";
 		case Type::Null: return "null";
-		case Type::Number: return std::to_string(as_number());
+		case Type::Number:
+		{
+			double num = as_number();
+			if (num == std::trunc(num))
+				return std::to_string((int) num);
+			return std::to_string(num);
+		}
 		case Type::Object: return as_object()->to_string();
 		case Type::Undefined: return "undefined";
 		case Type::String: return *as_string();
