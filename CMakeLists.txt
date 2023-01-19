@@ -41,4 +41,4 @@ add_subdirectory(js)
 add_subdirectory(layout)
 add_subdirectory(web)
 
-target_link_libraries(hinawa ssl crypto sfml-graphics sfml-window sfml-system fmt::fmt curl)
+target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt)
