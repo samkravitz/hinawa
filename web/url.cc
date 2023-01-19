@@ -86,6 +86,54 @@ int Url::port() const
 	return m_port;
 }
 
+// https://url.spec.whatwg.org/#concept-url-serializer
+std::string Url::serialize(bool exclude_fragment) const
+{
+	// 1. Let output be url's scheme and U+003A (:) concatenated.
+	std::string output = scheme() + ":";
+
+	// 2. If url's host is non-null:
+	if (1)
+	{
+		// 1. Append "//" to output.
+		output += "//";
+
+		// 2. If url includes credentials, then:
+		if (false)
+		{
+			// 1. Append url's username to output.
+			// 2. If url's password is not the empty string, then append U+003A (:), followed by url's password, to output.
+			// 3. Append U+0040 (@) to output.
+		}
+
+		// 3. Append url's host, serialized, to output.
+		output += host();
+
+		// 4. If url's port is non-null, append U+003A (:) followed by url's port, serialized, to output.
+		if (m_port != PORT_NULL)
+		{
+			output += ":" + std::to_string(port());
+		}
+	}
+
+	// 3. If url's host is null, url does not have an opaque path,
+	// url's path's size is greater than 1, and url's path[0] is the empty string, then append U+002F (/) followed by U+002E (.) to output.
+	if (false)
+	{
+		output += "/.";
+	}
+
+	// 4. Append the result of URL path serializing url to output.
+	output += serialize_path();
+
+	// 5. If url's query is non-null, append U+003F (?), followed by url's query, to output.
+
+	// 6. If exclude fragment is false and url's fragment is non-null, then append U+0023 (#), followed by url's fragment, to output.
+
+	// 7. Return output.
+	return output;
+}
+
 // https://url.spec.whatwg.org/#url-path-serializer
 std::string Url::serialize_path() const
 {

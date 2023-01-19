@@ -47,6 +47,7 @@ public:
 	bool is_special() const;
 	bool has_opaque_path() const { return false; }
 	void shorten_path();
+	std::string serialize(bool exclude_fragment = false) const;
 	std::string serialize_path() const;
 	std::string to_string() const;
 
