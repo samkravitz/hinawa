@@ -43,10 +43,10 @@ bool Selector::matches(StyledNode *styled_node) const
 		{
 			for (const auto &simple : compound_selector.simple_selectors)
 			{
-				if (simple.matches(styled_node))
-					return true;
+				if (!simple.matches(styled_node))
+					return false;
 			}
-			return false;
+			return true;
 		}
 	}
 }

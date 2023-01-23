@@ -79,58 +79,72 @@ auto Parser::parse_rule() -> std::optional<Rule>
 
 auto Parser::parse_selector() -> std::optional<Selector>
 {
-	std::optional<Selector> selector = {};
+	auto selector = Selector{};
+	std::vector<SimpleSelector> simple_selectors;
 
+	while (auto simple = parse_simple_selector())
+		simple_selectors.push_back(*simple);
+	
+	if (simple_selectors.empty())
+		return {};
+	
+	if (simple_selectors.size() == 1)
+	{
+		selector.type = Selector::Type::Simple;
+		selector.simple_selector = simple_selectors[0];
+	}
+
+	else
+	{
+		CompoundSelector compound_selector;
+		compound_selector.simple_selectors = simple_selectors;
+		selector.type = Selector::Type::Compound;
+		selector.compound_selector = compound_selector;
+	}
+
+	return selector;
+}
+
+auto Parser::parse_simple_selector() -> std::optional<SimpleSelector>
+{
 	// universal selector *
 	if (current_token.value() == "*")
 	{
-		selector = Selector{};
-		SimpleSelector simple;
+		auto simple = SimpleSelector{};
 		simple.type = SimpleSelector::Type::Universal;
 		advance();
-		selector->simple_selector = simple;
-		selector->type = Selector::Type::Simple;
-		return selector;
+		return simple;
 	}
 
 	if (current_token.value() == ".")
 	{
-		selector = Selector{};
-		SimpleSelector simple;
+		auto simple = SimpleSelector{};
 		simple.type = SimpleSelector::Type::Class;
 		advance();
 		simple.value = current_token.value();
-		selector->simple_selector = simple;
-		selector->type = Selector::Type::Simple;
 		advance();
-		return selector;
+		return simple;
 	}
 
 	if (current_token.type() == HASH)
 	{
-		selector = Selector{};
-		SimpleSelector simple;
+		auto simple = SimpleSelector{};
 		simple.type = SimpleSelector::Type::Id;
 		simple.value = current_token.value().substr(1);
-		selector->simple_selector = simple;
-		selector->type = Selector::Type::Simple;
 		advance();
-		return selector;
+		return simple;
 	}
 
 	if (current_token.type() == IDENT)
 	{
-		selector = Selector{};
-		SimpleSelector simple;
+		auto simple = SimpleSelector{};
 		simple.type = SimpleSelector::Type::Type;
 		simple.value = current_token.value();
-		selector->type = Selector::Type::Simple;
-		selector->simple_selector = simple;
 		advance();
-		return selector;
+		return simple;
 	}
 
-	return selector;
+	return {};
 }
 
 auto Parser::parse_declaration() -> std::optional<Declaration>
