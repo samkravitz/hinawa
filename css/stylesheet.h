@@ -8,23 +8,61 @@
 
 namespace css
 {
+class StyledNode;
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
+struct SimpleSelector
+{
+	enum class Type
+	{
+		Universal,
+		Type,
+		Class,
+		Id,
+		Attribute,
+		PseudoClass,
+		PseudoElement,
+	} type;
+
+	std::string value;
+
+	bool matches(StyledNode *styled_node) const;
+};
+
+struct CompoundSelector
+{
+	std::vector<SimpleSelector> simple_selectors;
+};
+
+struct SelectorList
+{
+	std::vector<CompoundSelector> compound_selectors;
+};
+
+struct ComplexSelector
+{ };
+
 // ex
 // div
 // p, h1
 struct Selector
 {
-	std::string tag_name;
-	std::string id;
-	std::string class_name;
-
-	bool is_universal = false;
-
-	std::string to_string()
+	enum class Type
 	{
-		return tag_name;
-	}
-};
+		Simple,
+		Compound,
+		Complex,
+		Relative,
+	} type;
 
+	SimpleSelector simple_selector;
+	CompoundSelector compound_selector;
+	ComplexSelector complex_selector;
+
+	bool matches(StyledNode *) const;
+
+	std::string to_string() { return ""; }
+};
 
 // ex
 // margin: auto
@@ -33,10 +71,7 @@ struct Declaration
 	std::string name;
 	Value *value;
 
-	std::string to_string()
-	{
-		return name + " : " + value->to_string();
-	}
+	std::string to_string() { return name + " : " + value->to_string(); }
 };
 
 struct Rule
@@ -71,9 +106,7 @@ struct Stylesheet
 
 	std::vector<Rule> rules;
 
-	std::vector<Declaration> universal_rules() const;
-	std::vector<Declaration> rules_for_tag(std::string const) const;
-	std::vector<Declaration> rules_for_class(std::string const) const;
+	void style(StyledNode *) const;
 
 	std::string to_string() const
 	{

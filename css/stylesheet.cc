@@ -3,7 +3,9 @@
 #include <fstream>
 #include <sstream>
 
+#include "document/element.h"
 #include "parser.h"
+#include "styled_node.h"
 
 namespace css
 {
@@ -16,66 +18,72 @@ Stylesheet read_default_stylesheet()
 	return Parser::parse(buffer.str());
 }
 
-std::vector<Declaration> Stylesheet::rules_for_tag(std::string const tag) const
+void Stylesheet::style(StyledNode *styled_node) const
 {
-	std::vector<Declaration> declarations;
-
-	for (auto rule : rules)
+	for (const auto &rule : rules)
 	{
-		for (auto selector : rule.selectors)
+		for (const auto &selector : rule.selectors)
 		{
-			if (selector.tag_name == tag)
+			if (selector.matches(styled_node))
 			{
-				for (auto declaration : rule.declarations)
-				{
-					declarations.push_back(declaration);
-				}
+				for (const auto &declaration : rule.declarations)
+					styled_node->put_value(declaration.name, declaration.value);
 			}
 		}
 	}
-
-	return declarations;
 }
 
-std::vector<Declaration> Stylesheet::rules_for_class(std::string const class_name) const
+bool Selector::matches(StyledNode *styled_node) const
 {
-	std::vector<Declaration> declarations;
-
-	for (auto rule : rules)
+	switch (type)
 	{
-		for (auto selector : rule.selectors)
+		case Type::Simple: return simple_selector.matches(styled_node);
+
+		case Type::Compound:
 		{
-			if (selector.class_name == class_name)
+			for (const auto &simple : compound_selector.simple_selectors)
 			{
-				for (auto declaration : rule.declarations)
-				{
-					declarations.push_back(declaration);
-				}
+				if (simple.matches(styled_node))
+					return true;
 			}
+			return false;
 		}
 	}
-
-	return declarations;
 }
 
-std::vector<Declaration> Stylesheet::universal_rules() const
+bool SimpleSelector::matches(StyledNode *styled_node) const
 {
-	std::vector<Declaration> declarations;
-
-	for (auto rule : rules)
+	auto *dom_node = styled_node->node();
+	if (!dom_node)
+		return false;
+	switch (type)
 	{
-		for (auto selector : rule.selectors)
+		case Type::Universal: return true;
+		case Type::Type: return dom_node->element_name() == value;
+		case Type::Class:
 		{
-			if (selector.is_universal)
-			{
-				for (auto declaration : rule.declarations)
-				{
-					declarations.push_back(declaration);
-				}
-			}
+			if (dom_node->type() != NodeType::Element)
+				return false;
+
+			auto *element = static_cast<Element *>(dom_node);
+			if (!element->has_attribute("class"))
+				return false;
+
+			return element->get_attribute("class") == value;
+		}
+
+		case Type::Id:
+		{
+			if (dom_node->type() != NodeType::Element)
+				return false;
+
+			auto *element = static_cast<Element *>(dom_node);
+			if (!element->has_attribute("id"))
+				return false;
+
+			return element->get_attribute("id") == value;
 		}
 	}
-
-	return declarations;
+	return false;
 }
 }

@@ -85,30 +85,49 @@ auto Parser::parse_selector() -> std::optional<Selector>
 	if (current_token.value() == "*")
 	{
 		selector = Selector{};
-		selector->is_universal = true;
+		SimpleSelector simple;
+		simple.type = SimpleSelector::Type::Universal;
+		advance();
+		selector->simple_selector = simple;
+		selector->type = Selector::Type::Simple;
+		return selector;
+	}
+
+	if (current_token.value() == ".")
+	{
+		selector = Selector{};
+		SimpleSelector simple;
+		simple.type = SimpleSelector::Type::Class;
+		advance();
+		simple.value = current_token.value();
+		selector->simple_selector = simple;
+		selector->type = Selector::Type::Simple;
 		advance();
 		return selector;
 	}
 
-	bool is_classname = false;
-	if (current_token.value() == ".")
+	if (current_token.type() == HASH)
 	{
-		is_classname = true;
+		selector = Selector{};
+		SimpleSelector simple;
+		simple.type = SimpleSelector::Type::Id;
+		simple.value = current_token.value().substr(1);
+		selector->simple_selector = simple;
+		selector->type = Selector::Type::Simple;
 		advance();
+		return selector;
 	}
 
 	if (current_token.type() == IDENT)
 	{
 		selector = Selector{};
-
-		auto identifier = current_token.value();
-
-		if (is_classname)
-			selector->class_name = identifier;
-		else
-			selector->tag_name = identifier;
-
+		SimpleSelector simple;
+		simple.type = SimpleSelector::Type::Type;
+		simple.value = current_token.value();
+		selector->type = Selector::Type::Simple;
+		selector->simple_selector = simple;
 		advance();
+		return selector;
 	}
 
 	return selector;

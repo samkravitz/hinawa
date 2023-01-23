@@ -85,18 +85,7 @@ StyledNode::StyledNode(Node *node, const std::vector<Stylesheet> &stylesheets, S
 
 		for (const auto &stylesheet : stylesheets)
 		{
-			for (auto decl : stylesheet.universal_rules())
-				m_values[decl.name] = decl.value;
-
-			for (auto decl : stylesheet.rules_for_tag(element->tag()))
-				m_values[decl.name] = decl.value;
-
-			if (element->has_attribute("class"))
-			{
-				for (auto decl : stylesheet.rules_for_class(element->get_attribute("class")))
-					m_values[decl.name] = decl.value;
-			}
-
+			stylesheet.style(this);
 			if (element->has_attribute("style"))
 			{
 				for (auto decl : Parser::parse_inline(element->get_attribute("style")))
