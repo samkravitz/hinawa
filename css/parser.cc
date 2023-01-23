@@ -28,10 +28,9 @@ auto Parser::parse_inline(std::string input) -> std::vector<Declaration>
 		if (parser.is_eof())
 			break;
 	}
-	
+
 	return declarations;
 }
-
 
 Stylesheet Parser::parse_stylesheet()
 {
@@ -67,11 +66,11 @@ auto Parser::parse_rule() -> std::optional<Rule>
 
 	if (match(OPEN_BRACE))
 	{
-		do
+		while (!match(CLOSE_BRACE))
 		{
 			auto declaration = parse_declaration();
 			rule.declarations.push_back(*declaration);
-		} while (!match(CLOSE_BRACE));
+		}
 	}
 
 	return rule;
@@ -84,10 +83,10 @@ auto Parser::parse_selector() -> std::optional<Selector>
 
 	while (auto simple = parse_simple_selector())
 		simple_selectors.push_back(*simple);
-	
+
 	if (simple_selectors.empty())
 		return {};
-	
+
 	if (simple_selectors.size() == 1)
 	{
 		selector.type = Selector::Type::Simple;
@@ -141,6 +140,13 @@ auto Parser::parse_simple_selector() -> std::optional<SimpleSelector>
 		simple.type = SimpleSelector::Type::Type;
 		simple.value = current_token.value();
 		advance();
+
+		if (match(COLON))
+		{
+			advance();
+			simple.type = SimpleSelector::Type::PseudoClass;
+		}
+
 		return simple;
 	}
 
