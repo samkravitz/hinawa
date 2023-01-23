@@ -27,7 +27,7 @@ void Stylesheet::style(StyledNode *styled_node) const
 			if (selector.matches(styled_node))
 			{
 				for (const auto &declaration : rule.declarations)
-					styled_node->put_value(declaration.name, declaration.value);
+					styled_node->assign(declaration.name, declaration.value);
 			}
 		}
 	}

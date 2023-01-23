@@ -69,42 +69,39 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 	std::vector<Stylesheet> stylesheets;
 	stylesheets.push_back(default_stylesheet);
 	stylesheets.push_back(user_stylesheet);
-	std::shared_ptr<StyledNode> node = std::make_shared<StyledNode>(body, stylesheets);
-	return node;
-}
+	auto node = std::make_shared<StyledNode>(body);
 
-StyledNode::StyledNode(Node *node, const std::vector<Stylesheet> &stylesheets, StyledNode *parent) :
-    m_node(node)
-{
-	if (parent)
-		inherit_properties(*parent);
+	node->preorder([&](auto *n) {
+		if (auto *p = n->parent())
+			n->inherit_properties(*p);
 
-	if (node->type() == NodeType::Element)
-	{
-		auto *element = static_cast<Element *>(node);
-
-		for (const auto &stylesheet : stylesheets)
+		if (auto *element = dynamic_cast<Element*>(n->node()))
 		{
-			stylesheet.style(this);
+			for (const auto &stylesheet : stylesheets)
+				stylesheet.style(n);
+
 			if (element->has_attribute("style"))
 			{
 				for (auto decl : Parser::parse_inline(element->get_attribute("style")))
-					m_values[decl.name] = decl.value;
+					n->assign(decl.name, decl.value);
 			}
 		}
-	}
+	});
 
-	node->for_each_child([this, &stylesheets](auto *child) {
-		// skip text nodes that are only whitespace;
-		// they don't belong in the style tree
-		if (child->type() == NodeType::Text)
+	return node;
+}
+
+StyledNode::StyledNode(Node *node) :
+    m_node(node)
+{
+	node->for_each_child([&](auto *child) {
+		if (auto *text = dynamic_cast<Text*>(child))
 		{
-			auto *text = dynamic_cast<Text *>(child);
 			if (text->whitespace_only())
 				return;
 		}
 
-		add_child(std::make_shared<StyledNode>(child, stylesheets, this));
+		add_child(std::make_shared<StyledNode>(child));
 	});
 }
 
@@ -148,10 +145,10 @@ Display StyledNode::display()
 
 	if (keyword->value == "inline")
 		return Display::Inline;
-	
+
 	if (keyword->value == "inline-block")
 		return Display::InlineBlock;
-	
+
 	if (keyword->value == "list-item")
 		return Display::ListItem;
 
