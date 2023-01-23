@@ -11,6 +11,7 @@ enum class ValueType
 	Color,
 	Keyword,
 	Length,
+	Percentage,
 	Unsupported,
 };
 
@@ -158,5 +159,13 @@ struct Length : public Value
 
 		return "{ Length: " + std::to_string(value) + " " + unitstr + " }";
 	}
+};
+
+struct Percentage : public Value
+{
+	Percentage(double percent) :
+	    percent(percent)
+	{ }
+	double percent;
 };
 }

@@ -194,6 +194,16 @@ Value *Parser::parse_value()
 			length->value = std::stof(valstr.substr(0, valstr.size() - 2));
 			length->unit = unit;
 			value = length;
+
+			while (current_token.type() == LENGTH)
+				advance();
+			break;
+		}
+
+		case PERCENTAGE:
+		{
+			auto percentage = current_token.value().substr(0, current_token.value().size() - 1);
+			value = new Percentage(std::stod(percentage));
 			advance();
 			break;
 		}
