@@ -1,0 +1,68 @@
+name: Sonar Scanner
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    name: SonarCloud Static Analysis
+    runs-on: ubuntu-latest
+    env:
+      SONAR_SCANNER_VERSION: 4.7.0.2747
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+      
+      - name: Install required libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev
+          sudo apt-get install libfmt-dev
+          sudo apt-get install libfl-dev
+          sudo apt-get install libsfml-dev
+      
+      - name: Download sonar-scanner
+        env:
+          SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-linux.zip
+        if: steps.sonarcloud-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $HOME/.sonar
+          curl -sSLo $HOME/.sonar/sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
+          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          rm $HOME/.sonar/sonar-scanner.zip
+          echo "$HOME/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
+      
+      - name: Create sonar-project.properties file
+        run: |
+          echo "sonar.organization=samkravitz" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.projectKey=samkravitz_hinawa" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.projectVersion=${{ github.sha }}" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.cfamily.compile-commands=${{ github.workspace }}/build/compile_commands.json" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.cfamily.threads=2" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.cfamily.cache.enabled=false" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.sources=browser,css,document,html,js,layout,util,web" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.python.version=3.7, 3.8, 3.9" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.host.url=https://sonarcloud.io" >> ${{ github.workspace }}/sonar-project.properties
+          echo "sonar.coverage.exclusions=**/**" >> ${{ github.workspace }}/sonar-project.properties
+
+      - name: Compile
+        run: |
+          mkdir ${{ github.workspace }}/build
+          cmake -B build
+          cmake --build build -j8
+
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner
