@@ -14,8 +14,9 @@ public:
 	inline std::string tag() const { return m_tag; }
 
 	virtual void add_attribute(std::string, std::string);
-	bool has_attribute(std::string) const;
-	std::string get_attribute(std::string);
+	bool has_attribute(const std::string &) const;
+	std::string get_attribute(const std::string &) const;
+	bool has_class(const std::string &) const;
 	std::string to_string() const;
 
 private:

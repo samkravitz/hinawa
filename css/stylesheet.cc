@@ -66,6 +66,7 @@ bool SimpleSelector::matches(StyledNode *styled_node) const
 				return false;
 
 			auto *element = static_cast<Element *>(dom_node);
+			return element->has_class(value);
 			if (!element->has_attribute("class"))
 				return false;
 
