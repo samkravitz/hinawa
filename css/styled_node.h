@@ -13,14 +13,15 @@ namespace css
 class StyledNode : public util::TreeNode<StyledNode>
 {
 public:
+	StyledNode() = default;
 	StyledNode(Node *);
 
 	inline Node *node() const { return m_node; }
 	inline std::unordered_map<std::string, Value *> values() const { return m_values; }
 	void assign(std::string name, Value *value) { m_values[name] = value; }
 
-	Value *lookup(const std::string &property_name, Value *const fallback = nullptr) const;
-	Value *lookup(const std::string &property_name1, const std::string &property_name2, Value *const fallback = nullptr) const;
+	Value *property(const std::string &property_name, Value *const fallback = nullptr) const;
+	Value *property(const std::string &property_name1, const std::string &property_name2, Value *const fallback = nullptr) const;
 	Display display();
 	void inherit_properties(const StyledNode &);
 

@@ -17,6 +17,17 @@ public:
 	void insert_anonymous_container();
 	virtual std::optional<::Node *> hit_test(const Point &);
 	std::string tag_name() const;
+	css::Value *property(const std::string &name) const
+	{
+		if (is_anonymous())
+		{
+			css::StyledNode node;
+			node.inherit_properties(*parent()->style());
+			return node.property(name);
+		}
+		
+		return m_style->property(name);
+	}
 
 	inline css::StyledNode *style() const { return m_style; }
 	inline Box &dimensions() { return m_dimensions; }

@@ -144,7 +144,7 @@ void Browser::render()
 	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
 	auto bg_color = sf::Color::White;
 
-	if (auto *c = layout_tree->style()->lookup("background"))
+	if (auto *c = layout_tree->property("background"))
 	{
 		auto *color_value = dynamic_cast<css::Color *>(c);
 		bg_color = sf::Color(color_value->r, color_value->g, color_value->b);
@@ -154,23 +154,32 @@ void Browser::render()
 	window.draw(bg);
 
 	auto paint = [this](auto const &layout_node) {
-		auto *style = layout_node->style();
+		if (layout_node->is_text())
+			return;
+
 		auto dimensions = layout_node->dimensions();
 
 		auto x = dimensions.content.x;
 		auto y = dimensions.content.y;
 
-		if (!layout_node->is_anonymous())
+		if (auto *background = layout_node->property("background"))
 		{
-			if (auto *background = style->lookup("background"))
-			{
-				auto *color = dynamic_cast<css::Color *>(background);
-				sf::RectangleShape rect;
-				rect.setPosition(x, y);
-				rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
-				rect.setFillColor(sf::Color(color->r, color->g, color->b));
-				window.draw(rect);
-			}
+			auto *color = dynamic_cast<css::Color *>(background);
+			sf::RectangleShape rect;
+			rect.setPosition(x, y);
+			rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+			rect.setFillColor(sf::Color(color->r, color->g, color->b));
+			window.draw(rect);
+		}
+
+		if (auto *background = layout_node->property("background-color"))
+		{
+			auto *color = dynamic_cast<css::Color *>(background);
+			sf::RectangleShape rect;
+			rect.setPosition(x, y);
+			rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+			rect.setFillColor(sf::Color(color->r, color->g, color->b));
+			window.draw(rect);
 		}
 
 		if (layout_node->is_block())
@@ -189,9 +198,9 @@ void Browser::render()
 				for (auto const &frag : line.fragments)
 				{
 					auto *styled_node = frag.styled_node;
-					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->lookup("color"));
+					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
 					auto color = sf::Color(color_value->r, color_value->g, color_value->b);
-					auto *font_size = dynamic_cast<css::Length *>(styled_node->lookup("font-size"));
+					auto *font_size = dynamic_cast<css::Length *>(styled_node->property("font-size"));
 
 					sf::Text text(frag.str, font);
 					text.setCharacterSize(font_size->to_px());
@@ -199,7 +208,7 @@ void Browser::render()
 					text.setPosition(line.x + frag.offset, line.y);
 					window.draw(text);
 
-					if (auto *decoration = styled_node->lookup("text-decoration"))
+					if (auto *decoration = styled_node->property("text-decoration"))
 					{
 						auto *keyword = dynamic_cast<css::Keyword *>(decoration);
 						if (keyword->value == "underline")

@@ -105,7 +105,7 @@ StyledNode::StyledNode(Node *node) :
 	});
 }
 
-Value *StyledNode::lookup(const std::string &property_name, Value *const fallback) const
+Value *StyledNode::property(const std::string &property_name, Value *const fallback) const
 {
 	if (m_values.find(property_name) != m_values.end())
 		return m_values.at(property_name);
@@ -114,7 +114,7 @@ Value *StyledNode::lookup(const std::string &property_name, Value *const fallbac
 }
 
 Value *
-StyledNode::lookup(const std::string &property_name1, const std::string &property_name2, Value *const fallback) const
+StyledNode::property(const std::string &property_name1, const std::string &property_name2, Value *const fallback) const
 {
 	if (m_values.find(property_name1) != m_values.end())
 		return m_values.at(property_name1);
@@ -129,7 +129,7 @@ void StyledNode::inherit_properties(const StyledNode &parent)
 {
 	for (const auto &property : INHERITED_PROPERTIES)
 	{
-		m_values[property] = parent.lookup(property);
+		m_values[property] = parent.property(property);
 	}
 }
 
@@ -137,7 +137,7 @@ Display StyledNode::display()
 {
 	auto inline_display = css::Keyword{ "inline" };
 
-	auto *display = lookup("display", &inline_display);
+	auto *display = property("display", &inline_display);
 	auto *keyword = dynamic_cast<Keyword *>(display);
 
 	if (keyword->value == "block")

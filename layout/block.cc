@@ -49,14 +49,14 @@ void Block::calculate_width(Box container)
 		m_style = parent()->style();
 	auto zero = css::Length{};
 
-	auto *margin_left = m_style->lookup("margin-left", "margin", &zero);
-	auto *margin_right = m_style->lookup("margin-right", "margin", &zero);
+	auto *margin_left = m_style->property("margin-left", "margin", &zero);
+	auto *margin_right = m_style->property("margin-right", "margin", &zero);
 
-	auto *border_left = m_style->lookup("border-left", "border", &zero);
-	auto *border_right = m_style->lookup("border-right", "border", &zero);
+	auto *border_left = m_style->property("border-left", "border", &zero);
+	auto *border_right = m_style->property("border-right", "border", &zero);
 
-	auto *padding_left = m_style->lookup("padding-left", "padding", &zero);
-	auto *padding_right = m_style->lookup("padding-right", "padding", &zero);
+	auto *padding_left = m_style->property("padding-left", "padding", &zero);
+	auto *padding_right = m_style->property("padding-right", "padding", &zero);
 
 	// total width in px
 	int total = 0;
@@ -85,14 +85,14 @@ void Block::calculate_position(Box container)
 		m_style = parent()->style();
 	auto zero = css::Length{};
 
-	m_dimensions.margin.top = m_style->lookup("margin-top", "margin", &zero)->to_px();
-	m_dimensions.margin.bottom = m_style->lookup("margin-bottom", "margin", &zero)->to_px();
+	m_dimensions.margin.top = m_style->property("margin-top", "margin", &zero)->to_px();
+	m_dimensions.margin.bottom = m_style->property("margin-bottom", "margin", &zero)->to_px();
 
-	m_dimensions.border.top = m_style->lookup("border-top", "border", &zero)->to_px();
-	m_dimensions.border.bottom = m_style->lookup("border-bottom", "border", &zero)->to_px();
+	m_dimensions.border.top = m_style->property("border-top", "border", &zero)->to_px();
+	m_dimensions.border.bottom = m_style->property("border-bottom", "border", &zero)->to_px();
 
-	m_dimensions.padding.top = m_style->lookup("padding-top", "padding", &zero)->to_px();
-	m_dimensions.padding.bottom = m_style->lookup("padding-bottom", "padding", &zero)->to_px();
+	m_dimensions.padding.top = m_style->property("padding-top", "padding", &zero)->to_px();
+	m_dimensions.padding.bottom = m_style->property("padding-bottom", "padding", &zero)->to_px();
 
 	m_dimensions.content.x =
 	    container.content.x + m_dimensions.margin.left + m_dimensions.border.left + m_dimensions.padding.left;
