@@ -158,16 +158,14 @@ void Browser::render()
 			return;
 
 		auto dimensions = layout_node->dimensions();
-
-		auto x = dimensions.content.x;
-		auto y = dimensions.content.y;
+		auto [x, y, width, height] = dimensions.content;
 
 		if (auto *background = layout_node->property("background"))
 		{
 			auto *color = dynamic_cast<css::Color *>(background);
 			sf::RectangleShape rect;
 			rect.setPosition(x, y);
-			rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+			rect.setSize(sf::Vector2f(width, height));
 			rect.setFillColor(sf::Color(color->r, color->g, color->b));
 			window.draw(rect);
 		}
@@ -177,7 +175,7 @@ void Browser::render()
 			auto *color = dynamic_cast<css::Color *>(background);
 			sf::RectangleShape rect;
 			rect.setPosition(x, y);
-			rect.setSize(sf::Vector2f(dimensions.content.width, dimensions.content.height));
+			rect.setSize(sf::Vector2f(width, height));
 			rect.setFillColor(sf::Color(color->r, color->g, color->b));
 			window.draw(rect);
 		}
@@ -237,7 +235,7 @@ void Browser::render()
 
 		if (layout_node->is_list_item_marker())
 		{
-			auto marker = sf::CircleShape{ dimensions.content.width / 2.0f };
+			auto marker = sf::CircleShape{ width / 2.0f };
 			marker.setPosition(sf::Vector2f(x, y));
 			marker.setFillColor(sf::Color::Black);
 			window.draw(marker);
