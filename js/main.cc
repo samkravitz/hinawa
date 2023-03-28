@@ -2,8 +2,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "compiler.h"
-#include "vm.h"
+#include "ast_printer.h"
+#include "interpreter.h"
+#include "parser.h"
 
 int main(int argc, char **argv)
 {
@@ -17,9 +18,13 @@ int main(int argc, char **argv)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	auto compiler = js::Compiler(buffer.str().c_str());
-	auto fn = compiler.compile();
+	std::cout << buffer.str() << "\n";
 
-	auto vm = js::Vm{};
-	vm.run(fn);
+	auto parser = js::Parser(buffer.str());
+	auto stmts = parser.parse();
+	auto printer = js::AstPrinter{};
+	printer.print(stmts);
+
+	auto interpreter = js::Interpreter{};
+	interpreter.run(stmts);
 }
