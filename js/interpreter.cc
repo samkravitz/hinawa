@@ -56,6 +56,11 @@ void Interpreter::visit(const FunctionDecl *stmt) const
 	std::cout << stmt->name() << "\n";
 }
 
+void Interpreter::visit(const ForStmt *stmt) const
+{
+	std::cout << stmt->name() << "\n";
+}
+
 // expression visitors
 
 Value Interpreter::visit(const UnaryExpr *expr) const

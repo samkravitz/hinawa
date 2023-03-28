@@ -38,6 +38,9 @@ Stmt *Parser::statement()
 
 	if (match(KEY_RETURN))
 		return return_statement();
+	
+	if (match(KEY_FOR))
+		return for_statement();
 
 	auto decl = declaration();
 	if (decl)
@@ -110,6 +113,36 @@ Stmt *Parser::return_statement()
 	match(SEMICOLON);
 
 	return new ReturnStmt(expr);
+}
+
+Stmt *Parser::for_statement()
+{
+	consume(LEFT_PAREN, "Expected '('");
+
+	AstNode *initialization = nullptr;
+	if (match(KEY_VAR))
+	{
+		initialization = variable_statement();
+		if (!initialization)
+		{
+			std::cout << "For statement: expected variable statement";
+			consume(SEMICOLON, "For statement: expect ; after initializer");
+		}
+	}
+	else
+	{
+		initialization = expression();
+		consume(SEMICOLON, "For statement: expect ; after initializer");
+	}
+
+	auto *condition = expression();
+	consume(SEMICOLON, "For statement: expect ; after condition");
+	auto *afterthought = expression();
+	consume(RIGHT_PAREN, "Expected ')'");
+
+	auto *stmt = statement();
+
+	return new ForStmt(initialization, condition, afterthought, stmt);
 }
 
 Stmt *Parser::declaration()

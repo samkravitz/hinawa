@@ -29,6 +29,7 @@ private:
 	Stmt *expression_statement();
 	Stmt *if_statement();
 	Stmt *return_statement();
+	Stmt *for_statement();
 
 	// parse declarations
 	Stmt *declaration();

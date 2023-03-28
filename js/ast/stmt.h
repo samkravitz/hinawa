@@ -127,6 +127,30 @@ private:
 	Stmt *m_else;
 };
 
+class ForStmt : public Stmt
+{
+public:
+	ForStmt(AstNode *initialization, Expr *condition, Expr *afterthought, Stmt *statement) :
+	    m_initialization(initialization),
+	    m_condition(condition),
+	    m_afterthought(afterthought),
+		m_statement(statement)
+	{ }
+
+	AstNode *initialization() const { return m_initialization; }
+	Expr *condition() const { return m_condition; }
+	Expr *afterthought() const { return m_afterthought; }
+	Stmt *statement() const { return m_statement; }
+	const char *name() const { return "ForStmt"; }
+	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+private:
+	AstNode *m_initialization;
+	Expr *m_condition;
+	Expr *m_afterthought;
+	Stmt *m_statement;
+};
+
 //class ContinueStmt : public Stmt
 //{
 //public:

@@ -76,6 +76,37 @@ public:
 		node->block()->accept(this, indent + 1);
 	}
 
+	void visit(const ForStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << '\n';
+
+		print_indent(indent);
+		std::cout << "initialization: ";
+		if (!node->initialization())
+			std::cout << "<null>\n";
+		else
+		{
+			std::cout << '\n';
+			node->initialization()->accept(this, indent + 1);
+		}
+
+		print_indent(indent);
+		std::cout << "condition: ";
+		if (!node->condition())
+			std::cout << "<null>\n";
+		else
+		{
+			std::cout << '\n';
+			node->condition()->accept(this, indent + 1);
+		}
+
+		print_indent(indent);
+		std::cout << "statement: \n";
+		node->statement()->accept(this, indent + 1);
+		std::cout << '\n';
+	}
+
 	void visit(const UnaryExpr *node, int indent) const
 	{
 		print_indent(indent);
