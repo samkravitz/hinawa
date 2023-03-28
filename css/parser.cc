@@ -36,6 +36,34 @@ ParserStylesheet Parser::parse_stylesheet(const std::string &input, std::optiona
 	return stylesheet;
 }
 
+// 5.3.9. Parse a component value
+// https://www.w3.org/TR/css-syntax-3/#parse-component-value
+ComponentValue Parser::parse_component_value()
+{
+	// 1. Normalize input, and set input to the result.
+	// 2. While the next input token from input is a <whitespace-token>, consume the next input token from input.
+	while (next_input_token().is_whitespace())
+		consume_next_input_token();
+
+	// 3. If the next input token from input is an <EOF-token>, return a syntax error.
+	if (next_input_token().is_eof())
+		fmt::print(stderr, "parse_component_value\n");
+
+	// 4. Consume a component value from input and let value be the return value.
+	auto value = consume_component_value();
+
+	// 5. While the next input token from input is a <whitespace-token>, consume the next input token.
+	while (next_input_token().is_whitespace())
+		consume_next_input_token();
+
+	// 6. If the next input token from input is an <EOF-token>, return value. Otherwise, return a syntax error.
+	if (next_input_token().is_eof())
+		return value;
+
+	fmt::print(stderr, "parse_component_value\n");
+	return {};
+}
+
 // 5.4.1. Consume a list of rules
 // https://www.w3.org/TR/css-syntax-3/#consume-a-list-of-rules
 std::vector<ParserRule> Parser::consume_list_of_rules(bool top_level)

@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 
+#include "component_value.h"
 #include "scanner.h"
 #include "stylesheet.h"
 #include "token.h"
@@ -48,6 +49,7 @@ private:
 	std::vector<Token> tokens;
 	std::vector<Token>::iterator pos;    // points to next token
 
+	ComponentValue parse_component_value();
 	std::vector<ParserRule> consume_list_of_rules(bool top_level = false);
 	std::optional<ParserRule> consume_qualified_rule();
 	std::vector<ParserDeclaration> consume_declaration_list();

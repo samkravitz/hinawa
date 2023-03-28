@@ -12,10 +12,13 @@ class Function
 
 class ComponentValue
 {
-public:
-	explicit ComponentValue(Token t) : data(t) {}
-	explicit ComponentValue(Function f) : data(f) {}
-	explicit ComponentValue(ParserBlock b) : data(b) {}
+	ComponentValue() :
+	    token({})
+	{ }
+
+	explicit ComponentValue(const Token &t) :
+	    token(t)
+	{ }
 
 private:
 	std::variant<Token, Function, ParserBlock> data;
