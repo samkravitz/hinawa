@@ -8,6 +8,7 @@ set(SOURCES
 	compiler.cc
 	object_string.cc
 	object.cc
+	parser.cc
 	scanner.cc
 	token.cc
 	value.cc
@@ -15,12 +16,18 @@ set(SOURCES
 )
 
 set(HEADERS
+	ast/ast.h
+	ast/expr.h
+	ast/stmt.h
+	ast/visitor.h
+
 	chunk.h
 	compiler.h
 	function.h
 	object_string.h
 	object.h
 	opcode.h
+	parser.h
 	scanner.h
 	token_type.h
 	token.h
