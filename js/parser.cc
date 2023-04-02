@@ -66,8 +66,8 @@ ParseRule rules[] = {
 	[ARROW]             = { nullptr, &Parser::binary, PREC_AND },
 	[QUESTION_QUESTION] = { nullptr, &Parser::binary, PREC_AND },
 	[STAR_STAR]         = { nullptr, &Parser::binary, PREC_AND },
-	[PLUS_PLUS]         = { &Parser::unary, &Parser::inc_dec, PREC_UNARY },
-	[MINUS_MINUS]       = { &Parser::unary, &Parser::inc_dec, PREC_UNARY },
+	[PLUS_PLUS]         = { &Parser::unary, &Parser::update, PREC_UNARY },
+	[MINUS_MINUS]       = { &Parser::unary, &Parser::update, PREC_UNARY },
 	[QUESTION_DOT]      = { nullptr, &Parser::binary, PREC_AND },
 
 	[EQUAL_EQUAL_EQUAL] = { nullptr, &Parser::binary, PREC_EQUALITY },
@@ -348,11 +348,6 @@ Expr *Parser::grouping()
 	return nullptr;
 }
 
-Expr *Parser::inc_dec(Expr *left)
-{
-	return nullptr;
-}
-
 Expr *Parser::literal()
 {
 	return nullptr;
@@ -387,7 +382,18 @@ Expr *Parser::subscript(Expr *left)
 
 Expr *Parser::unary()
 {
-	return nullptr;
+	auto op = previous;
+	auto operand = parse_precedence(PREC_UNARY);
+	if (op.type() == PLUS_PLUS || op.type() == MINUS_MINUS)
+		return new UpdateExpr(op, operand, true);
+
+	return new UnaryExpr(op, operand);
+}
+
+Expr *Parser::update(Expr *left)
+{
+	auto op = previous;
+	return new UpdateExpr(op, left, false);
 }
 
 Expr *Parser::variable()

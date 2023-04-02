@@ -105,12 +105,35 @@ public:
 		std::cout << "statement: \n";
 		node->statement()->accept(this, indent + 1);
 		std::cout << '\n';
+
+		print_indent(indent);
+		std::cout << "afterthought: ";
+		if (!node->afterthought())
+			std::cout << "<null>\n";
+		else
+		{
+			std::cout << '\n';
+			node->afterthought()->accept(this, indent + 1);
+		}
 	}
 
 	void visit(const UnaryExpr *node, int indent) const
 	{
 		print_indent(indent);
 		std::cout << node->name() << "\n";
+	}
+
+	void visit(const UpdateExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << '\n';
+		print_indent(indent);
+		std::cout << "op: " << node->op.value() << '\n';
+		print_indent(indent);
+		std::cout << "operand: \n";
+		node->operand->accept(this, indent + 1);
+		print_indent(indent);
+		std::cout << "prefix: " << node->prefix << '\n';
 	}
 
 	void visit(const BinaryExpr *node, int indent) const

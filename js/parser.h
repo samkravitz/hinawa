@@ -45,7 +45,6 @@ public:
 	Expr *call(Expr *);
 	Expr *dot(Expr *);
 	Expr *grouping();
-	Expr *inc_dec(Expr *);
 	Expr *literal();
 	Expr *new_instance();
 	Expr *number();
@@ -53,6 +52,7 @@ public:
 	Expr *string();
 	Expr *subscript(Expr *);
 	Expr *unary();
+	Expr *update(Expr *);
 	Expr *variable();
 
 private:

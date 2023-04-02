@@ -35,6 +35,23 @@ private:
 	Expr *m_rhs;
 };
 
+struct UpdateExpr : public Expr
+{
+	UpdateExpr(Token op, Expr *operand, bool prefix) :
+	    op(op),
+	    operand(operand),
+		prefix(prefix)
+	{ }
+
+	const char *name() const { return "UpdateExpr"; }
+	Value accept(const ExprVisitor *visitor) const { return {}; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+
+	Token op;
+	Expr *operand;
+	bool prefix{ false };
+};
+
 class BinaryExpr : public Expr
 {
 public:
