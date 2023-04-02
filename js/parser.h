@@ -34,8 +34,8 @@ public:
 	std::vector<Stmt *> parse();
 
 	Scanner scanner;
-	Token current_token;
-	Token previous_token;
+	Token current;
+	Token previous;
 
 	// parse expressions
 	Expr *expression();

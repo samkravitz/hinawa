@@ -196,7 +196,7 @@ Stmt *Parser::variable_statement()
 {
 	consume(IDENTIFIER, "Expected variable name");
 
-	auto identifier = previous_token.value();
+	auto identifier = previous.value();
 	Expr *initializer = nullptr;
 
 	if (match(EQUAL))
@@ -289,7 +289,7 @@ Stmt *Parser::function_declaration()
 		return nullptr;
 
 	consume(IDENTIFIER, "Expected identifier");
-	auto name = previous_token.value();
+	auto name = previous.value();
 	consume(LEFT_PAREN, "Expected '('");
 	consume(RIGHT_PAREN, "Expected ')'");
 	consume(LEFT_BRACE, "Expected '{'");
@@ -315,7 +315,7 @@ Expr *Parser::array()
 
 Expr *Parser::binary(Expr *left)
 {
-	auto op = previous_token;
+	auto op = previous;
 	auto precedence = get_rule(op.type())->precedence;
 	auto right = parse_precedence(static_cast<Precedence>(precedence + 1));
 	return new BinaryExpr(left, op, right);
@@ -353,7 +353,7 @@ Expr *Parser::new_instance()
 
 Expr *Parser::number()
 {
-	auto d = std::stod(previous_token.value());
+	auto d = std::stod(previous.value());
 	return new Literal(Value(d));
 }
 
@@ -364,7 +364,7 @@ Expr *Parser::object()
 
 Expr *Parser::string()
 {
-	auto str = previous_token.value();
+	auto str = previous.value();
 	return new Literal(Value(new std::string(str.substr(1, str.size() - 2))));
 }
 
@@ -386,7 +386,7 @@ Expr *Parser::variable()
 Expr *Parser::parse_precedence(Precedence precedence)
 {
 	advance();
-	auto prefix = get_rule(previous_token.type())->prefix;
+	auto prefix = get_rule(previous.type())->prefix;
 	if (!prefix)
 	{
 		std::cerr << "Expect expression\n";
@@ -395,10 +395,10 @@ Expr *Parser::parse_precedence(Precedence precedence)
 
 	Expr *expr = prefix(this);
 
-	while (precedence <= get_rule(current_token.type())->precedence)
+	while (precedence <= get_rule(current.type())->precedence)
 	{
 		advance();
-		auto infix = get_rule(previous_token.type())->infix;
+		auto infix = get_rule(previous.type())->infix;
 		expr = infix(this, expr);
 	}
 
@@ -407,13 +407,13 @@ Expr *Parser::parse_precedence(Precedence precedence)
 
 void Parser::advance()
 {
-	previous_token = current_token;
-	current_token = scanner.next();
+	previous = current;
+	current = scanner.next();
 }
 
 bool Parser::match(TokenType type)
 {
-	if (current_token.type() == type)
+	if (current.type() == type)
 	{
 		advance();
 		return true;
@@ -443,6 +443,6 @@ void Parser::consume(TokenType type, const char *msg)
 
 TokenType Parser::peek()
 {
-	return current_token.type();
+	return current.type();
 }
 }
