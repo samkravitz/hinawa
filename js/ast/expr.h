@@ -11,7 +11,6 @@ class Expr : public AstNode
 {
 public:
 	virtual const char *name() const = 0;
-	virtual Value accept(const ExprVisitor *visitor) const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 };
 
@@ -24,7 +23,6 @@ public:
 	{ }
 
 	const char *name() const { return "UnaryExpr"; }
-	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 	Expr *rhs() const { return m_rhs; }
@@ -44,7 +42,6 @@ struct UpdateExpr : public Expr
 	{ }
 
 	const char *name() const { return "UpdateExpr"; }
-	Value accept(const ExprVisitor *visitor) const { return {}; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 	Token op;
@@ -63,7 +60,6 @@ public:
 
 	const char *name() const { return "BinaryExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 
 	Expr *lhs() const { return m_lhs; }
 	Token op() const { return m_op; };
@@ -85,7 +81,6 @@ public:
 
 	const char *name() const { return "CallExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 
 	Expr *callee() const { return m_callee; }
 	std::vector<Expr *> args() const { return m_args; }
@@ -104,7 +99,6 @@ struct MemberExpr : public Expr
 
 	const char *name() const { return "MemberExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	Value accept(const ExprVisitor *visitor) const { return {}; }
 
 	Expr *object;
 	Token property_name;
@@ -118,7 +112,6 @@ public:
 	{ }
 
 	const char *name() const { return "Literal"; }
-	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	Value value() const { return m_value; }
 
@@ -134,7 +127,6 @@ public:
 	{ }
 
 	const char *name() const { return "Variable"; }
-	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	std::string ident() const { return m_ident; }
 

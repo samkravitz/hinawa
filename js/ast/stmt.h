@@ -10,7 +10,6 @@ class Stmt : public AstNode
 {
 public:
 	const char *name() const = 0;
-	virtual void accept(const StmtVisitor *visitor) const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 };
 
@@ -46,7 +45,6 @@ public:
 	{ }
 
 	const char *name() const { return "BlockStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	inline std::vector<Stmt *> stmts() const { return m_stmts; }
@@ -63,7 +61,6 @@ public:
 	    m_init(initializer)
 	{ }
 	const char *name() const { return "VariableStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	std::string identifier() const { return m_identifier; }
@@ -78,7 +75,6 @@ class EmptyStmt : public Stmt
 {
 public:
 	const char *name() const { return "EmptyStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 };
 
@@ -90,7 +86,6 @@ public:
 	{ }
 
 	const char *name() const { return "ExpressionStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
 	Expr *expr() const { return m_expr; }
@@ -112,7 +107,6 @@ public:
 	Stmt *then() const { return m_then; }
 	Stmt *else_stmt() const { return m_else; }
 	const char *name() const { return "IfStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 private:
 	Expr *m_condition;
@@ -135,7 +129,6 @@ public:
 	Expr *afterthought() const { return m_afterthought; }
 	Stmt *statement() const { return m_statement; }
 	const char *name() const { return "ForStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 private:
 	AstNode *m_initialization;
@@ -164,7 +157,6 @@ public:
 	{ }
 
 	const char *name() const { return "ReturnStmt"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 	Expr *expr() const { return m_expr; }
@@ -182,7 +174,6 @@ public:
 	{ }
 
 	const char *name() const { return "FunctionDecl"; }
-	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
 	std::string function_name() const { return m_function_name; }
