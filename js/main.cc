@@ -3,7 +3,6 @@
 #include <sstream>
 
 #include "ast_printer.h"
-#include "interpreter.h"
 #include "parser.h"
 
 int main(int argc, char **argv)
@@ -24,7 +23,4 @@ int main(int argc, char **argv)
 	auto stmts = parser.parse();
 	auto printer = js::AstPrinter{};
 	printer.print(stmts);
-
-	auto interpreter = js::Interpreter{};
-	interpreter.run(stmts);
 }
