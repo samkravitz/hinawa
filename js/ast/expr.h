@@ -52,30 +52,6 @@ public:
 	Token op() const { return m_op; };
 	Expr *rhs() const { return m_rhs; }
 
-	u32 generate_bytecode(Chunk &chunk) const
-	{
-		//Opcode opcode;
-		//switch (op().type())
-		//{
-		//	case PLUS: opcode = OP_ADD; break;
-		//	case MINUS: opcode = OP_SUBTRACT; break;
-		//	case STAR: opcode = OP_MULTIPLY; break;
-		//	case SLASH: opcode = OP_DIVIDE; break;
-		//	default: opcode = OP_UNKNOWN; break;
-		//}
-
-		//auto src1 = lhs()->generate_bytecode(chunk);
-		//auto src2 = rhs()->generate_bytecode(chunk);
-		//auto dest = chunk.allocate_register();
-
-		//chunk.write(opcode, op().line());
-		//chunk.write(dest, op().line());
-		//chunk.write(src1, op().line());
-		//chunk.write(src2, op().line());
-		//return dest;
-		return 0;
-	}
-
 private:
 	Expr *m_lhs;
 	Token m_op;
@@ -113,18 +89,6 @@ public:
 	Value accept(const ExprVisitor *visitor) const { return visitor->visit(this); }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	Value value() const { return m_value; }
-
-	u32 generate_bytecode(Chunk &chunk) const
-	{
-		//auto reg = chunk.allocate_register();
-		//auto index = chunk.add_constant(value());
-		//chunk.write(OP_LOAD);
-		//chunk.write(reg);
-		//chunk.write(index);
-
-		//return reg;
-		return 0;
-	}
 
 private:
 	Value m_value;
