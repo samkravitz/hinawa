@@ -340,7 +340,9 @@ Expr *Parser::call(Expr *left)
 
 Expr *Parser::dot(Expr *left)
 {
-	return nullptr;
+	consume(IDENTIFIER, "Expect identifier after '.'");
+	auto property_name = previous;
+	return new MemberExpr(left, property_name);
 }
 
 Expr *Parser::grouping()

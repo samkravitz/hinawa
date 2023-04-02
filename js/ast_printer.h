@@ -166,6 +166,18 @@ public:
 		}
 	}
 
+	void visit(const MemberExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+		print_indent(indent);
+		std::cout << "object: \n";
+		node->object->accept(this, indent + 1);
+
+		print_indent(indent);
+		std::cout << "property_name: " << node->property_name.value() << '\n';
+	}
+
 	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);

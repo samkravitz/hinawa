@@ -40,7 +40,7 @@ struct UpdateExpr : public Expr
 	UpdateExpr(Token op, Expr *operand, bool prefix) :
 	    op(op),
 	    operand(operand),
-		prefix(prefix)
+	    prefix(prefix)
 	{ }
 
 	const char *name() const { return "UpdateExpr"; }
@@ -93,6 +93,21 @@ public:
 private:
 	Expr *m_callee;
 	std::vector<Expr *> m_args;
+};
+
+struct MemberExpr : public Expr
+{
+	MemberExpr(Expr *object, Token property_name) :
+	    object(object),
+	    property_name(property_name)
+	{ }
+
+	const char *name() const { return "MemberExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	Value accept(const ExprVisitor *visitor) const { return {}; }
+
+	Expr *object;
+	Token property_name;
 };
 
 class Literal : public Expr

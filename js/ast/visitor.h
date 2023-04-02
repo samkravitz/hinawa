@@ -17,6 +17,7 @@ class UnaryExpr;
 struct UpdateExpr;
 class BinaryExpr;
 class CallExpr;
+struct MemberExpr;
 class Literal;
 class Variable;
 
@@ -38,6 +39,7 @@ class ExprVisitor
 public:
 	virtual Value visit(const UnaryExpr *) const = 0;
 	virtual Value visit(const UpdateExpr *) const = 0;
+	virtual Value visit(const MemberExpr *) const = 0;
 	virtual Value visit(const BinaryExpr *) const = 0;
 	virtual Value visit(const CallExpr *) const = 0;
 	virtual Value visit(const Literal *) const = 0;
@@ -59,6 +61,7 @@ public:
 	virtual void visit(const UpdateExpr *, int indent) const = 0;
 	virtual void visit(const BinaryExpr *, int indent) const = 0;
 	virtual void visit(const CallExpr *, int indent) const = 0;
+	virtual void visit(const MemberExpr *, int indent) const = 0;
 	virtual void visit(const Literal *, int indent) const = 0;
 	virtual void visit(const Variable *, int indent) const = 0;
 };
