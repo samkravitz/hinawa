@@ -24,7 +24,7 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		for (auto stmt : node->stmts())
+		for (auto stmt : node->stmts)
 			stmt->accept(this, indent + 1);
 	}
 
@@ -33,10 +33,10 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 		print_indent(indent + 1);
-		std::cout << node->identifier() << "\n";
+		std::cout << node->identifier << "\n";
 
-		if (node->init())
-			node->init()->accept(this, indent + 1);
+		if (node->init)
+			node->init->accept(this, indent + 1);
 	}
 
 	void visit(const EmptyStmt *node, int indent) const
@@ -50,7 +50,7 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		node->condition()->accept(this, indent + 1);
+		node->condition->accept(this, indent + 1);
 	}
 
 	void visit(const ReturnStmt *node, int indent) const
@@ -58,22 +58,22 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		if (node->expr())
-			node->expr()->accept(this, indent + 1);
+		if (node->expr)
+			node->expr->accept(this, indent + 1);
 	}
 
 	void visit(const ExpressionStmt *node, int indent) const
 	{
 		print_indent(indent);
 		std::cout << node->name() << "\n";
-		node->expr()->accept(this, indent + 1);
+		node->expr->accept(this, indent + 1);
 	}
 
 	void visit(const FunctionDecl *node, int indent) const
 	{
 		print_indent(indent);
-		std::cout << node->name() << ": " << node->function_name() << "\n";
-		node->block()->accept(this, indent + 1);
+		std::cout << node->name() << ": " << node->function_name << "\n";
+		node->block->accept(this, indent + 1);
 	}
 
 	void visit(const ForStmt *node, int indent) const
@@ -83,37 +83,37 @@ public:
 
 		print_indent(indent);
 		std::cout << "initialization: ";
-		if (!node->initialization())
+		if (!node->initialization)
 			std::cout << "<null>\n";
 		else
 		{
 			std::cout << '\n';
-			node->initialization()->accept(this, indent + 1);
+			node->initialization->accept(this, indent + 1);
 		}
 
 		print_indent(indent);
 		std::cout << "condition: ";
-		if (!node->condition())
+		if (!node->condition)
 			std::cout << "<null>\n";
 		else
 		{
 			std::cout << '\n';
-			node->condition()->accept(this, indent + 1);
+			node->condition->accept(this, indent + 1);
 		}
 
 		print_indent(indent);
 		std::cout << "statement: \n";
-		node->statement()->accept(this, indent + 1);
+		node->statement->accept(this, indent + 1);
 		std::cout << '\n';
 
 		print_indent(indent);
 		std::cout << "afterthought: ";
-		if (!node->afterthought())
+		if (!node->afterthought)
 			std::cout << "<null>\n";
 		else
 		{
 			std::cout << '\n';
-			node->afterthought()->accept(this, indent + 1);
+			node->afterthought->accept(this, indent + 1);
 		}
 	}
 
@@ -141,10 +141,10 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		node->lhs()->accept(this, indent + 1);
+		node->lhs->accept(this, indent + 1);
 		print_indent(indent + 1);
-		std::cout << node->op().value() << "\n";
-		node->rhs()->accept(this, indent + 1);
+		std::cout << node->op.value() << "\n";
+		node->rhs->accept(this, indent + 1);
 	}
 
 	void visit(const CallExpr *node, int indent) const
@@ -153,13 +153,13 @@ public:
 		std::cout << node->name() << "\n";
 		print_indent(indent);
 		std::cout << "callee: \n";
-		node->callee()->accept(this, indent + 1);
+		node->callee->accept(this, indent + 1);
 
-		if (!node->args().empty())
+		if (!node->args.empty())
 		{
 			print_indent(indent);
 			std::cout << "args: \n";
-			for (auto *arg : node->args())
+			for (auto *arg : node->args)
 			{
 				arg->accept(this, indent + 1);
 			}
@@ -181,13 +181,13 @@ public:
 	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);
-		std::cout << node->value().to_string() << "\n";
+		std::cout << node->value.to_string() << "\n";
 	}
 
 	void visit(const Variable *node, int indent) const
 	{
 		print_indent(indent);
-		std::cout << node->ident() << "\n";
+		std::cout << node->ident << "\n";
 	}
 
 private:

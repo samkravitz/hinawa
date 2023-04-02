@@ -6,198 +6,165 @@
 
 namespace js
 {
-class Stmt : public AstNode
+struct Stmt : public AstNode
 {
-public:
 	const char *name() const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 };
 
-//class Program : public Stmt
+//struct Program : public Stmt
 //{
 //public:
-//	void add_stmt(Stmt * stmt) { m_stmts.push_back(stmt); }
+//	void add_stmt(Stmt * stmt) { stmts.push_back(stmt); }
 
 //	const char *name() const { return "Program"; }
 //	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
 //i
 
-//	std::vector<Stmt *> stmts() const { return m_stmts; }
+//	std::vector<Stmt *> stmts() const { return stmts; }
 //	void print(int indent, bool is_left)
 //	{
 //		std::cout << prefix;
 //		std::cout << (is_left ? "├──" : "└──");
 //		std::cout << name() << "\n";
 
-//		for (auto stmt : m_stmts)
+//		for (auto stmt : stmts)
 //			stmt->print(prefix + (is_left ? "│   " : "    "), true);
 //	}
 
 //private:
-//	std::vector<Stmt *> m_stmts;
+//	std::vector<Stmt *> stmts;
 //};
 
-class BlockStmt : public Stmt
+struct BlockStmt : public Stmt
 {
-public:
 	BlockStmt(std::vector<Stmt *> stmts) :
-	    m_stmts(stmts)
+	    stmts(stmts)
 	{ }
 
 	const char *name() const { return "BlockStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
-	inline std::vector<Stmt *> stmts() const { return m_stmts; }
-
-private:
-	std::vector<Stmt *> m_stmts;
+	std::vector<Stmt *> stmts;
 };
 
-class VariableStmt : public Stmt
+struct VariableStmt : public Stmt
 {
-public:
 	VariableStmt(std::string identifier, Expr *initializer) :
-	    m_identifier(identifier),
-	    m_init(initializer)
+	    identifier(identifier),
+	    init(initializer)
 	{ }
 	const char *name() const { return "VariableStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
-	std::string identifier() const { return m_identifier; }
-	Expr *init() const { return m_init; }
-
-private:
-	std::string m_identifier;
-	Expr *m_init;
+	std::string identifier;
+	Expr *init;
 };
 
-class EmptyStmt : public Stmt
+struct EmptyStmt : public Stmt
 {
-public:
 	const char *name() const { return "EmptyStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 };
 
-class ExpressionStmt : public Stmt
+struct ExpressionStmt : public Stmt
 {
-public:
 	ExpressionStmt(Expr *expr) :
-	    m_expr(expr)
+	    expr(expr)
 	{ }
 
 	const char *name() const { return "ExpressionStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 
-	Expr *expr() const { return m_expr; }
-
-private:
-	Expr *m_expr;
+	Expr *expr;
 };
 
-class IfStmt : public Stmt
+struct IfStmt : public Stmt
 {
-public:
 	IfStmt(Expr *condition, Stmt *then, Stmt *else_stmt) :
-	    m_condition(condition),
-	    m_then(then),
-	    m_else(else_stmt)
+	    condition(condition),
+	    then(then),
+	    else_stmt(else_stmt)
 	{ }
 
-	Expr *condition() const { return m_condition; }
-	Stmt *then() const { return m_then; }
-	Stmt *else_stmt() const { return m_else; }
 	const char *name() const { return "IfStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-private:
-	Expr *m_condition;
-	Stmt *m_then;
-	Stmt *m_else;
+
+	Expr *condition;
+	Stmt *then;
+	Stmt *else_stmt;
 };
 
-class ForStmt : public Stmt
+struct ForStmt : public Stmt
 {
-public:
 	ForStmt(AstNode *initialization, Expr *condition, Expr *afterthought, Stmt *statement) :
-	    m_initialization(initialization),
-	    m_condition(condition),
-	    m_afterthought(afterthought),
-		m_statement(statement)
+	    initialization(initialization),
+	    condition(condition),
+	    afterthought(afterthought),
+	    statement(statement)
 	{ }
 
-	AstNode *initialization() const { return m_initialization; }
-	Expr *condition() const { return m_condition; }
-	Expr *afterthought() const { return m_afterthought; }
-	Stmt *statement() const { return m_statement; }
 	const char *name() const { return "ForStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-private:
-	AstNode *m_initialization;
-	Expr *m_condition;
-	Expr *m_afterthought;
-	Stmt *m_statement;
+
+	AstNode *initialization;
+	Expr *condition;
+	Expr *afterthought;
+	Stmt *statement;
 };
 
-//class ContinueStmt : public Stmt
+//struct ContinueStmt : public Stmt
 //{
 //public:
 //	const char *name() const { return "ContinueStmt"; }
 //};
 
-//class BreakStmt : public Stmt
+//struct BreakStmt : public Stmt
 //{
 //public:
 //	const char *name() const { return "BreakStmt"; }
 //};
 
-class ReturnStmt : public Stmt
+struct ReturnStmt : public Stmt
 {
-public:
 	ReturnStmt(Expr *expr) :
-	    m_expr(expr)
+	    expr(expr)
 	{ }
 
 	const char *name() const { return "ReturnStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
-	Expr *expr() const { return m_expr; }
-
-private:
-	Expr *m_expr;
+	Expr *expr;
 };
 
-class FunctionDecl : public Stmt
+struct FunctionDecl : public Stmt
 {
-public:
 	FunctionDecl(std::string function_name, Stmt *block) :
-	    m_function_name(function_name),
-	    m_block(block)
+	    function_name(function_name),
+	    block(block)
 	{ }
 
 	const char *name() const { return "FunctionDecl"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 
-	std::string function_name() const { return m_function_name; }
-	Stmt *block() const { return m_block; }
-
-private:
-	std::string m_function_name;
-	Stmt *m_block;
+	std::string function_name;
+	Stmt *block;
 };
 
 }
-//class TryStmt : public Stmt
+//struct TryStmt : public Stmt
 //{
 //public:
 //	const char *name() const { return "TryStmt"; }
 //};
 
-//class FunctionDeclaration : public AstNode
+//struct FunctionDeclaration : public AstNode
 //{
 //public:
 //	const char *name() const { return "FunctionDeclaration"; }
 //};
 
-//class VariableDeclaration : public AstNode
+//struct VariableDeclaration : public AstNode
 //{
 //public:
 //	const char *name() const { return "VariableDeclaration"; }

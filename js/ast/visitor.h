@@ -4,22 +4,22 @@
 
 namespace js
 {
-class BlockStmt;
-class VariableStmt;
-class EmptyStmt;
-class IfStmt;
-class ReturnStmt;
-class ExpressionStmt;
-class FunctionDecl;
-class ForStmt;
+struct BlockStmt;
+struct VariableStmt;
+struct EmptyStmt;
+struct IfStmt;
+struct ReturnStmt;
+struct ExpressionStmt;
+struct FunctionDecl;
+struct ForStmt;
 
-class UnaryExpr;
+struct UnaryExpr;
 struct UpdateExpr;
-class BinaryExpr;
-class CallExpr;
+struct BinaryExpr;
+struct CallExpr;
 struct MemberExpr;
-class Literal;
-class Variable;
+struct Literal;
+struct Variable;
 
 class PrintVisitor
 {
