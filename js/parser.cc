@@ -1,13 +1,146 @@
 #include "parser.h"
 
 #include <cassert>
+#include <cstddef>
+#include <functional>
 #include <iostream>
 #include <sstream>
 
+#include "ast/expr.h"
 #include "token_type.h"
 
 namespace js
 {
+struct ParseRule
+{
+	std::function<Expr *(Parser *)> prefix;
+	std::function<Expr *(Parser *, Expr *)> infix;
+	Precedence precedence;
+};
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+ParseRule rules[] = {
+	[0]                 = { nullptr, nullptr, PREC_NONE },
+	[LEFT_PAREN]        = { &Parser::grouping, &Parser::call, PREC_CALL },
+	[RIGHT_PAREN]       = { nullptr, nullptr, PREC_NONE },
+	[LEFT_BRACE]        = { &Parser::object, nullptr, PREC_SUBSCRIPT },
+	[RIGHT_BRACE]       = { nullptr, nullptr, PREC_NONE },
+	[LEFT_BRACKET]      = { &Parser::array, &Parser::subscript, PREC_SUBSCRIPT },
+	[RIGHT_BRACKET]     = { nullptr, nullptr, PREC_NONE },
+	[COMMA]             = { nullptr, nullptr, PREC_NONE },
+	[DOT]               = { nullptr, &Parser::dot, PREC_CALL },
+	[MINUS]             = { &Parser::unary, &Parser::binary, PREC_TERM },
+	[PLUS]              = { nullptr, &Parser::binary, PREC_TERM },
+	[SLASH]             = { nullptr, &Parser::binary, PREC_FACTOR },
+	[STAR]              = { nullptr, &Parser::binary, PREC_FACTOR },
+	[MOD]               = { nullptr, &Parser::binary, PREC_FACTOR },
+	[SEMICOLON]         = { nullptr, nullptr, PREC_NONE },
+	[COLON]             = { nullptr, nullptr, PREC_NONE },
+	[BANG]              = { nullptr, nullptr, PREC_NONE },
+	[EQUAL]             = { nullptr, nullptr, PREC_NONE },
+	[GREATER]           = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[LESS]              = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[AND]               = { nullptr, &Parser::binary, PREC_TERM },
+	[PIPE]              = { nullptr, &Parser::binary, PREC_TERM },
+	[TILDE]             = { nullptr, &Parser::binary, PREC_TERM },
+	[CARET]             = { nullptr, &Parser::binary, PREC_TERM },
+	[QUESTION]          = { nullptr, &Parser::binary, PREC_TERM },
+	[NEWLINE]           = { nullptr, nullptr, PREC_NONE },
+
+	[BANG_EQUAL]        = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[EQUAL_EQUAL]       = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[GREATER_EQUAL]     = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[LESS_EQUAL]        = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[PLUS_EQUAL]        = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[MINUS_EQUAL]       = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[STAR_EQUAL]        = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[SLASH_EQUAL]       = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[AND_EQUAL]         = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[PIPE_EQUAL]        = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[CARET_EQUAL]       = { nullptr, &Parser::binary, PREC_COMPARISON },
+	[LESS_LESS]         = { nullptr, nullptr, PREC_NONE },
+	[GREATER_GREATER]   = { nullptr, nullptr, PREC_NONE },
+	[AND_AND]           = { nullptr, &Parser::binary, PREC_AND },
+	[PIPE_PIPE]         = { nullptr, &Parser::binary, PREC_OR },
+	[ARROW]             = { nullptr, &Parser::binary, PREC_AND },
+	[QUESTION_QUESTION] = { nullptr, &Parser::binary, PREC_AND },
+	[STAR_STAR]         = { nullptr, &Parser::binary, PREC_AND },
+	[PLUS_PLUS]         = { &Parser::unary, &Parser::inc_dec, PREC_UNARY },
+	[MINUS_MINUS]       = { &Parser::unary, &Parser::inc_dec, PREC_UNARY },
+	[QUESTION_DOT]      = { nullptr, &Parser::binary, PREC_AND },
+
+	[EQUAL_EQUAL_EQUAL] = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[BANG_EQUAL_EQUAL]  = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[STAR_STAR_EQUAL]   = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[LESS_LESS_EQUAL]   = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[RIGHT_RIGHT_EQUAL] = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[AND_AND_EQUAL]     = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[PIPE_PIPE_EQUAL]   = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[RIGHT_RIGHT_RIGHT] = { nullptr, &Parser::binary, PREC_EQUALITY },
+	[DOT_DOT_DOT]       = { nullptr, &Parser::binary, PREC_EQUALITY },
+
+	[IDENTIFIER]        = { &Parser::variable, nullptr, PREC_NONE },
+	[STRING]            = { &Parser::string, nullptr, PREC_NONE },
+	[NUMBER]            = { &Parser::number, nullptr, PREC_NONE },
+
+	[KEY_AWAIT]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_BREAK]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_CASE]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_CATCH]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_CLASS]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_CONST]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_CONTINUE]      = { nullptr, nullptr, PREC_NONE },
+	[KEY_DEBUGGER]      = { nullptr, nullptr, PREC_NONE },
+	[KEY_DEFAULT]       = { nullptr, nullptr, PREC_NONE },
+	[KEY_DELETE]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_DO]            = { nullptr, nullptr, PREC_NONE },
+	[KEY_ELSE]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_ENUM]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_EXPORT]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_EXTENDS]       = { nullptr, nullptr, PREC_NONE },
+	[KEY_FALSE]         = { &Parser::literal, nullptr, PREC_NONE },
+	[KEY_FINALLY]       = { nullptr, nullptr, PREC_NONE },
+	[KEY_FOR]           = { nullptr, nullptr, PREC_NONE },
+	[KEY_FUNCTION]      = { &Parser::anonymous, nullptr, PREC_NONE },
+	[KEY_IF]            = { nullptr, nullptr, PREC_NONE },
+	[KEY_IMPLEMENTS]    = { nullptr, nullptr, PREC_NONE },
+	[KEY_IMPORT]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_IN]            = { nullptr, nullptr, PREC_NONE },
+	[KEY_INSTANCEOF]    = { nullptr, nullptr, PREC_NONE },
+	[KEY_INTERFACE]     = { nullptr, nullptr, PREC_NONE },
+	[KEY_LET]           = { nullptr, nullptr, PREC_NONE },
+	[KEY_NEW]           = { &Parser::new_instance, nullptr, PREC_NONE },
+	[KEY_NULL]          = { &Parser::literal, nullptr, PREC_NONE },
+	[KEY_PACKAGE]       = { nullptr, nullptr, PREC_NONE },
+	[KEY_PRIVATE]       = { nullptr, nullptr, PREC_NONE },
+	[KEY_PROTECTED]     = { nullptr, nullptr, PREC_NONE },
+	[KEY_PUBLIC]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_RETURN]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_SUPER]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_SWITCH]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_STATIC]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_THIS]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_THROW]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_TRY]           = { nullptr, nullptr, PREC_NONE },
+	[KEY_TRUE]          = { &Parser::literal, nullptr, PREC_NONE },
+	[KEY_TYPEOF]        = { nullptr, nullptr, PREC_NONE },
+	[KEY_UNDEFINED]     = { &Parser::literal, nullptr, PREC_NONE },
+	[KEY_VAR]           = { nullptr, nullptr, PREC_NONE },
+	[KEY_VOID]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_WHILE]         = { nullptr, nullptr, PREC_NONE },
+	[KEY_WITH]          = { nullptr, nullptr, PREC_NONE },
+	[KEY_YIELD]         = { nullptr, nullptr, PREC_NONE },
+
+	[TOKEN_EOF]         = { nullptr, nullptr, PREC_NONE },
+};
+#pragma GCC diagnostic pop
+
+static ParseRule *get_rule(TokenType type)
+{
+	return &rules[type];
+}
+
 Parser::Parser(std::string input) :
     scanner(input.c_str())
 {
@@ -38,7 +171,7 @@ Stmt *Parser::statement()
 
 	if (match(KEY_RETURN))
 		return return_statement();
-	
+
 	if (match(KEY_FOR))
 		return for_statement();
 
@@ -167,116 +300,109 @@ Stmt *Parser::function_declaration()
 
 Expr *Parser::expression()
 {
-	return equality();
+	return parse_precedence(PREC_ASSIGNMENT);
 }
 
-Expr *Parser::equality()
+Expr *Parser::anonymous()
 {
-	auto expr = comparison();
-	while (match_any({ BANG_EQUAL, EQUAL_EQUAL, EQUAL_EQUAL_EQUAL, BANG_EQUAL_EQUAL }))
-	{
-		auto op = previous_token;
-		auto rhs = comparison();
-		expr = new BinaryExpr(expr, op, rhs);
-	}
-	return expr;
+	return nullptr;
 }
 
-Expr *Parser::comparison()
+Expr *Parser::array()
 {
-	auto expr = term();
-	while (match_any({ GREATER, LESS, LESS_EQUAL, GREATER_EQUAL }))
-	{
-		auto op = previous_token;
-		auto rhs = term();
-		expr = new BinaryExpr(expr, op, rhs);
-	}
-	return expr;
+	return nullptr;
 }
 
-Expr *Parser::term()
+Expr *Parser::binary(Expr *left)
 {
-	auto expr = factor();
-
-	while (match_any({ MINUS, PLUS }))
-	{
-		auto op = previous_token;
-		auto rhs = term();
-		expr = new BinaryExpr(expr, op, rhs);
-	}
-
-	return expr;
+	auto op = previous_token;
+	auto precedence = get_rule(op.type())->precedence;
+	auto right = parse_precedence(static_cast<Precedence>(precedence + 1));
+	return new BinaryExpr(left, op, right);
 }
 
-Expr *Parser::factor()
+Expr *Parser::call(Expr *left)
 {
-	auto expr = unary();
+	return nullptr;
+}
 
-	while (match_any({ SLASH, STAR }))
-	{
-		auto op = previous_token;
-		auto rhs = term();
-		expr = new BinaryExpr(expr, op, rhs);
-	}
+Expr *Parser::dot(Expr *left)
+{
+	return nullptr;
+}
 
-	return expr;
+Expr *Parser::grouping()
+{
+	return nullptr;
+}
+
+Expr *Parser::inc_dec(Expr *left)
+{
+	return nullptr;
+}
+
+Expr *Parser::literal()
+{
+	return nullptr;
+}
+
+Expr *Parser::new_instance()
+{
+	return nullptr;
+}
+
+Expr *Parser::number()
+{
+	auto d = std::stod(previous_token.value());
+	return new Literal(Value(d));
+}
+
+Expr *Parser::object()
+{
+	return nullptr;
+}
+
+Expr *Parser::string()
+{
+	auto str = previous_token.value();
+	return new Literal(Value(new std::string(str.substr(1, str.size() - 2))));
+}
+
+Expr *Parser::subscript(Expr *left)
+{
+	return nullptr;
 }
 
 Expr *Parser::unary()
 {
-	if (match_any({ BANG, MINUS, MINUS_MINUS, PLUS_PLUS }))
-	{
-		auto op = previous_token;
-		auto rhs = unary();
-		return new UnaryExpr(op, rhs);
-	}
-
-	return call();
+	return nullptr;
 }
 
-Expr *Parser::call()
+Expr *Parser::variable()
 {
-	auto expr = primary();
+	return nullptr;
+}
 
-	auto call_helper = [this](Expr *callee) -> Expr *
+Expr *Parser::parse_precedence(Precedence precedence)
+{
+	advance();
+	auto prefix = get_rule(previous_token.type())->prefix;
+	if (!prefix)
 	{
-		std::vector<Expr *> args;
+		std::cerr << "Expect expression\n";
+		return nullptr;
+	}
 
-		if (peek() != RIGHT_PAREN)
-		{
-			do
-			{
-				args.push_back(expression());
-			} while (match(COMMA));
-		}
+	Expr *expr = prefix(this);
 
-		return new CallExpr(callee, args);
-	};
-
-	while (true)
+	while (precedence <= get_rule(current_token.type())->precedence)
 	{
-		if (match(LEFT_PAREN))
-			expr = call_helper(expr);
-		else
-			break;
+		advance();
+		auto infix = get_rule(previous_token.type())->infix;
+		expr = infix(this, expr);
 	}
 
 	return expr;
-}
-
-Expr *Parser::primary()
-{
-	auto value = current_token.value();
-	if (match(NUMBER))
-		return new Literal(Value(std::stof(value)));
-	
-	if (match(STRING))
-		return new Literal(Value(new std::string(value)));
-
-	if (match(IDENTIFIER))
-		return new Variable(previous_token.value());
-
-	return nullptr;
 }
 
 void Parser::advance()

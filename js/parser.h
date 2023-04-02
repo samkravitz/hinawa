@@ -10,6 +10,22 @@
 
 namespace js
 {
+enum Precedence : int
+{
+	PREC_NONE,
+	PREC_ASSIGNMENT,
+	PREC_OR,
+	PREC_AND,
+	PREC_EQUALITY,
+	PREC_COMPARISON,
+	PREC_TERM,
+	PREC_FACTOR,
+	PREC_UNARY,
+	PREC_CALL,
+	PREC_SUBSCRIPT,
+	PREC_PRIMARY
+};
+
 class Parser
 {
 public:
@@ -17,11 +33,29 @@ public:
 
 	std::vector<Stmt *> parse();
 
-private:
 	Scanner scanner;
 	Token current_token;
 	Token previous_token;
 
+	// parse expressions
+	Expr *expression();
+	Expr *anonymous();
+	Expr *array();
+	Expr *binary(Expr *);
+	Expr *call(Expr *);
+	Expr *dot(Expr *);
+	Expr *grouping();
+	Expr *inc_dec(Expr *);
+	Expr *literal();
+	Expr *new_instance();
+	Expr *number();
+	Expr *object();
+	Expr *string();
+	Expr *subscript(Expr *);
+	Expr *unary();
+	Expr *variable();
+
+private:
 	// parse statements
 	Stmt *statement();
 	Stmt *block_stmt();
@@ -34,17 +68,8 @@ private:
 	// parse declarations
 	Stmt *declaration();
 	Stmt *function_declaration();
-
-	// parse expressions
-	Expr *expression();
-	Expr *equality();
-	Expr *comparison();
-	Expr *term();
-	Expr *factor();
-	Expr *unary();
-	Expr *call();
-	Expr *primary();
-
+	
+	Expr *parse_precedence(Precedence);
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);

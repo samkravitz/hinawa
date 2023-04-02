@@ -16,7 +16,7 @@ struct ParseRule
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-ParseRule rules[] = {
+ParseRule xrules[] = {
 	[0]                 = { nullptr, nullptr, PREC_NONE },
 	[LEFT_PAREN]        = { &Compiler::grouping, &Compiler::call, PREC_CALL },
 	[RIGHT_PAREN]       = { nullptr, nullptr, PREC_NONE },
@@ -134,7 +134,7 @@ ParseRule rules[] = {
 
 static ParseRule *get_rule(TokenType type)
 {
-	return &rules[type];
+	return &xrules[type];
 }
 
 Compiler::Compiler(const char *src) :
