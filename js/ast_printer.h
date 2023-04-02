@@ -128,6 +128,19 @@ public:
 	{
 		print_indent(indent);
 		std::cout << node->name() << "\n";
+		print_indent(indent);
+		std::cout << "callee: \n";
+		node->callee()->accept(this, indent + 1);
+
+		if (!node->args().empty())
+		{
+			print_indent(indent);
+			std::cout << "args: \n";
+			for (auto *arg : node->args())
+			{
+				arg->accept(this, indent + 1);
+			}
+		}
 	}
 
 	void visit(const Literal *node, int indent) const

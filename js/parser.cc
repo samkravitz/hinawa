@@ -323,7 +323,19 @@ Expr *Parser::binary(Expr *left)
 
 Expr *Parser::call(Expr *left)
 {
-	return nullptr;
+	std::vector<Expr *> args;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			args.push_back(expression());
+			if (args.size() > 0xff)
+				std::cerr << "Can't have more than 255 arguments\n";
+		} while (match(COMMA));
+	}
+
+	consume(RIGHT_PAREN, "Expect ')' after arguments");
+	return new CallExpr(left, args);
 }
 
 Expr *Parser::dot(Expr *left)
@@ -380,7 +392,7 @@ Expr *Parser::unary()
 
 Expr *Parser::variable()
 {
-	return nullptr;
+	return new Variable(previous.value());
 }
 
 Expr *Parser::parse_precedence(Precedence precedence)
