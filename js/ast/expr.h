@@ -64,6 +64,21 @@ struct BinaryExpr : public Expr
 	Expr *rhs;
 };
 
+struct AssignmentExpr : public Expr
+{
+	AssignmentExpr(Expr *lhs, Expr *rhs) :
+	    lhs(lhs),
+	    rhs(rhs)
+	{ }
+
+	const char *name() const { return "AssignmentExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	Expr *lhs;
+	Expr *rhs;
+};
+
 struct CallExpr : public Expr
 {
 	CallExpr(Expr *callee, std::vector<Expr *> args) :

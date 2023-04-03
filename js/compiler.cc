@@ -182,6 +182,11 @@ void Compiler::compile(const BinaryExpr &expr)
 	}
 }
 
+void Compiler::compile(const AssignmentExpr &expr)
+{
+
+}
+
 void Compiler::compile(const CallExpr &expr) { }
 
 void Compiler::compile(const MemberExpr &expr) { }

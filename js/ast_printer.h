@@ -147,6 +147,16 @@ public:
 		node->rhs->accept(this, indent + 1);
 	}
 
+	void visit(const AssignmentExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+
+		node->lhs->accept(this, indent + 1);
+		print_indent(indent);
+		node->rhs->accept(this, indent);
+	}
+
 	void visit(const CallExpr *node, int indent) const
 	{
 		print_indent(indent);

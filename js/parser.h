@@ -41,6 +41,7 @@ public:
 	Expr *expression();
 	Expr *anonymous();
 	Expr *array();
+	Expr *assign(Expr *);
 	Expr *binary(Expr *);
 	Expr *call(Expr *);
 	Expr *dot(Expr *);

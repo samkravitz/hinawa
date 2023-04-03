@@ -38,7 +38,7 @@ ParseRule rules[] = {
 	[SEMICOLON]         = { nullptr, nullptr, PREC_NONE },
 	[COLON]             = { nullptr, nullptr, PREC_NONE },
 	[BANG]              = { nullptr, nullptr, PREC_NONE },
-	[EQUAL]             = { nullptr, nullptr, PREC_NONE },
+	[EQUAL]             = { nullptr, &Parser::assign, PREC_ASSIGNMENT },
 	[GREATER]           = { nullptr, &Parser::binary, PREC_COMPARISON },
 	[LESS]              = { nullptr, &Parser::binary, PREC_COMPARISON },
 	[AND]               = { nullptr, &Parser::binary, PREC_TERM },
@@ -317,6 +317,12 @@ Expr *Parser::anonymous()
 Expr *Parser::array()
 {
 	return nullptr;
+}
+
+Expr *Parser::assign(Expr *left)
+{
+	auto right = expression();
+	return new AssignmentExpr(left, right);
 }
 
 Expr *Parser::binary(Expr *left)

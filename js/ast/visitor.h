@@ -14,6 +14,7 @@ struct ForStmt;
 struct UnaryExpr;
 struct UpdateExpr;
 struct BinaryExpr;
+struct AssignmentExpr;
 struct CallExpr;
 struct MemberExpr;
 struct Literal;
@@ -32,6 +33,7 @@ struct PrintVisitor
 	virtual void visit(const UnaryExpr *, int indent) const = 0;
 	virtual void visit(const UpdateExpr *, int indent) const = 0;
 	virtual void visit(const BinaryExpr *, int indent) const = 0;
+	virtual void visit(const AssignmentExpr *, int indent) const = 0;
 	virtual void visit(const CallExpr *, int indent) const = 0;
 	virtual void visit(const MemberExpr *, int indent) const = 0;
 	virtual void visit(const Literal *, int indent) const = 0;
@@ -51,6 +53,7 @@ struct CompilerVisitor
 	virtual void compile(const UnaryExpr &) = 0;
 	virtual void compile(const UpdateExpr &) = 0;
 	virtual void compile(const BinaryExpr &) = 0;
+	virtual void compile(const AssignmentExpr &) = 0;
 	virtual void compile(const CallExpr &) = 0;
 	virtual void compile(const MemberExpr &) = 0;
 	virtual void compile(const Literal &) = 0;
