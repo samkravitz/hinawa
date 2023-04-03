@@ -184,7 +184,8 @@ void Compiler::compile(const BinaryExpr &expr)
 
 void Compiler::compile(const AssignmentExpr &expr)
 {
-
+	expr.rhs->accept(this);
+	expr.lhs->accept(this);
 }
 
 void Compiler::compile(const CallExpr &expr) { }
@@ -227,7 +228,10 @@ void Compiler::compile(const Literal &expr)
 void Compiler::compile(const Variable &expr)
 {
 	auto value = make_constant(Value(new std::string{expr.ident}));
-	emit_bytes(OP_GET_GLOBAL, value);
+	if (expr.is_assign)
+		emit_bytes(OP_SET_GLOBAL, value);
+	else
+	 	emit_bytes(OP_GET_GLOBAL, value);
 }
 
 size_t Compiler::make_constant(Value value)

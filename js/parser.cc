@@ -410,7 +410,7 @@ Expr *Parser::update(Expr *left)
 
 Expr *Parser::variable()
 {
-	return new Variable(previous.value());
+	return new Variable(previous.value(), check(EQUAL));
 }
 
 Expr *Parser::parse_precedence(Precedence precedence)

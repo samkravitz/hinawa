@@ -124,8 +124,9 @@ struct Literal : public Expr
 
 struct Variable : public Expr
 {
-	Variable(std::string ident) :
-	    ident(ident)
+	Variable(std::string ident, bool is_assign) :
+	    ident(ident),
+		is_assign(is_assign)
 	{ }
 
 	const char *name() const { return "Variable"; }
@@ -133,5 +134,6 @@ struct Variable : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::string ident;
+	bool is_assign{false};
 };
 }
