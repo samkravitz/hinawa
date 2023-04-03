@@ -9,7 +9,7 @@
 namespace js
 {
 
-Compiler::Compiler(const std::vector<Stmt*> &stmts) :
+Compiler::Compiler(const std::vector<Stmt *> &stmts) :
     stmts(stmts)
 { }
 
@@ -50,9 +50,27 @@ Function Compiler::compile()
 	return script;
 }
 
-void Compiler::compile(const BlockStmt &stmt) { }
+void Compiler::compile(const BlockStmt &stmt)
+{
+	begin_scope();
 
-void Compiler::compile(const VarDecl &stmt) { }
+	for (auto s : stmt.stmts)
+		s->accept(this);
+
+	end_scope();
+}
+
+void Compiler::compile(const VarDecl &stmt)
+{
+	u8 global = identifier_constant(stmt.identifier);
+
+	if (stmt.init)
+		stmt.init->accept(this);
+	else
+		emit_byte(OP_UNDEFINED);
+	
+	define_variable(global);
+}
 
 void Compiler::compile(const ExpressionStmt &stmt)
 {
@@ -62,7 +80,37 @@ void Compiler::compile(const ExpressionStmt &stmt)
 
 void Compiler::compile(const IfStmt &stmt) { }
 
-void Compiler::compile(const ForStmt &stmt) { }
+void Compiler::compile(const ForStmt &stmt)
+{
+	begin_scope();
+
+	if (stmt.initialization)
+		stmt.initialization->accept(this);
+
+	int loop_start = current->function->chunk.size();
+	int exit_jump = -1;
+
+	if (stmt.condition)
+	{
+		stmt.condition->accept(this);
+		exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+		emit_byte(OP_POP);
+	}
+
+	stmt.statement->accept(this);
+	if (stmt.afterthought)
+		stmt.afterthought->accept(this);
+	
+	emit_loop(loop_start);
+	
+	if (exit_jump != -1)
+	{
+		patch_jump(exit_jump);
+		emit_byte(OP_POP);
+	}
+
+	end_scope();
+}
 
 void Compiler::compile(const FunctionDecl &stmt) { }
 
@@ -171,7 +219,11 @@ void Compiler::compile(const Literal &expr)
 	}
 }
 
-void Compiler::compile(const Variable &expr) { }
+void Compiler::compile(const Variable &expr)
+{
+	auto value = make_constant(Value(new std::string{expr.ident}));
+	emit_bytes(OP_GET_GLOBAL, value);
+}
 
 size_t Compiler::make_constant(Value value)
 {
@@ -200,5 +252,66 @@ void Compiler::emit_constant(Value value)
 {
 	auto constant = make_constant(value);
 	emit_bytes(OP_CONSTANT, constant);
+}
+
+size_t Compiler::emit_jump(Opcode op)
+{
+	emit_byte(op);
+	emit_bytes(0xff, 0xff);
+	return current_function().chunk.size() - 2;
+}
+
+void Compiler::patch_jump(size_t offset)
+{
+	auto jump = current_function().chunk.size() - offset - 2;
+	if (jump > 0xffff)
+		std::cerr << "Jump is out of bounds\n";
+
+	current_function().chunk.code[offset] = (jump >> 8) & 0xff;
+	current_function().chunk.code[offset + 1] = jump & 0xff;
+}
+
+void Compiler::emit_loop(size_t loop_start)
+{
+	emit_byte(OP_LOOP);
+	auto offset = current_function().chunk.size() - loop_start + 2;
+	if (offset > 0xffff)
+		std::cerr << "Loop offset is out of bounds\n";
+
+	emit_byte((offset >> 8) & 0xff);
+	emit_byte(offset & 0xff);
+}
+
+void Compiler::define_variable(u8 global)
+{
+	emit_bytes(OP_DEFINE_GLOBAL, global);
+}
+
+u8 Compiler::identifier_constant(const std::string &name)
+{
+	return make_constant(Value(new std::string{name}));
+}
+
+void Compiler::begin_scope()
+{
+	current->scope_depth += 1;
+}
+
+void Compiler::end_scope()
+{
+	current->scope_depth -= 1;
+	while (!current->locals.empty() && (current->locals.back().depth > current->scope_depth))
+	{
+		emit_byte(OP_POP);
+		current->locals.pop_back();
+	}
+}
+
+/**
+ * @brief returns true if currently compiling for the global scope
+*/
+bool Compiler::is_global()
+{
+	return current->scope_depth == 0;
 }
 }

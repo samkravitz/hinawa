@@ -154,7 +154,8 @@ std::vector<Stmt *> Parser::parse()
 	while (!match(TOKEN_EOF))
 	{
 		auto *stmt = declaration();
-		assert(stmt);
+		if (!stmt)
+			break;
 		program.push_back(stmt);
 	}
 

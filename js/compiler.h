@@ -63,6 +63,17 @@ private:
 	void emit_byte(u8);
 	void emit_bytes(u8, u8);
 	void emit_constant(Value);
+	size_t emit_jump(Opcode);
+	void patch_jump(size_t);
+	void emit_loop(size_t);
+
+	void define_variable(u8);
+	u8 identifier_constant(const std::string &);
+
+	void begin_scope();
+	void end_scope();
+
+	bool is_global();
 
 	inline Function &current_function() { return *current->function; }
 };
