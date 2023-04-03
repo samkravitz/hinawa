@@ -77,5 +77,6 @@ private:
 	bool match_any(std::initializer_list<TokenType> const &);
 	TokenType peek();
 	inline bool check(TokenType type) { return current.type() == type; }
+	bool check_any(std::initializer_list<TokenType> const &);
 };
 };

@@ -99,7 +99,10 @@ void Compiler::compile(const ForStmt &stmt)
 
 	stmt.statement->accept(this);
 	if (stmt.afterthought)
+	{
 		stmt.afterthought->accept(this);
+		emit_byte(OP_POP);
+	}
 	
 	emit_loop(loop_start);
 	

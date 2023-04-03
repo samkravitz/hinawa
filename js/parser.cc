@@ -410,7 +410,7 @@ Expr *Parser::update(Expr *left)
 
 Expr *Parser::variable()
 {
-	return new Variable(previous.value(), check(EQUAL));
+	return new Variable(previous.value(), check_any({ EQUAL, PLUS_PLUS, MINUS_MINUS }));
 }
 
 Expr *Parser::parse_precedence(Precedence precedence)
@@ -447,6 +447,17 @@ bool Parser::match(TokenType type)
 	{
 		advance();
 		return true;
+	}
+
+	return false;
+}
+
+bool Parser::check_any(std::initializer_list<TokenType> const &tokens)
+{
+	for (auto t : tokens)
+	{
+		if (check(t))
+			return true;
 	}
 
 	return false;
