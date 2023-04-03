@@ -10,6 +10,7 @@ struct Stmt : public AstNode
 {
 	const char *name() const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
+	virtual void accept(CompilerVisitor *compiler) const = 0;
 };
 
 //struct Program : public Stmt
@@ -44,6 +45,7 @@ struct BlockStmt : public Stmt
 
 	const char *name() const { return "BlockStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::vector<Stmt *> stmts;
 };
@@ -56,6 +58,7 @@ struct VariableStmt : public Stmt
 	{ }
 	const char *name() const { return "VariableStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::string identifier;
 	Expr *init;
@@ -65,6 +68,7 @@ struct EmptyStmt : public Stmt
 {
 	const char *name() const { return "EmptyStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 };
 
 struct ExpressionStmt : public Stmt
@@ -75,6 +79,7 @@ struct ExpressionStmt : public Stmt
 
 	const char *name() const { return "ExpressionStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Expr *expr;
 };
@@ -89,6 +94,7 @@ struct IfStmt : public Stmt
 
 	const char *name() const { return "IfStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Expr *condition;
 	Stmt *then;
@@ -106,6 +112,7 @@ struct ForStmt : public Stmt
 
 	const char *name() const { return "ForStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	AstNode *initialization;
 	Expr *condition;
@@ -133,6 +140,7 @@ struct ReturnStmt : public Stmt
 
 	const char *name() const { return "ReturnStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Expr *expr;
 };
@@ -146,6 +154,7 @@ struct FunctionDecl : public Stmt
 
 	const char *name() const { return "FunctionDecl"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::string function_name;
 	Stmt *block;

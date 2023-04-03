@@ -181,7 +181,7 @@ public:
 	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);
-		std::cout << node->value.to_string() << "\n";
+		std::cout << node->token.value() << "\n";
 	}
 
 	void visit(const Variable *node, int indent) const

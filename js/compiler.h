@@ -3,62 +3,24 @@
 #include <stack>
 #include <vector>
 
+#include "ast/stmt.h"
+#include "ast/visitor.h"
 #include "chunk.h"
 #include "function.h"
 #include "opcode.h"
-#include "scanner.h"
 #include "token_type.h"
 #include "value.h"
 
 namespace js
 {
-enum Precedence : int
-{
-	PREC_NONE,
-	PREC_ASSIGNMENT,
-	PREC_OR,
-	PREC_AND,
-	PREC_EQUALITY,
-	PREC_COMPARISON,
-	PREC_TERM,
-	PREC_FACTOR,
-	PREC_UNARY,
-	PREC_CALL,
-	PREC_SUBSCRIPT,
-	PREC_PRIMARY
-};
-
-class Compiler
+class Compiler : public CompilerVisitor
 {
 public:
-	Compiler(const char *);
+	Compiler(const std::vector<Stmt *> &);
 
 	Function compile();
 
-	// expressions
-	void anonymous(bool);
-	void array(bool);
-	void binary(bool);
-	void call(bool);
-	void dot(bool);
-	void grouping(bool);
-	void literal(bool);
-	void new_instance(bool);
-	void number(bool);
-	void object(bool);
-	void string(bool);
-	void subscript(bool);
-	void unary(bool);
-	void variable(bool);
-
 private:
-	Scanner scanner;
-	struct Parser
-	{
-		Token current;
-		Token previous;
-	} parser;
-
 	struct FunctionCompiler
 	{
 		FunctionCompiler(FunctionCompiler *enclosing, Function *function) :
@@ -73,59 +35,34 @@ private:
 		int local_count() { return locals.size(); }
 	} *current;
 
+	std::vector<Stmt *> stmts;
+
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();
 
-	void advance();
-	void consume(TokenType, const char *);
-	bool match(TokenType);
-	bool check(TokenType);
+	// compile statements
+	void compile(const BlockStmt &);
+	void compile(const VariableStmt &);
+	void compile(const ExpressionStmt &);
+	void compile(const IfStmt &);
+	void compile(const ForStmt &);
+	void compile(const FunctionDecl &);
+	void compile(const EmptyStmt &);
+	void compile(const ReturnStmt &);
 
-	void parse_precedence(Precedence);
-
-	// declarations
-	void declaration();
-	void class_declaration();
-	void function_declaration();
-	void var_declaration();
-
-	// statements
-	void statement();
-	void block();
-	void expression_statement();
-	void for_statement();
-	void if_statement();
-	void return_statement();
-	void throw_statement();
-	void try_statement();
-	void while_statement();
-
-	void expression();
+	// compile expressions
+	void compile(const UnaryExpr &);
+	void compile(const UpdateExpr &);
+	void compile(const BinaryExpr &);
+	void compile(const CallExpr &);
+	void compile(const MemberExpr &);
+	void compile(const Literal &);
+	void compile(const Variable &);
 
 	size_t make_constant(Value);
 	void emit_byte(u8);
 	void emit_bytes(u8, u8);
 	void emit_constant(Value);
-	size_t emit_jump(Opcode);
-	void patch_jump(size_t);
-	void emit_loop(size_t);
-
-	void error(const char *);
-	void error_at_current(const char *);
-	void error_at(Token, const char *);
-
-	u8 parse_variable(const char *);
-	void define_variable(u8);
-	void declare_variable();
-	u8 identifier_constant(Token const &);
-	void mark_initialized();
-
-	void add_local(Token);
-	int resolve_local(Token);
-	void begin_scope();
-	void end_scope();
-
-	bool is_global();
 
 	inline Function &current_function() { return *current->function; }
 };

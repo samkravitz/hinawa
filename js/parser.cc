@@ -362,8 +362,7 @@ Expr *Parser::new_instance()
 
 Expr *Parser::number()
 {
-	auto d = std::stod(previous.value());
-	return new Literal(Value(d));
+	return new Literal(previous);
 }
 
 Expr *Parser::object()
@@ -373,8 +372,7 @@ Expr *Parser::object()
 
 Expr *Parser::string()
 {
-	auto str = previous.value();
-	return new Literal(Value(new std::string(str.substr(1, str.size() - 2))));
+	return new Literal(previous);
 }
 
 Expr *Parser::subscript(Expr *left)
