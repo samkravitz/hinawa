@@ -50,20 +50,6 @@ struct BlockStmt : public Stmt
 	std::vector<Stmt *> stmts;
 };
 
-struct VariableStmt : public Stmt
-{
-	VariableStmt(std::string identifier, Expr *initializer) :
-	    identifier(identifier),
-	    init(initializer)
-	{ }
-	const char *name() const { return "VariableStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
-
-	std::string identifier;
-	Expr *init;
-};
-
 struct EmptyStmt : public Stmt
 {
 	const char *name() const { return "EmptyStmt"; }
@@ -143,6 +129,20 @@ struct ReturnStmt : public Stmt
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Expr *expr;
+};
+
+struct VarDecl : public Stmt
+{
+	VarDecl(std::string identifier, Expr *initializer) :
+	    identifier(identifier),
+	    init(initializer)
+	{ }
+	const char *name() const { return "VarDecl"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::string identifier;
+	Expr *init;
 };
 
 struct FunctionDecl : public Stmt

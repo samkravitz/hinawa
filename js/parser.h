@@ -59,7 +59,6 @@ private:
 	// parse statements
 	Stmt *statement();
 	Stmt *block_stmt();
-	Stmt *variable_statement();
 	Stmt *expression_statement();
 	Stmt *if_statement();
 	Stmt *return_statement();
@@ -68,6 +67,7 @@ private:
 	// parse declarations
 	Stmt *declaration();
 	Stmt *function_declaration();
+	Stmt *var_declaration();
 	
 	Expr *parse_precedence(Precedence);
 	void advance();

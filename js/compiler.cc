@@ -52,7 +52,7 @@ Function Compiler::compile()
 
 void Compiler::compile(const BlockStmt &stmt) { }
 
-void Compiler::compile(const VariableStmt &stmt) { }
+void Compiler::compile(const VarDecl &stmt) { }
 
 void Compiler::compile(const ExpressionStmt &stmt)
 {

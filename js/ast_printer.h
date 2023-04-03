@@ -28,7 +28,7 @@ public:
 			stmt->accept(this, indent + 1);
 	}
 
-	void visit(const VariableStmt *node, int indent) const
+	void visit(const VarDecl *node, int indent) const
 	{
 		print_indent(indent);
 		std::cout << node->name() << "\n";

@@ -150,21 +150,35 @@ Parser::Parser(std::string input) :
 std::vector<Stmt *> Parser::parse()
 {
 	std::vector<Stmt *> program;
-	Stmt *stmt;
 
-	while ((stmt = statement()))
+	while (!match(TOKEN_EOF))
+	{
+		auto *stmt = declaration();
+		assert(stmt);
 		program.push_back(stmt);
+	}
 
 	return program;
+}
+
+Stmt *Parser::declaration()
+{
+	if (match(KEY_VAR))
+		return var_declaration();
+
+	//if (match(KEY_CLASS))
+	//	return class_declaration();
+
+	if (match(KEY_FUNCTION))
+		return function_declaration();
+
+	return statement();
 }
 
 Stmt *Parser::statement()
 {
 	if (match(LEFT_BRACE))
 		return block_stmt();
-
-	if (match(KEY_VAR))
-		return variable_statement();
 
 	if (match(KEY_IF))
 		return if_statement();
@@ -174,10 +188,6 @@ Stmt *Parser::statement()
 
 	if (match(KEY_FOR))
 		return for_statement();
-
-	auto decl = declaration();
-	if (decl)
-		return decl;
 
 	return expression_statement();
 }
@@ -192,7 +202,7 @@ Stmt *Parser::block_stmt()
 	return new BlockStmt(stmts);
 }
 
-Stmt *Parser::variable_statement()
+Stmt *Parser::var_declaration()
 {
 	consume(IDENTIFIER, "Expected variable name");
 
@@ -205,7 +215,7 @@ Stmt *Parser::variable_statement()
 	// match optional semicolon after expression statement
 	match(SEMICOLON);
 
-	return new VariableStmt(identifier, initializer);
+	return new VarDecl(identifier, initializer);
 }
 
 Stmt *Parser::expression_statement()
@@ -255,7 +265,7 @@ Stmt *Parser::for_statement()
 	AstNode *initialization = nullptr;
 	if (match(KEY_VAR))
 	{
-		initialization = variable_statement();
+		initialization = var_declaration();
 		if (!initialization)
 		{
 			std::cout << "For statement: expected variable statement";
@@ -276,11 +286,6 @@ Stmt *Parser::for_statement()
 	auto *stmt = statement();
 
 	return new ForStmt(initialization, condition, afterthought, stmt);
-}
-
-Stmt *Parser::declaration()
-{
-	return function_declaration();
 }
 
 Stmt *Parser::function_declaration()

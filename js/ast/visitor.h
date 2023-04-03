@@ -3,7 +3,7 @@
 namespace js
 {
 struct BlockStmt;
-struct VariableStmt;
+struct VarDecl;
 struct EmptyStmt;
 struct IfStmt;
 struct ReturnStmt;
@@ -22,7 +22,7 @@ struct Variable;
 struct PrintVisitor
 {
 	virtual void visit(const BlockStmt *, int indent) const = 0;
-	virtual void visit(const VariableStmt *, int indent) const = 0;
+	virtual void visit(const VarDecl *, int indent) const = 0;
 	virtual void visit(const EmptyStmt *, int indent) const = 0;
 	virtual void visit(const IfStmt *, int indent) const = 0;
 	virtual void visit(const ReturnStmt *, int indent) const = 0;
@@ -41,7 +41,7 @@ struct PrintVisitor
 struct CompilerVisitor
 {
 	virtual void compile(const BlockStmt &) = 0;
-	virtual void compile(const VariableStmt &) = 0;
+	virtual void compile(const VarDecl &) = 0;
 	virtual void compile(const EmptyStmt &) = 0;
 	virtual void compile(const IfStmt &) = 0;
 	virtual void compile(const ReturnStmt &) = 0;

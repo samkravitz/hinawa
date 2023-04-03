@@ -42,7 +42,7 @@ private:
 
 	// compile statements
 	void compile(const BlockStmt &);
-	void compile(const VariableStmt &);
+	void compile(const VarDecl &);
 	void compile(const ExpressionStmt &);
 	void compile(const IfStmt &);
 	void compile(const ForStmt &);
