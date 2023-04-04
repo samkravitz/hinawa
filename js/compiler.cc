@@ -3,6 +3,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <ranges>
 
 #include <fmt/format.h>
 
@@ -18,7 +19,7 @@ void Compiler::init_compiler(FunctionCompiler *compiler)
 	compiler->enclosing = current;
 	current = compiler;
 
-	current->locals.push_back({ "", 0 });
+	current->locals.push_back({"", 0});
 	for (size_t i = 0; i <= 0xff; i++)
 		available_regs.push(i);
 }
@@ -65,14 +66,37 @@ std::optional<size_t> Compiler::compile(const BlockStmt &stmt)
 
 std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 {
-	u8 global = identifier_constant(stmt.identifier);
+	if (is_global())
+	{
+		u8 global = identifier_constant(stmt.identifier);
 
-	if (stmt.init)
-		stmt.init->accept(this);
+		if (stmt.init)
+			stmt.init->accept(this);
+		else
+			emit_byte(OP_UNDEFINED);
+
+		define_variable(global);
+		return {};
+	}
+
 	else
-		emit_byte(OP_UNDEFINED);
+	{
+		declare_local(stmt.identifier);
+		auto &local = current->locals.back();
 
-	define_variable(global);
+		if (stmt.init)
+		{
+			auto reg = stmt.init->accept(this);
+			assert(reg);
+			emit_byte(OP_MOV);
+			emit_bytes(local.reg, *reg);
+			local.reg = *reg;
+			free_reg(*reg);
+		}
+		else
+			local.reg = allocate_reg();
+	}
+
 	return {};
 }
 
@@ -225,7 +249,7 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 	if (expr.lhs->is_variable())
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
-		auto k = make_constant(Value(new std::string{ var.ident }));
+		auto k = make_constant(Value(new std::string{var.ident}));
 		emit_byte(OP_SET_GLOBAL);
 		emit_bytes(*rhs, k);
 	}
@@ -287,7 +311,7 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 
 std::optional<size_t> Compiler::compile(const Variable &expr)
 {
-	auto value = make_constant(Value(new std::string{ expr.ident }));
+	auto value = make_constant(Value(new std::string{expr.ident}));
 	if (expr.is_assign)
 		emit_bytes(OP_SET_GLOBAL, value);
 	else
@@ -360,7 +384,7 @@ void Compiler::define_variable(u8 global)
 
 u8 Compiler::identifier_constant(const std::string &name)
 {
-	return make_constant(Value(new std::string{ name }));
+	return make_constant(Value(new std::string{name}));
 }
 
 void Compiler::begin_scope()
@@ -373,15 +397,34 @@ void Compiler::end_scope()
 	current->scope_depth -= 1;
 	while (!current->locals.empty() && (current->locals.back().depth > current->scope_depth))
 	{
-		emit_byte(OP_POP);
+		auto &local = current->locals.back();
+		free_reg(local.reg);
 		current->locals.pop_back();
 	}
+}
+
+void Compiler::declare_local(const std::string &name)
+{
+	auto local_count = current->local_count();
+	// Using C++20 ranges: iterate backwards
+	// for (auto &local : current->locals | std::ranges::views::reverse)
+	for (int i = local_count - 1; i >= 0; i--)
+	{
+		auto local = current->locals[i];
+		if (local.depth != -1 && local.depth < current->scope_depth)
+			break;
+
+		if (name == local.name)
+			fmt::print(stderr, "Already a variable with this name in this scope.\n");
+	}
+
+	current->locals.push_back({name, current->scope_depth, allocate_reg()});
 }
 
 /**
  * @brief returns true if currently compiling for the global scope
 */
-bool Compiler::is_global()
+bool Compiler::is_global() const
 {
 	return current->scope_depth == 0;
 }

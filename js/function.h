@@ -13,13 +13,20 @@ namespace js
 {
 struct Local
 {
-	Local(std::string name, int depth) :
-	    name(name),
-	    depth(depth)
+	Local(const std::string &name, int depth) :
+	    name{name},
+	    depth{depth}
+	{ }
+
+	Local(const std::string &name, int depth, size_t reg) :
+	    name{name},
+	    depth{depth},
+	    reg{reg}
 	{ }
 
 	std::string name;
 	int depth;
+	size_t reg;
 };
 
 enum FunctionType
@@ -44,13 +51,13 @@ public:
 
 	Function(std::string const &name, FunctionType type) :
 	    name(name),
-		type(type)
+	    type(type)
 	{ }
 
 	size_t arity = 0;
 	Chunk chunk;
 	std::string name;
-	FunctionType type{ FUNCTION };
+	FunctionType type{FUNCTION};
 
 	bool is_function() const { return true; }
 	virtual bool is_native() const { return false; }
@@ -59,8 +66,10 @@ public:
 	{
 		switch (type)
 		{
-			case ANONYMOUS: return "<anonymous fn>";
-			case SCRIPT: return "<script>";
+			case ANONYMOUS:
+				return "<anonymous fn>";
+			case SCRIPT:
+				return "<script>";
 			default:
 				std::string res = "<fn ";
 				res += name;

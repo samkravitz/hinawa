@@ -131,7 +131,7 @@ Stmt *Parser::block_stmt()
 	std::vector<Stmt *> stmts;
 
 	while (!match(RIGHT_BRACE))
-		stmts.push_back(statement());
+		stmts.push_back(declaration());
 
 	return new BlockStmt(stmts);
 }

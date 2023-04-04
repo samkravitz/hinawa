@@ -62,6 +62,13 @@ bool Vm::run(Function f)
 				reg(dst) = read_constant();
 				break;
 			}
+			case OP_MOV:
+			{
+				auto dst = read_byte();
+				auto src = read_byte();
+				reg(dst) = reg(src);
+				break;
+			}
 			case OP_RETURN:
 			{
 				auto result = pop();

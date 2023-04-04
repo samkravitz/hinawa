@@ -31,7 +31,7 @@ private:
 
 		FunctionCompiler *enclosing;
 		Function *function;
-		int scope_depth{ 0 };
+		int scope_depth{0};
 		std::vector<Local> locals;
 		int local_count() { return locals.size(); }
 	} *current;
@@ -76,7 +76,9 @@ private:
 	void begin_scope();
 	void end_scope();
 
-	bool is_global();
+	void declare_local(const std::string &);
+
+	bool is_global() const;
 
 	size_t allocate_reg();
 	void free_reg(size_t);

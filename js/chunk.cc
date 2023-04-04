@@ -56,6 +56,14 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			fmt::print("; r{} = {}\n", dst, constants[k].to_string());
 			return offset + 3;
 		}
+		case OP_MOV:
+		{
+			auto dst = code[offset + 1];
+			auto src = code[offset + 2];
+			fmt::print("{:16} {:3} {:3} {:3} ", "OP_MOV", dst, src, "");
+			fmt::print("; r{} = r{}\n", dst, src);
+			return offset + 3;
+		}
 		case OP_RETURN:
 			return simple_instruction("OP_RETURN", offset);
 		case OP_CONSTANT:

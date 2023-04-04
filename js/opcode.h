@@ -7,6 +7,7 @@ namespace js
 enum Opcode : u8
 {
 	OP_LOADK,
+	OP_MOV,
 	OP_RETURN,
 	OP_CONSTANT,
 	OP_NEGATE,
