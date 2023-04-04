@@ -79,7 +79,8 @@ std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 std::optional<size_t> Compiler::compile(const ExpressionStmt &stmt)
 {
 	auto reg = stmt.expr->accept(this);
-	free_reg(*reg);
+	if (reg)
+		free_reg(*reg);
 	return reg;
 }
 
@@ -219,9 +220,20 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 
 std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 {
-	expr.rhs->accept(this);
-	expr.lhs->accept(this);
-	return {};
+	auto rhs = expr.rhs->accept(this);
+	assert(rhs);
+	if (expr.lhs->is_variable())
+	{
+		auto &var = static_cast<Variable &>(*expr.lhs);
+		auto k = make_constant(Value(new std::string{ var.ident }));
+		emit_byte(OP_SET_GLOBAL);
+		emit_bytes(*rhs, k);
+	}
+	else
+	{
+		std::cout << "AssignmentExpr lhs is not variable\n";
+	}
+	return rhs;
 }
 
 std::optional<size_t> Compiler::compile(const CallExpr &expr)

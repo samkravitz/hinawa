@@ -207,15 +207,9 @@ bool Vm::run(Function f)
 
 			case OP_SET_GLOBAL:
 			{
+				auto reg = read_byte();
 				auto ident = read_string();
-				if (!global->is_defined(ident))
-				{
-					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
-						return false;
-					break;
-				}
-
-				global->set(ident, peek(0));
+				global->set(ident, stack[reg]);
 				break;
 			}
 

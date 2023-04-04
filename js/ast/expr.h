@@ -13,6 +13,7 @@ public:
 	virtual const char *name() const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 	virtual std::optional<size_t> accept(CompilerVisitor *compiler) const = 0;
+	virtual bool is_variable() const { return false; }
 };
 
 struct UnaryExpr : public Expr
@@ -132,6 +133,7 @@ struct Variable : public Expr
 	const char *name() const { return "Variable"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	std::optional<size_t> accept(CompilerVisitor *compiler) const { return compiler->compile(*this); };
+	bool is_variable() const { return true; }
 
 	std::string ident;
 	bool is_assign{false};

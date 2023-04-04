@@ -166,10 +166,11 @@ size_t Chunk::simple_instruction(const char *name, size_t offset)
 
 size_t Chunk::constant_instruction(const char *name, size_t offset)
 {
-	auto constant = code[offset + 1];
-	std::printf("%-16s %4d ", name, constant);
-	std::printf("%s\n", constants[constant].to_string().c_str());
-	return offset + 2;
+	auto a = code[offset + 1];
+	auto k = code[offset + 2];
+	fmt::print("{:16} {:3} {:3} {:3} ", name, a, k, "");
+	fmt::print("; {} = r{}\n", constants[k].to_string(), a);
+	return offset + 3;
 }
 
 size_t Chunk::byte_instruction(const char *name, size_t offset)
