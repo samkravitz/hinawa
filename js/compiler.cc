@@ -78,9 +78,9 @@ std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 
 std::optional<size_t> Compiler::compile(const ExpressionStmt &stmt)
 {
-	stmt.expr->accept(this);
-	emit_byte(OP_POP);
-	return {};
+	auto reg = stmt.expr->accept(this);
+	free_reg(*reg);
+	return reg;
 }
 
 std::optional<size_t> Compiler::compile(const IfStmt &stmt)
@@ -150,8 +150,10 @@ std::optional<size_t> Compiler::compile(const UpdateExpr &expr)
 
 std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 {
-	expr.lhs->accept(this);
-	expr.rhs->accept(this);
+	auto lhs = expr.lhs->accept(this);
+	auto rhs = expr.rhs->accept(this);
+	assert(lhs);
+	assert(rhs);
 	auto op = expr.op.type();
 
 	switch (op)
@@ -207,7 +209,12 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
 	}
-	return {};
+	auto reg = allocate_reg();
+	emit_byte(reg);
+	emit_bytes(*lhs, *rhs);
+	free_reg(*lhs);
+	free_reg(*rhs);
+	return reg;
 }
 
 std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
@@ -234,7 +241,11 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 		case NUMBER:
 		{
 			auto d = std::stod(expr.token.value());
-			emit_constant(Value(d));
+			auto constant = make_constant(Value(d));
+			auto reg = allocate_reg();
+			emit_byte(OP_LOADK);
+			emit_bytes(reg, constant);
+			return reg;
 			break;
 		}
 		case STRING:
@@ -361,5 +372,23 @@ void Compiler::end_scope()
 bool Compiler::is_global()
 {
 	return current->scope_depth == 0;
+}
+
+size_t Compiler::allocate_reg()
+{
+	if (available_regs.empty())
+	{
+		fmt::print(stderr, "Error: All registers in use\n");
+		throw;
+	}
+
+	auto reg = available_regs.top();
+	available_regs.pop();
+	return reg;
+}
+
+void Compiler::free_reg(size_t reg)
+{
+	available_regs.push(reg);
 }
 }

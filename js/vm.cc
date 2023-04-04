@@ -49,6 +49,7 @@ bool Vm::run(Function f)
 	auto cf = CallFrame{ f, 0 };
 	frames.push(cf);
 	push(Value(&f));
+	stack.resize(16);
 
 	while (1)
 	{
@@ -56,6 +57,12 @@ bool Vm::run(Function f)
 
 		switch (instruction)
 		{
+			case OP_LOADK:
+			{
+				auto dst = read_byte();
+				stack[dst] = read_constant();
+				break;
+			}
 			case OP_RETURN:
 			{
 				auto result = pop();
@@ -493,78 +500,72 @@ Value Vm::peek(uint offset)
 
 void Vm::binary_op(Operator op)
 {
-	if (!peek(0).is_number() || !peek(1).is_number())
+	auto dst = read_byte();
+	auto r0 = read_byte();
+	auto r1 = read_byte();
+
+	if (!stack[r0].is_number() || !stack[r1].is_number())
 	{
 		if (!runtime_error("Operands must be numbers"))
 			exit(1);
 		return;
 	}
 
-	double result;
-	bool x;
-	auto b = pop().as_number();
-	auto a = pop().as_number();
+	auto b = stack[r0].as_number();
+	auto a = stack[r1].as_number();
+	Value result{};
 
 	switch (op)
 	{
 		case Operator::Plus:
-			result = a + b;
-			push(Value(result));
+			result = Value(a + b);
 			break;
 
 		case Operator::Minus:
-			result = a - b;
-			push(Value(result));
+			result = Value(b - a);
 			break;
 
 		case Operator::Star:
-			result = a * b;
-			push(Value(result));
+			result = Value(a * b);
 			break;
 
 		case Operator::Slash:
-			result = b / a;
-			push(Value(result));
+			result = Value(b / a);
 			break;
 
 		case Operator::Mod:
-			result = (int) a % (int) b;
-			push(Value(result));
+			result = Value((double)((int) a % (int) b));
 			break;
 
 		case Operator::LessThan:
-			x = a < b;
-			push(Value(x));
+			result = Value(a < b);
 			break;
 
 		case Operator::GreaterThan:
-			x = a > b;
-			push(Value(x));
+			result = Value(a > b);
 			break;
 
 		case Operator::Amp:
-			x = (int) a & (int) b;
-			push(Value(x));
+			result = Value((double) ((int) a & (int) b));
 			break;
 
 		case Operator::AmpAmp:
-			x = (int) a && (int) b;
-			push(Value(x));
+			result = Value(a && b);
 			break;
 
 		case Operator::Pipe:
-			x = (int) a | (int) b;
-			push(Value(x));
+			result = Value((double) ((int) a | (int) b));
 			break;
 
 		case Operator::PipePipe:
-			x = (int) a || (int) b;
-			push(Value(x));
+			result = Value(a || b);
 			break;
 
 		default:
 			assert(!"Unreachable");
 	}
+
+	stack[dst] = result;
 }
 
 u8 Vm::read_byte()

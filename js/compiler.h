@@ -78,6 +78,9 @@ private:
 
 	bool is_global();
 
+	size_t allocate_reg();
+	void free_reg(size_t);
+
 	inline Function &current_function() { return *current->function; }
 };
 }

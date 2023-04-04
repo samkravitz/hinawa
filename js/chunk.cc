@@ -1,6 +1,7 @@
 #include "chunk.h"
 
 #include <cstdio>
+#include <fmt/format.h>
 
 #include "opcode.h"
 #include "value.h"
@@ -45,6 +46,15 @@ size_t Chunk::disassemble_instruction(size_t offset)
 	auto instruction = static_cast<Opcode>(code[offset]);
 	switch (instruction)
 	{
+		case OP_LOADK:
+		{
+			auto dst = code[offset + 1];
+			auto k = code[offset + 2];
+
+			fmt::print("{:16} {} {}", "OP_LOADK", dst, k);
+			fmt::print("; r{} = {}\n", dst, constants[k].to_string());
+			return offset + 3;
+		}
 		case OP_RETURN:
 			return simple_instruction("OP_RETURN", offset);
 		case OP_CONSTANT:
@@ -127,8 +137,11 @@ size_t Chunk::disassemble_instruction(size_t offset)
 
 size_t Chunk::simple_instruction(const char *name, size_t offset)
 {
-	std::printf("%s\n", name);
-	return offset + 1;
+	auto dst = code[offset + 1];
+	auto r1 = code[offset + 2];
+	auto r2 = code[offset + 3];
+	fmt::print("{:16} {} {} {} ; r{} = r{} + r{}\n", name, dst, r1, r2, dst, r1, r2);
+	return offset + 4;
 }
 
 size_t Chunk::constant_instruction(const char *name, size_t offset)
