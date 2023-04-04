@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include <stack>
 #include <vector>
 
@@ -36,29 +37,30 @@ private:
 	} *current;
 
 	std::vector<Stmt *> stmts;
+	std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> available_regs;
 
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();
 
 	// compile statements
-	void compile(const BlockStmt &);
-	void compile(const VarDecl &);
-	void compile(const ExpressionStmt &);
-	void compile(const IfStmt &);
-	void compile(const ForStmt &);
-	void compile(const FunctionDecl &);
-	void compile(const EmptyStmt &);
-	void compile(const ReturnStmt &);
+	std::optional<size_t> compile(const BlockStmt &);
+	std::optional<size_t> compile(const VarDecl &);
+	std::optional<size_t> compile(const ExpressionStmt &);
+	std::optional<size_t> compile(const IfStmt &);
+	std::optional<size_t> compile(const ForStmt &);
+	std::optional<size_t> compile(const FunctionDecl &);
+	std::optional<size_t> compile(const EmptyStmt &);
+	std::optional<size_t> compile(const ReturnStmt &);
 
 	// compile expressions
-	void compile(const UnaryExpr &);
-	void compile(const UpdateExpr &);
-	void compile(const BinaryExpr &);
-	void compile(const AssignmentExpr &);
-	void compile(const CallExpr &);
-	void compile(const MemberExpr &);
-	void compile(const Literal &);
-	void compile(const Variable &);
+	std::optional<size_t> compile(const UnaryExpr &);
+	std::optional<size_t> compile(const UpdateExpr &);
+	std::optional<size_t> compile(const BinaryExpr &);
+	std::optional<size_t> compile(const AssignmentExpr &);
+	std::optional<size_t> compile(const CallExpr &);
+	std::optional<size_t> compile(const MemberExpr &);
+	std::optional<size_t> compile(const Literal &);
+	std::optional<size_t> compile(const Variable &);
 
 	size_t make_constant(Value);
 	void emit_byte(u8);

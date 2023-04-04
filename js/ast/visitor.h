@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 namespace js
 {
 struct BlockStmt;
@@ -42,21 +44,21 @@ struct PrintVisitor
 
 struct CompilerVisitor
 {
-	virtual void compile(const BlockStmt &) = 0;
-	virtual void compile(const VarDecl &) = 0;
-	virtual void compile(const EmptyStmt &) = 0;
-	virtual void compile(const IfStmt &) = 0;
-	virtual void compile(const ReturnStmt &) = 0;
-	virtual void compile(const ExpressionStmt &) = 0;
-	virtual void compile(const FunctionDecl &) = 0;
-	virtual void compile(const ForStmt &) = 0;
-	virtual void compile(const UnaryExpr &) = 0;
-	virtual void compile(const UpdateExpr &) = 0;
-	virtual void compile(const BinaryExpr &) = 0;
-	virtual void compile(const AssignmentExpr &) = 0;
-	virtual void compile(const CallExpr &) = 0;
-	virtual void compile(const MemberExpr &) = 0;
-	virtual void compile(const Literal &) = 0;
-	virtual void compile(const Variable &) = 0;
+	virtual std::optional<size_t> compile(const BlockStmt &) = 0;
+	virtual std::optional<size_t> compile(const VarDecl &) = 0;
+	virtual std::optional<size_t> compile(const EmptyStmt &) = 0;
+	virtual std::optional<size_t> compile(const IfStmt &) = 0;
+	virtual std::optional<size_t> compile(const ReturnStmt &) = 0;
+	virtual std::optional<size_t> compile(const ExpressionStmt &) = 0;
+	virtual std::optional<size_t> compile(const FunctionDecl &) = 0;
+	virtual std::optional<size_t> compile(const ForStmt &) = 0;
+	virtual std::optional<size_t> compile(const UnaryExpr &) = 0;
+	virtual std::optional<size_t> compile(const UpdateExpr &) = 0;
+	virtual std::optional<size_t> compile(const BinaryExpr &) = 0;
+	virtual std::optional<size_t> compile(const AssignmentExpr &) = 0;
+	virtual std::optional<size_t> compile(const CallExpr &) = 0;
+	virtual std::optional<size_t> compile(const MemberExpr &) = 0;
+	virtual std::optional<size_t> compile(const Literal &) = 0;
+	virtual std::optional<size_t> compile(const Variable &) = 0;
 };
 }

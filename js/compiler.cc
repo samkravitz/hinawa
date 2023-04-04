@@ -19,6 +19,8 @@ void Compiler::init_compiler(FunctionCompiler *compiler)
 	current = compiler;
 
 	current->locals.push_back({ "", 0 });
+	for (size_t i = 0; i <= 0xff; i++)
+		available_regs.push(i);
 }
 
 void Compiler::end_compiler()
@@ -50,7 +52,7 @@ Function Compiler::compile()
 	return script;
 }
 
-void Compiler::compile(const BlockStmt &stmt)
+std::optional<size_t> Compiler::compile(const BlockStmt &stmt)
 {
 	begin_scope();
 
@@ -58,9 +60,10 @@ void Compiler::compile(const BlockStmt &stmt)
 		s->accept(this);
 
 	end_scope();
+	return {};
 }
 
-void Compiler::compile(const VarDecl &stmt)
+std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 {
 	u8 global = identifier_constant(stmt.identifier);
 
@@ -68,19 +71,24 @@ void Compiler::compile(const VarDecl &stmt)
 		stmt.init->accept(this);
 	else
 		emit_byte(OP_UNDEFINED);
-	
+
 	define_variable(global);
+	return {};
 }
 
-void Compiler::compile(const ExpressionStmt &stmt)
+std::optional<size_t> Compiler::compile(const ExpressionStmt &stmt)
 {
 	stmt.expr->accept(this);
 	emit_byte(OP_POP);
+	return {};
 }
 
-void Compiler::compile(const IfStmt &stmt) { }
+std::optional<size_t> Compiler::compile(const IfStmt &stmt)
+{
+	return {};
+}
 
-void Compiler::compile(const ForStmt &stmt)
+std::optional<size_t> Compiler::compile(const ForStmt &stmt)
 {
 	begin_scope();
 
@@ -103,9 +111,9 @@ void Compiler::compile(const ForStmt &stmt)
 		stmt.afterthought->accept(this);
 		emit_byte(OP_POP);
 	}
-	
+
 	emit_loop(loop_start);
-	
+
 	if (exit_jump != -1)
 	{
 		patch_jump(exit_jump);
@@ -113,18 +121,34 @@ void Compiler::compile(const ForStmt &stmt)
 	}
 
 	end_scope();
+	return {};
 }
 
-void Compiler::compile(const FunctionDecl &stmt) { }
+std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
+{
+	return {};
+}
 
-void Compiler::compile(const EmptyStmt &stmt) { }
-void Compiler::compile(const ReturnStmt &stmt) { }
+std::optional<size_t> Compiler::compile(const EmptyStmt &stmt)
+{
+	return {};
+}
+std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
+{
+	return {};
+}
 
-void Compiler::compile(const UnaryExpr &expr) { }
+std::optional<size_t> Compiler::compile(const UnaryExpr &expr)
+{
+	return {};
+}
 
-void Compiler::compile(const UpdateExpr &expr) { }
+std::optional<size_t> Compiler::compile(const UpdateExpr &expr)
+{
+	return {};
+}
 
-void Compiler::compile(const BinaryExpr &expr)
+std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 {
 	expr.lhs->accept(this);
 	expr.rhs->accept(this);
@@ -183,19 +207,27 @@ void Compiler::compile(const BinaryExpr &expr)
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
 	}
+	return {};
 }
 
-void Compiler::compile(const AssignmentExpr &expr)
+std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 {
 	expr.rhs->accept(this);
 	expr.lhs->accept(this);
+	return {};
 }
 
-void Compiler::compile(const CallExpr &expr) { }
+std::optional<size_t> Compiler::compile(const CallExpr &expr)
+{
+	return {};
+}
 
-void Compiler::compile(const MemberExpr &expr) { }
+std::optional<size_t> Compiler::compile(const MemberExpr &expr)
+{
+	return {};
+}
 
-void Compiler::compile(const Literal &expr)
+std::optional<size_t> Compiler::compile(const Literal &expr)
 {
 	switch (expr.token.type())
 	{
@@ -226,15 +258,19 @@ void Compiler::compile(const Literal &expr)
 		default:
 			assert(!"Unknown literal!");
 	}
+
+	return {};
 }
 
-void Compiler::compile(const Variable &expr)
+std::optional<size_t> Compiler::compile(const Variable &expr)
 {
-	auto value = make_constant(Value(new std::string{expr.ident}));
+	auto value = make_constant(Value(new std::string{ expr.ident }));
 	if (expr.is_assign)
 		emit_bytes(OP_SET_GLOBAL, value);
 	else
-	 	emit_bytes(OP_GET_GLOBAL, value);
+		emit_bytes(OP_GET_GLOBAL, value);
+
+	return {};
 }
 
 size_t Compiler::make_constant(Value value)
@@ -301,7 +337,7 @@ void Compiler::define_variable(u8 global)
 
 u8 Compiler::identifier_constant(const std::string &name)
 {
-	return make_constant(Value(new std::string{name}));
+	return make_constant(Value(new std::string{ name }));
 }
 
 void Compiler::begin_scope()
