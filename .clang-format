@@ -8,7 +8,7 @@ AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 AllowShortBlocksOnASingleLine: Empty
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
@@ -43,7 +43,7 @@ BreakInheritanceList: AfterColon
 BreakStringLiterals: true
 ColumnLimit: 120
 CompactNamespaces: false
-Cpp11BracedListStyle: false
+Cpp11BracedListStyle: true
 EmptyLineAfterAccessModifier: Leave
 EmptyLineBeforeAccessModifier: Leave
 FixNamespaceComments: false

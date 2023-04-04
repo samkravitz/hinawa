@@ -33,8 +33,8 @@ struct CallFrame
 	{ }
 
 	Function function;
-	uint ip = 0;
-	uint base;
+	uint ip{0};
+	uint base{0};
 };
 
 class Vm

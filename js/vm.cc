@@ -46,7 +46,7 @@ Vm::Vm(bool headless)
 
 bool Vm::run(Function f)
 {
-	auto cf = CallFrame{ f, 0 };
+	auto cf = CallFrame{f, 0};
 	frames.push(cf);
 	push(Value(&f));
 	stack.resize(16);
@@ -275,7 +275,7 @@ bool Vm::run(Function f)
 				else if (callee.is_function())
 				{
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
-					auto cf = CallFrame{ *callee.as_function(), base };
+					auto cf = CallFrame{*callee.as_function(), base};
 					frames.push(cf);
 				}
 
@@ -528,7 +528,7 @@ void Vm::binary_op(Operator op)
 			break;
 
 		case Operator::Mod:
-			result = Value((double)((int) a % (int) b));
+			result = Value((double) ((int) a % (int) b));
 			break;
 
 		case Operator::LessThan:
