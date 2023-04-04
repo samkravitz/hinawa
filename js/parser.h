@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,14 @@ enum Precedence : int
 	PREC_CALL,
 	PREC_SUBSCRIPT,
 	PREC_PRIMARY
+};
+
+class Parser;
+struct ParseRule
+{
+	std::function<Expr *(Parser *)> prefix;
+	std::function<Expr *(Parser *, Expr *)> infix;
+	Precedence precedence;
 };
 
 class Parser
@@ -69,8 +78,9 @@ private:
 	Stmt *declaration();
 	Stmt *function_declaration();
 	Stmt *var_declaration();
-	
+
 	Expr *parse_precedence(Precedence);
+	ParseRule get_rule(TokenType);
 	void advance();
 	void consume(TokenType, const char *);
 	bool match(TokenType);
