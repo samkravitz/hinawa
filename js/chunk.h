@@ -3,9 +3,10 @@
 #include <cstddef>
 #include <vector>
 
+#include "opcode.h"
 #include "token.h"
-#include "value.h"
 #include "util/hinawa.h"
+#include "value.h"
 
 namespace js
 {
@@ -25,6 +26,7 @@ public:
 
 private:
 	size_t disassemble_instruction(size_t);
+	size_t binary_instruction(Opcode, size_t);
 	size_t simple_instruction(const char *, size_t);
 	size_t constant_instruction(const char *, size_t);
 	size_t byte_instruction(const char *, size_t);
