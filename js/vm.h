@@ -55,6 +55,8 @@ private:
 	std::vector<uint> catchv;
 	std::stack<CallFrame> frames;
 
+	Value &reg(int i);
+
 	void push(Value);
 	Value pop();
 	Value peek(uint offset = 0);

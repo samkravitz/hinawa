@@ -48,8 +48,7 @@ bool Vm::run(Function f)
 {
 	auto cf = CallFrame{f, 0};
 	frames.push(cf);
-	push(Value(&f));
-	stack.resize(16);
+	reg(-1) = Value{&f};
 
 	while (1)
 	{
@@ -60,7 +59,7 @@ bool Vm::run(Function f)
 			case OP_LOADK:
 			{
 				auto dst = read_byte();
-				stack[dst] = read_constant();
+				reg(dst) = read_constant();
 				break;
 			}
 			case OP_RETURN:
@@ -207,9 +206,9 @@ bool Vm::run(Function f)
 
 			case OP_SET_GLOBAL:
 			{
-				auto reg = read_byte();
+				auto a = read_byte();
 				auto ident = read_string();
-				global->set(ident, stack[reg]);
+				global->set(ident, reg(a));
 				break;
 			}
 
@@ -475,6 +474,19 @@ bool Vm::run(Function f)
 	}
 }
 
+Value &Vm::reg(int i)
+{
+	if (stack.empty())
+		stack.resize(4);
+
+	if (i > 0 && (unsigned) i >= stack.size() - 1)
+		stack.resize(stack.size() * 2);
+
+	// add 1 to account for the currently executing function
+	// to be at stack slot 0
+	return stack[frames.top().base + i + 1];
+}
+
 void Vm::push(Value value)
 {
 	stack.push_back(value);
@@ -498,15 +510,15 @@ void Vm::binary_op(Operator op)
 	auto r0 = read_byte();
 	auto r1 = read_byte();
 
-	if (!stack[r0].is_number() || !stack[r1].is_number())
+	if (!reg(r0).is_number() || !reg(r1).is_number())
 	{
 		if (!runtime_error("Operands must be numbers"))
 			exit(1);
 		return;
 	}
 
-	auto b = stack[r0].as_number();
-	auto a = stack[r1].as_number();
+	auto b = reg(r0).as_number();
+	auto a = reg(r1).as_number();
 	Value result{};
 
 	switch (op)
@@ -559,7 +571,7 @@ void Vm::binary_op(Operator op)
 			assert(!"Unreachable");
 	}
 
-	stack[dst] = result;
+	reg(dst) = result;
 }
 
 u8 Vm::read_byte()
