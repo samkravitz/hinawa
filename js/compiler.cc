@@ -9,6 +9,7 @@
 
 namespace js
 {
+static constexpr int RESOLVED_GLOBAL = -1;
 
 Compiler::Compiler(const std::vector<Stmt *> &stmts) :
     stmts(stmts)
@@ -90,7 +91,6 @@ std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 			assert(reg);
 			emit_byte(OP_MOV);
 			emit_bytes(local.reg, *reg);
-			local.reg = *reg;
 			free_reg(*reg);
 		}
 		else
@@ -249,14 +249,25 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 	if (expr.lhs->is_variable())
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
-		auto k = make_constant(Value(new std::string{var.ident}));
-		emit_byte(OP_SET_GLOBAL);
-		emit_bytes(*rhs, k);
+		auto reg = resolve_local(var.ident);
+
+		if (reg == RESOLVED_GLOBAL)
+		{
+			auto k = make_constant(Value(new std::string{var.ident}));
+			emit_byte(OP_SET_GLOBAL);
+			emit_bytes(*rhs, k);
+		}
+		else
+		{
+			emit_byte(OP_MOV);
+			emit_bytes(reg, *rhs);
+		}
 	}
 	else
 	{
 		std::cout << "AssignmentExpr lhs is not variable\n";
 	}
+	free_reg(*rhs);
 	return rhs;
 }
 
@@ -419,6 +430,20 @@ void Compiler::declare_local(const std::string &name)
 	}
 
 	current->locals.push_back({name, current->scope_depth, allocate_reg()});
+}
+
+int Compiler::resolve_local(const std::string &name)
+{
+	auto local_count = current->local_count();
+	// Using C++20 ranges: iterate backwards
+	// for (auto &local : current->locals | std::ranges::views::reverse)
+	for (int i = local_count - 1; i >= 0; i--)
+	{
+		auto local = current->locals[i];
+		if (name == local.name)
+			return local.reg;
+	}
+	return RESOLVED_GLOBAL;
 }
 
 /**

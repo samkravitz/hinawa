@@ -77,6 +77,7 @@ private:
 	void end_scope();
 
 	void declare_local(const std::string &);
+	int resolve_local(const std::string &);
 
 	bool is_global() const;
 
