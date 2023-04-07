@@ -199,6 +199,7 @@ bool Vm::run(Function f)
 
 			case OP_GET_GLOBAL:
 			{
+				auto dst = read_byte();
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
@@ -207,7 +208,7 @@ bool Vm::run(Function f)
 					break;
 				}
 
-				push(global->get(ident));
+				reg(dst) = global->get(ident);
 				break;
 			}
 

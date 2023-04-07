@@ -70,13 +70,14 @@ std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 	if (is_global())
 	{
 		u8 global = identifier_constant(stmt.identifier);
+		size_t reg;
 
 		if (stmt.init)
-			stmt.init->accept(this);
+			reg = *stmt.init->accept(this);
 		else
 			emit_byte(OP_UNDEFINED);
 
-		define_variable(global);
+		define_variable(reg, global);
 		return {};
 	}
 
@@ -273,7 +274,15 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 
 std::optional<size_t> Compiler::compile(const CallExpr &expr)
 {
-	return {};
+	auto callee = expr.callee->accept(this);
+	if (callee)
+	{
+
+	}
+	else
+	{
+
+	}
 }
 
 std::optional<size_t> Compiler::compile(const MemberExpr &expr)
@@ -322,13 +331,21 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 
 std::optional<size_t> Compiler::compile(const Variable &expr)
 {
-	auto value = make_constant(Value(new std::string{expr.ident}));
-	if (expr.is_assign)
-		emit_bytes(OP_SET_GLOBAL, value);
-	else
-		emit_bytes(OP_GET_GLOBAL, value);
+	auto reg = resolve_local(expr.ident);
 
-	return {};
+	if (reg == RESOLVED_GLOBAL)
+	{
+		auto k = make_constant(Value(new std::string{expr.ident}));
+		emit_byte(OP_GET_GLOBAL);
+		auto global = allocate_reg();
+		emit_bytes(global, k);
+		free_reg(global);
+		return global;
+	}
+	else
+	{
+		return reg;
+	}
 }
 
 size_t Compiler::make_constant(Value value)
@@ -388,9 +405,10 @@ void Compiler::emit_loop(size_t loop_start)
 	emit_byte(offset & 0xff);
 }
 
-void Compiler::define_variable(u8 global)
+void Compiler::define_variable(size_t reg, u8 k)
 {
-	emit_bytes(OP_DEFINE_GLOBAL, global);
+	emit_byte(OP_SET_GLOBAL);
+	emit_bytes(reg, k);
 }
 
 u8 Compiler::identifier_constant(const std::string &name)

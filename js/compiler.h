@@ -70,7 +70,7 @@ private:
 	void patch_jump(size_t);
 	void emit_loop(size_t);
 
-	void define_variable(u8);
+	void define_variable(size_t, u8);
 	u8 identifier_constant(const std::string &);
 
 	void begin_scope();
