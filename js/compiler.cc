@@ -162,7 +162,11 @@ std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
 	stmt.block->accept(this);
 
 	end_compiler();
-	define_variable(global, make_constant(Value(new Function(function))));
+	emit_byte(OP_LOADK);
+	auto reg = allocate_reg();
+	emit_bytes(reg, make_constant(Value(new Function(function))));
+	define_variable(reg, global);
+	free_reg(reg);
 	return {};
 }
 
@@ -290,10 +294,10 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 std::optional<size_t> Compiler::compile(const CallExpr &expr)
 {
 	auto callee = expr.callee->accept(this);
-	if (callee)
-	{ }
-	else
-	{ }
+	assert(callee);
+	emit_byte(OP_CALL);
+	emit_bytes(0, 0);
+	return 0;
 }
 
 std::optional<size_t> Compiler::compile(const MemberExpr &expr)

@@ -93,7 +93,13 @@ size_t Chunk::disassemble_instruction(size_t offset)
 		case OP_DEFINE_GLOBAL:
 			return constant_instruction("OP_DEFINE_GLOBAL", offset);
 		case OP_GET_GLOBAL:
-			return constant_instruction("OP_GET_GLOBAL", offset);
+		{
+			auto a = code[offset + 1];
+			auto k = code[offset + 2];
+			fmt::print("{:16} {:3} {:3} {:3} ", "OP_GET_GLOBAL", a, k, "");
+			fmt::print("; r{} = {}\n", a, constants[k].to_string());
+			return offset + 3;
+		}
 		case OP_SET_GLOBAL:
 			return constant_instruction("OP_SET_GLOBAL", offset);
 		case OP_EQUAL:
@@ -114,6 +120,12 @@ size_t Chunk::disassemble_instruction(size_t offset)
 		case OP_LOOP:
 			return jump_instruction("OP_LOOP", -1, offset);
 		case OP_CALL:
+		{
+			auto dst = code[offset + 1];
+			auto num_args = code[offset + 2];
+			fmt::print("{0:16} {2:3} {1:3} {1:3} ; r{2} = r{2}()\n", "OP_CALL", "", dst);
+			return offset + 3;
+		}
 			return byte_instruction("OP_CALL", offset);
 		case OP_NEW_ARRAY:
 			return byte_instruction("OP_NEW_ARRAY", offset);
