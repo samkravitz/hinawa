@@ -123,7 +123,7 @@ size_t Chunk::disassemble_instruction(size_t offset)
 		{
 			auto dst = code[offset + 1];
 			auto num_args = code[offset + 2];
-			fmt::print("{0:16} {2:3} {1:3} {1:3} ; r{2} = r{2}()\n", "OP_CALL", "", dst);
+			fmt::print("{0:16} {2:3} {1:3} {1:3} ; r{2} = r{2} ({3} args)\n", "OP_CALL", "", dst, num_args);
 			return offset + 3;
 		}
 			return byte_instruction("OP_CALL", offset);

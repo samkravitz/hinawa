@@ -295,8 +295,18 @@ std::optional<size_t> Compiler::compile(const CallExpr &expr)
 {
 	auto callee = expr.callee->accept(this);
 	assert(callee);
+	std::vector<size_t> args;
+	for (auto *ex : expr.args)
+	{
+		auto reg = ex->accept(this);
+		assert(reg);
+		fmt::print("arg {}\n", *reg);
+		args.push_back(*reg);
+	}
 	emit_byte(OP_CALL);
-	emit_bytes(0, 0);
+	emit_bytes(*callee, args.size());
+	for (const auto &arg : args)
+		free_reg(arg);
 	return 0;
 }
 
@@ -354,7 +364,6 @@ std::optional<size_t> Compiler::compile(const Variable &expr)
 		emit_byte(OP_GET_GLOBAL);
 		auto global = allocate_reg();
 		emit_bytes(global, k);
-		free_reg(global);
 		return global;
 	}
 	else
