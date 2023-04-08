@@ -65,7 +65,11 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return offset + 3;
 		}
 		case OP_RETURN:
-			return simple_instruction("OP_RETURN", offset);
+		{
+			auto dst = code[offset + 1];
+			fmt::print("{0:16} {2:3} {1:3} {1:3} ; return r{2}\n", "OP_RETURN", "", dst);
+			return offset + 2;
+		}
 		case OP_CONSTANT:
       		return constant_instruction("OP_CONSTANT", offset);
 		case OP_INCREMENT:

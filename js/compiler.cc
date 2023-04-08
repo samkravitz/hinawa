@@ -30,7 +30,7 @@ void Compiler::end_compiler()
 	if (current->function->chunk.code.empty())
 		emit_constant(Value(nullptr));
 
-	emit_byte(OP_RETURN);
+	emit_bytes(OP_RETURN, 0);
 
 	auto function = *current->function;
 #ifdef DEBUG_PRINT_CODE
@@ -152,6 +152,17 @@ std::optional<size_t> Compiler::compile(const ForStmt &stmt)
 
 std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
 {
+	u8 global = identifier_constant(stmt.function_name);
+	Function function{stmt.function_name};
+	FunctionCompiler compiler(current, &function);
+	init_compiler(&compiler);
+
+	begin_scope();
+	current->function->arity = 0;
+	stmt.block->accept(this);
+
+	end_compiler();
+	define_variable(global, make_constant(Value(new Function(function))));
 	return {};
 }
 
@@ -161,6 +172,10 @@ std::optional<size_t> Compiler::compile(const EmptyStmt &stmt)
 }
 std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
 {
+	auto reg = stmt.expr->accept(this);
+	assert(*reg);
+	emit_bytes(OP_RETURN, *reg);
+	free_reg(*reg);
 	return {};
 }
 
@@ -276,13 +291,9 @@ std::optional<size_t> Compiler::compile(const CallExpr &expr)
 {
 	auto callee = expr.callee->accept(this);
 	if (callee)
-	{
-
-	}
+	{ }
 	else
-	{
-
-	}
+	{ }
 }
 
 std::optional<size_t> Compiler::compile(const MemberExpr &expr)

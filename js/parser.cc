@@ -224,9 +224,6 @@ Stmt *Parser::for_statement()
 
 Stmt *Parser::function_declaration()
 {
-	if (!match(KEY_FUNCTION))
-		return nullptr;
-
 	consume(IDENTIFIER, "Expected identifier");
 	auto name = previous.value();
 	consume(LEFT_PAREN, "Expected '('");
