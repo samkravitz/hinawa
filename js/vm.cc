@@ -86,18 +86,29 @@ bool Vm::run(Function f)
 			}
 			case OP_RETURN:
 			{
-				auto result = pop();
+				auto a = read_byte();
+				auto result = reg(a);
+
 				auto frame = frames.top();
 				frames.pop();
 
 				if (frames.empty())
 					return true;
+				
+				reg(frames.top().return_reg) = result;
 
-				auto diff = stack.size() - frame.base;
-				for (uint i = 0; i < diff; i++)
-					pop();
+				//auto result = pop();
+				//auto frame = frames.top();
+				//frames.pop();
 
-				push(result);
+				//if (frames.empty())
+				//	return true;
+
+				//auto diff = stack.size() - frame.base;
+				//for (uint i = 0; i < diff; i++)
+				//	pop();
+
+				//push(result);
 				break;
 			}
 
@@ -279,6 +290,7 @@ bool Vm::run(Function f)
 				auto a = read_byte();
 				auto callee = reg(a);
 				auto num_args = read_byte();
+				frames.top().return_reg = a;
 
 				if (callee.is_native())
 				{

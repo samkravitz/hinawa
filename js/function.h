@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <fmt/format.h>
 #include <functional>
 #include <string>
 #include <vector>
@@ -71,10 +72,7 @@ public:
 			case SCRIPT:
 				return "<script>";
 			default:
-				std::string res = "<fn ";
-				res += name;
-				res += ">";
-				return res;
+				return fmt::format("<fn {}>", name);
 		}
 	}
 };

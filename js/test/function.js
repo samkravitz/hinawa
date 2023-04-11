@@ -2,4 +2,5 @@ function f() {
 	return 'hello world!'
 }
 
-console.log(f())
+print(f)
+print(f())

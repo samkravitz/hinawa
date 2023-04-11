@@ -174,10 +174,11 @@ std::optional<size_t> Compiler::compile(const EmptyStmt &stmt)
 {
 	return {};
 }
+
 std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
 {
 	auto reg = stmt.expr->accept(this);
-	assert(*reg);
+	assert(reg);
 	emit_bytes(OP_RETURN, *reg);
 	free_reg(*reg);
 	return {};
@@ -331,7 +332,11 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 		case STRING:
 		{
 			auto str = expr.token.value();
-			emit_constant(Value(new std::string(str.substr(1, str.size() - 2))));
+			auto constant = make_constant(Value(new std::string(str.substr(1, str.size() - 2))));
+			auto reg = allocate_reg();
+			emit_byte(OP_LOADK);
+			emit_bytes(reg, constant);
+			return reg;
 			break;
 		}
 		case KEY_FALSE:

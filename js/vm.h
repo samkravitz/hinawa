@@ -35,6 +35,7 @@ struct CallFrame
 	Function function;
 	uint ip{0};
 	uint base{0};
+	int return_reg{-1};
 };
 
 class Vm
