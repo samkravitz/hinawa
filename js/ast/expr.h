@@ -162,7 +162,7 @@ struct FunctionExpr : public Expr
 	    body(body)
 	{ }
 
-	const char *name() const { return "FunctionDecl"; }
+	const char *name() const { return "FunctionExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 

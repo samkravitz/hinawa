@@ -120,7 +120,13 @@ public:
 
 	void visit(const TryStmt *node, int indent) const { node->print_header(indent); }
 
-	void visit(const UnaryExpr *node, int indent) const { node->print_header(indent); }
+	void visit(const UnaryExpr *node, int indent) const
+	{
+		node->print_header(indent);
+		print_indent(indent + 1);
+		fmt::print("{}\n", node->op.value());
+		node->rhs->accept(this, indent + 1);
+	}
 
 	void visit(const UpdateExpr *node, int indent) const
 	{
@@ -196,10 +202,11 @@ public:
 
 	void visit(const ObjectExpr *node, int indent) const { node->print_header(indent); }
 
-	void visit(const FunctionExpr *node, int indent) const {
+	void visit(const FunctionExpr *node, int indent) const
+	{
 		node->print_header(indent);
 		node->body->accept(this, indent + 1);
-		}
+	}
 
 	void visit(const NewExpr *node, int indent) const
 	{

@@ -27,6 +27,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {SLASH,             {nullptr, &Parser::binary, PREC_FACTOR}             },
 	    {STAR,              {nullptr, &Parser::binary, PREC_FACTOR}             },
 	    {MOD,	           {nullptr, &Parser::binary, PREC_FACTOR}             },
+	    {BANG,              {&Parser::unary, nullptr, PREC_NONE}               },
 	    {EQUAL,             {nullptr, &Parser::assign, PREC_ASSIGNMENT}         },
 	    {GREATER,           {nullptr, &Parser::binary, PREC_COMPARISON}         },
 	    {LESS,              {nullptr, &Parser::binary, PREC_COMPARISON}         },
@@ -71,6 +72,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {KEY_NEW,           {&Parser::new_instance, nullptr, PREC_NONE}         },
 	    {KEY_NULL,          {&Parser::literal, nullptr, PREC_NONE}              },
 	    {KEY_TRUE,          {&Parser::literal, nullptr, PREC_NONE}              },
+	    {KEY_TYPEOF,        {&Parser::unary, nullptr, PREC_NONE}               },
 	    {KEY_UNDEFINED,     {&Parser::literal, nullptr, PREC_NONE}              },
 	};
 
