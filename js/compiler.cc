@@ -75,7 +75,22 @@ void Compiler::compile(const ExpressionStmt &stmt)
 	emit_byte(OP_POP);
 }
 
-void Compiler::compile(const IfStmt &stmt) { }
+void Compiler::compile(const IfStmt &stmt)
+{
+	stmt.test->accept(this);
+	auto then_offset = emit_jump(OP_JUMP_IF_FALSE);
+	emit_byte(OP_POP);
+	stmt.consequence->accept(this);
+
+	auto else_offset = emit_jump(OP_JUMP);
+	emit_byte(OP_POP);
+	patch_jump(then_offset);
+
+	if (stmt.alternate)
+		stmt.alternate->accept(this);
+
+	patch_jump(else_offset);
+}
 
 void Compiler::compile(const ForStmt &stmt)
 {

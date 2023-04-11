@@ -72,19 +72,19 @@ struct ExpressionStmt : public Stmt
 
 struct IfStmt : public Stmt
 {
-	IfStmt(Expr *condition, Stmt *then, Stmt *else_stmt) :
-	    condition(condition),
-	    then(then),
-	    else_stmt(else_stmt)
+	IfStmt(Expr *test, Stmt *consequence, Stmt *alternate) :
+	    test(test),
+	    consequence(consequence),
+	    alternate(alternate)
 	{ }
 
 	const char *name() const { return "IfStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *condition;
-	Stmt *then;
-	Stmt *else_stmt;
+	Expr *test;
+	Stmt *consequence;
+	Stmt *alternate{nullptr};
 };
 
 struct ForStmt : public Stmt

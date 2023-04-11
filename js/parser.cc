@@ -170,16 +170,16 @@ Stmt *Parser::expression_statement()
 Stmt *Parser::if_statement()
 {
 	consume(LEFT_PAREN, "Expected '('");
-	Expr *condition = expression();
+	Expr *test = expression();
 	consume(RIGHT_PAREN, "Expected ')'");
 
-	Stmt *then_stmt = statement();
-	Stmt *else_stmt = nullptr;
+	Stmt *consequence = statement();
+	Stmt *alternate = nullptr;
 
 	if (match(KEY_ELSE))
-		else_stmt = statement();
+		alternate = statement();
 
-	return new IfStmt(condition, then_stmt, else_stmt);
+	return new IfStmt(test, consequence, alternate);
 }
 
 Stmt *Parser::return_statement()
@@ -325,7 +325,7 @@ Expr *Parser::grouping()
 
 Expr *Parser::literal()
 {
-	return nullptr;
+	return new Literal(previous);
 }
 
 Expr *Parser::new_instance()

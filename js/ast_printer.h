@@ -50,7 +50,7 @@ public:
 		print_indent(indent);
 		std::cout << node->name() << "\n";
 
-		node->condition->accept(this, indent + 1);
+		node->test->accept(this, indent + 1);
 	}
 
 	void visit(const ReturnStmt *node, int indent) const
