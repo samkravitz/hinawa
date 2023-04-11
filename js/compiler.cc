@@ -227,13 +227,14 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 
 std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 {
+	std::string identifier;
+	Opcode set_op;
+	int value;
 	if (expr.lhs->is_variable())
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
-		auto identifier = var.ident;
-
-		Opcode set_op;
-		int value = resolve_local(identifier);
+		identifier = var.ident;
+		value = resolve_local(identifier);
 
 		if (value == RESOLVED_GLOBAL)
 		{
@@ -245,14 +246,24 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 		{
 			set_op = OP_SET_LOCAL;
 		}
-
-		expr.rhs->accept(this);
-		emit_bytes(set_op, value);
 	}
+
+	else if (expr.lhs->is_member_expr())
+	{
+		auto &member = static_cast<MemberExpr &>(*expr.lhs);
+		identifier = member.property_name;
+		member.object->accept(this);
+		value = make_constant(Value(new std::string(identifier)));
+		set_op = OP_SET_PROPERTY;
+	}
+
 	else
 	{
-		std::cout << "AssignmentExpr lhs is not variable\n";
+		assert(!"AssignmentExpr lhs is not variable or member expression\n");
 	}
+
+	expr.rhs->accept(this);
+	emit_bytes(set_op, value);
 	return {};
 }
 
@@ -268,6 +279,10 @@ std::optional<size_t> Compiler::compile(const CallExpr &expr)
 
 std::optional<size_t> Compiler::compile(const MemberExpr &expr)
 {
+	expr.object->accept(this);
+	auto constant = make_constant(Value(new std::string(expr.property_name)));
+	emit_bytes(OP_GET_PROPERTY, constant);
+
 	return {};
 }
 

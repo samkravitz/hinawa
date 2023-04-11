@@ -14,6 +14,7 @@ public:
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 	virtual std::optional<size_t> accept(CompilerVisitor *compiler) const = 0;
 	virtual bool is_variable() const { return false; }
+	virtual bool is_member_expr() const { return false; }
 };
 
 struct UnaryExpr : public Expr
@@ -97,7 +98,7 @@ struct CallExpr : public Expr
 
 struct MemberExpr : public Expr
 {
-	MemberExpr(Expr *object, Token property_name) :
+	MemberExpr(Expr *object, std::string property_name) :
 	    object(object),
 	    property_name(property_name)
 	{ }
@@ -105,9 +106,10 @@ struct MemberExpr : public Expr
 	const char *name() const { return "MemberExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	std::optional<size_t> accept(CompilerVisitor *compiler) const { return compiler->compile(*this); };
+	bool is_member_expr() const { return true; }
 
 	Expr *object;
-	Token property_name;
+	std::string property_name;
 };
 
 struct Literal : public Expr

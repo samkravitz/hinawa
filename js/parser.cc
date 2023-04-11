@@ -296,7 +296,7 @@ Expr *Parser::call(Expr *left)
 Expr *Parser::dot(Expr *left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
-	auto property_name = previous;
+	auto property_name = previous.value();
 	return new MemberExpr(left, property_name);
 }
 

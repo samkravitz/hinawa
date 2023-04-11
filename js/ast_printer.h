@@ -185,7 +185,7 @@ public:
 		node->object->accept(this, indent + 1);
 
 		print_indent(indent);
-		std::cout << "property_name: " << node->property_name.value() << '\n';
+		std::cout << "property_name: " << node->property_name << '\n';
 	}
 
 	void visit(const Literal *node, int indent) const
