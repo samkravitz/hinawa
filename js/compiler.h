@@ -34,10 +34,10 @@ private:
 		int scope_depth{0};
 		std::vector<Local> locals;
 		int local_count() { return locals.size(); }
+		std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> available_regs;
 	} *current;
 
 	std::vector<Stmt *> stmts;
-	std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> available_regs;
 
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();

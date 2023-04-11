@@ -22,7 +22,7 @@ void Compiler::init_compiler(FunctionCompiler *compiler)
 
 	current->locals.push_back({"", 0});
 	for (size_t i = 0; i <= 0xff; i++)
-		available_regs.push(i);
+		current->available_regs.push(i);
 }
 
 void Compiler::end_compiler()
@@ -502,19 +502,19 @@ bool Compiler::is_global() const
 
 size_t Compiler::allocate_reg()
 {
-	if (available_regs.empty())
+	if (current->available_regs.empty())
 	{
 		fmt::print(stderr, "Error: All registers in use\n");
 		throw;
 	}
 
-	auto reg = available_regs.top();
-	available_regs.pop();
+	auto reg = current->available_regs.top();
+	current->available_regs.pop();
 	return reg;
 }
 
 void Compiler::free_reg(size_t reg)
 {
-	available_regs.push(reg);
+	current->available_regs.push(reg);
 }
 }
