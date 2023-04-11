@@ -216,13 +216,6 @@ bool Vm::run(Function f)
 			case OP_SET_GLOBAL:
 			{
 				auto ident = read_string();
-				if (!global->is_defined(ident))
-				{
-					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
-						return false;
-					break;
-				}
-
 				global->set(ident, peek(0));
 				break;
 			}
@@ -538,7 +531,7 @@ void Vm::binary_op(Operator op)
 			break;
 
 		case Operator::Slash:
-			result = b / a;
+			result = a / b;
 			push(Value(result));
 			break;
 

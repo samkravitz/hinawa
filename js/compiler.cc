@@ -228,13 +228,12 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 {
 	std::string identifier;
-	Opcode set_op;
-	int value;
+	Opcode set_op{};
+	int value{};
 	if (expr.lhs->is_variable())
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
 		identifier = var.ident;
-		value = resolve_local(identifier);
 
 		if (value == RESOLVED_GLOBAL)
 		{
@@ -245,6 +244,7 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 		else
 		{
 			set_op = OP_SET_LOCAL;
+			value = resolve_local(identifier);
 		}
 	}
 

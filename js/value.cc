@@ -85,6 +85,7 @@ std::string Value::to_string() const
 		case Type::String: return *as_string();
 		default:
 			assert(!"Unknown value type!");
+			return "";
 	}
 }
 
