@@ -50,43 +50,34 @@ Function Compiler::compile()
 	return script;
 }
 
-std::optional<size_t> Compiler::compile(const BlockStmt &stmt)
+void Compiler::compile(const BlockStmt &stmt)
 {
 	begin_scope();
-
 	for (auto s : stmt.stmts)
 		s->accept(this);
-
 	end_scope();
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const VarDecl &stmt)
+void Compiler::compile(const VarDecl &stmt)
 {
 	auto global = parse_variable(stmt.identifier);
 	if (stmt.init)
-		*stmt.init->accept(this);
+		stmt.init->accept(this);
 	else
 		emit_byte(OP_UNDEFINED);
 
 	define_variable(global);
-
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const ExpressionStmt &stmt)
+void Compiler::compile(const ExpressionStmt &stmt)
 {
 	stmt.expr->accept(this);
 	emit_byte(OP_POP);
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const IfStmt &stmt)
-{
-	return {};
-}
+void Compiler::compile(const IfStmt &stmt) { }
 
-std::optional<size_t> Compiler::compile(const ForStmt &stmt)
+void Compiler::compile(const ForStmt &stmt)
 {
 	begin_scope();
 
@@ -119,10 +110,9 @@ std::optional<size_t> Compiler::compile(const ForStmt &stmt)
 	}
 
 	end_scope();
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
+void Compiler::compile(const FunctionDecl &stmt)
 {
 	auto global = parse_variable(stmt.function_name);
 	Function function{stmt.function_name};
@@ -134,15 +124,11 @@ std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
 	end_compiler();
 	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
 	define_variable(global);
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const EmptyStmt &stmt)
-{
-	return {};
-}
+void Compiler::compile(const EmptyStmt &stmt) { }
 
-std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
+void Compiler::compile(const ReturnStmt &stmt)
 {
 	if (stmt.expr)
 		stmt.expr->accept(this);
@@ -150,20 +136,13 @@ std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
 		emit_byte(OP_UNDEFINED);
 
 	emit_byte(OP_RETURN);
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const UnaryExpr &expr)
-{
-	return {};
-}
+void Compiler::compile(const UnaryExpr &expr) { }
 
-std::optional<size_t> Compiler::compile(const UpdateExpr &expr)
-{
-	return {};
-}
+void Compiler::compile(const UpdateExpr &expr) { }
 
-std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
+void Compiler::compile(const BinaryExpr &expr)
 {
 	expr.lhs->accept(this);
 	expr.rhs->accept(this);
@@ -222,10 +201,9 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
 	}
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
+void Compiler::compile(const AssignmentExpr &expr)
 {
 	std::string identifier;
 	Opcode set_op{};
@@ -264,29 +242,25 @@ std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 
 	expr.rhs->accept(this);
 	emit_bytes(set_op, value);
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const CallExpr &expr)
+void Compiler::compile(const CallExpr &expr)
 {
 	expr.callee->accept(this);
 	for (auto *ex : expr.args)
 		ex->accept(this);
 
 	emit_bytes(OP_CALL, expr.args.size());
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const MemberExpr &expr)
+void Compiler::compile(const MemberExpr &expr)
 {
 	expr.object->accept(this);
 	auto constant = make_constant(Value(new std::string(expr.property_name)));
 	emit_bytes(OP_GET_PROPERTY, constant);
-
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const Literal &expr)
+void Compiler::compile(const Literal &expr)
 {
 	switch (expr.token.type())
 	{
@@ -317,11 +291,9 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 		default:
 			assert(!"Unknown literal!");
 	}
-
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const Variable &expr)
+void Compiler::compile(const Variable &expr)
 {
 	auto identifier = expr.ident;
 
@@ -340,10 +312,9 @@ std::optional<size_t> Compiler::compile(const Variable &expr)
 	}
 
 	emit_bytes(get_op, value);
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const ObjectExpr &expr)
+void Compiler::compile(const ObjectExpr &expr)
 {
 	for (const auto &property : expr.properties)
 		property.second->accept(this);
@@ -351,10 +322,9 @@ std::optional<size_t> Compiler::compile(const ObjectExpr &expr)
 	emit_bytes(OP_NEW_OBJECT, expr.properties.size());
 	for (const auto &property : expr.properties)
 		emit_byte(identifier_constant(property.first));
-	return {};
 }
 
-std::optional<size_t> Compiler::compile(const FunctionExpr &expr)
+void Compiler::compile(const FunctionExpr &expr)
 {
 	auto function = Function(ANONYMOUS);
 	function.arity = expr.args.size();
@@ -371,7 +341,6 @@ std::optional<size_t> Compiler::compile(const FunctionExpr &expr)
 	expr.body->accept(this);
 	end_compiler();
 	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
-	return {};
 }
 
 size_t Compiler::make_constant(Value value)
