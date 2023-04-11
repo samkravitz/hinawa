@@ -19,12 +19,13 @@ int main(int argc, char **argv)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	std::cout << buffer.str() << "\n";
-
 	auto parser = js::Parser(buffer.str());
 	auto stmts = parser.parse();
+
+	#ifdef DEBUG_PRINT_AST
 	auto printer = js::AstPrinter{};
 	printer.print(stmts);
+	#endif
 
 	js::Compiler compiler{stmts};
 	auto fn = compiler.compile();

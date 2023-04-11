@@ -7,7 +7,7 @@ PASS = '\033[92m'
 FAIL = '\033[91m'
 COLOR_OFF = '\033[0m'
 
-test_files = glob.glob('*.js')
+test_files = glob.glob('**/*.js',recursive=True)
 
 for test_file in test_files:
 	expect_file_name = test_file + '.expect'

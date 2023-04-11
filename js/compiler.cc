@@ -300,7 +300,6 @@ std::optional<size_t> Compiler::compile(const CallExpr &expr)
 	{
 		auto reg = ex->accept(this);
 		assert(reg);
-		fmt::print("arg {}\n", *reg);
 		args.push_back(*reg);
 	}
 	emit_byte(OP_CALL);
