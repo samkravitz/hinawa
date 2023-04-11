@@ -45,7 +45,7 @@ struct UpdateExpr : public Expr
 
 	Token op;
 	Expr *operand;
-	bool prefix{ false };
+	bool prefix{false};
 };
 
 struct BinaryExpr : public Expr
@@ -127,7 +127,7 @@ struct Variable : public Expr
 {
 	Variable(std::string ident, bool is_assign) :
 	    ident(ident),
-		is_assign(is_assign)
+	    is_assign(is_assign)
 	{ }
 
 	const char *name() const { return "Variable"; }
@@ -137,5 +137,18 @@ struct Variable : public Expr
 
 	std::string ident;
 	bool is_assign{false};
+};
+
+struct ObjectExpr : public Expr
+{
+	ObjectExpr(std::vector<std::pair<std::string, Expr *>> properties) :
+	    properties(properties)
+	{ }
+
+	const char *name() const { return "ObjectExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	std::optional<size_t> accept(CompilerVisitor *compiler) const { return compiler->compile(*this); };
+
+	std::vector<std::pair<std::string, Expr *>> properties;
 };
 }

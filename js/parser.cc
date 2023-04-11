@@ -322,7 +322,24 @@ Expr *Parser::number()
 
 Expr *Parser::object()
 {
-	return nullptr;
+	std::vector<std::pair<std::string, Expr *>> properties;
+	if (!check(RIGHT_BRACE))
+	{
+		do
+		{
+			if (properties.size() > 0xff)
+				std::cerr << "Can't have more than 255 properties in an object literal\n";
+
+			consume(IDENTIFIER, "Expected object key name");
+			auto ident = previous.value();
+			consume(COLON, "Expect : after object key name");
+			auto *expr = expression();
+			properties.push_back({ident, expr});
+		} while (match(COMMA));
+	}
+	consume(RIGHT_BRACE, "Expect '}' after object literal");
+
+	return new ObjectExpr(properties);
 }
 
 Expr *Parser::string()

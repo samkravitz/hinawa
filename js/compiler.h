@@ -60,6 +60,7 @@ private:
 	std::optional<size_t> compile(const MemberExpr &);
 	std::optional<size_t> compile(const Literal &);
 	std::optional<size_t> compile(const Variable &);
+	std::optional<size_t> compile(const ObjectExpr &);
 
 	size_t make_constant(Value);
 	void emit_byte(u8);

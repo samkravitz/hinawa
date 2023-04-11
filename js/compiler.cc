@@ -328,6 +328,17 @@ std::optional<size_t> Compiler::compile(const Variable &expr)
 	return {};
 }
 
+std::optional<size_t> Compiler::compile(const ObjectExpr &expr)
+{
+	for (const auto &property : expr.properties)
+		property.second->accept(this);
+
+	emit_bytes(OP_NEW_OBJECT, expr.properties.size());
+	for (const auto &property : expr.properties)
+		emit_byte(identifier_constant(property.first));
+	return {};
+}
+
 size_t Compiler::make_constant(Value value)
 {
 	auto constant = current_function().chunk.add_constant(value);

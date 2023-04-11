@@ -21,6 +21,7 @@ struct CallExpr;
 struct MemberExpr;
 struct Literal;
 struct Variable;
+struct ObjectExpr;
 
 struct PrintVisitor
 {
@@ -40,6 +41,7 @@ struct PrintVisitor
 	virtual void visit(const MemberExpr *, int indent) const = 0;
 	virtual void visit(const Literal *, int indent) const = 0;
 	virtual void visit(const Variable *, int indent) const = 0;
+	virtual void visit(const ObjectExpr *, int indent) const = 0;
 };
 
 struct CompilerVisitor
@@ -60,5 +62,6 @@ struct CompilerVisitor
 	virtual std::optional<size_t> compile(const MemberExpr &) = 0;
 	virtual std::optional<size_t> compile(const Literal &) = 0;
 	virtual std::optional<size_t> compile(const Variable &) = 0;
+	virtual std::optional<size_t> compile(const ObjectExpr &) = 0;
 };
 }
