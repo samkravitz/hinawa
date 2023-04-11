@@ -131,10 +131,17 @@ void Compiler::compile(const FunctionDecl &stmt)
 {
 	auto global = parse_variable(stmt.function_name);
 	Function function{stmt.function_name};
+	function.arity = stmt.args.size();
 	FunctionCompiler compiler(current, &function);
 	init_compiler(&compiler);
 	begin_scope();
-	current->function->arity = stmt.args.size();
+
+	for (const auto &arg : stmt.args)
+	{
+		auto constant = parse_variable(arg);
+		define_variable(constant);
+	}
+
 	stmt.block->accept(this);
 	end_compiler();
 	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
