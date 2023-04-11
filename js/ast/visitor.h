@@ -12,6 +12,7 @@ struct ReturnStmt;
 struct ExpressionStmt;
 struct FunctionDecl;
 struct ForStmt;
+struct ThrowStmt;
 
 struct UnaryExpr;
 struct UpdateExpr;
@@ -34,6 +35,7 @@ struct PrintVisitor
 	virtual void visit(const ExpressionStmt *, int indent) const = 0;
 	virtual void visit(const FunctionDecl *, int indent) const = 0;
 	virtual void visit(const ForStmt *, int indent) const = 0;
+	virtual void visit(const ThrowStmt *, int indent) const = 0;
 	virtual void visit(const UnaryExpr *, int indent) const = 0;
 	virtual void visit(const UpdateExpr *, int indent) const = 0;
 	virtual void visit(const BinaryExpr *, int indent) const = 0;
@@ -56,6 +58,7 @@ struct CompilerVisitor
 	virtual void compile(const ExpressionStmt &) = 0;
 	virtual void compile(const FunctionDecl &) = 0;
 	virtual void compile(const ForStmt &) = 0;
+	virtual void compile(const ThrowStmt &) = 0;
 	virtual void compile(const UnaryExpr &) = 0;
 	virtual void compile(const UpdateExpr &) = 0;
 	virtual void compile(const BinaryExpr &) = 0;

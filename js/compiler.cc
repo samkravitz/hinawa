@@ -160,6 +160,12 @@ void Compiler::compile(const ReturnStmt &stmt)
 	emit_byte(OP_RETURN);
 }
 
+void Compiler::compile(const ThrowStmt &stmt)
+{
+	stmt.expr->accept(this);
+	emit_byte(OP_THROW);
+}
+
 void Compiler::compile(const UnaryExpr &expr) { }
 
 void Compiler::compile(const UpdateExpr &expr) { }

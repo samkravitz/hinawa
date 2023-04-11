@@ -162,6 +162,19 @@ struct FunctionDecl : public Stmt
 	BlockStmt *block;
 };
 
+struct ThrowStmt : public Stmt
+{
+	ThrowStmt(Expr *expr) :
+	    expr(expr)
+	{ }
+
+	const char *name() const { return "ThrowStmt"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	Expr *expr;
+};
+
 }
 //struct TryStmt : public Stmt
 //{

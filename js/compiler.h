@@ -50,6 +50,7 @@ private:
 	void compile(const FunctionDecl &);
 	void compile(const EmptyStmt &);
 	void compile(const ReturnStmt &);
+	void compile(const ThrowStmt &);
 
 	// compile expressions
 	void compile(const UnaryExpr &);

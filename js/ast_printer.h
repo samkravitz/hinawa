@@ -117,6 +117,13 @@ public:
 		}
 	}
 
+	void visit(const ThrowStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+		node->expr->accept(this, indent + 1);
+	}
+
 	void visit(const UnaryExpr *node, int indent) const
 	{
 		print_indent(indent);

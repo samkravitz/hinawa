@@ -73,6 +73,7 @@ private:
 	Stmt *if_statement();
 	Stmt *return_statement();
 	Stmt *for_statement();
+	Stmt *throw_statement();
 
 	// parse declarations
 	Stmt *declaration();

@@ -122,6 +122,9 @@ Stmt *Parser::statement()
 
 	if (match(KEY_FOR))
 		return for_statement();
+	
+	if (match(KEY_THROW))
+		return throw_statement();
 
 	return expression_statement();
 }
@@ -220,6 +223,15 @@ Stmt *Parser::for_statement()
 	auto *stmt = statement();
 
 	return new ForStmt(initialization, condition, afterthought, stmt);
+}
+
+Stmt *Parser::throw_statement()
+{
+	auto expr = expression();
+
+	// match optional semicolon after throw statement
+	match(SEMICOLON);
+	return new ThrowStmt(expr);
 }
 
 Stmt *Parser::function_declaration()
