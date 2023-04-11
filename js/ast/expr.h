@@ -153,4 +153,19 @@ struct ObjectExpr : public Expr
 
 	std::vector<std::pair<std::string, Expr *>> properties;
 };
+
+struct FunctionExpr : public Expr
+{
+	FunctionExpr(std::vector<std::string> args, BlockStmt *body) :
+		args(args),
+	    body(body)
+	{ }
+
+	const char *name() const { return "FunctionDecl"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	std::optional<size_t> accept(CompilerVisitor *compiler) const { return compiler->compile(*this); };
+
+	std::vector<std::string> args;
+	BlockStmt *body;
+};
 }

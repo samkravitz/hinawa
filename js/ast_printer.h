@@ -206,6 +206,12 @@ public:
 		std::cout << node->name() << "\n";
 	}
 
+	void visit(const FunctionExpr *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+	}
+
 private:
 	void print_indent(int indent) const
 	{

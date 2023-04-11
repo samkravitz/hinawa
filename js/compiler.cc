@@ -354,6 +354,26 @@ std::optional<size_t> Compiler::compile(const ObjectExpr &expr)
 	return {};
 }
 
+std::optional<size_t> Compiler::compile(const FunctionExpr &expr)
+{
+	auto function = Function(ANONYMOUS);
+	function.arity = expr.args.size();
+	FunctionCompiler compiler(current, &function);
+	init_compiler(&compiler);
+	begin_scope();
+
+	for (const auto &arg : expr.args)
+	{
+		auto constant = parse_variable(arg);
+		define_variable(constant);
+	}
+
+	expr.body->accept(this);
+	end_compiler();
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
+	return {};
+}
+
 size_t Compiler::make_constant(Value value)
 {
 	auto constant = current_function().chunk.add_constant(value);

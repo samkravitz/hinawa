@@ -254,7 +254,25 @@ Expr *Parser::expression()
 
 Expr *Parser::anonymous()
 {
-	return nullptr;
+	consume(LEFT_PAREN, "Expected '('");
+
+	std::vector<std::string> args;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (args.size() > 0xff)
+				std::cerr << "Can't have more than 255 arguments\n";
+
+			consume(IDENTIFIER, "Expect arguments name");
+			args.push_back(previous.value());
+		} while (match(COMMA));
+	}
+	consume(RIGHT_PAREN, "Expected ')'");
+	consume(LEFT_BRACE, "Expected '{'");
+	auto *body = static_cast<BlockStmt *>(block_stmt());
+
+	return new FunctionExpr(args, body);
 }
 
 Expr *Parser::array()
