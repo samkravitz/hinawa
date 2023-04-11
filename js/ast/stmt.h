@@ -175,6 +175,25 @@ struct ThrowStmt : public Stmt
 	Expr *expr;
 };
 
+struct TryStmt : public Stmt
+{
+	TryStmt(BlockStmt *block, BlockStmt *handler, BlockStmt *finalizer, std::optional<std::string> catch_param) :
+	    block(block),
+	    handler(handler),
+	    finalizer(finalizer),
+	    catch_param(catch_param)
+	{ }
+
+	const char *name() const { return "TryStmt"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	BlockStmt *block;
+	BlockStmt *handler{nullptr};
+	BlockStmt *finalizer{nullptr};
+	std::optional<std::string> catch_param = {};
+};
+
 }
 //struct TryStmt : public Stmt
 //{

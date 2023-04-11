@@ -125,6 +125,9 @@ Stmt *Parser::statement()
 	
 	if (match(KEY_THROW))
 		return throw_statement();
+	
+	if (match(KEY_TRY))
+		return try_statement();
 
 	return expression_statement();
 }
@@ -232,6 +235,43 @@ Stmt *Parser::throw_statement()
 	// match optional semicolon after throw statement
 	match(SEMICOLON);
 	return new ThrowStmt(expr);
+}
+
+Stmt *Parser::try_statement()
+{
+	BlockStmt *block = nullptr;
+	BlockStmt *handler = nullptr;
+	BlockStmt *finalizer = nullptr;
+	std::optional<std::string> catch_param = {};
+
+	consume(LEFT_BRACE, "Expect '{' after try");
+	block = static_cast<BlockStmt*>(block_stmt());
+
+	if (match(KEY_CATCH))
+	{
+		if (match(LEFT_PAREN))
+		{
+			consume(IDENTIFIER, "Expect identifier name");
+			catch_param = previous.value();
+			consume(RIGHT_PAREN, "Expect ')'");
+		}
+
+		consume(LEFT_BRACE, "Expect '{' after catch");
+		handler = static_cast<BlockStmt*>(block_stmt());
+	}
+
+	if (match(KEY_FINALLY))
+	{
+		consume(LEFT_BRACE, "Expect '{' after finally");
+		finalizer = static_cast<BlockStmt*>(block_stmt());
+	}
+
+	if (!handler && !finalizer)
+	{
+		std::cerr << "Error: try needs either catch or finally\n";
+	}
+
+	return new TryStmt(block, handler, finalizer, catch_param);
 }
 
 Stmt *Parser::function_declaration()

@@ -124,6 +124,12 @@ public:
 		node->expr->accept(this, indent + 1);
 	}
 
+	void visit(const TryStmt *node, int indent) const
+	{
+		print_indent(indent);
+		std::cout << node->name() << "\n";
+	}
+
 	void visit(const UnaryExpr *node, int indent) const
 	{
 		print_indent(indent);

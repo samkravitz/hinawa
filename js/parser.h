@@ -74,6 +74,7 @@ private:
 	Stmt *return_statement();
 	Stmt *for_statement();
 	Stmt *throw_statement();
+	Stmt *try_statement();
 
 	// parse declarations
 	Stmt *declaration();

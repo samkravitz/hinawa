@@ -51,6 +51,7 @@ private:
 	void compile(const EmptyStmt &);
 	void compile(const ReturnStmt &);
 	void compile(const ThrowStmt &);
+	void compile(const TryStmt &);
 
 	// compile expressions
 	void compile(const UnaryExpr &);

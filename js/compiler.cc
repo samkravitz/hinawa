@@ -166,6 +166,35 @@ void Compiler::compile(const ThrowStmt &stmt)
 	emit_byte(OP_THROW);
 }
 
+void Compiler::compile(const TryStmt &stmt)
+{
+	int catch_jump = emit_jump(OP_PUSH_EXCEPTION);
+	stmt.block->accept(this);
+	int finally_jump = emit_jump(OP_JUMP);
+
+	if (stmt.handler)
+	{
+		if (stmt.catch_param)
+		{
+			begin_scope();
+			auto constant = parse_variable(*stmt.catch_param);
+			define_variable(constant);
+		}
+
+		stmt.handler->accept(this);
+		end_scope();
+	}
+
+	patch_jump(catch_jump);
+	emit_byte(OP_POP_EXCEPTION);
+	patch_jump(finally_jump);
+
+	if (stmt.finalizer)
+	{
+		stmt.finalizer->accept(this);
+	}
+}
+
 void Compiler::compile(const UnaryExpr &expr) { }
 
 void Compiler::compile(const UpdateExpr &expr) { }
