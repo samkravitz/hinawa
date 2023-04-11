@@ -196,6 +196,26 @@ public:
 
 	void visit(const ObjectExpr *node, int indent) const { node->print_header(indent); }
 
-	void visit(const FunctionExpr *node, int indent) const { node->print_header(indent); }
+	void visit(const FunctionExpr *node, int indent) const {
+		node->print_header(indent);
+		node->body->accept(this, indent + 1);
+		}
+
+	void visit(const NewExpr *node, int indent) const
+	{
+		node->print_header(indent);
+		print_indent(indent);
+		fmt::print("callee:\n");
+		node->callee->accept(this, indent + 1);
+
+		if (!node->params.empty())
+		{
+			print_indent(indent);
+			fmt::print("params:\n");
+
+			for (auto *arg : node->params)
+				arg->accept(this, indent + 1);
+		}
+	}
 };
 }

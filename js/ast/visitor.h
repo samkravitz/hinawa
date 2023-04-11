@@ -25,6 +25,7 @@ struct Literal;
 struct Variable;
 struct ObjectExpr;
 struct FunctionExpr;
+struct NewExpr;
 
 struct PrintVisitor
 {
@@ -48,6 +49,7 @@ struct PrintVisitor
 	virtual void visit(const Variable *, int indent) const = 0;
 	virtual void visit(const ObjectExpr *, int indent) const = 0;
 	virtual void visit(const FunctionExpr *, int indent) const = 0;
+	virtual void visit(const NewExpr *, int indent) const = 0;
 };
 
 struct CompilerVisitor
@@ -72,5 +74,6 @@ struct CompilerVisitor
 	virtual void compile(const Variable &) = 0;
 	virtual void compile(const ObjectExpr &) = 0;
 	virtual void compile(const FunctionExpr &) = 0;
+	virtual void compile(const NewExpr &) = 0;
 };
 }

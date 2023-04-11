@@ -400,6 +400,15 @@ void Compiler::compile(const FunctionExpr &expr)
 	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
 }
 
+void Compiler::compile(const NewExpr &expr)
+{
+	expr.callee->accept(this);
+	for (auto *ex : expr.params)
+		ex->accept(this);
+
+	emit_bytes(OP_CALL, expr.params.size());
+}
+
 size_t Compiler::make_constant(Value value)
 {
 	auto constant = current_function().chunk.add_constant(value);

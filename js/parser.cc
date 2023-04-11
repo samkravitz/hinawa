@@ -122,10 +122,10 @@ Stmt *Parser::statement()
 
 	if (match(KEY_FOR))
 		return for_statement();
-	
+
 	if (match(KEY_THROW))
 		return throw_statement();
-	
+
 	if (match(KEY_TRY))
 		return try_statement();
 
@@ -245,7 +245,7 @@ Stmt *Parser::try_statement()
 	std::optional<std::string> catch_param = {};
 
 	consume(LEFT_BRACE, "Expect '{' after try");
-	block = static_cast<BlockStmt*>(block_stmt());
+	block = static_cast<BlockStmt *>(block_stmt());
 
 	if (match(KEY_CATCH))
 	{
@@ -257,13 +257,13 @@ Stmt *Parser::try_statement()
 		}
 
 		consume(LEFT_BRACE, "Expect '{' after catch");
-		handler = static_cast<BlockStmt*>(block_stmt());
+		handler = static_cast<BlockStmt *>(block_stmt());
 	}
 
 	if (match(KEY_FINALLY))
 	{
 		consume(LEFT_BRACE, "Expect '{' after finally");
-		finalizer = static_cast<BlockStmt*>(block_stmt());
+		finalizer = static_cast<BlockStmt *>(block_stmt());
 	}
 
 	if (!handler && !finalizer)
@@ -382,7 +382,20 @@ Expr *Parser::literal()
 
 Expr *Parser::new_instance()
 {
-	return nullptr;
+	auto *callee = parse_precedence(PREC_SUBSCRIPT);
+	std::vector<Expr *> params;
+	if (match(LEFT_PAREN))
+	{
+		do
+		{
+			params.push_back(expression());
+			if (params.size() > 0xff)
+				std::cerr << "Can't have more than 255 arguments\n";
+		} while (match(COMMA));
+		consume(RIGHT_PAREN, "Expect ')' after arguments");
+	}
+
+	return new NewExpr(callee, params);
 }
 
 Expr *Parser::number()

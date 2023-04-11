@@ -64,6 +64,7 @@ private:
 	void compile(const Variable &);
 	void compile(const ObjectExpr &);
 	void compile(const FunctionExpr &);
+	void compile(const NewExpr &);
 
 	size_t make_constant(Value);
 	void emit_byte(u8);

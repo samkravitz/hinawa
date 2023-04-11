@@ -1,8 +1,9 @@
 #pragma once
 
+#include <vector>
+
+#include "../token.h"
 #include "ast.h"
-#include "token.h"
-#include "value.h"
 #include "visitor.h"
 
 namespace js
@@ -167,5 +168,20 @@ struct FunctionExpr : public Expr
 
 	std::vector<std::string> args;
 	BlockStmt *body;
+};
+
+struct NewExpr : public Expr
+{
+	NewExpr(Expr *callee, std::vector<Expr *> params) :
+	    callee(callee),
+	    params(params)
+	{ }
+
+	const char *name() const { return "NewExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	Expr *callee;
+	std::vector<Expr *> params;
 };
 }
