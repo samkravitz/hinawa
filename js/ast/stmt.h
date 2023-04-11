@@ -147,8 +147,9 @@ struct VarDecl : public Stmt
 
 struct FunctionDecl : public Stmt
 {
-	FunctionDecl(std::string function_name, Stmt *block) :
+	FunctionDecl(std::string function_name, std::vector<std::string> args, BlockStmt *block) :
 	    function_name(function_name),
+		args(args),
 	    block(block)
 	{ }
 
@@ -157,7 +158,8 @@ struct FunctionDecl : public Stmt
 	std::optional<size_t> accept(CompilerVisitor *compiler) const { return compiler->compile(*this); };
 
 	std::string function_name;
-	Stmt *block;
+	std::vector<std::string> args;
+	BlockStmt *block;
 };
 
 }

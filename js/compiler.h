@@ -37,7 +37,6 @@ private:
 	} *current;
 
 	std::vector<Stmt *> stmts;
-	std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> available_regs;
 
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();
@@ -70,8 +69,10 @@ private:
 	void patch_jump(size_t);
 	void emit_loop(size_t);
 
-	void define_variable(size_t, u8);
+	u8 parse_variable(const std::string &);
+	void define_variable(u8);
 	u8 identifier_constant(const std::string &);
+	void mark_initialized();
 
 	void begin_scope();
 	void end_scope();
@@ -80,9 +81,6 @@ private:
 	int resolve_local(const std::string &);
 
 	bool is_global() const;
-
-	size_t allocate_reg();
-	void free_reg(size_t);
 
 	inline Function &current_function() { return *current->function; }
 };

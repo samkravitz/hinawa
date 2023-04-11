@@ -63,7 +63,7 @@ bool Vm::run(Function f)
 {
 	auto cf = CallFrame{f, 0};
 	frames.push(cf);
-	reg(-1) = Value{&f};
+	push(Value(&f));
 
 	while (1)
 	{
@@ -71,44 +71,20 @@ bool Vm::run(Function f)
 
 		switch (instruction)
 		{
-			case OP_LOADK:
-			{
-				auto dst = read_byte();
-				reg(dst) = read_constant();
-				break;
-			}
-			case OP_MOV:
-			{
-				auto dst = read_byte();
-				auto src = read_byte();
-				reg(dst) = reg(src);
-				break;
-			}
 			case OP_RETURN:
 			{
-				auto a = read_byte();
-				auto result = reg(a);
-
+				auto result = pop();
 				auto frame = frames.top();
 				frames.pop();
 
 				if (frames.empty())
 					return true;
-				
-				reg(frames.top().return_reg) = result;
 
-				//auto result = pop();
-				//auto frame = frames.top();
-				//frames.pop();
+				auto diff = stack.size() - frame.base;
+				for (uint i = 0; i < diff; i++)
+					pop();
 
-				//if (frames.empty())
-				//	return true;
-
-				//auto diff = stack.size() - frame.base;
-				//for (uint i = 0; i < diff; i++)
-				//	pop();
-
-				//push(result);
+				push(result);
 				break;
 			}
 
@@ -225,7 +201,6 @@ bool Vm::run(Function f)
 
 			case OP_GET_GLOBAL:
 			{
-				auto dst = read_byte();
 				auto ident = read_string();
 				if (!global->is_defined(ident))
 				{
@@ -234,15 +209,21 @@ bool Vm::run(Function f)
 					break;
 				}
 
-				reg(dst) = global->get(ident);
+				push(global->get(ident));
 				break;
 			}
 
 			case OP_SET_GLOBAL:
 			{
-				auto a = read_byte();
 				auto ident = read_string();
-				global->set(ident, reg(a));
+				if (!global->is_defined(ident))
+				{
+					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
+						return false;
+					break;
+				}
+
+				global->set(ident, peek(0));
 				break;
 			}
 
@@ -287,26 +268,27 @@ bool Vm::run(Function f)
 
 			case OP_CALL:
 			{
-				auto a = read_byte();
-				auto callee = reg(a);
 				auto num_args = read_byte();
-				frames.top().return_reg = a;
+				auto callee = peek(num_args);
 
 				if (callee.is_native())
 				{
 					int i = num_args;
 					std::vector<Value> argv;
 
-					for (int i = 0; i < num_args; i++)
-						argv.push_back(reg(a + i + 1));
+					while (i--)
+						argv.push_back(peek(i));
 
 					auto result = callee.as_native()->call(*this, argv);
-					reg(a) = result;
+					for (int i = 0; i < num_args + 1; i++)
+						pop();
+
+					push(result);
 				}
 
 				else if (callee.is_function())
 				{
-					auto base = frames.top().base + a + num_args + 1;
+					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{*callee.as_function(), base};
 					frames.push(cf);
 				}
@@ -507,19 +489,6 @@ bool Vm::run(Function f)
 	}
 }
 
-Value &Vm::reg(int i)
-{
-	if (stack.empty())
-		stack.resize(4);
-
-	if (i > 0 && (unsigned) i >= stack.size() - 1)
-		stack.resize(stack.size() * 2);
-
-	// add 1 to account for the currently executing function
-	// to be at stack slot 0
-	return stack[frames.top().base + i + 1];
-}
-
 void Vm::push(Value value)
 {
 	stack.push_back(value);
@@ -539,72 +508,78 @@ Value Vm::peek(uint offset)
 
 void Vm::binary_op(Operator op)
 {
-	auto dst = read_byte();
-	auto r0 = read_byte();
-	auto r1 = read_byte();
-
-	if (!reg(r0).is_number() || !reg(r1).is_number())
+	if (!peek(0).is_number() || !peek(1).is_number())
 	{
 		if (!runtime_error("Operands must be numbers"))
 			exit(1);
 		return;
 	}
 
-	auto b = reg(r0).as_number();
-	auto a = reg(r1).as_number();
-	Value result{};
+	double result;
+	bool x;
+	auto b = pop().as_number();
+	auto a = pop().as_number();
 
 	switch (op)
 	{
 		case Operator::Plus:
-			result = Value(a + b);
+			result = a + b;
+			push(Value(result));
 			break;
 
 		case Operator::Minus:
-			result = Value(b - a);
+			result = a - b;
+			push(Value(result));
 			break;
 
 		case Operator::Star:
-			result = Value(a * b);
+			result = a * b;
+			push(Value(result));
 			break;
 
 		case Operator::Slash:
-			result = Value(b / a);
+			result = b / a;
+			push(Value(result));
 			break;
 
 		case Operator::Mod:
-			result = Value((double) ((int) a % (int) b));
+			result = (int) a % (int) b;
+			push(Value(result));
 			break;
 
 		case Operator::LessThan:
-			result = Value(a < b);
+			x = a < b;
+			push(Value(x));
 			break;
 
 		case Operator::GreaterThan:
-			result = Value(a > b);
+			x = a > b;
+			push(Value(x));
 			break;
 
 		case Operator::Amp:
-			result = Value((double) ((int) a & (int) b));
+			x = (int) a & (int) b;
+			push(Value(x));
 			break;
 
 		case Operator::AmpAmp:
-			result = Value(a && b);
+			x = (int) a && (int) b;
+			push(Value(x));
 			break;
 
 		case Operator::Pipe:
-			result = Value((double) ((int) a | (int) b));
+			x = (int) a | (int) b;
+			push(Value(x));
 			break;
 
 		case Operator::PipePipe:
-			result = Value(a || b);
+			x = (int) a || (int) b;
+			push(Value(x));
 			break;
 
 		default:
 			assert(!"Unreachable");
 	}
-
-	reg(dst) = result;
 }
 
 u8 Vm::read_byte()

@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "opcode.h"
 
 #include <cassert>
 #include <functional>
@@ -21,16 +22,11 @@ void Compiler::init_compiler(FunctionCompiler *compiler)
 	current = compiler;
 
 	current->locals.push_back({"", 0});
-	for (size_t i = 0; i <= 0xff; i++)
-		available_regs.push(i);
 }
 
 void Compiler::end_compiler()
 {
-	if (current->function->chunk.code.empty())
-		emit_constant(Value(nullptr));
-
-	emit_bytes(OP_RETURN, 0);
+	emit_bytes(OP_UNDEFINED, OP_RETURN);
 
 	auto function = *current->function;
 #ifdef DEBUG_PRINT_CODE
@@ -67,46 +63,22 @@ std::optional<size_t> Compiler::compile(const BlockStmt &stmt)
 
 std::optional<size_t> Compiler::compile(const VarDecl &stmt)
 {
-	if (is_global())
-	{
-		u8 global = identifier_constant(stmt.identifier);
-		size_t reg;
-
-		if (stmt.init)
-			reg = *stmt.init->accept(this);
-		else
-			emit_byte(OP_UNDEFINED);
-
-		define_variable(reg, global);
-		return {};
-	}
-
+	auto global = parse_variable(stmt.identifier);
+	if (stmt.init)
+		*stmt.init->accept(this);
 	else
-	{
-		declare_local(stmt.identifier);
-		auto &local = current->locals.back();
+		emit_byte(OP_UNDEFINED);
 
-		if (stmt.init)
-		{
-			auto reg = stmt.init->accept(this);
-			assert(reg);
-			emit_byte(OP_MOV);
-			emit_bytes(local.reg, *reg);
-			free_reg(*reg);
-		}
-		else
-			local.reg = allocate_reg();
-	}
+	define_variable(global);
 
 	return {};
 }
 
 std::optional<size_t> Compiler::compile(const ExpressionStmt &stmt)
 {
-	auto reg = stmt.expr->accept(this);
-	if (reg)
-		free_reg(*reg);
-	return reg;
+	stmt.expr->accept(this);
+	emit_byte(OP_POP);
+	return {};
 }
 
 std::optional<size_t> Compiler::compile(const IfStmt &stmt)
@@ -152,21 +124,16 @@ std::optional<size_t> Compiler::compile(const ForStmt &stmt)
 
 std::optional<size_t> Compiler::compile(const FunctionDecl &stmt)
 {
-	u8 global = identifier_constant(stmt.function_name);
+	auto global = parse_variable(stmt.function_name);
 	Function function{stmt.function_name};
 	FunctionCompiler compiler(current, &function);
 	init_compiler(&compiler);
-
 	begin_scope();
-	current->function->arity = 0;
+	current->function->arity = stmt.args.size();
 	stmt.block->accept(this);
-
 	end_compiler();
-	emit_byte(OP_LOADK);
-	auto reg = allocate_reg();
-	emit_bytes(reg, make_constant(Value(new Function(function))));
-	define_variable(reg, global);
-	free_reg(reg);
+	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
+	define_variable(global);
 	return {};
 }
 
@@ -177,10 +144,12 @@ std::optional<size_t> Compiler::compile(const EmptyStmt &stmt)
 
 std::optional<size_t> Compiler::compile(const ReturnStmt &stmt)
 {
-	auto reg = stmt.expr->accept(this);
-	assert(reg);
-	emit_bytes(OP_RETURN, *reg);
-	free_reg(*reg);
+	if (stmt.expr)
+		stmt.expr->accept(this);
+	else
+		emit_byte(OP_UNDEFINED);
+
+	emit_byte(OP_RETURN);
 	return {};
 }
 
@@ -196,10 +165,8 @@ std::optional<size_t> Compiler::compile(const UpdateExpr &expr)
 
 std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 {
-	auto lhs = expr.lhs->accept(this);
-	auto rhs = expr.rhs->accept(this);
-	assert(lhs);
-	assert(rhs);
+	expr.lhs->accept(this);
+	expr.rhs->accept(this);
 	auto op = expr.op.type();
 
 	switch (op)
@@ -255,59 +222,48 @@ std::optional<size_t> Compiler::compile(const BinaryExpr &expr)
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
 	}
-	auto reg = allocate_reg();
-	emit_byte(reg);
-	emit_bytes(*lhs, *rhs);
-	free_reg(*lhs);
-	free_reg(*rhs);
-	return reg;
+	return {};
 }
 
 std::optional<size_t> Compiler::compile(const AssignmentExpr &expr)
 {
-	auto rhs = expr.rhs->accept(this);
-	assert(rhs);
 	if (expr.lhs->is_variable())
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
-		auto reg = resolve_local(var.ident);
+		auto identifier = var.ident;
 
-		if (reg == RESOLVED_GLOBAL)
+		Opcode set_op;
+		int value = resolve_local(identifier);
+
+		if (value == RESOLVED_GLOBAL)
 		{
-			auto k = make_constant(Value(new std::string{var.ident}));
-			emit_byte(OP_SET_GLOBAL);
-			emit_bytes(*rhs, k);
+			set_op = OP_SET_GLOBAL;
+			value = make_constant(Value(new std::string(identifier)));
 		}
+
 		else
 		{
-			emit_byte(OP_MOV);
-			emit_bytes(reg, *rhs);
+			set_op = OP_SET_LOCAL;
 		}
+
+		expr.rhs->accept(this);
+		emit_bytes(set_op, value);
 	}
 	else
 	{
 		std::cout << "AssignmentExpr lhs is not variable\n";
 	}
-	free_reg(*rhs);
-	return rhs;
+	return {};
 }
 
 std::optional<size_t> Compiler::compile(const CallExpr &expr)
 {
-	auto callee = expr.callee->accept(this);
-	assert(callee);
-	std::vector<size_t> args;
+	expr.callee->accept(this);
 	for (auto *ex : expr.args)
-	{
-		auto reg = ex->accept(this);
-		assert(reg);
-		args.push_back(*reg);
-	}
-	emit_byte(OP_CALL);
-	emit_bytes(*callee, args.size());
-	for (const auto &arg : args)
-		free_reg(arg);
-	return 0;
+		ex->accept(this);
+
+	emit_bytes(OP_CALL, expr.args.size());
+	return {};
 }
 
 std::optional<size_t> Compiler::compile(const MemberExpr &expr)
@@ -322,21 +278,13 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 		case NUMBER:
 		{
 			auto d = std::stod(expr.token.value());
-			auto constant = make_constant(Value(d));
-			auto reg = allocate_reg();
-			emit_byte(OP_LOADK);
-			emit_bytes(reg, constant);
-			return reg;
+			emit_constant(Value(d));
 			break;
 		}
 		case STRING:
 		{
 			auto str = expr.token.value();
-			auto constant = make_constant(Value(new std::string(str.substr(1, str.size() - 2))));
-			auto reg = allocate_reg();
-			emit_byte(OP_LOADK);
-			emit_bytes(reg, constant);
-			return reg;
+			emit_constant(Value(new std::string(str.substr(1, str.size() - 2))));
 			break;
 		}
 		case KEY_FALSE:
@@ -360,20 +308,24 @@ std::optional<size_t> Compiler::compile(const Literal &expr)
 
 std::optional<size_t> Compiler::compile(const Variable &expr)
 {
-	auto reg = resolve_local(expr.ident);
+	auto identifier = expr.ident;
 
-	if (reg == RESOLVED_GLOBAL)
+	Opcode get_op;
+	int value = resolve_local(identifier);
+
+	if (value == RESOLVED_GLOBAL)
 	{
-		auto k = make_constant(Value(new std::string{expr.ident}));
-		emit_byte(OP_GET_GLOBAL);
-		auto global = allocate_reg();
-		emit_bytes(global, k);
-		return global;
+		get_op = OP_GET_GLOBAL;
+		value = make_constant(Value(new std::string(identifier)));
 	}
+
 	else
 	{
-		return reg;
+		get_op = OP_GET_LOCAL;
 	}
+
+	emit_bytes(get_op, value);
+	return {};
 }
 
 size_t Compiler::make_constant(Value value)
@@ -433,15 +385,39 @@ void Compiler::emit_loop(size_t loop_start)
 	emit_byte(offset & 0xff);
 }
 
-void Compiler::define_variable(size_t reg, u8 k)
+u8 Compiler::parse_variable(const std::string &identifier)
 {
-	emit_byte(OP_SET_GLOBAL);
-	emit_bytes(reg, k);
+	if (!is_global())
+	{
+		declare_local(identifier);
+		return 0;
+	}
+
+	return identifier_constant(identifier);
+}
+
+void Compiler::define_variable(u8 global)
+{
+	if (!is_global())
+	{
+		mark_initialized();
+		return;
+	}
+
+	emit_bytes(OP_DEFINE_GLOBAL, global);
 }
 
 u8 Compiler::identifier_constant(const std::string &name)
 {
 	return make_constant(Value(new std::string{name}));
+}
+
+void Compiler::mark_initialized()
+{
+	if (is_global())
+		return;
+
+	current->locals.back().depth = current->scope_depth;
 }
 
 void Compiler::begin_scope()
@@ -454,8 +430,7 @@ void Compiler::end_scope()
 	current->scope_depth -= 1;
 	while (!current->locals.empty() && (current->locals.back().depth > current->scope_depth))
 	{
-		auto &local = current->locals.back();
-		free_reg(local.reg);
+		emit_byte(OP_POP);
 		current->locals.pop_back();
 	}
 }
@@ -475,7 +450,7 @@ void Compiler::declare_local(const std::string &name)
 			fmt::print(stderr, "Already a variable with this name in this scope.\n");
 	}
 
-	current->locals.push_back({name, current->scope_depth, allocate_reg()});
+	current->locals.push_back({name, current->scope_depth});
 }
 
 int Compiler::resolve_local(const std::string &name)
@@ -487,7 +462,7 @@ int Compiler::resolve_local(const std::string &name)
 	{
 		auto local = current->locals[i];
 		if (name == local.name)
-			return local.reg;
+			return i;
 	}
 	return RESOLVED_GLOBAL;
 }
@@ -498,23 +473,5 @@ int Compiler::resolve_local(const std::string &name)
 bool Compiler::is_global() const
 {
 	return current->scope_depth == 0;
-}
-
-size_t Compiler::allocate_reg()
-{
-	if (available_regs.empty())
-	{
-		fmt::print(stderr, "Error: All registers in use\n");
-		throw;
-	}
-
-	auto reg = available_regs.top();
-	available_regs.pop();
-	return reg;
-}
-
-void Compiler::free_reg(size_t reg)
-{
-	available_regs.push(reg);
 }
 }

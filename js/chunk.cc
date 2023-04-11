@@ -1,7 +1,7 @@
 #include "chunk.h"
 
-#include <cassert>
 #include <cstdio>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include "opcode.h"
@@ -47,35 +47,14 @@ size_t Chunk::disassemble_instruction(size_t offset)
 	auto instruction = static_cast<Opcode>(code[offset]);
 	switch (instruction)
 	{
-		case OP_LOADK:
-		{
-			auto dst = code[offset + 1];
-			auto k = code[offset + 2];
-
-			fmt::print("{:16} {:3} {:3} {:3} ", "OP_LOADK", dst, k, "");
-			fmt::print("; r{} = {}\n", dst, constants[k].to_string());
-			return offset + 3;
-		}
-		case OP_MOV:
-		{
-			auto dst = code[offset + 1];
-			auto src = code[offset + 2];
-			fmt::print("{:16} {:3} {:3} {:3} ", "OP_MOV", dst, src, "");
-			fmt::print("; r{} = r{}\n", dst, src);
-			return offset + 3;
-		}
 		case OP_RETURN:
-		{
-			auto dst = code[offset + 1];
-			fmt::print("{0:16} {2:3} {1:3} {1:3} ; return r{2}\n", "OP_RETURN", "", dst);
-			return offset + 2;
-		}
+			return simple_instruction("OP_RETURN", offset);
 		case OP_CONSTANT:
-      		return constant_instruction("OP_CONSTANT", offset);
+			return constant_instruction("OP_CONSTANT", offset);
 		case OP_INCREMENT:
-      		return simple_instruction("OP_INCREMENT", offset);
+			return simple_instruction("OP_INCREMENT", offset);
 		case OP_DECREMENT:
-      		return simple_instruction("OP_DECREMENT", offset);
+			return simple_instruction("OP_DECREMENT", offset);
 		case OP_NULL:
 			return simple_instruction("OP_NULL", offset);
 		case OP_UNDEFINED:
@@ -93,24 +72,25 @@ size_t Chunk::disassemble_instruction(size_t offset)
 		case OP_DEFINE_GLOBAL:
 			return constant_instruction("OP_DEFINE_GLOBAL", offset);
 		case OP_GET_GLOBAL:
-		{
-			auto a = code[offset + 1];
-			auto k = code[offset + 2];
-			fmt::print("{:16} {:3} {:3} {:3} ", "OP_GET_GLOBAL", a, k, "");
-			fmt::print("; r{} = {}\n", a, constants[k].to_string());
-			return offset + 3;
-		}
+			return constant_instruction("OP_GET_GLOBAL", offset);
 		case OP_SET_GLOBAL:
 			return constant_instruction("OP_SET_GLOBAL", offset);
 		case OP_EQUAL:
+			return simple_instruction("OP_EQUAL", offset);
 		case OP_GREATER:
+			return simple_instruction("OP_GREATER", offset);
 		case OP_LESS:
+			return simple_instruction("OP_LESS", offset);
 		case OP_ADD:
+			return simple_instruction("OP_ADD", offset);
 		case OP_SUBTRACT:
+			return simple_instruction("OP_SUBTRACT", offset);
 		case OP_MULTIPLY:
+			return simple_instruction("OP_MULTIPLY", offset);
 		case OP_DIVIDE:
+			return simple_instruction("OP_DIVIDE", offset);
 		case OP_NOT:
-			return binary_instruction(instruction, offset);
+			return simple_instruction("OP_NOT", offset);
 		case OP_NEGATE:
 			return simple_instruction("OP_NEGATE", offset);
 		case OP_JUMP:
@@ -120,12 +100,6 @@ size_t Chunk::disassemble_instruction(size_t offset)
 		case OP_LOOP:
 			return jump_instruction("OP_LOOP", -1, offset);
 		case OP_CALL:
-		{
-			auto dst = code[offset + 1];
-			auto num_args = code[offset + 2];
-			fmt::print("{0:16} {2:3} {1:3} {1:3} ; r{2} = r{2} ({3} args)\n", "OP_CALL", "", dst, num_args);
-			return offset + 3;
-		}
 			return byte_instruction("OP_CALL", offset);
 		case OP_NEW_ARRAY:
 			return byte_instruction("OP_NEW_ARRAY", offset);
@@ -153,48 +127,17 @@ size_t Chunk::disassemble_instruction(size_t offset)
 	}
 }
 
-size_t Chunk::binary_instruction(Opcode op, size_t offset)
-{
-	const char *name, *op_str;
-		switch (op)
-	{
-		case OP_ADD: name = "OP_ADD"; op_str = "+"; break;
-		case OP_SUBTRACT: name = "OP_SUBTRACT"; op_str = "-"; break; 
-		case OP_MULTIPLY: name = "OP_MULTIPLY"; op_str = "*"; break; 
-		case OP_DIVIDE: name = "OP_DIVIDE"; op_str = "/"; break; 
-		case OP_MOD: name = "OP_MOD"; op_str = "%"; break; 
-		case OP_EQUAL: name = "OP_EQUAL"; op_str = "=="; break; 
-		case OP_GREATER: name = "OP_GREATER"; op_str = ">"; break;
-		case OP_LESS: name = "OP_LESS"; op_str = "<"; break; 
-		case OP_BITWISE_AND: name = "OP_BITWISE_AND"; op_str = "&"; break; 
-		case OP_BITWISE_OR: name = "OP_BITWISE_OR"; op_str = "|"; break; 
-		default:
-			assert(!"Unreachable");
-	}
-
-	auto dst = code[offset + 1];
-	auto a = code[offset + 2];
-	auto b = code[offset + 3];
-	fmt::print("{:16} {:3} {:3} {:3} ; r{} = r{} {} r{}\n", name, dst, a, b, dst, a, op_str, b);
-	return offset + 4;
-}
-
 size_t Chunk::simple_instruction(const char *name, size_t offset)
 {
-	auto dst = code[offset + 1];
-	auto r1 = code[offset + 2];
-	auto r2 = code[offset + 3];
-	fmt::print("{:16} {:3} {:3} {:3} ; r{} = r{} + r{}\n", name, dst, r1, r2, dst, r1, r2);
-	return offset + 4;
+	fmt::print("{}\n", name);
+	return offset + 1;
 }
 
 size_t Chunk::constant_instruction(const char *name, size_t offset)
 {
-	auto a = code[offset + 1];
-	auto k = code[offset + 2];
-	fmt::print("{:16} {:3} {:3} {:3} ", name, a, k, "");
-	fmt::print("; {} = r{}\n", constants[k].to_string(), a);
-	return offset + 3;
+	auto constant = code[offset + 1];
+	fmt::print("{:16} {:4} {}\n", name, constant, constants[constant].to_string());
+	return offset + 2;
 }
 
 size_t Chunk::byte_instruction(const char *name, size_t offset)

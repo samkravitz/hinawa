@@ -227,11 +227,24 @@ Stmt *Parser::function_declaration()
 	consume(IDENTIFIER, "Expected identifier");
 	auto name = previous.value();
 	consume(LEFT_PAREN, "Expected '('");
+
+	std::vector<std::string> args;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (args.size() > 0xff)
+				std::cerr << "Can't have more than 255 parameters\n";
+
+			consume(IDENTIFIER, "Expect parameter name");
+			args.push_back(previous.value());
+		} while (match(COMMA));
+	}
 	consume(RIGHT_PAREN, "Expected ')'");
 	consume(LEFT_BRACE, "Expected '{'");
-	auto block = block_stmt();
+	auto *block = static_cast<BlockStmt *>(block_stmt());
 
-	return new FunctionDecl(name, block);
+	return new FunctionDecl(name, args, block);
 }
 
 Expr *Parser::expression()
