@@ -37,11 +37,15 @@ public:
 	void visit(const VarDecl *node, int indent) const
 	{
 		node->print_header(indent);
-		print_indent(indent + 1);
-		std::cout << node->identifier << "\n";
 
-		if (node->init)
-			node->init->accept(this, indent + 1);
+		for (const auto &declarator : node->declorators)
+		{
+			print_indent(indent + 1);
+			fmt::print("{}\n", declarator.identifier);
+
+			if (declarator.init)
+				declarator.init->accept(this, indent + 1);
+		}
 	}
 
 	void visit(const EmptyStmt *node, int indent) const { node->print_header(indent); }

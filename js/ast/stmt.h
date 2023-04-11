@@ -111,16 +111,26 @@ struct ReturnStmt : public Stmt
 
 struct VarDecl : public Stmt
 {
-	VarDecl(std::string identifier, Expr *initializer) :
-	    identifier(identifier),
-	    init(initializer)
+	struct VarDeclarator
+	{
+		VarDeclarator(std::string identifier, Expr *initializer) :
+		    identifier(identifier),
+		    init(initializer)
+		{ }
+
+		std::string identifier;
+		Expr *init;
+	};
+
+	VarDecl(std::vector<VarDeclarator> declorators) :
+	    declorators(declorators)
 	{ }
+
 	const char *name() const { return "VarDecl"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	std::string identifier;
-	Expr *init;
+	std::vector<VarDeclarator> declorators;
 };
 
 struct FunctionDecl : public Stmt

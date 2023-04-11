@@ -60,13 +60,16 @@ void Compiler::compile(const BlockStmt &stmt)
 
 void Compiler::compile(const VarDecl &stmt)
 {
-	auto global = parse_variable(stmt.identifier);
-	if (stmt.init)
-		stmt.init->accept(this);
-	else
-		emit_byte(OP_UNDEFINED);
+	for (const auto &declarator : stmt.declorators)
+	{
+		auto global = parse_variable(declarator.identifier);
+		if (declarator.init)
+			declarator.init->accept(this);
+		else
+			emit_byte(OP_UNDEFINED);
 
-	define_variable(global);
+		define_variable(global);
+	}
 }
 
 void Compiler::compile(const ExpressionStmt &stmt)
