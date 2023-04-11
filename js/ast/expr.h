@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../token.h"
-#include "../value.h"
 #include "ast.h"
+#include "token.h"
+#include "value.h"
 #include "visitor.h"
 
 namespace js

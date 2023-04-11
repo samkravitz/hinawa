@@ -4,10 +4,17 @@
 #include "ast/expr.h"
 #include "ast/stmt.h"
 #include "ast/visitor.h"
+#include <fmt/format.h>
 #include <iostream>
 
 namespace js
 {
+void print_indent(int indent)
+{
+	for (int i = 0; i < indent * 2; i++)
+		fmt::print(" ");
+}
+
 class AstPrinter : public PrintVisitor
 {
 public:
@@ -21,8 +28,7 @@ public:
 
 	void visit(const BlockStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 
 		for (auto stmt : node->stmts)
 			stmt->accept(this, indent + 1);
@@ -30,8 +36,7 @@ public:
 
 	void visit(const VarDecl *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 		print_indent(indent + 1);
 		std::cout << node->identifier << "\n";
 
@@ -39,24 +44,17 @@ public:
 			node->init->accept(this, indent + 1);
 	}
 
-	void visit(const EmptyStmt *node, int indent) const
-	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-	}
+	void visit(const EmptyStmt *node, int indent) const { node->print_header(indent); }
 
 	void visit(const IfStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-
+		node->print_header(indent);
 		node->test->accept(this, indent + 1);
 	}
 
 	void visit(const ReturnStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 
 		if (node->expr)
 			node->expr->accept(this, indent + 1);
@@ -64,22 +62,19 @@ public:
 
 	void visit(const ExpressionStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 		node->expr->accept(this, indent + 1);
 	}
 
 	void visit(const FunctionDecl *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << ": " << node->function_name << "\n";
+		node->print_header(indent);
 		node->block->accept(this, indent + 1);
 	}
 
 	void visit(const ForStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << '\n';
+		node->print_header(indent);
 
 		print_indent(indent);
 		std::cout << "initialization: ";
@@ -119,27 +114,17 @@ public:
 
 	void visit(const ThrowStmt *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 		node->expr->accept(this, indent + 1);
 	}
 
-	void visit(const TryStmt *node, int indent) const
-	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-	}
+	void visit(const TryStmt *node, int indent) const { node->print_header(indent); }
 
-	void visit(const UnaryExpr *node, int indent) const
-	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-	}
+	void visit(const UnaryExpr *node, int indent) const { node->print_header(indent); }
 
 	void visit(const UpdateExpr *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << '\n';
+		node->print_header(indent);
 		print_indent(indent);
 		std::cout << "op: " << node->op.value() << '\n';
 		print_indent(indent);
@@ -151,8 +136,7 @@ public:
 
 	void visit(const BinaryExpr *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 
 		node->lhs->accept(this, indent + 1);
 		print_indent(indent + 1);
@@ -162,8 +146,7 @@ public:
 
 	void visit(const AssignmentExpr *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 
 		node->lhs->accept(this, indent + 1);
 		print_indent(indent);
@@ -172,8 +155,7 @@ public:
 
 	void visit(const CallExpr *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 		print_indent(indent);
 		std::cout << "callee: \n";
 		node->callee->accept(this, indent + 1);
@@ -191,8 +173,7 @@ public:
 
 	void visit(const MemberExpr *node, int indent) const
 	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
+		node->print_header(indent);
 		print_indent(indent);
 		std::cout << "object: \n";
 		node->object->accept(this, indent + 1);
@@ -213,23 +194,8 @@ public:
 		std::cout << node->ident << "\n";
 	}
 
-	void visit(const ObjectExpr *node, int indent) const
-	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-	}
+	void visit(const ObjectExpr *node, int indent) const { node->print_header(indent); }
 
-	void visit(const FunctionExpr *node, int indent) const
-	{
-		print_indent(indent);
-		std::cout << node->name() << "\n";
-	}
-
-private:
-	void print_indent(int indent) const
-	{
-		for (int i = 0; i < indent * 2; i++)
-			std::cout << " ";
-	}
+	void visit(const FunctionExpr *node, int indent) const { node->print_header(indent); }
 };
 }

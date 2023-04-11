@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "ast.h"
 #include "expr.h"
 #include "visitor.h"
@@ -12,30 +14,6 @@ struct Stmt : public AstNode
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 	virtual void accept(CompilerVisitor *compiler) const = 0;
 };
-
-//struct Program : public Stmt
-//{
-//public:
-//	void add_stmt(Stmt * stmt) { stmts.push_back(stmt); }
-
-//	const char *name() const { return "Program"; }
-//	void accept(const StmtVisitor *visitor) const { visitor->visit(this); }
-//i
-
-//	std::vector<Stmt *> stmts() const { return stmts; }
-//	void print(int indent, bool is_left)
-//	{
-//		std::cout << prefix;
-//		std::cout << (is_left ? "├──" : "└──");
-//		std::cout << name() << "\n";
-
-//		for (auto stmt : stmts)
-//			stmt->print(prefix + (is_left ? "│   " : "    "), true);
-//	}
-
-//private:
-//	std::vector<Stmt *> stmts;
-//};
 
 struct BlockStmt : public Stmt
 {
@@ -193,22 +171,4 @@ struct TryStmt : public Stmt
 	BlockStmt *finalizer{nullptr};
 	std::optional<std::string> catch_param = {};
 };
-
 }
-//struct TryStmt : public Stmt
-//{
-//public:
-//	const char *name() const { return "TryStmt"; }
-//};
-
-//struct FunctionDeclaration : public AstNode
-//{
-//public:
-//	const char *name() const { return "FunctionDeclaration"; }
-//};
-
-//struct VariableDeclaration : public AstNode
-//{
-//public:
-//	const char *name() const { return "VariableDeclaration"; }
-//};
