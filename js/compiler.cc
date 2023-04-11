@@ -212,6 +212,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
 		identifier = var.ident;
+		value = resolve_local(identifier);
 
 		if (value == RESOLVED_GLOBAL)
 		{
@@ -222,7 +223,6 @@ void Compiler::compile(const AssignmentExpr &expr)
 		else
 		{
 			set_op = OP_SET_LOCAL;
-			value = resolve_local(identifier);
 		}
 	}
 
