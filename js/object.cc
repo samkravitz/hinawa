@@ -45,6 +45,18 @@ bool Object::is_defined(std::string const &key) const
 
 Object *Object::prototype() { return ObjectPrototype::the(); }
 
+Function *Object::as_function()
+{
+	assert(is_function());
+	return static_cast<Function*>(this);
+}
+
+NativeFunction *Object::as_native()
+{
+	assert(is_native());
+	return static_cast<NativeFunction*>(this);
+}
+
 std::string Object::to_string() const
 {
 	std::stringstream stream;

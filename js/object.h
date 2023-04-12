@@ -10,6 +10,8 @@
 namespace js
 {
 class Vm;
+class Function;
+class NativeFunction;
 
 class Object
 {
@@ -24,6 +26,10 @@ public:
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }
+
+	Function *as_function();
+	NativeFunction *as_native();
+
 	virtual std::string to_string() const;
 
 protected:

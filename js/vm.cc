@@ -264,7 +264,7 @@ bool Vm::run(Function f)
 				auto num_args = read_byte();
 				auto callee = peek(num_args);
 
-				if (callee.is_native())
+				if (callee.as_object()->is_native())
 				{
 					int i = num_args;
 					std::vector<Value> argv;
@@ -272,17 +272,17 @@ bool Vm::run(Function f)
 					while (i--)
 						argv.push_back(peek(i));
 
-					auto result = callee.as_native()->call(*this, argv);
+					auto result = callee.as_object()->as_native()->call(*this, argv);
 					for (int i = 0; i < num_args + 1; i++)
 						pop();
 
 					push(result);
 				}
 
-				else if (callee.is_function())
+				else if (callee.as_object()->is_function())
 				{
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
-					auto cf = CallFrame{*callee.as_function(), base};
+					auto cf = CallFrame{*callee.as_object()->as_function(), base};
 					frames.push(cf);
 				}
 
@@ -324,32 +324,32 @@ bool Vm::run(Function f)
 				auto index = pop();
 				auto array_value = pop();
 
-				if (!array_value.is_array())
-				{
-					if (!runtime_error("Error: value is not an array"))
-						return false;
-					break;
-				}
+				// if (!array_value.is_array())
+				// {
+				// 	if (!runtime_error("Error: value is not an array"))
+				// 		return false;
+				// 	break;
+				// }
 
-				auto array = array_value.as_array();
+				// auto array = array_value.as_array();
 
-				if (!index.is_number())
-				{
-					if (!runtime_error("Error: array index is not a number"))
-						return false;
-					break;
-				}
+				// if (!index.is_number())
+				// {
+				// 	if (!runtime_error("Error: array index is not a number"))
+				// 		return false;
+				// 	break;
+				// }
 
-				int idx = (int) index.as_number();
-				if (idx < 0 || idx >= (int) array->size())
-				{
-					if (!runtime_error(
-					        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-						return false;
-					break;
-				}
+				// int idx = (int) index.as_number();
+				// if (idx < 0 || idx >= (int) array->size())
+				// {
+				// 	if (!runtime_error(
+				// 	        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+				// 		return false;
+				// 	break;
+				// }
 
-				push(Value(array->at(idx)));
+				// push(Value(array->at(idx)));
 				break;
 			}
 
@@ -359,32 +359,32 @@ bool Vm::run(Function f)
 				auto index = pop();
 				auto array_value = pop();
 
-				if (!array_value.is_array())
-				{
-					if (!runtime_error("Error: value is not an array"))
-						return false;
-					break;
-				}
+				// if (!array_value.is_array())
+				// {
+				// 	if (!runtime_error("Error: value is not an array"))
+				// 		return false;
+				// 	break;
+				// }
 
-				auto array = array_value.as_array();
+				// auto array = array_value.as_array();
 
-				if (!index.is_number())
-				{
-					if (!runtime_error("Error: array index is not a number"))
-						return false;
-					break;
-				}
+				// if (!index.is_number())
+				// {
+				// 	if (!runtime_error("Error: array index is not a number"))
+				// 		return false;
+				// 	break;
+				// }
 
-				int idx = (int) index.as_number();
-				if (idx < 0 || idx >= (int) array->size())
-				{
-					if (!runtime_error(
-					        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-						return false;
-					break;
-				}
+				// int idx = (int) index.as_number();
+				// if (idx < 0 || idx >= (int) array->size())
+				// {
+				// 	if (!runtime_error(
+				// 	        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+				// 		return false;
+				// 	break;
+				// }
 
-				array->at(idx) = element;
+				//array->at(idx) = element;
 				push(element);
 				break;
 			}
@@ -420,8 +420,8 @@ bool Vm::run(Function f)
 
 				_this = obj;
 				auto val = obj->get(read_string());
-				if (val.is_function())
-					val = Value(new BoundMethod(obj, val.as_function()));
+				if (val.as_object()->is_function())
+					val = Value(new BoundMethod(obj, val.as_object()->as_function()));
 
 				pop();
 				push(val);

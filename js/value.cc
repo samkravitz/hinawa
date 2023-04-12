@@ -31,46 +31,10 @@ bool Value::operator==(const Value &other) const
 	return false;
 }
 
-bool Value::is_function() const
-{
-	return is_object() && as_object()->is_function();
-}
-
-bool Value::is_native() const
-{
-	return is_object() && as_object()->is_native();
-}
-
-Function *Value::as_function() const
-{
-	assert(is_function());
-	return static_cast<Function*>(object);
-}
-
-NativeFunction *Value::as_native() const
-{
-	assert(is_native());
-	return static_cast<NativeFunction*>(object);
-}
-
 std::string Value::to_string() const
 {
 	switch (type())
 	{
-		case Type::Array:
-		{
-			std::stringstream stream;
-			std::vector<Value> vec = *as_array();
-			stream <<  "[";
-			for (uint i = 0; i < vec.size(); i++)
-			{
-				stream << vec[i].to_string();
-				if (i != vec.size() - 1)
-					stream << ", ";
-			}
-			stream << "]";
-			return stream.str();
-		}			
 		case Type::Bool: return as_bool() ? "true" : "false";
 		case Type::Null: return "null";
 		case Type::Number:
