@@ -128,9 +128,8 @@ struct Literal : public Expr
 
 struct Variable : public Expr
 {
-	Variable(std::string ident, bool is_assign) :
-	    ident(ident),
-	    is_assign(is_assign)
+	Variable(std::string ident) :
+	    ident(ident)
 	{ }
 
 	const char *name() const { return "Variable"; }
@@ -139,7 +138,6 @@ struct Variable : public Expr
 	bool is_variable() const { return true; }
 
 	std::string ident;
-	bool is_assign{false};
 };
 
 struct ObjectExpr : public Expr

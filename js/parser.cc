@@ -463,7 +463,7 @@ Expr *Parser::update(Expr *left)
 
 Expr *Parser::variable()
 {
-	return new Variable(previous.value(), check_any({EQUAL, PLUS_PLUS, MINUS_MINUS}));
+	return new Variable(previous.value());
 }
 
 Expr *Parser::parse_precedence(Precedence precedence)
