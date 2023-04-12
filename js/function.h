@@ -93,4 +93,17 @@ public:
 private:
 	std::function<Value(Vm &, std::vector<Value>)> fn;
 };
+
+struct BoundMethod final : public Object
+{
+	BoundMethod(Object *receiver, Function *method) :
+	    receiver(receiver),
+	    method(method)
+	{ }
+
+	bool is_bound_method() const { return true; }
+
+	Object *receiver;
+	Function *method;
+};
 }

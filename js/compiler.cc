@@ -21,7 +21,7 @@ void Compiler::init_compiler(FunctionCompiler *compiler)
 	compiler->enclosing = current;
 	current = compiler;
 
-	current->locals.push_back({"", 0});
+	current->locals.push_back({"this", -1});
 }
 
 void Compiler::end_compiler()

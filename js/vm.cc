@@ -286,6 +286,19 @@ bool Vm::run(Function f)
 					frames.push(cf);
 				}
 
+				else if (callee.is_object())
+				{
+					Object *obj = callee.as_object();
+					if (obj->is_bound_method())
+					{
+						BoundMethod *bound = static_cast<BoundMethod*>(obj);
+						auto base = static_cast<uint>(stack.size() - num_args - 1);
+						auto cf = CallFrame{*bound->method, base};
+						frames.push(cf);
+						stack[base] = Value(bound->receiver);
+					}
+				}
+
 				else
 				{
 					assert(!"Tried to call an uncallable object");
@@ -407,6 +420,9 @@ bool Vm::run(Function f)
 
 				_this = obj;
 				auto val = obj->get(read_string());
+				if (val.is_function())
+					val = Value(new BoundMethod(obj, val.as_function()));
+
 				pop();
 				push(val);
 				break;
