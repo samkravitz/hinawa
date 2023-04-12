@@ -19,15 +19,8 @@ struct Local
 	    depth{depth}
 	{ }
 
-	Local(const std::string &name, int depth, size_t reg) :
-	    name{name},
-	    depth{depth},
-	    reg{reg}
-	{ }
-
 	std::string name;
 	int depth;
-	size_t reg;
 };
 
 enum FunctionType

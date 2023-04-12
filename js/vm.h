@@ -35,7 +35,6 @@ struct CallFrame
 	Function function;
 	uint ip{0};
 	uint base{0};
-	int return_reg{-1};
 };
 
 class Vm
@@ -55,8 +54,6 @@ private:
 	std::vector<Value> stack;
 	std::vector<uint> catchv;
 	std::stack<CallFrame> frames;
-
-	Value &reg(int i);
 
 	void push(Value);
 	Value pop();
