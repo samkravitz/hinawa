@@ -291,7 +291,7 @@ bool Vm::run(Function f)
 					Object *obj = callee.as_object();
 					if (obj->is_bound_method())
 					{
-						BoundMethod *bound = static_cast<BoundMethod*>(obj);
+						BoundMethod *bound = static_cast<BoundMethod *>(obj);
 						auto base = static_cast<uint>(stack.size() - num_args - 1);
 						auto cf = CallFrame{*bound->method, base};
 						frames.push(cf);
@@ -467,20 +467,45 @@ bool Vm::run(Function f)
 			case OP_PUSH_EXCEPTION:
 			{
 				auto offset = read_short();
-				catchv.push_back(offset);
+				frames.top().catchv.push_back({frames.top().ip + offset, stack.size()});
 				break;
 			}
 
 			case OP_POP_EXCEPTION:
 			{
-				assert(!catchv.empty());
-				catchv.pop_back();
+				assert(!frames.top().catchv.empty());
+				frames.top().catchv.pop_back();
 				break;
 			}
 
 			case OP_THROW:
 			{
-				pop();
+				bool caught = false;
+				auto val = pop();
+				while (!frames.empty())
+				{
+					auto &frame = frames.top();
+
+					if (frame.catchv.empty())
+					{
+						frames.pop();
+						continue;
+					}
+
+					auto catch_env = frame.catchv.back();
+					assert(catch_env.sp < stack.size());
+					while (stack.size() != catch_env.sp)
+						pop();
+
+					frame.ip = catch_env.ip;
+					caught = true;
+					break;
+				}
+
+				if (!caught)
+					fmt::print(stderr, "Uncaught Exception!\n");
+
+				push(val);
 				break;
 			}
 
@@ -625,7 +650,7 @@ std::string Vm::read_string()
 
 bool Vm::runtime_error(std::string const &msg)
 {
-	if (catchv.empty())
+	if (frames.top().catchv.empty())
 	{
 		auto ip = frames.top().ip;
 		auto line = frames.top().function.chunk.lines[ip - 1];
@@ -633,7 +658,7 @@ bool Vm::runtime_error(std::string const &msg)
 		return false;
 	}
 
-	auto ip = catchv.back();
+	auto ip = frames.top().catchv.back().ip;
 	frames.top().ip = ip;
 	return true;
 }

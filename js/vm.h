@@ -35,6 +35,14 @@ struct CallFrame
 	Function function;
 	uint ip{0};
 	uint base{0};
+	
+	struct CatchEnv
+	{
+		unsigned ip;
+		size_t sp;
+	};
+
+	std::vector<CatchEnv> catchv;
 };
 
 class Vm
@@ -52,7 +60,6 @@ private:
 	Object *_this = nullptr;
 
 	std::vector<Value> stack;
-	std::vector<uint> catchv;
 	std::stack<CallFrame> frames;
 
 	void push(Value);

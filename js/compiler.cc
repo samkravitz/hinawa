@@ -174,6 +174,7 @@ void Compiler::compile(const TryStmt &stmt)
 	int catch_jump = emit_jump(OP_PUSH_EXCEPTION);
 	stmt.block->accept(this);
 	int finally_jump = emit_jump(OP_JUMP);
+	patch_jump(catch_jump);
 
 	if (stmt.handler)
 	{
@@ -188,7 +189,6 @@ void Compiler::compile(const TryStmt &stmt)
 		end_scope();
 	}
 
-	patch_jump(catch_jump);
 	emit_byte(OP_POP_EXCEPTION);
 	patch_jump(finally_jump);
 
