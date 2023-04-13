@@ -292,10 +292,27 @@ bool Vm::run(Function f)
 					if (obj->is_bound_method())
 					{
 						BoundMethod *bound = static_cast<BoundMethod *>(obj);
-						auto base = static_cast<uint>(stack.size() - num_args - 1);
-						auto cf = CallFrame{*bound->method, base};
-						frames.push(cf);
-						stack[base] = Value(bound->receiver);
+						if (bound->method->is_native())
+						{
+							int i = num_args;
+							std::vector<Value> argv;
+
+							while (i--)
+								argv.push_back(peek(i));
+
+							auto result = bound->method->as_native()->call(*this, argv);
+							for (int i = 0; i < num_args + 1; i++)
+								pop();
+
+							push(result);
+						}
+						else
+						{
+							auto base = static_cast<uint>(stack.size() - num_args - 1);
+							auto cf = CallFrame{*bound->method, base};
+							frames.push(cf);
+							stack[base] = Value(bound->receiver);
+						}
 					}
 				}
 
@@ -420,7 +437,7 @@ bool Vm::run(Function f)
 
 				_this = obj;
 				auto val = obj->get(read_string());
-				if (val.as_object()->is_function())
+				if (val.is_object() && val.as_object()->is_function())
 					val = Value(new BoundMethod(obj, val.as_object()->as_function()));
 
 				pop();
