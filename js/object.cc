@@ -1,5 +1,6 @@
 #include "object.h"
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -25,7 +26,7 @@ Value Object::get(std::string const &key)
 	}
 
 	// key not found anywhere in chain, return undefined
-	return Value();
+	return {};
 }
 
 void Object::set(std::string key, Value value)
