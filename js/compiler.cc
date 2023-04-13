@@ -184,6 +184,8 @@ void Compiler::compile(const TryStmt &stmt)
 			auto constant = parse_variable(*stmt.catch_param);
 			define_variable(constant);
 		}
+		else
+			emit_byte(OP_POP);
 
 		stmt.handler->accept(this);
 		end_scope();
