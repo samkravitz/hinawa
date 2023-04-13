@@ -264,55 +264,39 @@ bool Vm::run(Function f)
 				auto num_args = read_byte();
 				auto callee = peek(num_args);
 
-				if (callee.as_object()->is_native())
-				{
-					int i = num_args;
-					std::vector<Value> argv;
-
-					while (i--)
-						argv.push_back(peek(i));
-
-					auto result = callee.as_object()->as_native()->call(*this, argv);
-					for (int i = 0; i < num_args + 1; i++)
-						pop();
-
-					push(result);
-				}
-
-				else if (callee.as_object()->is_function())
-				{
-					auto base = static_cast<uint>(stack.size() - num_args - 1);
-					auto cf = CallFrame{*callee.as_object()->as_function(), base};
-					frames.push(cf);
-				}
-
-				else if (callee.is_object())
+				if (callee.is_object())
 				{
 					Object *obj = callee.as_object();
+					Object *method = obj, *receiver = obj;
+
 					if (obj->is_bound_method())
 					{
-						BoundMethod *bound = static_cast<BoundMethod *>(obj);
-						if (bound->method->is_native())
-						{
-							int i = num_args;
-							std::vector<Value> argv;
+						auto *bound = static_cast<BoundMethod *>(obj);
+						method = bound->method;
+						receiver = bound->receiver;
+					}
 
-							while (i--)
-								argv.push_back(peek(i));
+					if (method->is_native())
+					{
+						int i = num_args;
+						std::vector<Value> argv;
 
-							auto result = bound->method->as_native()->call(*this, argv);
-							for (int i = 0; i < num_args + 1; i++)
-								pop();
+						while (i--)
+							argv.push_back(peek(i));
 
-							push(result);
-						}
-						else
-						{
-							auto base = static_cast<uint>(stack.size() - num_args - 1);
-							auto cf = CallFrame{*bound->method, base};
-							frames.push(cf);
-							stack[base] = Value(bound->receiver);
-						}
+						auto result = method->as_native()->call(*this, argv);
+						for (int i = 0; i < num_args + 1; i++)
+							pop();
+
+						push(result);
+					}
+
+					else
+					{
+						auto base = static_cast<uint>(stack.size() - num_args - 1);
+						auto cf = CallFrame{*method->as_function(), base};
+						frames.push(cf);
+						stack[base] = Value(receiver);
 					}
 				}
 
