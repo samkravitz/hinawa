@@ -7,6 +7,7 @@ endif()
 set(SOURCES
 	chunk.cc
 	compiler.cc
+	heap.cc
 	object_string.cc
 	object.cc
 	parser.cc
@@ -25,6 +26,7 @@ set(HEADERS
 	chunk.h
 	compiler.h
 	function.h
+	heap.h
 	object_string.h
 	object.h
 	opcode.h
