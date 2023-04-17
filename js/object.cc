@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "array.h"
 #include "function.h"
 #include "vm.h"
 
@@ -62,6 +63,12 @@ Closure *Object::as_closure()
 {
 	assert(is_closure());
 	return static_cast<Closure*>(this);
+}
+
+Array *Object::as_array()
+{
+	assert(is_array());
+	return static_cast<Array*>(this);
 }
 
 std::string Object::to_string() const

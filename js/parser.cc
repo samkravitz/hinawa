@@ -339,7 +339,24 @@ Expr *Parser::anonymous()
 
 Expr *Parser::array()
 {
-	return nullptr;
+	std::vector<Expr*> elements;
+	if (!check(RIGHT_BRACKET))
+	{
+		do
+		{
+			if (elements.size() > 0xff)
+				fmt::print(stderr, "Can't have more than 255 elements in an array expression\n");
+			
+			auto *expr = expression();
+			if (!expr)
+				fmt::print(stderr, "Expected expression\n");
+			
+			elements.push_back(expr);
+		} while (match(COMMA));
+	}
+	consume(RIGHT_BRACKET, "Expect ']' after array expression");
+
+	return new ArrayExpr(elements);
 }
 
 Expr *Parser::assign(Expr *left)
@@ -376,8 +393,7 @@ Expr *Parser::call(Expr *left)
 Expr *Parser::dot(Expr *left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
-	auto property_name = previous.value();
-	return new MemberExpr(left, property_name);
+	return new MemberExpr(left, new Literal(previous));
 }
 
 Expr *Parser::grouping()
@@ -442,7 +458,9 @@ Expr *Parser::string()
 
 Expr *Parser::subscript(Expr *left)
 {
-	return nullptr;
+	auto *expr = expression();
+	consume(RIGHT_BRACKET, "Expect ']' after subscript");
+	return new MemberExpr(left, expr);
 }
 
 Expr *Parser::unary()

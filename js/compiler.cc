@@ -276,10 +276,10 @@ void Compiler::compile(const BinaryExpr &expr)
 void Compiler::compile(const AssignmentExpr &expr)
 {
 	std::string identifier;
-	Opcode set_op{};
 	int value{};
 	if (expr.lhs->is_variable())
 	{
+		Opcode set_op{};
 		auto &var = static_cast<Variable &>(*expr.lhs);
 		identifier = var.ident;
 		value = resolve_local(current, identifier);
@@ -299,24 +299,51 @@ void Compiler::compile(const AssignmentExpr &expr)
 			set_op = OP_SET_GLOBAL;
 			value = make_constant(Value(new std::string(identifier)));
 		}
+
+		expr.rhs->accept(this);
+		emit_bytes(set_op, value);
+		return;
 	}
 
 	else if (expr.lhs->is_member_expr())
 	{
 		auto &member = static_cast<MemberExpr &>(*expr.lhs);
-		identifier = member.property_name;
 		member.object->accept(this);
-		value = make_constant(Value(new std::string(identifier)));
-		set_op = OP_SET_PROPERTY;
+		if (member.property->is_literal())
+		{
+			auto &literal = static_cast<Literal &>(*member.property);
+
+			if (literal.token.type() == IDENTIFIER)
+			{
+				identifier = literal.token.value();
+				value = make_constant(Value(new std::string(identifier)));
+				expr.rhs->accept(this);
+				emit_bytes(OP_SET_PROPERTY, value);
+				return;
+			}
+
+			else
+			{
+				member.property->accept(this);
+				expr.rhs->accept(this);
+				emit_byte(OP_SET_SUBSCRIPT);
+				return;
+			}
+		}
+
+		else
+		{
+			member.property->accept(this);
+			expr.rhs->accept(this);
+			emit_byte(OP_SET_SUBSCRIPT);
+			return;
+		}
 	}
 
 	else
 	{
 		assert(!"AssignmentExpr lhs is not variable or member expression\n");
 	}
-
-	expr.rhs->accept(this);
-	emit_bytes(set_op, value);
 }
 
 void Compiler::compile(const CallExpr &expr)
@@ -331,8 +358,20 @@ void Compiler::compile(const CallExpr &expr)
 void Compiler::compile(const MemberExpr &expr)
 {
 	expr.object->accept(this);
-	auto constant = make_constant(Value(new std::string(expr.property_name)));
-	emit_bytes(OP_GET_PROPERTY, constant);
+	if (expr.property->is_literal())
+	{
+		auto &literal = static_cast<Literal &>(*expr.property);
+		assert(literal.token.type() == IDENTIFIER);
+		auto identifier = literal.token.value();
+		auto constant = make_constant(Value(new std::string(identifier)));
+		emit_bytes(OP_GET_PROPERTY, constant);
+	}
+
+	else
+	{
+		expr.property->accept(this);
+		emit_byte(OP_GET_SUBSCRIPT);
+	}
 }
 
 void Compiler::compile(const Literal &expr)
@@ -437,6 +476,14 @@ void Compiler::compile(const NewExpr &expr)
 		ex->accept(this);
 
 	emit_bytes(OP_CALL, expr.params.size());
+}
+
+void Compiler::compile(const ArrayExpr &expr)
+{
+	for (auto *element : expr.elements)
+		element->accept(this);
+
+	emit_bytes(OP_NEW_ARRAY, expr.elements.size());
 }
 
 size_t Compiler::make_constant(Value value)

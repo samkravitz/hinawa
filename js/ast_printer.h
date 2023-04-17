@@ -189,7 +189,9 @@ public:
 		node->object->accept(this, indent + 1);
 
 		print_indent(indent);
-		std::cout << "property_name: " << node->property_name << '\n';
+		fmt::print("property:\n");
+		print_indent(indent);
+		node->property->accept(this, indent);
 	}
 
 	void visit(const Literal *node, int indent) const
@@ -225,6 +227,20 @@ public:
 			fmt::print("params:\n");
 
 			for (auto *arg : node->params)
+				arg->accept(this, indent + 1);
+		}
+	}
+
+	void visit(const ArrayExpr *node, int indent) const
+	{
+		node->print_header(indent);
+		print_indent(indent);
+		if (!node->elements.empty())
+		{
+			print_indent(indent);
+			fmt::print("elements:\n");
+
+			for (auto *arg : node->elements)
 				arg->accept(this, indent + 1);
 		}
 	}

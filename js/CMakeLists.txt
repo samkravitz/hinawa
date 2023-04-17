@@ -23,6 +23,7 @@ set(HEADERS
 	ast/stmt.h
 	ast/visitor.h
 
+	array.h
 	chunk.h
 	compiler.h
 	function.h

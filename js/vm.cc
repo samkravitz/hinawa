@@ -7,6 +7,7 @@
 
 #include <fmt/format.h>
 
+#include "array.h"
 #include "chunk.h"
 #include "object.h"
 #include "object_string.h"
@@ -324,12 +325,18 @@ bool Vm::run(Function f)
 			case OP_NEW_ARRAY:
 			{
 				auto num_elements = read_byte();
-				std::vector<Value> *array = new std::vector<Value>;
+				std::vector<Value> array;
 				while (num_elements--)
-					array->push_back(pop());
+					array.push_back(peek(num_elements));
 
-				std::reverse(array->begin(), array->end());
-				push(Value(array));
+				for (const auto &element : array)
+				{
+					std::ignore = element;
+					pop();
+				}
+
+				//std::reverse(array->begin(), array->end());
+				push(Value(new Array(array)));
 				break;
 			}
 
@@ -338,32 +345,32 @@ bool Vm::run(Function f)
 				auto index = pop();
 				auto array_value = pop();
 
-				// if (!array_value.is_array())
-				// {
-				// 	if (!runtime_error("Error: value is not an array"))
-				// 		return false;
-				// 	break;
-				// }
+				if (!array_value.is_object() || !array_value.as_object()->is_array())
+				{
+					if (!runtime_error("Error: value is not an array"))
+						return false;
+					break;
+				}
 
-				// auto array = array_value.as_array();
+				auto array = array_value.as_object()->as_array();
 
-				// if (!index.is_number())
-				// {
-				// 	if (!runtime_error("Error: array index is not a number"))
-				// 		return false;
-				// 	break;
-				// }
+				if (!index.is_number())
+				{
+					if (!runtime_error("Error: array index is not a number"))
+						return false;
+					break;
+				}
 
-				// int idx = (int) index.as_number();
-				// if (idx < 0 || idx >= (int) array->size())
-				// {
-				// 	if (!runtime_error(
-				// 	        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-				// 		return false;
-				// 	break;
-				// }
+				int idx = (int) index.as_number();
+				if (idx < 0 || idx >= (int) array->size())
+				{
+					if (!runtime_error(
+					        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+						return false;
+					break;
+				}
 
-				// push(Value(array->at(idx)));
+				push(Value(array->at(idx)));
 				break;
 			}
 
@@ -373,32 +380,32 @@ bool Vm::run(Function f)
 				auto index = pop();
 				auto array_value = pop();
 
-				// if (!array_value.is_array())
-				// {
-				// 	if (!runtime_error("Error: value is not an array"))
-				// 		return false;
-				// 	break;
-				// }
+				if (!array_value.is_object() || !array_value.as_object()->is_array())
+				{
+					if (!runtime_error("Error: value is not an array"))
+						return false;
+					break;
+				}
 
-				// auto array = array_value.as_array();
+				auto array = array_value.as_object()->as_array();
 
-				// if (!index.is_number())
-				// {
-				// 	if (!runtime_error("Error: array index is not a number"))
-				// 		return false;
-				// 	break;
-				// }
+				if (!index.is_number())
+				{
+					if (!runtime_error("Error: array index is not a number"))
+						return false;
+					break;
+				}
 
-				// int idx = (int) index.as_number();
-				// if (idx < 0 || idx >= (int) array->size())
-				// {
-				// 	if (!runtime_error(
-				// 	        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-				// 		return false;
-				// 	break;
-				// }
+				int idx = (int) index.as_number();
+				if (idx < 0 || idx >= (int) array->size())
+				{
+					if (!runtime_error(
+					        fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+						return false;
+					break;
+				}
 
-				//array->at(idx) = element;
+				array->at(idx) = element;
 				push(element);
 				break;
 			}

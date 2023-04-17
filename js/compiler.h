@@ -73,6 +73,7 @@ private:
 	void compile(const ObjectExpr &);
 	void compile(const FunctionExpr &);
 	void compile(const NewExpr &);
+	void compile(const ArrayExpr &);
 
 	size_t make_constant(Value);
 	void emit_byte(u8);

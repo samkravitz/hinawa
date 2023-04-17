@@ -16,6 +16,7 @@ public:
 	virtual void accept(CompilerVisitor *compiler) const = 0;
 	virtual bool is_variable() const { return false; }
 	virtual bool is_member_expr() const { return false; }
+	virtual bool is_literal() const { return false; }
 };
 
 struct UnaryExpr : public Expr
@@ -99,9 +100,9 @@ struct CallExpr : public Expr
 
 struct MemberExpr : public Expr
 {
-	MemberExpr(Expr *object, std::string property_name) :
+	MemberExpr(Expr *object, Expr *property) :
 	    object(object),
-	    property_name(property_name)
+	    property(property)
 	{ }
 
 	const char *name() const { return "MemberExpr"; }
@@ -110,7 +111,7 @@ struct MemberExpr : public Expr
 	bool is_member_expr() const { return true; }
 
 	Expr *object;
-	std::string property_name;
+	Expr *property;
 };
 
 struct Literal : public Expr
@@ -122,6 +123,7 @@ struct Literal : public Expr
 	const char *name() const { return "Literal"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	bool is_literal() const { return true; }
 
 	Token token;
 };
@@ -181,5 +183,18 @@ struct NewExpr : public Expr
 
 	Expr *callee;
 	std::vector<Expr *> params;
+};
+
+struct ArrayExpr : public Expr
+{
+	ArrayExpr(std::vector<Expr *> elements) :
+	    elements(elements)
+	{ }
+
+	const char *name() const { return "ArrayExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::vector<Expr *> elements;
 };
 }

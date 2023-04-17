@@ -13,6 +13,7 @@ class Vm;
 class Function;
 class NativeFunction;
 class Closure;
+class Array;
 
 class Object
 {
@@ -28,10 +29,12 @@ public:
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }
 	virtual bool is_closure() const { return false; }
+	virtual bool is_array() const { return false; }
 
 	Function *as_function();
 	NativeFunction *as_native();
 	Closure *as_closure();
+	Array *as_array();
 
 	virtual std::string to_string() const;
 
