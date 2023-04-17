@@ -12,6 +12,7 @@ namespace js
 class Vm;
 class Function;
 class NativeFunction;
+class Closure;
 
 class Object
 {
@@ -26,9 +27,11 @@ public:
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }
+	virtual bool is_closure() const { return false; }
 
 	Function *as_function();
 	NativeFunction *as_native();
+	Closure *as_closure();
 
 	virtual std::string to_string() const;
 

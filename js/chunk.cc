@@ -121,6 +121,12 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_POP_EXCEPTION", offset);
 		case OP_THROW:
 			return simple_instruction("OP_THROW", offset);
+		case OP_CLOSURE:
+		{
+			auto constant = code[offset + 1];
+			fmt::print("{:16} {:4} {}\n", "OP_CLOSURE", constant, constants[constant].to_string());
+			return offset + 2;
+		}
 		default:
 			fmt::print("Unknown opcode: {}\n", instruction);
 			return offset + 1;

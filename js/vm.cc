@@ -61,9 +61,12 @@ Vm::Vm(bool headless)
 
 bool Vm::run(Function f)
 {
-	auto cf = CallFrame{f, 0};
-	frames.push(cf);
 	push(Value(&f));
+	auto *closure = new Closure(&f);
+	auto cf = CallFrame{closure, 0};
+	frames.push(cf);
+	pop();
+	push(Value(closure));
 
 	while (1)
 	{
@@ -269,6 +272,16 @@ bool Vm::run(Function f)
 					Object *obj = callee.as_object();
 					Object *method = obj, *receiver = obj;
 
+					if (obj->is_closure())
+					{
+						auto *closure = obj->as_closure();
+						auto base = static_cast<uint>(stack.size() - num_args - 1);
+						auto cf = CallFrame{closure, base};
+						frames.push(cf);
+						//stack[base] = Value(receiver);
+						break;
+					}
+
 					if (obj->is_bound_method())
 					{
 						auto *bound = static_cast<BoundMethod *>(obj);
@@ -294,7 +307,7 @@ bool Vm::run(Function f)
 					else
 					{
 						auto base = static_cast<uint>(stack.size() - num_args - 1);
-						auto cf = CallFrame{*method->as_function(), base};
+						auto cf = CallFrame{method->as_closure(), base};
 						frames.push(cf);
 						stack[base] = Value(receiver);
 					}
@@ -422,7 +435,7 @@ bool Vm::run(Function f)
 				_this = obj;
 				auto val = obj->get(read_string());
 				if (val.is_object() && val.as_object()->is_function())
-					val = Value(new BoundMethod(obj, val.as_object()->as_function()));
+					val = Value(new BoundMethod(obj, val.as_object()->as_closure()));
 
 				pop();
 				push(val);
@@ -507,6 +520,14 @@ bool Vm::run(Function f)
 					fmt::print(stderr, "Uncaught Exception!\n");
 
 				push(val);
+				break;
+			}
+
+			case OP_CLOSURE:
+			{
+				auto *function = read_constant().as_object()->as_function();
+				auto *closure = new Closure(function);
+				push(Value(closure));
 				break;
 			}
 
@@ -620,7 +641,7 @@ void Vm::binary_op(Operator op)
 u8 Vm::read_byte()
 {
 	auto ip = frames.top().ip;
-	auto byte = frames.top().function.chunk.code[ip];
+	auto byte = frames.top().closure->function->chunk.code[ip];
 	frames.top().ip += 1;
 	return byte;
 }
@@ -628,8 +649,8 @@ u8 Vm::read_byte()
 u16 Vm::read_short()
 {
 	auto ip = frames.top().ip;
-	auto a = frames.top().function.chunk.code[ip];
-	auto b = frames.top().function.chunk.code[ip + 1];
+	auto a = frames.top().closure->function->chunk.code[ip];
+	auto b = frames.top().closure->function->chunk.code[ip + 1];
 	frames.top().ip += 2;
 
 	return (a << 8) | b;
@@ -638,7 +659,7 @@ u16 Vm::read_short()
 Value Vm::read_constant()
 {
 	auto byte = read_byte();
-	return frames.top().function.chunk.constants[byte];
+	return frames.top().closure->function->chunk.constants[byte];
 }
 
 std::string Vm::read_string()
@@ -654,7 +675,7 @@ bool Vm::runtime_error(std::string const &msg)
 	if (frames.top().catchv.empty())
 	{
 		auto ip = frames.top().ip;
-		auto line = frames.top().function.chunk.lines[ip - 1];
+		auto line = frames.top().closure->function->chunk.lines[ip - 1];
 		fmt::print("[line {}] Uncaught {}\n", line, msg);
 		return false;
 	}

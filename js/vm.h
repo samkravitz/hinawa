@@ -27,15 +27,15 @@ enum class Operator
 
 struct CallFrame
 {
-	CallFrame(Function f, uint base) :
-	    function(f),
+	CallFrame(Closure *closure, uint base) :
+	    closure(closure),
 	    base(base)
 	{ }
 
-	Function function;
+	Closure *closure;
 	uint ip{0};
 	uint base{0};
-	
+
 	struct CatchEnv
 	{
 		unsigned ip;

@@ -30,5 +30,5 @@ int main(int argc, char **argv)
 	js::Compiler compiler{stmts};
 	auto fn = compiler.compile();
 	js::Vm vm{};
-	vm.run(fn);
+	vm.run(std::move(fn));
 }

@@ -147,7 +147,7 @@ void Compiler::compile(const FunctionDecl &stmt)
 
 	stmt.block->accept(this);
 	end_compiler();
-	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
+	emit_bytes(OP_CLOSURE, make_constant(Value(new Function(function))));
 	define_variable(global);
 }
 
@@ -402,7 +402,7 @@ void Compiler::compile(const FunctionExpr &expr)
 
 	expr.body->accept(this);
 	end_compiler();
-	emit_bytes(OP_CONSTANT, make_constant(Value(new Function(function))));
+	emit_bytes(OP_CLOSURE, make_constant(Value(new Function(function))));
 }
 
 void Compiler::compile(const NewExpr &expr)

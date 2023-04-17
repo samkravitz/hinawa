@@ -58,6 +58,12 @@ NativeFunction *Object::as_native()
 	return static_cast<NativeFunction*>(this);
 }
 
+Closure *Object::as_closure()
+{
+	assert(is_closure());
+	return static_cast<Closure*>(this);
+}
+
 std::string Object::to_string() const
 {
 	std::stringstream stream;

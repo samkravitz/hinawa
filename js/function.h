@@ -89,7 +89,7 @@ private:
 
 struct BoundMethod final : public Object
 {
-	BoundMethod(Object *receiver, Function *method) :
+	BoundMethod(Object *receiver, Closure *method) :
 	    receiver(receiver),
 	    method(method)
 	{ }
@@ -97,6 +97,18 @@ struct BoundMethod final : public Object
 	bool is_bound_method() const { return true; }
 
 	Object *receiver;
-	Function *method;
+	Closure *method;
+};
+
+struct Closure final : public Object
+{
+	Closure(Function *function) :
+	    function(function)
+	{ }
+
+	Function *function;
+
+	bool is_closure() const { return true; }
+	std::string to_string() const { return function->to_string(); }
 };
 }

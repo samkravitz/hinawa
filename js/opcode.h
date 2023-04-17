@@ -48,5 +48,6 @@ enum Opcode : u8
 	OP_PUSH_EXCEPTION,
 	OP_POP_EXCEPTION,
 	OP_THROW,
+	OP_CLOSURE,
 };
 }
