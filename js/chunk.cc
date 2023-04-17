@@ -6,6 +6,7 @@
 
 #include "opcode.h"
 #include "value.h"
+#include "function.h"
 
 namespace js
 {
@@ -121,11 +122,24 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_POP_EXCEPTION", offset);
 		case OP_THROW:
 			return simple_instruction("OP_THROW", offset);
+		case OP_GET_UPVALUE:
+			return byte_instruction("OP_GET_UPVALUE", offset);
+		case OP_SET_UPVALUE:
+			return byte_instruction("OP_SET_UPVALUE", offset);
 		case OP_CLOSURE:
 		{
-			auto constant = code[offset + 1];
+			offset++;
+			auto constant = code[offset++];
 			fmt::print("{:16} {:4} {}\n", "OP_CLOSURE", constant, constants[constant].to_string());
-			return offset + 2;
+			auto *function = constants[constant].as_object()->as_function();
+			for (int i = 0;i < function->upvalue_count; i++)
+			{
+				int is_local = code[offset++];
+				int index = code[offset++];
+				fmt::print("{:4} | {} {}\n", offset - 2, is_local ? "local" : "upvalue", index);
+			}
+
+			return offset;
 		}
 		default:
 			fmt::print("Unknown opcode: {}\n", instruction);

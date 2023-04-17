@@ -528,6 +528,30 @@ bool Vm::run(Function f)
 				auto *function = read_constant().as_object()->as_function();
 				auto *closure = new Closure(function);
 				push(Value(closure));
+
+				for (int i = 0; i < function->upvalue_count; i++)
+				{
+					auto index = read_byte();
+					auto is_local = read_byte();
+					if (is_local)
+						closure->upvalues.push_back(capture_upvalue(&stack[frames.top().base + index]));
+					else
+						closure->upvalues.push_back(frames.top().closure->upvalues[index]);
+				}
+				break;
+			}
+
+			case OP_GET_UPVALUE:
+			{
+				auto slot = read_byte();
+				push(*frames.top().closure->upvalues[slot]->location);
+				break;
+			}
+
+			case OP_SET_UPVALUE:
+			{
+				auto slot = read_byte();
+				*frames.top().closure->upvalues[slot]->location = peek();
 				break;
 			}
 
@@ -668,6 +692,11 @@ std::string Vm::read_string()
 	assert(constant.is_string());
 	auto str = *constant.as_string();
 	return *constant.as_string();
+}
+
+Upvalue *Vm::capture_upvalue(Value *local)
+{
+	return new Upvalue(local);
 }
 
 bool Vm::runtime_error(std::string const &msg)

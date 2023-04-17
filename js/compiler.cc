@@ -147,7 +147,15 @@ void Compiler::compile(const FunctionDecl &stmt)
 
 	stmt.block->accept(this);
 	end_compiler();
+	function.upvalue_count = compiler.upvalue_count();
 	emit_bytes(OP_CLOSURE, make_constant(Value(new Function(function))));
+
+	for (const auto &upvalue : compiler.upvalues)
+	{
+		emit_byte(upvalue.is_local ? 1 : 0);
+		emit_byte(upvalue.index);
+	}
+
 	define_variable(global);
 }
 
@@ -274,17 +282,22 @@ void Compiler::compile(const AssignmentExpr &expr)
 	{
 		auto &var = static_cast<Variable &>(*expr.lhs);
 		identifier = var.ident;
-		value = resolve_local(identifier);
+		value = resolve_local(current, identifier);
 
-		if (value == RESOLVED_GLOBAL)
+		if (value != RESOLVED_GLOBAL)
 		{
-			set_op = OP_SET_GLOBAL;
-			value = make_constant(Value(new std::string(identifier)));
+			set_op = OP_SET_LOCAL;
+		}
+
+		else if ((value = resolve_upvalue(current, identifier)) != -1)
+		{
+			set_op = OP_SET_UPVALUE;
 		}
 
 		else
 		{
-			set_op = OP_SET_LOCAL;
+			set_op = OP_SET_GLOBAL;
+			value = make_constant(Value(new std::string(identifier)));
 		}
 	}
 
@@ -360,17 +373,22 @@ void Compiler::compile(const Variable &expr)
 	auto identifier = expr.ident;
 
 	Opcode get_op;
-	int value = resolve_local(identifier);
+	int value = resolve_local(current, identifier);
 
-	if (value == RESOLVED_GLOBAL)
+	if (value != RESOLVED_GLOBAL)
 	{
-		get_op = OP_GET_GLOBAL;
-		value = make_constant(Value(new std::string(identifier)));
+		get_op = OP_GET_LOCAL;
+	}
+
+	else if ((value = resolve_upvalue(current, identifier)) != -1)
+	{
+		get_op = OP_GET_UPVALUE;
 	}
 
 	else
 	{
-		get_op = OP_GET_LOCAL;
+		get_op = OP_GET_GLOBAL;
+		value = make_constant(Value(new std::string(identifier)));
 	}
 
 	emit_bytes(get_op, value);
@@ -402,7 +420,14 @@ void Compiler::compile(const FunctionExpr &expr)
 
 	expr.body->accept(this);
 	end_compiler();
+	function.upvalue_count = compiler.upvalue_count();
 	emit_bytes(OP_CLOSURE, make_constant(Value(new Function(function))));
+
+	for (const auto &upvalue : compiler.upvalues)
+	{
+		emit_byte(upvalue.is_local ? 1 : 0);
+		emit_byte(upvalue.index);
+	}
 }
 
 void Compiler::compile(const NewExpr &expr)
@@ -539,18 +564,47 @@ void Compiler::declare_local(const std::string &name)
 	current->locals.push_back({name, current->scope_depth});
 }
 
-int Compiler::resolve_local(const std::string &name)
+int Compiler::resolve_local(FunctionCompiler *compiler, const std::string &name)
 {
-	auto local_count = current->local_count();
+	auto local_count = compiler->local_count();
 	// Using C++20 ranges: iterate backwards
 	// for (auto &local : current->locals | std::ranges::views::reverse)
 	for (int i = local_count - 1; i >= 0; i--)
 	{
-		auto local = current->locals[i];
+		auto local = compiler->locals[i];
 		if (name == local.name)
 			return i;
 	}
 	return RESOLVED_GLOBAL;
+}
+
+int Compiler::resolve_upvalue(FunctionCompiler *compiler, const std::string &name)
+{
+	if (!compiler->enclosing)
+		return -1;
+
+	int local = resolve_local(compiler->enclosing, name);
+	if (local != -1)
+		return add_upvalue(compiler, local, true);
+
+	int upvalue = resolve_upvalue(compiler->enclosing, name);
+	if (upvalue != -1)
+		return add_upvalue(compiler, upvalue, false);
+
+	return -1;
+}
+
+int Compiler::add_upvalue(FunctionCompiler *compiler, u8 index, bool is_local)
+{
+	for (unsigned i = 0; i < compiler->upvalues.size(); i++)
+	{
+		const auto &upvalue = compiler->upvalues[i];
+		if (upvalue.index == index && upvalue.is_local)
+			return i;
+	}
+
+	compiler->upvalues.push_back({index, is_local});
+	return compiler->upvalues.size() - 1;
 }
 
 /**

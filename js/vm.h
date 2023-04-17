@@ -72,6 +72,7 @@ private:
 	u16 read_short();
 	Value read_constant();
 	std::string read_string();
+	Upvalue *capture_upvalue(Value *);
 
 	bool runtime_error(std::string const &);
 };

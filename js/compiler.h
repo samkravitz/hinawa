@@ -29,12 +29,20 @@ private:
 		    function(function)
 		{ }
 
-		FunctionCompiler *enclosing;
+		struct CompilerUpvalue
+		{
+			u8 index{0};
+			bool is_local{false};
+		};
+
+		FunctionCompiler *enclosing{nullptr};
 		Function *function;
 		int scope_depth{0};
 		std::vector<Local> locals;
+		std::vector<CompilerUpvalue> upvalues;
 		int local_count() { return locals.size(); }
-	} *current;
+		int upvalue_count() { return upvalues.size(); }
+	} *current{nullptr};
 
 	std::vector<Stmt *> stmts;
 
@@ -83,7 +91,9 @@ private:
 	void end_scope();
 
 	void declare_local(const std::string &);
-	int resolve_local(const std::string &);
+	int resolve_local(FunctionCompiler *, const std::string &);
+	int resolve_upvalue(FunctionCompiler *, const std::string &);
+	int add_upvalue(FunctionCompiler *, u8, bool);
 
 	bool is_global() const;
 

@@ -30,6 +30,16 @@ enum FunctionType
 	ANONYMOUS,
 };
 
+class Upvalue final : public Object
+{
+public:
+	Upvalue(Value *location) :
+	    location(location)
+	{ }
+
+	Value *location;
+};
+
 class Function : public Object
 {
 public:
@@ -52,6 +62,7 @@ public:
 	Chunk chunk;
 	std::string name;
 	FunctionType type{FUNCTION};
+	u8 upvalue_count{0};
 
 	bool is_function() const { return true; }
 	virtual bool is_native() const { return false; }
@@ -100,13 +111,17 @@ struct BoundMethod final : public Object
 	Closure *method;
 };
 
-struct Closure final : public Object
+class Closure final : public Object
 {
+public:
 	Closure(Function *function) :
 	    function(function)
-	{ }
+	{
+		upvalues.reserve(function->upvalue_count);
+	}
 
 	Function *function;
+	std::vector<Upvalue *> upvalues;
 
 	bool is_closure() const { return true; }
 	std::string to_string() const { return function->to_string(); }
