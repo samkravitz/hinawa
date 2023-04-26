@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <fmt/format.h>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <unordered_map>
 
@@ -83,13 +84,13 @@ ParseRule Parser::get_rule(TokenType type)
 	return rules[type];
 }
 
-std::vector<Stmt *> Parser::parse()
+std::vector<std::shared_ptr<Stmt>> Parser::parse()
 {
-	std::vector<Stmt *> program;
+	std::vector<std::shared_ptr<Stmt>> program;
 
 	while (!match(TOKEN_EOF))
 	{
-		auto *stmt = declaration();
+		auto stmt = declaration();
 		if (!stmt)
 			break;
 		program.push_back(stmt);
@@ -98,7 +99,7 @@ std::vector<Stmt *> Parser::parse()
 	return program;
 }
 
-Stmt *Parser::declaration()
+std::shared_ptr<Stmt> Parser::declaration()
 {
 	if (match(KEY_VAR))
 		return var_declaration();
@@ -112,7 +113,7 @@ Stmt *Parser::declaration()
 	return statement();
 }
 
-Stmt *Parser::statement()
+std::shared_ptr<Stmt> Parser::statement()
 {
 	if (match(LEFT_BRACE))
 		return block_stmt();
@@ -135,25 +136,26 @@ Stmt *Parser::statement()
 	return expression_statement();
 }
 
-Stmt *Parser::block_stmt()
+std::shared_ptr<Stmt> Parser::block_stmt()
 {
-	std::vector<Stmt *> stmts;
+	std::vector<std::shared_ptr<Stmt>> stmts;
 
 	while (!match(RIGHT_BRACE))
 		stmts.push_back(declaration());
 
-	return new BlockStmt(stmts);
+	return make_ast_node<BlockStmt>(stmts);
 }
 
-Stmt *Parser::var_declaration()
+std::shared_ptr<Stmt> Parser::var_declaration()
 {
 	std::vector<VarDecl::VarDeclarator> declorators;
+	std::shared_ptr<Expr> initializer = nullptr;
 	do
 	{
 		consume(IDENTIFIER, "Expected variable name");
 
 		auto identifier = previous.value();
-		Expr *initializer = nullptr;
+		initializer = nullptr;
 
 		if (match(EQUAL))
 			initializer = expression();
@@ -165,54 +167,53 @@ Stmt *Parser::var_declaration()
 	// match optional semicolon after expression statement
 	match(SEMICOLON);
 
-	return new VarDecl(declorators);
+	return make_ast_node<VarDecl>(declorators);
 }
 
-Stmt *Parser::expression_statement()
+std::shared_ptr<Stmt> Parser::expression_statement()
 {
-	Stmt *stmt = nullptr;
-	Expr *expr;
+	std::shared_ptr<Stmt> stmt = nullptr;
+	std::shared_ptr<Expr> expr;
 	if ((expr = expression()))
 	{
 		// match optional semicolon after expression statement
 		match(SEMICOLON);
-
-		stmt = new ExpressionStmt(expr);
+		stmt = make_ast_node<ExpressionStmt>(expr);
 	}
 
 	return stmt;
 }
 
-Stmt *Parser::if_statement()
+std::shared_ptr<Stmt> Parser::if_statement()
 {
 	consume(LEFT_PAREN, "Expected '('");
-	Expr *test = expression();
+	std::shared_ptr<Expr> test = expression();
 	consume(RIGHT_PAREN, "Expected ')'");
 
-	Stmt *consequence = statement();
-	Stmt *alternate = nullptr;
+	std::shared_ptr<Stmt> consequence = statement();
+	std::shared_ptr<Stmt> alternate = nullptr;
 
 	if (match(KEY_ELSE))
 		alternate = statement();
 
-	return new IfStmt(test, consequence, alternate);
+	return make_ast_node<IfStmt>(test, consequence, alternate);
 }
 
-Stmt *Parser::return_statement()
+std::shared_ptr<Stmt> Parser::return_statement()
 {
 	auto expr = expression();
 
 	// match optional semicolon after return statement
 	match(SEMICOLON);
 
-	return new ReturnStmt(expr);
+	return make_ast_node<ReturnStmt>(expr);
 }
 
-Stmt *Parser::for_statement()
+std::shared_ptr<Stmt> Parser::for_statement()
 {
 	consume(LEFT_PAREN, "Expected '('");
 
-	AstNode *initialization = nullptr;
+	std::shared_ptr<AstNode> initialization = nullptr;
 	if (match(KEY_VAR))
 	{
 		initialization = var_declaration();
@@ -228,34 +229,34 @@ Stmt *Parser::for_statement()
 		consume(SEMICOLON, "For statement: expect ; after initializer");
 	}
 
-	auto *condition = expression();
+	auto condition = expression();
 	consume(SEMICOLON, "For statement: expect ; after condition");
-	auto *afterthought = expression();
+	auto afterthought = expression();
 	consume(RIGHT_PAREN, "Expected ')'");
 
-	auto *stmt = statement();
+	auto stmt = statement();
 
-	return new ForStmt(initialization, condition, afterthought, stmt);
+	return make_ast_node<ForStmt>(initialization, condition, afterthought, stmt);
 }
 
-Stmt *Parser::throw_statement()
+std::shared_ptr<Stmt> Parser::throw_statement()
 {
 	auto expr = expression();
 
 	// match optional semicolon after throw statement
 	match(SEMICOLON);
-	return new ThrowStmt(expr);
+	return make_ast_node<ThrowStmt>(expr);
 }
 
-Stmt *Parser::try_statement()
+std::shared_ptr<Stmt> Parser::try_statement()
 {
-	BlockStmt *block = nullptr;
-	BlockStmt *handler = nullptr;
-	BlockStmt *finalizer = nullptr;
+	std::shared_ptr<Stmt> block = nullptr;
+	std::shared_ptr<Stmt> handler = nullptr;
+	std::shared_ptr<Stmt> finalizer = nullptr;
 	std::optional<std::string> catch_param = {};
 
 	consume(LEFT_BRACE, "Expect '{' after try");
-	block = static_cast<BlockStmt *>(block_stmt());
+	block = block_stmt();
 
 	if (match(KEY_CATCH))
 	{
@@ -267,13 +268,13 @@ Stmt *Parser::try_statement()
 		}
 
 		consume(LEFT_BRACE, "Expect '{' after catch");
-		handler = static_cast<BlockStmt *>(block_stmt());
+		handler = block_stmt();
 	}
 
 	if (match(KEY_FINALLY))
 	{
 		consume(LEFT_BRACE, "Expect '{' after finally");
-		finalizer = static_cast<BlockStmt *>(block_stmt());
+		finalizer = block_stmt();
 	}
 
 	if (!handler && !finalizer)
@@ -281,10 +282,13 @@ Stmt *Parser::try_statement()
 		std::cerr << "Error: try needs either catch or finally\n";
 	}
 
-	return new TryStmt(block, handler, finalizer, catch_param);
+	return make_ast_node<TryStmt>(std::static_pointer_cast<BlockStmt>(block),
+	                              std::static_pointer_cast<BlockStmt>(handler),
+	                              std::static_pointer_cast<BlockStmt>(finalizer),
+	                              catch_param);
 }
 
-Stmt *Parser::function_declaration()
+std::shared_ptr<Stmt> Parser::function_declaration()
 {
 	consume(IDENTIFIER, "Expected identifier");
 	auto name = previous.value();
@@ -304,17 +308,18 @@ Stmt *Parser::function_declaration()
 	}
 	consume(RIGHT_PAREN, "Expected ')'");
 	consume(LEFT_BRACE, "Expected '{'");
-	auto *block = static_cast<BlockStmt *>(block_stmt());
 
-	return new FunctionDecl(name, args, block);
+	auto block = block_stmt();
+
+	return make_ast_node<FunctionDecl>(name, args, std::static_pointer_cast<BlockStmt>(block));
 }
 
-Expr *Parser::expression()
+std::shared_ptr<Expr> Parser::expression()
 {
 	return parse_precedence(PREC_ASSIGNMENT);
 }
 
-Expr *Parser::anonymous()
+std::shared_ptr<Expr> Parser::anonymous()
 {
 	consume(LEFT_PAREN, "Expected '('");
 
@@ -332,50 +337,50 @@ Expr *Parser::anonymous()
 	}
 	consume(RIGHT_PAREN, "Expected ')'");
 	consume(LEFT_BRACE, "Expected '{'");
-	auto *body = static_cast<BlockStmt *>(block_stmt());
+	auto body = block_stmt();
 
-	return new FunctionExpr(args, body);
+	return make_ast_node<FunctionExpr>(args, std::static_pointer_cast<BlockStmt>(body));
 }
 
-Expr *Parser::array()
+std::shared_ptr<Expr> Parser::array()
 {
-	std::vector<Expr*> elements;
+	std::vector<std::shared_ptr<Expr>> elements;
 	if (!check(RIGHT_BRACKET))
 	{
 		do
 		{
 			if (elements.size() > 0xff)
 				fmt::print(stderr, "Can't have more than 255 elements in an array expression\n");
-			
-			auto *expr = expression();
+
+			auto expr = expression();
 			if (!expr)
 				fmt::print(stderr, "Expected expression\n");
-			
+
 			elements.push_back(expr);
 		} while (match(COMMA));
 	}
 	consume(RIGHT_BRACKET, "Expect ']' after array expression");
 
-	return new ArrayExpr(elements);
+	return make_ast_node<ArrayExpr>(elements);
 }
 
-Expr *Parser::assign(Expr *left)
+std::shared_ptr<Expr> Parser::assign(std::shared_ptr<Expr> left)
 {
 	auto right = expression();
-	return new AssignmentExpr(left, right);
+	return make_ast_node<AssignmentExpr>(left, right);
 }
 
-Expr *Parser::binary(Expr *left)
+std::shared_ptr<Expr> Parser::binary(std::shared_ptr<Expr> left)
 {
 	auto op = previous;
 	auto precedence = get_rule(op.type()).precedence;
 	auto right = parse_precedence(static_cast<Precedence>(precedence + 1));
-	return new BinaryExpr(left, op, right);
+	return make_ast_node<BinaryExpr>(left, op, right);
 }
 
-Expr *Parser::call(Expr *left)
+std::shared_ptr<Expr> Parser::call(std::shared_ptr<Expr> left)
 {
-	std::vector<Expr *> args;
+	std::vector<std::shared_ptr<Expr>> args;
 	if (!check(RIGHT_PAREN))
 	{
 		do
@@ -387,29 +392,29 @@ Expr *Parser::call(Expr *left)
 	}
 
 	consume(RIGHT_PAREN, "Expect ')' after arguments");
-	return new CallExpr(left, args);
+	return make_ast_node<CallExpr>(left, args);
 }
 
-Expr *Parser::dot(Expr *left)
+std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
-	return new MemberExpr(left, new Literal(previous));
+	return make_ast_node<MemberExpr>(left, make_ast_node<Literal>(previous));
 }
 
-Expr *Parser::grouping()
+std::shared_ptr<Expr> Parser::grouping()
 {
 	return nullptr;
 }
 
-Expr *Parser::literal()
+std::shared_ptr<Expr> Parser::literal()
 {
-	return new Literal(previous);
+	return make_ast_node<Literal>(previous);
 }
 
-Expr *Parser::new_instance()
+std::shared_ptr<Expr> Parser::new_instance()
 {
-	auto *callee = parse_precedence(PREC_SUBSCRIPT);
-	std::vector<Expr *> params;
+	auto callee = parse_precedence(PREC_SUBSCRIPT);
+	std::vector<std::shared_ptr<Expr>> params;
 	if (match(LEFT_PAREN))
 	{
 		do
@@ -421,17 +426,17 @@ Expr *Parser::new_instance()
 		consume(RIGHT_PAREN, "Expect ')' after arguments");
 	}
 
-	return new NewExpr(callee, params);
+	return make_ast_node<NewExpr>(callee, params);
 }
 
-Expr *Parser::number()
+std::shared_ptr<Expr> Parser::number()
 {
-	return new Literal(previous);
+	return make_ast_node<Literal>(previous);
 }
 
-Expr *Parser::object()
+std::shared_ptr<Expr> Parser::object()
 {
-	std::vector<std::pair<std::string, Expr *>> properties;
+	std::vector<std::pair<std::string, std::shared_ptr<Expr>>> properties;
 	if (!check(RIGHT_BRACE))
 	{
 		do
@@ -442,49 +447,49 @@ Expr *Parser::object()
 			consume(IDENTIFIER, "Expected object key name");
 			auto ident = previous.value();
 			consume(COLON, "Expect : after object key name");
-			auto *expr = expression();
+			auto expr = expression();
 			properties.push_back({ident, expr});
 		} while (match(COMMA));
 	}
 	consume(RIGHT_BRACE, "Expect '}' after object literal");
 
-	return new ObjectExpr(properties);
+	return make_ast_node<ObjectExpr>(properties);
 }
 
-Expr *Parser::string()
+std::shared_ptr<Expr> Parser::string()
 {
-	return new Literal(previous);
+	return make_ast_node<Literal>(previous);
 }
 
-Expr *Parser::subscript(Expr *left)
+std::shared_ptr<Expr> Parser::subscript(std::shared_ptr<Expr> left)
 {
-	auto *expr = expression();
+	auto expr = expression();
 	consume(RIGHT_BRACKET, "Expect ']' after subscript");
-	return new MemberExpr(left, expr);
+	return make_ast_node<MemberExpr>(left, expr);
 }
 
-Expr *Parser::unary()
+std::shared_ptr<Expr> Parser::unary()
 {
 	auto op = previous;
 	auto operand = parse_precedence(PREC_UNARY);
 	if (op.type() == PLUS_PLUS || op.type() == MINUS_MINUS)
-		return new UpdateExpr(op, operand, true);
+		return make_ast_node<UpdateExpr>(op, operand, true);
 
-	return new UnaryExpr(op, operand);
+	return make_ast_node<UnaryExpr>(op, operand);
 }
 
-Expr *Parser::update(Expr *left)
+std::shared_ptr<Expr> Parser::update(std::shared_ptr<Expr> left)
 {
 	auto op = previous;
-	return new UpdateExpr(op, left, false);
+	return make_ast_node<UpdateExpr>(op, left, false);
 }
 
-Expr *Parser::variable()
+std::shared_ptr<Expr> Parser::variable()
 {
-	return new Variable(previous.value());
+	return make_ast_node<Variable>(previous.value());
 }
 
-Expr *Parser::parse_precedence(Precedence precedence)
+std::shared_ptr<Expr> Parser::parse_precedence(Precedence precedence)
 {
 	advance();
 	auto prefix = get_rule(previous.type()).prefix;
@@ -494,7 +499,7 @@ Expr *Parser::parse_precedence(Precedence precedence)
 		return nullptr;
 	}
 
-	Expr *expr = prefix(this);
+	std::shared_ptr<Expr> expr = prefix(this);
 
 	while (precedence <= get_rule(current.type()).precedence)
 	{

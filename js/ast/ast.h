@@ -21,5 +21,8 @@ public:
 		print_indent(indent);
 		fmt::print("{}\n", name());
 	}
+
+	int line{-1};
+	int col{-1};
 };
 }

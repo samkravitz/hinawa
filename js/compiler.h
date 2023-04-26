@@ -17,7 +17,7 @@ namespace js
 class Compiler : public CompilerVisitor
 {
 public:
-	Compiler(const std::vector<Stmt *> &);
+	Compiler(const std::vector<std::shared_ptr<Stmt>> &);
 
 	Function compile();
 
@@ -44,7 +44,7 @@ private:
 		int upvalue_count() { return upvalues.size(); }
 	} *current{nullptr};
 
-	std::vector<Stmt *> stmts;
+	std::vector<std::shared_ptr<Stmt>> stmts;
 
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();

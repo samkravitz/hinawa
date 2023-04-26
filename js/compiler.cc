@@ -4,6 +4,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <ranges>
 
 #include <fmt/format.h>
@@ -12,7 +13,7 @@ namespace js
 {
 static constexpr int RESOLVED_GLOBAL = -1;
 
-Compiler::Compiler(const std::vector<Stmt *> &stmts) :
+Compiler::Compiler(const std::vector<std::shared_ptr<Stmt>> &stmts) :
     stmts(stmts)
 { }
 
@@ -349,7 +350,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 void Compiler::compile(const CallExpr &expr)
 {
 	expr.callee->accept(this);
-	for (auto *ex : expr.args)
+	for (const auto &ex : expr.args)
 		ex->accept(this);
 
 	emit_bytes(OP_CALL, expr.args.size());
@@ -472,7 +473,7 @@ void Compiler::compile(const FunctionExpr &expr)
 void Compiler::compile(const NewExpr &expr)
 {
 	expr.callee->accept(this);
-	for (auto *ex : expr.params)
+	for (const auto &ex : expr.params)
 		ex->accept(this);
 
 	emit_bytes(OP_CALL, expr.params.size());
@@ -480,7 +481,7 @@ void Compiler::compile(const NewExpr &expr)
 
 void Compiler::compile(const ArrayExpr &expr)
 {
-	for (auto *element : expr.elements)
+	for (const auto &element : expr.elements)
 		element->accept(this);
 
 	emit_bytes(OP_NEW_ARRAY, expr.elements.size());

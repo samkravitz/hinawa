@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "ast.h"
@@ -17,7 +18,7 @@ struct Stmt : public AstNode
 
 struct BlockStmt : public Stmt
 {
-	BlockStmt(std::vector<Stmt *> stmts) :
+	BlockStmt(std::vector<std::shared_ptr<Stmt>> stmts) :
 	    stmts(stmts)
 	{ }
 
@@ -25,7 +26,7 @@ struct BlockStmt : public Stmt
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	std::vector<Stmt *> stmts;
+	std::vector<std::shared_ptr<Stmt>> stmts;
 };
 
 struct EmptyStmt : public Stmt
@@ -37,51 +38,54 @@ struct EmptyStmt : public Stmt
 
 struct ExpressionStmt : public Stmt
 {
-	ExpressionStmt(Expr *expr) :
-	    expr(expr)
+	ExpressionStmt(std::shared_ptr<Expr> expr) :
+	    expr(std::move(expr))
 	{ }
 
 	const char *name() const { return "ExpressionStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *expr;
+	std::shared_ptr<Expr> expr;
 };
 
 struct IfStmt : public Stmt
 {
-	IfStmt(Expr *test, Stmt *consequence, Stmt *alternate) :
-	    test(test),
-	    consequence(consequence),
-	    alternate(alternate)
+	IfStmt(std::shared_ptr<Expr> test, std::shared_ptr<Stmt> consequence, std::shared_ptr<Stmt> alternate) :
+	    test(std::move(test)),
+	    consequence(std::move(consequence)),
+	    alternate(std::move(alternate))
 	{ }
 
 	const char *name() const { return "IfStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *test;
-	Stmt *consequence;
-	Stmt *alternate{nullptr};
+	std::shared_ptr<Expr> test;
+	std::shared_ptr<Stmt> consequence;
+	std::shared_ptr<Stmt> alternate{nullptr};
 };
 
 struct ForStmt : public Stmt
 {
-	ForStmt(AstNode *initialization, Expr *condition, Expr *afterthought, Stmt *statement) :
+	ForStmt(std::shared_ptr<AstNode> initialization,
+	        std::shared_ptr<Expr> condition,
+	        std::shared_ptr<Expr> afterthought,
+	        std::shared_ptr<Stmt> statement) :
 	    initialization(initialization),
-	    condition(condition),
-	    afterthought(afterthought),
-	    statement(statement)
+	    condition(std::move(condition)),
+	    afterthought(std::move(afterthought)),
+	    statement(std::move(statement))
 	{ }
 
 	const char *name() const { return "ForStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	AstNode *initialization;
-	Expr *condition;
-	Expr *afterthought;
-	Stmt *statement;
+	std::shared_ptr<AstNode> initialization;
+	std::shared_ptr<Expr> condition;
+	std::shared_ptr<Expr> afterthought;
+	std::shared_ptr<Stmt> statement;
 };
 
 //struct ContinueStmt : public Stmt
@@ -98,28 +102,28 @@ struct ForStmt : public Stmt
 
 struct ReturnStmt : public Stmt
 {
-	ReturnStmt(Expr *expr) :
-	    expr(expr)
+	ReturnStmt(std::shared_ptr<Expr> expr) :
+	    expr(std::move(expr))
 	{ }
 
 	const char *name() const { return "ReturnStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *expr;
+	std::shared_ptr<Expr> expr;
 };
 
 struct VarDecl : public Stmt
 {
 	struct VarDeclarator
 	{
-		VarDeclarator(std::string identifier, Expr *initializer) :
+		VarDeclarator(std::string identifier, std::shared_ptr<Expr> initializer) :
 		    identifier(identifier),
-		    init(initializer)
+		    init(std::move(initializer))
 		{ }
 
 		std::string identifier;
-		Expr *init;
+		std::shared_ptr<Expr> init;
 	};
 
 	VarDecl(std::vector<VarDeclarator> declorators) :
@@ -135,10 +139,10 @@ struct VarDecl : public Stmt
 
 struct FunctionDecl : public Stmt
 {
-	FunctionDecl(std::string function_name, std::vector<std::string> args, BlockStmt *block) :
+	FunctionDecl(std::string function_name, std::vector<std::string> args, std::shared_ptr<BlockStmt> block) :
 	    function_name(function_name),
 	    args(args),
-	    block(block)
+	    block(std::move(block))
 	{ }
 
 	const char *name() const { return "FunctionDecl"; }
@@ -147,28 +151,31 @@ struct FunctionDecl : public Stmt
 
 	std::string function_name;
 	std::vector<std::string> args;
-	BlockStmt *block;
+	std::shared_ptr<BlockStmt> block;
 };
 
 struct ThrowStmt : public Stmt
 {
-	ThrowStmt(Expr *expr) :
-	    expr(expr)
+	ThrowStmt(std::shared_ptr<Expr> expr) :
+	    expr(std::move(expr))
 	{ }
 
 	const char *name() const { return "ThrowStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *expr;
+	std::shared_ptr<Expr> expr;
 };
 
 struct TryStmt : public Stmt
 {
-	TryStmt(BlockStmt *block, BlockStmt *handler, BlockStmt *finalizer, std::optional<std::string> catch_param) :
-	    block(block),
-	    handler(handler),
-	    finalizer(finalizer),
+	TryStmt(std::shared_ptr<BlockStmt> block,
+	        std::shared_ptr<BlockStmt> handler,
+	        std::shared_ptr<BlockStmt> finalizer,
+	        std::optional<std::string> catch_param) :
+	    block(std::move(block)),
+	    handler(std::move(handler)),
+	    finalizer(std::move(finalizer)),
 	    catch_param(catch_param)
 	{ }
 
@@ -176,9 +183,9 @@ struct TryStmt : public Stmt
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	BlockStmt *block;
-	BlockStmt *handler{nullptr};
-	BlockStmt *finalizer{nullptr};
+	std::shared_ptr<BlockStmt> block;
+	std::shared_ptr<BlockStmt> handler{nullptr};
+	std::shared_ptr<BlockStmt> finalizer{nullptr};
 	std::optional<std::string> catch_param = {};
 };
 }

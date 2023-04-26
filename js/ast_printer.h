@@ -6,6 +6,7 @@
 #include "ast/visitor.h"
 #include <fmt/format.h>
 #include <iostream>
+#include <memory>
 
 namespace js
 {
@@ -19,7 +20,7 @@ class AstPrinter : public PrintVisitor
 {
 public:
 	AstPrinter() { }
-	void print(std::vector<Stmt *> program)
+	void print(std::vector<std::shared_ptr<Stmt>> program)
 	{
 		std::cout << "Script:\n";
 		for (auto stmt : program)
@@ -174,7 +175,7 @@ public:
 		{
 			print_indent(indent);
 			std::cout << "args: \n";
-			for (auto *arg : node->args)
+			for (const auto &arg : node->args)
 			{
 				arg->accept(this, indent + 1);
 			}
@@ -226,7 +227,7 @@ public:
 			print_indent(indent);
 			fmt::print("params:\n");
 
-			for (auto *arg : node->params)
+			for (const auto &arg : node->params)
 				arg->accept(this, indent + 1);
 		}
 	}
@@ -240,7 +241,7 @@ public:
 			print_indent(indent);
 			fmt::print("elements:\n");
 
-			for (auto *arg : node->elements)
+			for (const auto &arg : node->elements)
 				arg->accept(this, indent + 1);
 		}
 	}

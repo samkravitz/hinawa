@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "../token.h"
@@ -21,9 +22,9 @@ public:
 
 struct UnaryExpr : public Expr
 {
-	UnaryExpr(Token op, Expr *rhs) :
+	UnaryExpr(Token op, std::shared_ptr<Expr> rhs) :
 	    op(op),
-	    rhs(rhs)
+	    rhs(std::move(rhs))
 	{ }
 
 	const char *name() const { return "UnaryExpr"; }
@@ -31,14 +32,14 @@ struct UnaryExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Token op;
-	Expr *rhs;
+	std::shared_ptr<Expr> rhs;
 };
 
 struct UpdateExpr : public Expr
 {
-	UpdateExpr(Token op, Expr *operand, bool prefix) :
+	UpdateExpr(Token op, std::shared_ptr<Expr> operand, bool prefix) :
 	    op(op),
-	    operand(operand),
+	    operand(std::move(operand)),
 	    prefix(prefix)
 	{ }
 
@@ -47,45 +48,45 @@ struct UpdateExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	Token op;
-	Expr *operand;
+	std::shared_ptr<Expr> operand;
 	bool prefix{false};
 };
 
 struct BinaryExpr : public Expr
 {
-	BinaryExpr(Expr *lhs, Token op, Expr *rhs) :
-	    lhs(lhs),
+	BinaryExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
+	    lhs(std::move(lhs)),
 	    op(op),
-	    rhs(rhs)
+	    rhs(std::move(rhs))
 	{ }
 
 	const char *name() const { return "BinaryExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *lhs;
+	std::shared_ptr<Expr> lhs;
 	Token op;
-	Expr *rhs;
+	std::shared_ptr<Expr> rhs;
 };
 
 struct AssignmentExpr : public Expr
 {
-	AssignmentExpr(Expr *lhs, Expr *rhs) :
-	    lhs(lhs),
-	    rhs(rhs)
+	AssignmentExpr(std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs) :
+	    lhs(std::move(lhs)),
+	    rhs(std::move(rhs))
 	{ }
 
 	const char *name() const { return "AssignmentExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *lhs;
-	Expr *rhs;
+	std::shared_ptr<Expr> lhs;
+	std::shared_ptr<Expr> rhs;
 };
 
 struct CallExpr : public Expr
 {
-	CallExpr(Expr *callee, std::vector<Expr *> args) :
+	CallExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> args) :
 	    callee(callee),
 	    args(args)
 	{ }
@@ -94,15 +95,15 @@ struct CallExpr : public Expr
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *callee;
-	std::vector<Expr *> args;
+	std::shared_ptr<Expr> callee;
+	std::vector<std::shared_ptr<Expr>> args;
 };
 
 struct MemberExpr : public Expr
 {
-	MemberExpr(Expr *object, Expr *property) :
-	    object(object),
-	    property(property)
+	MemberExpr(std::shared_ptr<Expr> object, std::shared_ptr<Expr> property) :
+	    object(std::move(object)),
+	    property(std::move(property))
 	{ }
 
 	const char *name() const { return "MemberExpr"; }
@@ -110,8 +111,8 @@ struct MemberExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 	bool is_member_expr() const { return true; }
 
-	Expr *object;
-	Expr *property;
+	std::shared_ptr<Expr> object;
+	std::shared_ptr<Expr> property;
 };
 
 struct Literal : public Expr
@@ -144,7 +145,7 @@ struct Variable : public Expr
 
 struct ObjectExpr : public Expr
 {
-	ObjectExpr(std::vector<std::pair<std::string, Expr *>> properties) :
+	ObjectExpr(std::vector<std::pair<std::string, std::shared_ptr<Expr>>> properties) :
 	    properties(properties)
 	{ }
 
@@ -152,14 +153,14 @@ struct ObjectExpr : public Expr
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	std::vector<std::pair<std::string, Expr *>> properties;
+	std::vector<std::pair<std::string, std::shared_ptr<Expr>>> properties;
 };
 
 struct FunctionExpr : public Expr
 {
-	FunctionExpr(std::vector<std::string> args, BlockStmt *body) :
+	FunctionExpr(std::vector<std::string> args, std::shared_ptr<BlockStmt> body) :
 	    args(args),
-	    body(body)
+	    body(std::move(body))
 	{ }
 
 	const char *name() const { return "FunctionExpr"; }
@@ -167,27 +168,27 @@ struct FunctionExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::vector<std::string> args;
-	BlockStmt *body;
+	std::shared_ptr<BlockStmt> body;
 };
 
 struct NewExpr : public Expr
 {
-	NewExpr(Expr *callee, std::vector<Expr *> params) :
-	    callee(callee),
-	    params(params)
+	NewExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> params) :
+	    callee(std::move(callee)),
+	    params(std::move(params))
 	{ }
 
 	const char *name() const { return "NewExpr"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	Expr *callee;
-	std::vector<Expr *> params;
+	std::shared_ptr<Expr> callee;
+	std::vector<std::shared_ptr<Expr>> params;
 };
 
 struct ArrayExpr : public Expr
 {
-	ArrayExpr(std::vector<Expr *> elements) :
+	ArrayExpr(std::vector<std::shared_ptr<Expr>> elements) :
 	    elements(elements)
 	{ }
 
@@ -195,6 +196,6 @@ struct ArrayExpr : public Expr
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
-	std::vector<Expr *> elements;
+	std::vector<std::shared_ptr<Expr>> elements;
 };
 }

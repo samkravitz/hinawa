@@ -1,7 +1,9 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "ast/expr.h"
@@ -30,8 +32,8 @@ enum Precedence : int
 class Parser;
 struct ParseRule
 {
-	std::function<Expr *(Parser *)> prefix;
-	std::function<Expr *(Parser *, Expr *)> infix;
+	std::function<std::shared_ptr<Expr>(Parser *)> prefix;
+	std::function<std::shared_ptr<Expr>(Parser *, std::shared_ptr<Expr>)> infix;
 	Precedence precedence;
 };
 
@@ -40,48 +42,48 @@ class Parser
 public:
 	Parser(std::string);
 
-	std::vector<Stmt *> parse();
+	std::vector<std::shared_ptr<Stmt>> parse();
 
 	Scanner scanner;
 	Token current;
 	Token previous;
 
 	// parse expressions
-	Expr *expression();
-	Expr *anonymous();
-	Expr *array();
-	Expr *assign(Expr *);
-	Expr *binary(Expr *);
-	Expr *call(Expr *);
-	Expr *dot(Expr *);
-	Expr *grouping();
-	Expr *literal();
-	Expr *new_instance();
-	Expr *number();
-	Expr *object();
-	Expr *string();
-	Expr *subscript(Expr *);
-	Expr *unary();
-	Expr *update(Expr *);
-	Expr *variable();
+	std::shared_ptr<Expr> expression();
+	std::shared_ptr<Expr> anonymous();
+	std::shared_ptr<Expr> array();
+	std::shared_ptr<Expr> assign(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> binary(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> call(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> dot(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> grouping();
+	std::shared_ptr<Expr> literal();
+	std::shared_ptr<Expr> new_instance();
+	std::shared_ptr<Expr> number();
+	std::shared_ptr<Expr> object();
+	std::shared_ptr<Expr> string();
+	std::shared_ptr<Expr> subscript(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> unary();
+	std::shared_ptr<Expr> update(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> variable();
 
 private:
 	// parse statements
-	Stmt *statement();
-	Stmt *block_stmt();
-	Stmt *expression_statement();
-	Stmt *if_statement();
-	Stmt *return_statement();
-	Stmt *for_statement();
-	Stmt *throw_statement();
-	Stmt *try_statement();
+	std::shared_ptr<Stmt> statement();
+	std::shared_ptr<Stmt> block_stmt();
+	std::shared_ptr<Stmt> expression_statement();
+	std::shared_ptr<Stmt> if_statement();
+	std::shared_ptr<Stmt> return_statement();
+	std::shared_ptr<Stmt> for_statement();
+	std::shared_ptr<Stmt> throw_statement();
+	std::shared_ptr<Stmt> try_statement();
 
 	// parse declarations
-	Stmt *declaration();
-	Stmt *function_declaration();
-	Stmt *var_declaration();
+	std::shared_ptr<Stmt> declaration();
+	std::shared_ptr<Stmt> function_declaration();
+	std::shared_ptr<Stmt> var_declaration();
 
-	Expr *parse_precedence(Precedence);
+	std::shared_ptr<Expr> parse_precedence(Precedence);
 	ParseRule get_rule(TokenType);
 	void advance();
 	void consume(TokenType, const char *);
@@ -90,5 +92,13 @@ private:
 	TokenType peek();
 	inline bool check(TokenType type) { return current.type() == type; }
 	bool check_any(std::initializer_list<TokenType> const &);
+
+	template<class T, typename... Params> std::shared_ptr<T> make_ast_node(Params &&...params)
+	{
+		auto node = std::make_shared<T>(std::forward<Params>(params)...);
+		node->line = previous.line();
+		node->col = previous.col();
+		return node;
+	}
 };
 };
