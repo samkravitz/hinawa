@@ -51,6 +51,19 @@ std::string &Token::doctype_name()
 	return std::get<DoctypeData>(data).name;
 }
 
+std::string &Token::public_identifier()
+{
+	assert(is_doctype());
+	return std::get<DoctypeData>(data).public_identifier;
+}
+
+std::string &Token::system_identifier()
+{
+	assert(is_doctype());
+	return std::get<DoctypeData>(data).system_identifier;
+}
+
+
 std::string &Token::comment()
 {
 	assert(is_comment());

@@ -100,6 +100,8 @@ public:
 	std::string &attribute_name();
 	std::string &attribute_value();
 	std::string &doctype_name();
+	std::string &public_identifier();
+	std::string &system_identifier();
 	std::string &comment();
 	void set_force_quirks();
 	void set_self_closing();

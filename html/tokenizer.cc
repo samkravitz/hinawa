@@ -4,6 +4,7 @@
 #include "tokenizer.h"
 
 #include <cassert>
+#include <fmt/format.h>
 #include <iostream>
 
 #pragma GCC diagnostic push
@@ -1822,65 +1823,512 @@ loop_start:
 			}
 			END_STATE
 
-		// 13.2.5.57 After DOCTYPE public keyword state
-		AfterDOCTYPEPublicKeyword:
-		case State::AfterDOCTYPEPublicKeyword:
-			break;
+			// 13.2.5.57 After DOCTYPE public keyword state
+			BEGIN_STATE(AfterDOCTYPEPublicKeyword)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					SWITCH_TO(BeforeDOCTYPEPublicIdentifier);
+				}
 
-		// 13.2.5.58 Before DOCTYPE public identifier state
-		BeforeDOCTYPEPublicIdentifier:
-		case State::BeforeDOCTYPEPublicIdentifier:
-			break;
+				ON('"')
+				{
+					parse_error("missing-whitespace-after-doctype-public-keyword");
+					current_token.public_identifier() = "";
+					SWITCH_TO(DOCTYPEPublicIdentifierDoubleQuoted);
+				}
 
-		// 13.2.5.59 DOCTYPE public identifier (double-quoted) state
-		DOCTYPEPublicIdentifierDoubleQuoted:
-		case State::DOCTYPEPublicIdentifierDoubleQuoted:
-			break;
+				ON('\'')
+				{
+					parse_error("missing-whitespace-after-doctype-public-keyword");
+					current_token.public_identifier() = "";
+					SWITCH_TO(DOCTYPEPublicIdentifierSingleQuoted);
+				}
 
-		// 13.2.5.60 DOCTYPE public identifier (single-quoted) state
-		DOCTYPEPublicIdentifierSingleQuoted:
-		case State::DOCTYPEPublicIdentifierSingleQuoted:
-			break;
+				ON('>')
+				{
+					parse_error("missing-doctype-public-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
 
-		// 13.2.5.61 After DOCTYPE public identifier state
-		AfterDOCTYPEPublicIdentifier:
-		case State::AfterDOCTYPEPublicIdentifier:
-			break;
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
 
-		// 13.2.5.62 Between DOCTYPE public and system identifiers state
-		BetweenDOCTYPEPublicAndSystemIdentifiers:
-		case State::BetweenDOCTYPEPublicAndSystemIdentifiers:
-			break;
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-public-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
 
-		// 13.2.5.63 After DOCTYPE system keyword state
-		AfterDOCTYPESystemKeyword:
-		case State::AfterDOCTYPESystemKeyword:
-			break;
+			// 13.2.5.58 Before DOCTYPE public identifier state
+			BEGIN_STATE(BeforeDOCTYPEPublicIdentifier)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					IGNORE_CHARACTER();
+				}
 
-		// 13.2.5.64 Before DOCTYPE system identifier state
-		BeforeDOCTYPESystemIdentifier:
-		case State::BeforeDOCTYPESystemIdentifier:
-			break;
+				ON('"')
+				{
+					current_token.public_identifier() = "";
+					SWITCH_TO(DOCTYPEPublicIdentifierDoubleQuoted);
+				}
 
-		// 13.2.5.65 DOCTYPE system identifier (double-quoted) state
-		DOCTYPESystemIdentifierDoubleQuoted:
-		case State::DOCTYPESystemIdentifierDoubleQuoted:
-			break;
+				ON('\'')
+				{
+					current_token.public_identifier() = "";
+					SWITCH_TO(DOCTYPEPublicIdentifierSingleQuoted);
+				}
 
-		// 13.2.5.66 DOCTYPE system identifier (single-quoted) state
-		DOCTYPESystemIdentifierSingleQuoted:
-		case State::DOCTYPESystemIdentifierSingleQuoted:
-			break;
+				ON('>')
+				{
+					parse_error("missing-doctype-public-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
 
-		// 13.2.5.67 After DOCTYPE system identifier state
-		AfterDOCTYPESystemIdentifier:
-		case State::AfterDOCTYPESystemIdentifier:
-			break;
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
 
-		// 13.2.5.68 Bogus DOCTYPE state
-		BogusDOCTYPE:
-		case State::BogusDOCTYPE:
-			break;
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-public-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.59 DOCTYPE public identifier (double-quoted) state
+			BEGIN_STATE(DOCTYPEPublicIdentifierDoubleQuoted)
+			{
+				consume_next_input_character();
+				ON('"')
+				{
+					SWITCH_TO(AfterDOCTYPEPublicIdentifier);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.public_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					continue;
+				}
+
+				ON('>')
+				{
+					parse_error("abrupt-doctype-public-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.public_identifier() += current_input_character;
+					continue;
+				}
+			}
+			END_STATE
+
+			// 13.2.5.60 DOCTYPE public identifier (single-quoted) state
+			BEGIN_STATE(DOCTYPEPublicIdentifierSingleQuoted)
+			{
+				consume_next_input_character();
+				ON('\'')
+				{
+					SWITCH_TO(AfterDOCTYPEPublicIdentifier);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.public_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					continue;
+				}
+
+				ON('>')
+				{
+					parse_error("abrupt-doctype-public-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.public_identifier() += current_input_character;
+					continue;
+				}
+			}
+			END_STATE
+
+			// 13.2.5.61 After DOCTYPE public identifier state
+			BEGIN_STATE(AfterDOCTYPEPublicIdentifier)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					SWITCH_TO(BetweenDOCTYPEPublicAndSystemIdentifiers);
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON('"')
+				{
+					parse_error("missing-whitespace-between-doctype-public-and-system-identifiers");
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierDoubleQuoted);
+				}
+
+				ON('\'')
+				{
+					parse_error("missing-whitespace-between-doctype-public-and-system-identifiers");
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierSingleQuoted);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-system-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.62 Between DOCTYPE public and system identifiers state
+			BEGIN_STATE(BetweenDOCTYPEPublicAndSystemIdentifiers)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					IGNORE_CHARACTER();
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON('"')
+				{
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierDoubleQuoted);
+				}
+
+				ON('\'')
+				{
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierSingleQuoted);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-system-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.63 After DOCTYPE system keyword state
+			BEGIN_STATE(AfterDOCTYPESystemKeyword)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					SWITCH_TO(BeforeDOCTYPESystemIdentifier);
+				}
+
+				ON('"')
+				{
+					parse_error("missing-whitespace-after-doctype-system-keyword");
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierDoubleQuoted);
+				}
+
+				ON('\'')
+				{
+					parse_error("missing-whitespace-after-doctype-system-keyword");
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierSingleQuoted);
+				}
+
+				ON('>')
+				{
+					parse_error("missing-doctype-system-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-system-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.64 Before DOCTYPE system identifier state
+			BEGIN_STATE(BeforeDOCTYPESystemIdentifier)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					IGNORE_CHARACTER();
+				}
+
+				ON('"')
+				{
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierDoubleQuoted);
+				}
+
+				ON('\'')
+				{
+					current_token.system_identifier() = "";
+					SWITCH_TO(DOCTYPESystemIdentifierSingleQuoted);
+				}
+
+				ON('>')
+				{
+					parse_error("missing-doctype-system-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("missing-quote-before-doctype-system-identifier");
+					current_token.set_force_quirks();
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.65 DOCTYPE system identifier (double-quoted) state
+			BEGIN_STATE(DOCTYPESystemIdentifierDoubleQuoted)
+			{
+				consume_next_input_character();
+				ON('"')
+				{
+					SWITCH_TO(AfterDOCTYPESystemIdentifier);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.system_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					continue;
+				}
+
+				ON('>')
+				{
+					parse_error("abrupt-doctype-system-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.system_identifier() += current_input_character;
+					continue;
+				}
+			}
+			END_STATE
+
+			// 13.2.5.66 DOCTYPE system identifier (single-quoted) state
+			BEGIN_STATE(DOCTYPESystemIdentifierSingleQuoted)
+			{
+				consume_next_input_character();
+				ON('\'')
+				{
+					SWITCH_TO(AfterDOCTYPESystemIdentifier);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					current_token.system_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					continue;
+				}
+
+				ON('>')
+				{
+					parse_error("abrupt-doctype-system-identifier");
+					current_token.set_force_quirks();
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					current_token.system_identifier() += current_input_character;
+					continue;
+				}
+			}
+			END_STATE
+
+			// 13.2.5.67 After DOCTYPE system identifier state
+			BEGIN_STATE(AfterDOCTYPESystemIdentifier)
+			{
+				consume_next_input_character();
+				ON_WHITESPACE
+				{
+					IGNORE_CHARACTER();
+				}
+
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_EOF
+				{
+					parse_error("eof-in-doctype");
+					current_token.set_force_quirks();
+					// TODO - handle multiple emits
+					assert(false);
+					EMIT_CURRENT_TOKEN();
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					parse_error("unexpected-character-after-doctype-system-identifier");
+					RECONSUME_IN(BogusDOCTYPE);
+				}
+			}
+			END_STATE
+
+			// 13.2.5.68 Bogus DOCTYPE state
+			BEGIN_STATE(BogusDOCTYPE)
+			{
+				consume_next_input_character();
+				ON('>')
+				{
+					SWITCH_TO_AND_EMIT_TOKEN(Data, current_token);
+				}
+
+				ON_NULL
+				{
+					parse_error("unexpected-null-character");
+					IGNORE_CHARACTER();
+				}
+
+				ON_EOF
+				{
+					EMIT_EOF();
+				}
+
+				ANYTHING_ELSE
+				{
+					IGNORE_CHARACTER();
+				}
+			}
+			END_STATE
 
 		// 13.2.5.69 CDATA section state
 		CDATASection:
@@ -2143,8 +2591,9 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 
 void Tokenizer::parse_error(const char *msg)
 {
-	std::cout << "Parse error: " << msg << "\n";
+	fmt::print(stderr, "[html] Parse error: {}\n", msg);
 }
+
 // https://html.spec.whatwg.org/multipage/parsing.html#charref-in-attribute
 bool Tokenizer::consumed_as_part_of_an_attribute() const
 {
