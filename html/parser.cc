@@ -214,6 +214,18 @@ Document &Parser::parse(std::string const &input)
 						    token.tag_name() == "title")
 							parse_raw_text(token);
 
+						else if (token.tag_name() == "meta")
+						{
+							// Insert an HTML element for the token.
+							// Immediately pop the current node off the stack of open elements.
+							auto head_element = create_element(document(), "head");
+							insert_element(head_element);
+							stack_of_open_elements.pop_back();
+
+							// Acknowledge the token's self-closing flag, if it is set
+							// TODO - handle speculative parsing
+						}
+
 						else
 							goto in_head_anything_else;
 						break;
