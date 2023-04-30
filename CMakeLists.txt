@@ -28,6 +28,11 @@ find_package(FLEX REQUIRED)
 flex_target(CssLexer css/lex.ll css/lex.yy.cc)
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
 
+include(FetchContent)
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_executable(hinawa ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
 target_sources(hinawa PRIVATE main.cc)
 target_include_directories(hinawa PRIVATE css js)
@@ -40,4 +45,4 @@ add_subdirectory(js)
 add_subdirectory(layout)
 add_subdirectory(web)
 
-target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt)
+target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt nlohmann_json::nlohmann_json)

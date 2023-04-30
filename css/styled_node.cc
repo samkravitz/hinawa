@@ -1,5 +1,6 @@
 #include "styled_node.h"
 
+#include "css.h"
 #include "document/element.h"
 #include "document/text.h"
 #include "parser.h"

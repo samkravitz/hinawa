@@ -1,0 +1,11 @@
+{
+  "padding": {
+    "inherited": false,
+    "initial-value": "0",
+    "max-values": 4,
+    "valid-types": [
+      "length",
+      "percentage"
+    ]
+  }
+}

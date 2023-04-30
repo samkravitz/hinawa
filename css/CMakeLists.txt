@@ -1,4 +1,5 @@
 set(SOURCES
+	css.cc
 	parser.cc
 	scanner.cc
 	styled_node.cc
@@ -7,6 +8,7 @@ set(SOURCES
 )
 
 set(HEADERS
+	css.h
 	parser.h
 	scanner.h
 	styled_node.h

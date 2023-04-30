@@ -1,23 +1,11 @@
 #include "stylesheet.h"
 
-#include <fstream>
-#include <sstream>
-
 #include "document/element.h"
 #include "parser.h"
 #include "styled_node.h"
 
 namespace css
 {
-Stylesheet read_default_stylesheet()
-{
-	std::ifstream file("../data/default.css");
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-
-	return Parser::parse(buffer.str());
-}
-
 void Stylesheet::style(StyledNode *styled_node) const
 {
 	for (const auto &rule : rules)

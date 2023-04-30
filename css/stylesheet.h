@@ -119,6 +119,4 @@ struct Stylesheet
 		return res;
 	}
 };
-
-Stylesheet read_default_stylesheet();
 }
