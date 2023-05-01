@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fmt/format.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -61,7 +62,7 @@ struct Selector
 
 	bool matches(StyledNode *) const;
 
-	std::string to_string() { return ""; }
+	std::string to_string() const { return ""; }
 };
 
 // ex
@@ -73,7 +74,7 @@ struct Declaration
 
 	Value *style_value() const { return nullptr; }
 
-	std::string to_string() { return name + " : " + value; }
+	std::string to_string() const { return fmt::format("{}: '{}'", name, value); }
 };
 
 struct Rule
@@ -81,22 +82,16 @@ struct Rule
 	std::vector<Selector> selectors;
 	std::vector<Declaration> declarations;
 
-	std::string to_string()
+	std::string to_string() const
 	{
-		std::string res = "";
-		for (auto selector : selectors)
-		{
-			res += selector.to_string() + " ";
-		}
+		std::string res = "Selectors:\n";
+		for (const auto &selector : selectors)
+			res += fmt::format("\t{}\n", selector.to_string());
 
-		res += "{\n";
+		res += "Declarations:\n";
 
-		for (auto declaration : declarations)
-		{
-			res += "\t" + declaration.to_string() + "\n";
-		}
-
-		res += "}\n";
+		for (const auto &declaration : declarations)
+			res += fmt::format("\t{}\n", declaration.to_string());
 
 		return res;
 	}
@@ -109,16 +104,14 @@ struct Stylesheet
 	std::vector<Rule> rules;
 
 	void style(StyledNode *) const;
-
-	std::string to_string() const
+	void print() const
 	{
-		std::string res = "Stylesheet\n";
-		for (auto rule : rules)
+		fmt::print("Stylesheet:\n");
+		for (const auto &rule : rules)
 		{
-			res += rule.to_string() + "\n";
+			fmt::print("Rule:\n");
+			fmt::print("{}\n", rule.to_string());
 		}
-
-		return res;
 	}
 };
 }
