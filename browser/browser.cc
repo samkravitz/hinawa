@@ -26,7 +26,7 @@ Browser::Browser(const std::string &url_string) :
 Browser::Browser(const Url &u) :
     url(u)
 {
-	if (!font.loadFromFile("../data/fonts/arial.ttf"))
+	if (!font.loadFromFile(DATA_DIR / "fonts" / "arial.ttf"))
 		exit(2);
 
 	assert(arrow_cursor.loadFromSystem(sf::Cursor::Arrow));

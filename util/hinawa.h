@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <cstdint>
 
 using u8  = std::uint8_t;
@@ -13,3 +14,6 @@ struct Point
 	int x;
 	int y;
 };
+
+namespace fs = std::filesystem;
+extern fs::path DATA_DIR;

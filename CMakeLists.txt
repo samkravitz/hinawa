@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_options("-g")
 	add_compile_options("-DDEBUG")
+	add_compile_options(-DHINAWA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

@@ -1,16 +1,16 @@
+#include <curl/curl.h>
 #include <filesystem>
 #include <string>
-#include <curl/curl.h>
-
-namespace fs = std::filesystem;
 
 #include "browser/browser.h"
+#include "util/hinawa.h"
 
-static const char *homepage_url = "../data/homepage.html";
+fs::path DATA_DIR = HINAWA_DATA_DIR;
+static const char *homepage_url = "homepage.html";
 
 int main(int argc, char **argv)
 {
-	std::string html_file = homepage_url;
+	std::string html_file = DATA_DIR / homepage_url;
 	if (argc > 1)
 	{
 		html_file = argv[1];
