@@ -1,4 +1,36 @@
 {
+  "color": {
+    "inherited": true,
+    "initial_value": "canvastext",
+    "valid_types": [
+      "color"
+    ]
+  },
+  "display": {
+    "inherited": false,
+    "initial_value": "inline",
+    "valid_types": [
+      "keyword"
+    ]
+  },
+  "font-size": {
+    "inherited": true,
+    "initial_value": "medium",
+    "valid_types": [
+      "length",
+      "percentage",
+      "keyword"
+    ]
+  },
+  "margin": {
+    "inherited": false,
+    "initial_value": "0",
+    "max_values": 4,
+    "valid_types": [
+      "length",
+      "percentage"
+    ]
+  },
   "padding": {
     "inherited": false,
     "initial_value": "0",
@@ -6,6 +38,13 @@
     "valid_types": [
       "length",
       "percentage"
+    ]
+  },
+  "text-decoration": {
+    "inherited": false,
+    "initial_value": "",
+    "valid_types": [
+      "keyword"
     ]
   }
 }
