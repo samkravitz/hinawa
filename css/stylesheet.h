@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "component_value.h"
 #include "value.h"
 
 namespace css
@@ -70,17 +71,38 @@ struct Selector
 struct Declaration
 {
 	std::string name;
-	std::string value;
+	std::vector<ComponentValue> value;
+	bool important{ false };
 
 	Value *style_value() const { return nullptr; }
 
-	std::string to_string() const { return fmt::format("{}: '{}'", name, value); }
+	std::string to_string() const
+	{
+		std::string s = "";
+		for (const auto &cv : value)
+			s += fmt::format("{} ", cv.token.value());
+		return fmt::format("{}: '{}'", name, s);
+	}
+};
+
+struct ParserBlock
+{
+	Token associated_token;
+	std::vector<ComponentValue> value;
+};
+
+struct QualifiedRule
+{
+	std::vector<ComponentValue> prelude;
+	ParserBlock block;
 };
 
 struct Rule
 {
 	std::vector<Selector> selectors;
 	std::vector<Declaration> declarations;
+
+	QualifiedRule qualified_rule;
 
 	std::string to_string() const
 	{

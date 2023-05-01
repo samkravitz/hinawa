@@ -1,5 +1,7 @@
 // https://www.w3.org/TR/css-syntax-3/#parsing
 #include "parser.h"
+#include "component_value.h"
+#include "stylesheet.h"
 
 #include <cassert>
 #include <fmt/format.h>
@@ -17,7 +19,7 @@ Parser::Parser(const std::string &input)
 
 // 5.3.3. Parse a stylesheet
 // https://www.w3.org/TR/css-syntax-3/#parse-stylesheet
-ParserStylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
+Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
 {
 	// To parse a stylesheet from an input given an optional url location:
 
@@ -27,7 +29,7 @@ ParserStylesheet Parser::parse_stylesheet(const std::string &input, std::optiona
 	//parser.normalize(input);
 
 	// 3. Create a new stylesheet, with its location set to location (or null, if location was not passed).
-	ParserStylesheet stylesheet = {};
+	Stylesheet stylesheet = {};
 
 	// 4. Consume a list of rules from input, with the top-level flag set, and set the stylesheet's value to the result
 	stylesheet.rules = parser.consume_list_of_rules(true);
@@ -66,12 +68,12 @@ ComponentValue Parser::parse_component_value()
 
 // 5.4.1. Consume a list of rules
 // https://www.w3.org/TR/css-syntax-3/#consume-a-list-of-rules
-std::vector<ParserRule> Parser::consume_list_of_rules(bool top_level)
+std::vector<Rule> Parser::consume_list_of_rules(bool top_level)
 {
 	// To consume a list of rules, given a top-level flag:
 
 	// Create an initially empty list of rules
-	std::vector<ParserRule> rules;
+	std::vector<Rule> rules;
 
 	// Repeatedly consume the next input token:
 	while (1)
@@ -105,7 +107,11 @@ std::vector<ParserRule> Parser::consume_list_of_rules(bool top_level)
 
 			// Consume a qualified rule. If anything is returned, append it to the list of rules
 			if (auto qualified_rule = consume_qualified_rule())
-				rules.push_back(*qualified_rule);
+			{
+				Rule rule = {};
+				rule.qualified_rule = *qualified_rule;
+				rules.push_back(rule);
+			}
 
 			continue;
 		}
@@ -118,16 +124,20 @@ std::vector<ParserRule> Parser::consume_list_of_rules(bool top_level)
 
 		// Consume a qualified rule. If anything is returned, append it to the list of rules.
 		if (auto qualified_rule = consume_qualified_rule())
-			rules.push_back(*qualified_rule);
+		{
+			Rule rule = {};
+			rule.qualified_rule = *qualified_rule;
+			rules.push_back(rule);
+		}
 	}
 }
 
 // 5.4.3. Consume a qualified rule
 // https://www.w3.org/TR/css-syntax-3/#consume-a-qualified-rule
-std::optional<ParserRule> Parser::consume_qualified_rule()
+std::optional<QualifiedRule> Parser::consume_qualified_rule()
 {
 	// Create a new qualified rule with its prelude initially set to an empty list, and its value initially set to nothing
-	auto rule = ParserRule{};
+	auto rule = QualifiedRule{};
 
 	// Repeatedly consume the next input token:
 	while (1)
@@ -157,10 +167,10 @@ std::optional<ParserRule> Parser::consume_qualified_rule()
 
 // 5.4.5. Consume a list of declarations
 // https://www.w3.org/TR/css-syntax-3/#consume-list-of-declarations
-std::vector<ParserDeclaration> Parser::consume_declaration_list()
+std::vector<Declaration> Parser::consume_declaration_list()
 {
 	// Create an initially empty list of declarations
-	std::vector<ParserDeclaration> declarations;
+	std::vector<Declaration> declarations;
 
 	// Repeatedly consume the next input token:
 	while (1)
@@ -194,7 +204,7 @@ std::vector<ParserDeclaration> Parser::consume_declaration_list()
 		if (current_input_token.type() == IDENT)
 		{
 			// Initialize a temporary list initially filled with the current input token
-			std::vector<Token> temp_list = { current_input_token };
+			std::vector<ComponentValue> temp_list = {ComponentValue(current_input_token)};
 
 			// As long as the next input token is anything other than a <semicolon-token> or <EOF-token>, consume a component value and append it to the temporary list
 			if (next_input_token().type() != SEMICOLON && !next_input_token().is_eof())
@@ -220,13 +230,13 @@ std::vector<ParserDeclaration> Parser::consume_declaration_list()
 
 // 5.4.6. Consume a declaration
 // https://www.w3.org/TR/css-syntax-3/#consume-declaration
-std::optional<ParserDeclaration> Parser::consume_declaration()
+std::optional<Declaration> Parser::consume_declaration()
 {
 	// Consume the next input token.
 	consume_next_input_token();
 
 	// Create a new declaration with its name set to the value of the current input token and its value initially set to an empty list
-	auto declaration = ParserDeclaration{};
+	auto declaration = Declaration{};
 	declaration.name = current_input_token.value();
 
 	// 1. While the next input token is a <whitespace-token>, consume the next input token
@@ -262,11 +272,11 @@ std::optional<ParserDeclaration> Parser::consume_declaration()
 
 // 5.4.7. Consume a component value
 // https://www.w3.org/TR/css-syntax-3/#consume-a-component-value
-Token Parser::consume_component_value()
+ComponentValue Parser::consume_component_value()
 {
 	// TODO - implement correctly
 	consume_next_input_token();
-	return current_input_token;
+	return ComponentValue(current_input_token);
 }
 
 // 5.4.8. Consume a simple block
@@ -317,7 +327,7 @@ Token Parser::next_input_token()
 {
 	if (pos == tokens.end())
 		return {};
-	
+
 	if (pos == --tokens.end())
 		return {};
 
