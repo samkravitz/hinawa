@@ -2,6 +2,7 @@ set(SOURCES
 	css.cc
 	parser.cc
 	scanner.cc
+	selector.cc
 	styled_node.cc
 	stylesheet.cc
 	token.cc
@@ -12,6 +13,7 @@ set(HEADERS
 	css.h
 	parser.h
 	scanner.h
+	selector.h
 	styled_node.h
 	stylesheet.h
 	token.h

@@ -7,64 +7,11 @@
 
 #include "component_value.h"
 #include "value.h"
+#include "selector.h"
 
 namespace css
 {
 class StyledNode;
-
-// https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
-struct SimpleSelector
-{
-	enum class Type
-	{
-		Universal,
-		Type,
-		Class,
-		Id,
-		Attribute,
-		PseudoClass,
-		PseudoElement,
-	} type;
-
-	std::string value;
-
-	bool matches(StyledNode *styled_node) const;
-};
-
-struct CompoundSelector
-{
-	std::vector<SimpleSelector> simple_selectors;
-};
-
-struct SelectorList
-{
-	std::vector<CompoundSelector> compound_selectors;
-};
-
-struct ComplexSelector
-{ };
-
-// ex
-// div
-// p, h1
-struct Selector
-{
-	enum class Type
-	{
-		Simple,
-		Compound,
-		Complex,
-		Relative,
-	} type;
-
-	SimpleSelector simple_selector;
-	CompoundSelector compound_selector;
-	ComplexSelector complex_selector;
-
-	bool matches(StyledNode *) const;
-
-	std::string to_string() const { return ""; }
-};
 
 // ex
 // margin: auto
