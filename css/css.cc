@@ -21,7 +21,7 @@ Stylesheet read_default_stylesheet()
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	return Parser::parse(buffer.str());
+	return Parser::parse_stylesheet(buffer.str());
 }
 
 void read_properties_file()
