@@ -69,9 +69,11 @@ struct Selector
 struct Declaration
 {
 	std::string name;
-	Value *value;
+	std::string value;
 
-	std::string to_string() { return name + " : " + value->to_string(); }
+	Value *style_value() const { return nullptr; }
+
+	std::string to_string() { return name + " : " + value; }
 };
 
 struct Rule

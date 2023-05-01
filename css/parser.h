@@ -34,6 +34,6 @@ private:
 	std::optional<SimpleSelector> parse_simple_selector();
 	std::optional<Selector> parse_selector();
 	std::optional<Declaration> parse_declaration();
-	Value *parse_value();
+	std::string parse_value();
 };
 };

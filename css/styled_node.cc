@@ -84,7 +84,7 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 			if (element->has_attribute("style"))
 			{
 				for (auto decl : Parser::parse_inline(element->get_attribute("style")))
-					n->assign(decl.name, decl.value);
+					n->assign(decl.name, decl.style_value());
 			}
 		}
 	});
