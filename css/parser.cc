@@ -244,11 +244,12 @@ std::vector<Declaration> Parser::consume_declaration_list()
 			std::vector<ComponentValue> temp_list = {ComponentValue(current_input_token)};
 
 			// As long as the next input token is anything other than a <semicolon-token> or <EOF-token>, consume a component value and append it to the temporary list
-			if (next_input_token().type() != SEMICOLON && !next_input_token().is_eof())
+			while (current_input_token.type() != SEMICOLON && !current_input_token.is_eof())
 				temp_list.push_back(consume_component_value());
 
 			// Consume a declaration from the temporary list. If anything was returned, append it to the list of declarations
-			if (auto declaration = consume_declaration())
+			Parser parser(temp_list);
+			if (auto declaration = parser.consume_declaration())
 				declarations.push_back(*declaration);
 
 			continue;
@@ -260,7 +261,7 @@ std::vector<Declaration> Parser::consume_declaration_list()
 		reconsume_current_input_token();
 
 		// As long as the next input token is anything other than a <semicolon-token> or <EOF-token>, consume a component value and throw away the returned value
-		if (next_input_token().type() != SEMICOLON && !next_input_token().is_eof())
+		while (next_input_token().type() != SEMICOLON && !next_input_token().is_eof())
 			consume_component_value();
 	}
 }
@@ -294,7 +295,7 @@ std::optional<Declaration> Parser::consume_declaration()
 		consume_next_input_token();
 
 	// 4. As long as the next input token is anything other than an <EOF-token>, consume a component value and append it to the declaration's value.
-	if (!next_input_token().is_eof())
+	while (!next_input_token().is_eof())
 		declaration.value.push_back(consume_component_value());
 
 	// 5. If the last two non-<whitespace-token>s in the declaration's value are a <delim-token> with the value "!"
@@ -521,7 +522,7 @@ Token Parser::next_input_token()
 	if (pos == --tokens.end())
 		return {};
 
-	return *(pos + 1);
+	return *pos;
 }
 
 void Parser::consume_next_input_token()
