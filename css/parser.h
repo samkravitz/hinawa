@@ -20,6 +20,7 @@ public:
 	static Stylesheet parse_stylesheet(const std::string &input, std::optional<Url> location = {});
 	static std::optional<Selector> parse_selector_list(const std::vector<ComponentValue> &);
 	static std::vector<Declaration> parse_inline(std::string);
+	static std::vector<Declaration> parse_declaration_list(const std::vector<ComponentValue> &);
 
 private:
 	Parser(const std::string &);

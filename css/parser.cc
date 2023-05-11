@@ -63,6 +63,18 @@ std::optional<Selector> Parser::parse_selector_list(const std::vector<ComponentV
 	return parser.parse_complex_selector_list();
 }
 
+// 5.3.8. Parse a list of declarations
+// https://www.w3.org/TR/css-syntax-3/#parse-a-list-of-declarations
+std::vector<Declaration> Parser::parse_declaration_list(const std::vector<ComponentValue> &component_values)
+{
+	// 1. Normalize input, and set input to the result.
+	Parser parser(component_values);
+
+	// 2. Consume a list of declarations from input, and return the result.
+	return parser.consume_declaration_list();
+}
+
+
 // 5.3.9. Parse a component value
 // https://www.w3.org/TR/css-syntax-3/#parse-component-value
 ComponentValue Parser::parse_component_value()
