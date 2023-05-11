@@ -34,11 +34,13 @@ public:
 		std::string value;
 
 		bool matches(StyledNode *styled_node) const { return false; }
+		void print() const;
 	};
 
 	struct CompoundSelector
 	{
 		std::vector<SimpleSelector> simple_selectors;
+		void print() const;
 	};
 
 	enum class Combinator
@@ -54,6 +56,7 @@ public:
 	{
 		CompoundSelector compound_selector;
 		Combinator combinator{Combinator::None};
+		void print() const;
 	};
 
 	std::vector<ComplexSelector> complex_selectors;
@@ -64,6 +67,6 @@ public:
 	bool is_simple() const;
 
 	bool matches(StyledNode *) const { return false; }
-	std::string to_string() const { return ""; }
+	void print() const;
 };
 }
