@@ -31,9 +31,9 @@ public:
 			PseudoElement,    // ::
 		} type;
 
-		bool matches(StyledNode *styled_node) const { return false; }
-
 		std::string value;
+
+		bool matches(StyledNode *styled_node) const { return false; }
 	};
 
 	struct CompoundSelector
@@ -57,6 +57,11 @@ public:
 	};
 
 	std::vector<ComplexSelector> complex_selectors;
+
+	bool is_selector_list() const { return complex_selectors.size() > 1; }
+	bool is_complex() const;
+	bool is_compound() const;
+	bool is_simple() const;
 
 	bool matches(StyledNode *) const { return false; }
 	std::string to_string() const { return ""; }
