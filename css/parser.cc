@@ -342,10 +342,10 @@ ParserBlock Parser::consume_simple_block()
 std::optional<Selector> Parser::parse_complex_selector_list()
 {
 	consume_next_input_token();
-	Selector complex_selector_list;
+	std::vector<Selector::ComplexSelector> complex_selector_list;
 	while (auto selector = parse_complex_selector())
 	{
-		complex_selector_list.complex_selectors.push_back(*selector);
+		complex_selector_list.push_back(*selector);
 		skip_whitespace();
 		if (current_input_token.type() == COMMA)
 		{
@@ -354,24 +354,36 @@ std::optional<Selector> Parser::parse_complex_selector_list()
 		}
 	}
 
-	if (complex_selector_list.complex_selectors.empty())
+	if (complex_selector_list.empty())
 		return {};
 
-	return complex_selector_list;
+	return Selector{complex_selector_list};
 }
 
 std::optional<Selector::ComplexSelector> Parser::parse_complex_selector()
 {
-	auto combinator = Selector::Combinator::None;
-	auto maybe_combinator = parse_combinator();
-	if (maybe_combinator)
-		combinator = *maybe_combinator;
-
+	std::vector<Selector::CompoundSelector> compound_selectors;
 	auto compound_selector = parse_compound_selector();
 	if (!compound_selector)
 		return {};
 
-	return Selector::ComplexSelector{*compound_selector, combinator};
+	compound_selectors.push_back(Selector::CompoundSelector{*compound_selector});
+
+	while (true)
+	{
+		auto combinator = parse_combinator();
+		if (!combinator)
+			break;
+
+		compound_selector = parse_compound_selector();
+		if (!compound_selector)
+			break;
+
+		compound_selector->combinator = *combinator;
+		compound_selectors.push_back(*compound_selector);
+	}
+
+	return Selector::ComplexSelector{compound_selectors};
 }
 
 std::optional<Selector> Parser::parse_compound_selector_list()
@@ -397,11 +409,7 @@ std::optional<Selector::SimpleSelector> Parser::parse_simple_selector()
 
 	if (current_input_token.type() == IDENT)
 	{
-		auto type = Selector::SimpleSelector::Type::Type;
-		if (current_input_token.value() == "*")
-			type = Selector::SimpleSelector::Type::Universal;
-
-		auto selector = Selector::SimpleSelector{type, current_input_token.value()};
+		auto selector = Selector::SimpleSelector{Selector::SimpleSelector::Type::Type, current_input_token.value()};
 		consume_next_input_token();
 		return selector;
 	}
@@ -414,6 +422,14 @@ std::optional<Selector::SimpleSelector> Parser::parse_simple_selector()
 			assert(!current_input_token.is_eof());
 			auto selector =
 			    Selector::SimpleSelector{Selector::SimpleSelector::Type::Class, current_input_token.value()};
+			consume_next_input_token();
+			return selector;
+		}
+
+		else if (current_input_token.value() == "*")
+		{
+			auto selector =
+			    Selector::SimpleSelector{Selector::SimpleSelector::Type::Universal, current_input_token.value()};
 			consume_next_input_token();
 			return selector;
 		}
@@ -438,19 +454,34 @@ std::optional<Selector::SimpleSelector> Parser::parse_simple_selector()
 std::optional<Selector::Combinator> Parser::parse_combinator()
 {
 	if (current_input_token.is_whitespace())
+	{
+		consume_next_input_token();
 		return Selector::Combinator::Descendant;
+	}
 
 	if (current_input_token.type() != DELIM)
 		return {};
 
+	if (current_input_token.value() == "*")
+		return {};
+
 	if (current_input_token.value() == ">")
+	{
+		consume_next_input_token();
 		return Selector::Combinator::Child;
+	}
 
 	else if (current_input_token.value() == "+")
+	{
+		consume_next_input_token();
 		return Selector::Combinator::AdjacentSibling;
+	}
 
 	else if (current_input_token.value() == "~")
+	{
+		consume_next_input_token();
 		return Selector::Combinator::GeneralSibling;
+	}
 
 	else
 	{

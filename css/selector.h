@@ -37,12 +37,6 @@ public:
 		void print() const;
 	};
 
-	struct CompoundSelector
-	{
-		std::vector<SimpleSelector> simple_selectors;
-		void print() const;
-	};
-
 	enum class Combinator
 	{
 		None,
@@ -52,10 +46,16 @@ public:
 		GeneralSibling,     // ~
 	};
 
+	struct CompoundSelector
+	{
+		std::vector<SimpleSelector> simple_selectors;
+		Combinator combinator{Combinator::None};
+		void print() const;
+	};
+
 	struct ComplexSelector
 	{
-		CompoundSelector compound_selector;
-		Combinator combinator{Combinator::None};
+		std::vector<CompoundSelector> compound_selectors;
 		void print() const;
 	};
 

@@ -13,7 +13,8 @@ bool Selector::is_complex() const
 		return false;
 
 	auto selector = complex_selectors[0];
-	return selector.combinator != Combinator::None;
+	assert(!selector.compound_selectors.empty());
+	return selector.compound_selectors.size() > 1;
 }
 
 bool Selector::is_compound() const
@@ -24,7 +25,7 @@ bool Selector::is_compound() const
 	if (is_complex())
 		return false;
 
-	auto compound_selector = complex_selectors[0].compound_selector;
+	auto compound_selector = complex_selectors[0].compound_selectors[0];
 	assert(!compound_selector.simple_selectors.empty());
 	return compound_selector.simple_selectors.size() > 1;
 }
@@ -92,33 +93,43 @@ void Selector::CompoundSelector::print() const
 
 void Selector::ComplexSelector::print() const
 {
-	if (combinator == Combinator::None)
+	assert(!compound_selectors.empty());
+	if (compound_selectors.size() == 1)
 	{
+		auto compound_selector = compound_selectors[0];
 		compound_selector.print();
 		return;
 	}
 
-	std::string com = "";
-	switch (combinator)
-	{
-		case Combinator::Child:
-			com = ">";
-			break;
-		case Combinator::Descendant:
-			com = "\" \"";
-			break;
-		case Combinator::AdjacentSibling:
-			com = "+";
-			break;
-		case Combinator::GeneralSibling:
-			com = "~";
-			break;
-		default:
-			assert(!"Unknown combinator");
-	}
-
-	fmt::print("Type: complex\n Combinator: {}\n", com);
+	fmt::print("Type: complex\n");
+	auto compound_selector = compound_selectors[0];
 	compound_selector.print();
+
+	for (int i = 1; i < compound_selectors.size(); i++)
+	{
+		const auto &compound_selector = compound_selectors[i];
+		std::string com = "";
+		switch (compound_selector.combinator)
+		{
+			case Combinator::Child:
+				com = ">";
+				break;
+			case Combinator::Descendant:
+				com = "\" \"";
+				break;
+			case Combinator::AdjacentSibling:
+				com = "+";
+				break;
+			case Combinator::GeneralSibling:
+				com = "~";
+				break;
+			default:
+				assert(!"Combinator should not be none");
+		}
+
+		fmt::print("Combinator {}\n", com);
+		compound_selector.print();
+	}
 }
 
 void Selector::print() const
