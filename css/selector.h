@@ -33,7 +33,7 @@ public:
 
 		std::string value;
 
-		bool matches(StyledNode *styled_node) const { return false; }
+		bool matches(const StyledNode &) const;
 		void print() const;
 	};
 
@@ -50,23 +50,28 @@ public:
 	{
 		std::vector<SimpleSelector> simple_selectors;
 		Combinator combinator{Combinator::None};
+
+		bool matches(const StyledNode &) const;
 		void print() const;
 	};
 
 	struct ComplexSelector
 	{
 		std::vector<CompoundSelector> compound_selectors;
+
+		bool matches(const StyledNode &) const;
 		void print() const;
 	};
 
 	std::vector<ComplexSelector> complex_selectors;
+
+	bool matches(const StyledNode &) const;
 
 	bool is_selector_list() const { return complex_selectors.size() > 1; }
 	bool is_complex() const;
 	bool is_compound() const;
 	bool is_simple() const;
 
-	bool matches(StyledNode *) const { return false; }
 	void print() const;
 };
 }

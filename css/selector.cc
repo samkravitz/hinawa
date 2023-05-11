@@ -1,10 +1,91 @@
 #include "selector.h"
 
 #include <cassert>
+#include <document/element.h>
 #include <fmt/format.h>
+#include <styled_node.h>
 
 namespace css
 {
+bool Selector::matches(const StyledNode &element) const
+{
+	for (const auto &complex : complex_selectors)
+	{
+		if (complex.matches(element))
+			return true;
+	}
+
+	return false;
+}
+
+bool Selector::SimpleSelector::matches(const StyledNode &element) const
+{
+	auto *dom_node = element.node();
+	if (!dom_node)
+		return false;
+
+	switch (type)
+	{
+		case Type::Universal:
+			return true;
+		case Type::Type:
+			return dom_node->element_name() == value;
+		case Type::Class:
+		{
+			if (dom_node->type() != NodeType::Element)
+				return false;
+
+			auto *el = static_cast<Element *>(dom_node);
+			return el->has_class(value);
+			if (!el->has_attribute("class"))
+				return false;
+
+			return el->get_attribute("class") == value;
+		}
+
+		case Type::Id:
+		{
+			if (dom_node->type() != NodeType::Element)
+				return false;
+
+			auto *el = static_cast<Element *>(dom_node);
+			if (!el->has_attribute("id"))
+				return false;
+
+			return el->get_attribute("id") == value;
+		}
+
+		default:
+			break;
+	}
+	return false;
+}
+
+bool Selector::CompoundSelector::matches(const StyledNode &element) const
+{
+	assert(!simple_selectors.empty());
+	for (const auto &simple : simple_selectors)
+	{
+		if (simple.matches(element))
+			return true;
+	}
+
+	return false;
+}
+
+bool Selector::ComplexSelector::matches(const StyledNode &element) const
+{
+	assert(!compound_selectors.empty());
+
+	if (compound_selectors.size() == 1)
+	{
+		auto compound = compound_selectors[0];
+		return compound.matches(element);
+	}
+
+	return false;
+}
+
 bool Selector::is_complex() const
 {
 	assert(!complex_selectors.empty());
