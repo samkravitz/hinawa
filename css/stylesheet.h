@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "component_value.h"
-#include "value.h"
 #include "selector.h"
+#include "value.h"
 
 namespace css
 {
@@ -19,7 +19,7 @@ struct Declaration
 {
 	std::string name;
 	std::vector<ComponentValue> value;
-	bool important{ false };
+	bool important{false};
 
 	Value *style_value() const { return nullptr; }
 
@@ -36,12 +36,33 @@ struct ParserBlock
 {
 	Token associated_token;
 	std::vector<ComponentValue> value;
+
+	std::string to_string() const
+	{
+		std::string res = "";
+		for (const auto &cv : value)
+			res += cv.token.value();
+		
+		return res;
+	}
 };
 
 struct QualifiedRule
 {
 	std::vector<ComponentValue> prelude;
 	ParserBlock block;
+
+	std::string to_string() const
+	{
+		std::string res = "QualifiedRule:\n";
+		res += "Prelude:\n";
+		for (const auto &cv : prelude)
+			res += cv.token.value();
+		res += "\n";
+		res += "Block:\n";
+		res += block.to_string();
+		return res;
+	}
 };
 
 struct Rule
@@ -53,16 +74,7 @@ struct Rule
 
 	std::string to_string() const
 	{
-		std::string res = "Selectors:\n";
-		for (const auto &selector : selectors)
-			res += fmt::format("\t{}\n", selector.to_string());
-
-		res += "Declarations:\n";
-
-		for (const auto &declaration : declarations)
-			res += fmt::format("\t{}\n", declaration.to_string());
-
-		return res;
+		return qualified_rule.to_string();
 	}
 };
 
