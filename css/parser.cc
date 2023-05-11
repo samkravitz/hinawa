@@ -17,6 +17,16 @@ Parser::Parser(const std::string &input)
 	pos = tokens.begin();
 }
 
+Parser::Parser(const std::vector<ComponentValue> &input)
+{
+	std::vector<Token> ts;
+	for (const auto &t : input)
+		ts.push_back(t.token);
+
+	tokens = ts;
+	pos = tokens.begin();
+}
+
 // 5.3.3. Parse a stylesheet
 // https://www.w3.org/TR/css-syntax-3/#parse-stylesheet
 Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
@@ -36,6 +46,21 @@ Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url>
 
 	// 5. Return the stylesheet
 	return stylesheet;
+}
+
+// 5.3.1 Parse something according to a CSS grammar
+// https://www.w3.org/TR/css-syntax-3/#css-parse-something-according-to-a-css-grammar
+std::optional<Selector> Parser::parse_selector_list(const std::vector<ComponentValue> &component_values)
+{
+	Parser parser(component_values);
+
+	// 1. Normalize input, and set input to the result.
+
+	// 2. Parse a list of component values from input, and let result be the return value.
+
+	// 3. Attempt to match result against grammar. If this is successful, return the matched result; otherwise, return failure.
+
+	return parser.parse_complex_selector_list();
 }
 
 // 5.3.9. Parse a component value
@@ -314,6 +339,128 @@ ParserBlock Parser::consume_simple_block()
 	}
 }
 
+std::optional<Selector> Parser::parse_complex_selector_list()
+{
+	consume_next_input_token();
+	Selector complex_selector_list;
+	while (auto selector = parse_complex_selector())
+	{
+		complex_selector_list.complex_selectors.push_back(*selector);
+		skip_whitespace();
+		if (current_input_token.type() == COMMA)
+		{
+			consume_next_input_token();
+			skip_whitespace();
+		}
+	}
+
+	if (complex_selector_list.complex_selectors.empty())
+		return {};
+
+	return complex_selector_list;
+}
+
+std::optional<Selector::ComplexSelector> Parser::parse_complex_selector()
+{
+	auto combinator = Selector::Combinator::None;
+	auto maybe_combinator = parse_combinator();
+	if (maybe_combinator)
+		combinator = *maybe_combinator;
+
+	auto compound_selector = parse_compound_selector();
+	if (!compound_selector)
+		return {};
+
+	return Selector::ComplexSelector{*compound_selector, combinator};
+}
+
+std::optional<Selector> Parser::parse_compound_selector_list()
+{
+	return {};
+}
+
+std::optional<Selector::CompoundSelector> Parser::parse_compound_selector()
+{
+	std::vector<Selector::SimpleSelector> simple_selectors;
+	while (auto selector = parse_simple_selector())
+		simple_selectors.push_back(*selector);
+
+	if (simple_selectors.empty())
+		return {};
+	return Selector::CompoundSelector{simple_selectors};
+}
+
+std::optional<Selector::SimpleSelector> Parser::parse_simple_selector()
+{
+	if (current_input_token.is_eof())
+		return {};
+
+	if (current_input_token.type() == IDENT)
+	{
+		auto type = Selector::SimpleSelector::Type::Type;
+		if (current_input_token.value() == "*")
+			type = Selector::SimpleSelector::Type::Universal;
+
+		auto selector = Selector::SimpleSelector{type, current_input_token.value()};
+		consume_next_input_token();
+		return selector;
+	}
+
+	else if (current_input_token.type() == DELIM)
+	{
+		if (current_input_token.value() == ".")
+		{
+			consume_next_input_token();
+			assert(!current_input_token.is_eof());
+			auto selector =
+			    Selector::SimpleSelector{Selector::SimpleSelector::Type::Class, current_input_token.value()};
+			consume_next_input_token();
+			return selector;
+		}
+
+		else
+		{
+			fmt::print(stderr, "[SimpleSelector]: Unknown token type {}\n", current_input_token.value());
+			return {};
+		}
+	}
+
+	else if (current_input_token.type() == HASH)
+	{
+		auto selector = Selector::SimpleSelector{Selector::SimpleSelector::Type::Id, current_input_token.value()};
+		consume_next_input_token();
+		return selector;
+	}
+
+	return {};
+}
+
+std::optional<Selector::Combinator> Parser::parse_combinator()
+{
+	if (current_input_token.is_whitespace())
+		return Selector::Combinator::Descendant;
+
+	if (current_input_token.type() != DELIM)
+		return {};
+
+	if (current_input_token.value() == ">")
+		return Selector::Combinator::Child;
+
+	else if (current_input_token.value() == "+")
+		return Selector::Combinator::AdjacentSibling;
+
+	else if (current_input_token.value() == "~")
+		return Selector::Combinator::GeneralSibling;
+
+	else
+	{
+		fmt::print(stderr, "Unknown combinator {}\n", current_input_token.value());
+		assert(!"Unknown combinator");
+	}
+
+	return {};
+}
+
 // https://www.w3.org/TR/css-syntax-3/#normalize-into-a-token-stream
 std::vector<Token> Parser::normalize(const std::string &input)
 {
@@ -352,5 +499,11 @@ void Parser::reconsume_current_input_token()
 		return;
 
 	current_input_token = *pos--;
+}
+
+void Parser::skip_whitespace()
+{
+	while (!current_input_token.is_eof() && current_input_token.is_whitespace())
+		consume_next_input_token();
 }
 }
