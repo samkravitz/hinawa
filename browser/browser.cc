@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "css.h"
 #include "document/element.h"
 #include "document/text.h"
 #include "html/parser.h"
@@ -31,6 +32,8 @@ Browser::Browser(const Url &u) :
 
 	assert(arrow_cursor.loadFromSystem(sf::Cursor::Arrow));
 	assert(hand_cursor.loadFromSystem(sf::Cursor::Hand));
+
+	css::read_properties_file();
 
 	load(url);
 
