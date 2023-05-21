@@ -89,7 +89,7 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		fmt::print(stderr, "Bad font-size: {}\n", value_text);
 	}
 
-	else if (name == "margin")
+	else if (name == "margin" || name == "padding")
 	{
 		auto value_array = new ValueArray();
 		for (const auto &cv : value)
@@ -98,12 +98,10 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 				continue;
 
 			if (cv.token.type() == DIMENSION)
-			{
 				value_array->values.push_back(new Length(cv.token.value()));
-			}
 
 			else
-				fmt::print(stderr, "Bad margin: {}\n", value_text);
+				fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 		}
 
 		return value_array;
