@@ -186,7 +186,7 @@ void Selector::ComplexSelector::print() const
 	auto compound_selector = compound_selectors[0];
 	compound_selector.print();
 
-	for (int i = 1; i < compound_selectors.size(); i++)
+	for (unsigned i = 1; i < compound_selectors.size(); i++)
 	{
 		const auto &compound_selector = compound_selectors[i];
 		std::string com = "";
