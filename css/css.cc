@@ -42,8 +42,24 @@ void read_properties_file()
 
 		if (value.contains("valid_types"))
 			property.valid_types = value["valid_types"].get<std::vector<std::string>>();
-		
+
 		properties[key] = property;
 	}
+}
+
+/**
+* @brief gets the initial value of a css property
+* @param property_name property name
+*/
+Value *initial_value(const std::string &property_name)
+{
+	if (properties.find(property_name) == properties.end())
+	{
+		fmt::print(stderr, "Can't get initial value for property {}\n", property_name);
+		return nullptr;
+	}
+
+	auto property = properties[property_name];
+	return Parser::parse_style_value(property_name, property.initial_value);
 }
 }
