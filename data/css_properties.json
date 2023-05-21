@@ -1,51 +1,94 @@
 {
+  "border-bottom": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "border-left": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "border-right": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "border-top": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
   "color": {
     "inherited": true,
     "initial_value": "canvastext",
-    "valid_types": [
-      "color",
-	  "keyword"
-    ]
+    "valid_types": ["color", "keyword"]
   },
   "display": {
     "inherited": false,
     "initial_value": "inline",
-    "valid_types": [
-      "keyword"
-    ]
+    "valid_types": ["keyword"]
   },
   "font-size": {
     "inherited": true,
     "initial_value": "medium",
-    "valid_types": [
-      "length",
-      "percentage",
-      "keyword"
-    ]
+    "valid_types": ["length", "percentage", "keyword"]
   },
   "margin": {
     "inherited": false,
     "initial_value": "0",
     "max_values": 4,
-    "valid_types": [
-      "length",
-      "percentage"
-    ]
+    "valid_types": ["length", "percentage"]
+  },
+  "margin-bottom": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "margin-left": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "margin-right": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "margin-top": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
   },
   "padding": {
     "inherited": false,
     "initial_value": "0",
     "max_values": 4,
-    "valid_types": [
-      "length",
-      "percentage"
-    ]
+    "valid_types": ["length", "percentage"]
+  },
+  "padding-bottom": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "padding-left": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "padding-right": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
+  },
+  "padding-top": {
+    "inherited": false,
+    "initial_value": "0",
+    "valid_types": ["length", "percentage"]
   },
   "text-decoration": {
     "inherited": false,
     "initial_value": "",
-    "valid_types": [
-      "keyword"
-    ]
+    "valid_types": ["keyword"]
   }
 }
