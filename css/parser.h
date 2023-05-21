@@ -22,6 +22,7 @@ public:
 	static std::vector<Declaration> parse_inline(std::string);
 	static std::vector<Declaration> parse_declaration_list(const std::vector<ComponentValue> &);
 	static Value *parse_style_value(const std::string &, const std::vector<ComponentValue>&);
+	static Value *parse_style_value(const std::string &, const std::string &);
 
 private:
 	Parser(const std::string &);

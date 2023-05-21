@@ -31,8 +31,6 @@ void Stylesheet::style(StyledNode *styled_node) const
 		{
 			for (const auto &declaration : rule.declarations())
 			{
-				std::cout << declaration.name << " hiii "
-				          << "\n";
 				styled_node->assign(declaration.name, declaration.style_value());
 			}
 		}

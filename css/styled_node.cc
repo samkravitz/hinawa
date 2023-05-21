@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "stylesheet.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace css
@@ -157,5 +158,73 @@ Display StyledNode::display()
 		return Display::None;
 
 	return Display::Inline;
+}
+
+void StyledNode::assign(const std::string &name, Value *value)
+{
+	ValueArray *value_array = dynamic_cast<ValueArray*>(value);
+	if (value_array)
+	{
+		if (name == "margin")
+		{
+			const auto &values = value_array->values;
+			assert(!values.empty() && values.size() <= 4);
+
+			// if the margin has 1 value, all 4 margins are that value
+			if (values.size() == 1)
+			{
+				m_values["margin-top"] = values[0];
+				m_values["margin-right"] = values[0];
+				m_values["margin-bottom"] = values[0];
+				m_values["margin-left"] = values[0];
+			}
+
+			/**
+			* If the margin has 2 values:
+			* top and bottom margins are the first value
+			* left and right margins are the second value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["margin-top"] = values[0];
+				m_values["margin-right"] = values[1];
+				m_values["margin-bottom"] = values[0];
+				m_values["margin-left"] = values[1];
+			}
+
+			/**
+			* If the margin has 3 values:
+			* top margin is the first value
+			* left and right margins are the second value
+			* bottom margin is the third value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["margin-top"] = values[0];
+				m_values["margin-right"] = values[1];
+				m_values["margin-bottom"] = values[2];
+				m_values["margin-left"] = values[1];
+			}
+
+			/**
+			* If the margin has 4 values:
+			* top margin is the first value
+			* right margin is the second value
+			* bottom margin is the third value
+			* left margin is the fourth value
+			*/
+			if (values.size() == 4)
+			{
+				m_values["margin-top"] = values[0];
+				m_values["margin-right"] = values[1];
+				m_values["margin-bottom"] = values[2];
+				m_values["margin-left"] = values[3];
+			}
+
+			return;
+		}
+	}
+
+	m_values[name] = value;
 }
 }

@@ -27,6 +27,13 @@ Parser::Parser(const std::vector<ComponentValue> &input)
 	pos = tokens.begin();
 }
 
+
+Value *Parser::parse_style_value(const std::string &name, const std::string &value)
+{
+	Parser parser(value);
+	return parse_style_value(name, parser.parse_list_of_component_values());
+}
+
 /**
 * @brief parse a style value from the components of a declaration
 * @param name declaration's name
@@ -44,12 +51,61 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		return new Keyword(value_text);
 	}
 
-	if (name == "color")
+	else if (name == "color")
 	{
 		if (auto *color = Color::from_color_string(value_text))
 			return color;
+
+		fmt::print(stderr, "Bad color: {}\n", value_text);
 	}
 
+	else if (name == "font-size")
+	{
+		if (value[0].token.type() == DIMENSION)
+			return new Length(value_text);
+
+		fmt::print(stderr, "Bad font-size: {}\n", value_text);
+	}
+
+	else if (name == "margin")
+	{
+		auto value_array = new ValueArray();
+		for (const auto &cv : value)
+		{
+			if (cv.token.is_whitespace())
+				continue;
+
+			if (cv.token.type() == DIMENSION)
+			{
+				value_array->values.push_back(new Length(cv.token.value()));
+			}
+
+			else
+				fmt::print(stderr, "Bad margin: {}\n", value_text);
+		}
+
+		return value_array;
+	}
+
+	else if (name == "background")
+	{
+		if (auto *color = Color::from_color_string(value_text))
+			return color;
+
+		if (value[0].token.type() == HASH)
+		{
+			auto hex = value[0].token.value();
+			auto *color = new Color();
+			color->r = std::stoul(hex.substr(0, 2), nullptr, 16);
+			color->g = std::stoul(hex.substr(2, 2), nullptr, 16);
+			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
+			return color;
+		}
+
+		fmt::print(stderr, "Bad background: {}\n", value_text);
+	}
+
+	fmt::print(stderr, "Unsupported style: {}: {}\n", name, value_text);
 	return nullptr;
 }
 

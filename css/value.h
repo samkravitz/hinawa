@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
+#include "fmt/format.h"
 #include "util/hinawa.h"
 
 namespace css
@@ -137,6 +139,30 @@ struct Length : public Value
 	    unit(unit)
 	{ }
 
+	Length(const std::string &str)
+	{
+		if (str == "0")
+			return;
+
+		auto u = str.substr(str.size() - 2);
+		if (u == "in")
+			unit = IN;
+		else if (u == "cm")
+			unit = CM;
+		else if (u == "mm")
+			unit = MM;
+		else if (u == "pt")
+			unit = PT;
+		else if (u == "pc")
+			unit = PC;
+		else if (u == "px")
+			unit = PX;
+		else
+			fmt::print(stderr, "Unknown length {}\n", str);
+
+		value = std::stod(str.substr(0, str.size() - 2));
+	}
+
 	float value = 0.0f;
 	Unit unit = PX;
 
@@ -149,12 +175,24 @@ struct Length : public Value
 		std::string unitstr;
 		switch (unit)
 		{
-			case IN: unitstr = "in"; break;
-			case CM: unitstr = "cm"; break;
-			case MM: unitstr = "mm"; break;
-			case PT: unitstr = "pt"; break;
-			case PC: unitstr = "pc"; break;
-			case PX: unitstr = "px"; break;
+			case IN:
+				unitstr = "in";
+				break;
+			case CM:
+				unitstr = "cm";
+				break;
+			case MM:
+				unitstr = "mm";
+				break;
+			case PT:
+				unitstr = "pt";
+				break;
+			case PC:
+				unitstr = "pc";
+				break;
+			case PX:
+				unitstr = "px";
+				break;
 		}
 
 		return "{ Length: " + std::to_string(value) + " " + unitstr + " }";
@@ -167,5 +205,15 @@ struct Percentage : public Value
 	    percent(percent)
 	{ }
 	double percent;
+};
+
+struct ValueArray : public Value
+{
+	ValueArray() = default;
+	ValueArray(const std::vector<Value *> &values) :
+	    values(values)
+	{ }
+
+	std::vector<Value *> values;
 };
 }
