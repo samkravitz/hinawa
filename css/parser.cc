@@ -27,9 +27,12 @@ Parser::Parser(const std::vector<ComponentValue> &input)
 	pos = tokens.begin();
 }
 
-
 Value *Parser::parse_style_value(const std::string &name, const std::string &value)
 {
+	// TODO - remove this
+	if (value == "")
+		return nullptr;
+
 	Parser parser(value);
 	return parse_style_value(name, parser.parse_list_of_component_values());
 }
@@ -105,6 +108,33 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		fmt::print(stderr, "Bad background: {}\n", value_text);
 	}
 
+	else if (name == "border-left" || name == "border-right" || name == "border-top" || name == "border-bottom")
+	{
+		auto token = value[0].token;
+		if (token.type() == NUMBER || token.type() == DIMENSION)
+			return new Length(value_text);
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
+	else if (name == "padding-left" || name == "padding-right" || name == "padding-top" || name == "padding-bottom")
+	{
+		auto token = value[0].token;
+		if (token.type() == NUMBER || token.type() == DIMENSION)
+			return new Length(value_text);
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
+	else if (name == "margin-left" || name == "margin-right" || name == "margin-top" || name == "margin-bottom")
+	{
+		auto token = value[0].token;
+		if (token.type() == NUMBER || token.type() == DIMENSION)
+			return new Length(value_text);
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
 	fmt::print(stderr, "Unsupported style: {}: {}\n", name, value_text);
 	return nullptr;
 }
@@ -113,6 +143,9 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 // https://www.w3.org/TR/css-syntax-3/#parse-stylesheet
 Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
 {
+	if (input == "")
+		return {};
+
 	// To parse a stylesheet from an input given an optional url location:
 
 	// 1. If input is a byte stream for stylesheet, decode bytes from input, and set input to the result
@@ -195,7 +228,7 @@ std::vector<ComponentValue> Parser::parse_list_of_component_values()
 	// appending the returned values (except the final <EOF-token>) into a list. Return the list.
 	do
 	{
-		component_values.push_back(consume_component_value());	
+		component_values.push_back(consume_component_value());
 	} while (!next_input_token().is_eof());
 
 	return component_values;
@@ -614,6 +647,9 @@ std::vector<Token> Parser::normalize(const std::string &input)
 
 Token Parser::next_input_token()
 {
+	if (pos == tokens.begin())
+		return *pos;
+
 	if (pos == tokens.end())
 		return {};
 
