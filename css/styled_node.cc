@@ -61,8 +61,6 @@ static std::string INHERITED_PROPERTIES[] = {
 	"word-spacing",
 };
 
-Value *const default_font_size = new Length(16, Length::PX);
-
 std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 {
 	auto default_stylesheet = read_default_stylesheet();

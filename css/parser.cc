@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 namespace css
 {
@@ -56,16 +57,34 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 
 	else if (name == "color")
 	{
+		auto token = value[0].token;
 		if (auto *color = Color::from_color_string(value_text))
 			return color;
+		
+		if (token.type() == HASH)
+		{
+			auto hex = token.value();
+			auto *color = new Color();
+			color->r = std::stoul(hex.substr(0, 2), nullptr, 16);
+			color->g = std::stoul(hex.substr(2, 2), nullptr, 16);
+			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
+			return color;
+		}
 
 		fmt::print(stderr, "Bad color: {}\n", value_text);
 	}
 
 	else if (name == "font-size")
 	{
-		if (value[0].token.type() == DIMENSION)
+		auto token = value[0].token;
+		if (token.type() == DIMENSION)
 			return new Length(value_text);
+
+		if (token.type() == PERCENTAGE)
+		{
+			auto d = std::stod(token.value());
+			return new Percentage(d);
+		}
 
 		fmt::print(stderr, "Bad font-size: {}\n", value_text);
 	}

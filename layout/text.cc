@@ -5,6 +5,7 @@
 #include "block.h"
 #include "browser/browser.h"
 #include "document/text.h"
+#include "value.h"
 
 extern sf::Font font;
 
@@ -35,10 +36,11 @@ void Text::split_into_lines(Box container)
 	assert(block_ancestor);
 	auto &lines = block_ancestor->lines;
 
-	auto *font_size = dynamic_cast<css::Length *>(style()->property("font-size"));
+	auto *font_size = style()->property("font-size");
+	float px = font_size->font_size();
+
 	auto *text_element = dynamic_cast<::Text *>(style()->node());
 	auto str = text_element->trim();
-	auto px = font_size->to_px();
 	const int max_width = container.content.width;
 	int current_x = container.content.x;
 	int current_y = container.content.y;

@@ -30,10 +30,13 @@ struct Value
 {
 	virtual ~Value() = default;
 
-	virtual std::string to_string() { return "{ Unsupported Value }"; }
+	virtual std::string to_string() const { return "{ Unsupported Value }"; }
 	virtual ValueType type() { return ValueType::Unsupported; }
 
 	virtual float to_px() { return 0; }
+
+	// returns the font-size in px that a value
+	virtual float font_size() const;
 };
 
 struct Color : public Value
@@ -98,7 +101,7 @@ struct Color : public Value
 	}
 
 	inline ValueType type() { return ValueType::Color; }
-	std::string to_string()
+	std::string to_string() const
 	{
 		return "{ Color r: " + std::to_string(r) + " g: " + std::to_string(g) + " b: " + std::to_string(b) +
 		       " a: " + std::to_string(a) + " }";
@@ -117,7 +120,7 @@ struct Keyword : public Value
 
 	inline ValueType type() { return ValueType::Keyword; }
 
-	std::string to_string() { return "{ Keyword: " + value + " }"; }
+	std::string to_string() const { return "{ Keyword: " + value + " }"; }
 };
 
 struct Length : public Value
@@ -170,7 +173,7 @@ struct Length : public Value
 
 	inline ValueType type() { return ValueType::Keyword; }
 
-	std::string to_string()
+	std::string to_string() const
 	{
 		std::string unitstr;
 		switch (unit)

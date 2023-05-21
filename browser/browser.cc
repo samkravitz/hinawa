@@ -201,10 +201,10 @@ void Browser::render()
 					auto *styled_node = frag.styled_node;
 					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
 					auto color = sf::Color(color_value->r, color_value->g, color_value->b);
-					auto *font_size = dynamic_cast<css::Length *>(styled_node->property("font-size"));
+					auto *font_size = styled_node->property("font-size");
 
 					sf::Text text(frag.str, font);
-					text.setCharacterSize(font_size->to_px());
+					text.setCharacterSize(font_size->font_size());
 					text.setFillColor(color);
 					text.setPosition(line.x + frag.offset, line.y);
 					window.draw(text);
@@ -215,7 +215,7 @@ void Browser::render()
 						if (keyword->value == "underline")
 						{
 							sf::RectangleShape rect;
-							rect.setPosition(line.x + frag.offset, line.y + font_size->to_px() + 1);
+							rect.setPosition(line.x + frag.offset, line.y + font_size->font_size() + 1);
 							rect.setSize(sf::Vector2f(frag.len, 2));
 							rect.setFillColor(color);
 							window.draw(rect);
