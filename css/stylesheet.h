@@ -21,7 +21,15 @@ struct Declaration
 	std::vector<ComponentValue> value;
 	bool important{false};
 
-	Value *style_value() const { return nullptr; }
+	Value *style_value() const;
+
+	std::string value_text() const
+	{
+		std::string s = "";
+		for (const auto &cv : value)
+			s += cv.token.value();
+		return s;
+	}
 
 	std::string to_string() const
 	{
@@ -42,7 +50,7 @@ struct ParserBlock
 		std::string res = "";
 		for (const auto &cv : value)
 			res += cv.token.value();
-		
+
 		return res;
 	}
 };
@@ -67,15 +75,12 @@ struct QualifiedRule
 
 struct Rule
 {
-	std::vector<Selector> selectors;
-	std::vector<Declaration> declarations;
+	Selector selector() const;
+	std::vector<Declaration> declarations() const;
 
 	QualifiedRule qualified_rule;
 
-	std::string to_string() const
-	{
-		return qualified_rule.to_string();
-	}
+	std::string to_string() const { return qualified_rule.to_string(); }
 };
 
 struct Stylesheet

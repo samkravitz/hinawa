@@ -3,7 +3,8 @@
     "inherited": true,
     "initial_value": "canvastext",
     "valid_types": [
-      "color"
+      "color",
+	  "keyword"
     ]
   },
   "display": {

@@ -27,6 +27,32 @@ Parser::Parser(const std::vector<ComponentValue> &input)
 	pos = tokens.begin();
 }
 
+/**
+* @brief parse a style value from the components of a declaration
+* @param name declaration's name
+* @param value list of tokens comprising the declaration's value
+*
+*/
+Value *Parser::parse_style_value(const std::string &name, const std::vector<ComponentValue> &value)
+{
+	std::string value_text{};
+	for (const auto &cv : value)
+		value_text += cv.token.value();
+
+	if (name == "display")
+	{
+		return new Keyword(value_text);
+	}
+
+	if (name == "color")
+	{
+		if (auto *color = Color::from_color_string(value_text))
+			return color;
+	}
+
+	return nullptr;
+}
+
 // 5.3.3. Parse a stylesheet
 // https://www.w3.org/TR/css-syntax-3/#parse-stylesheet
 Stylesheet Parser::parse_stylesheet(const std::string &input, std::optional<Url> location)
@@ -73,7 +99,6 @@ std::vector<Declaration> Parser::parse_declaration_list(const std::vector<Compon
 	// 2. Consume a list of declarations from input, and return the result.
 	return parser.consume_declaration_list();
 }
-
 
 // 5.3.9. Parse a component value
 // https://www.w3.org/TR/css-syntax-3/#parse-component-value
