@@ -107,24 +107,12 @@ StyledNode::StyledNode(Node *node) :
 	});
 }
 
-Value *StyledNode::property(const std::string &property_name, Value *const fallback) const
+Value *StyledNode::property(const std::string &property_name) const
 {
 	if (m_values.find(property_name) != m_values.end())
 		return m_values.at(property_name);
 
-	return fallback;
-}
-
-Value *
-StyledNode::property(const std::string &property_name1, const std::string &property_name2, Value *const fallback) const
-{
-	if (m_values.find(property_name1) != m_values.end())
-		return m_values.at(property_name1);
-
-	if (m_values.find(property_name2) != m_values.end())
-		return m_values.at(property_name2);
-
-	return fallback;
+	return initial_value(property_name);
 }
 
 void StyledNode::inherit_properties(const StyledNode &parent)
@@ -137,9 +125,7 @@ void StyledNode::inherit_properties(const StyledNode &parent)
 
 Display StyledNode::display()
 {
-	auto inline_display = css::Keyword{ "inline" };
-
-	auto *display = property("display", &inline_display);
+	auto *display = property("display");
 	auto *keyword = dynamic_cast<Keyword *>(display);
 
 	if (keyword->value == "block")

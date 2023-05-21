@@ -18,10 +18,9 @@ public:
 
 	inline Node *node() const { return m_node; }
 	inline std::unordered_map<std::string, Value *> values() const { return m_values; }
-	void assign(std::string name, Value *value) { m_values[name] = value; }
+	void assign(const std::string &name, Value *value);
 
-	Value *property(const std::string &property_name, Value *const fallback = nullptr) const;
-	Value *property(const std::string &property_name1, const std::string &property_name2, Value *const fallback = nullptr) const;
+	Value *property(const std::string &property_name) const;
 	Display display();
 	void inherit_properties(const StyledNode &);
 
