@@ -128,6 +128,23 @@ ComponentValue Parser::parse_component_value()
 	return {};
 }
 
+// 5.3.10. Parse a list of component values
+// https://www.w3.org/TR/css-syntax-3/#parse-list-of-component-values
+std::vector<ComponentValue> Parser::parse_list_of_component_values()
+{
+	std::vector<ComponentValue> component_values;
+	// 1. Normalize input, and set input to the result.
+
+	// 2. Repeatedly consume a component value from input until an <EOF-token> is returned,
+	// appending the returned values (except the final <EOF-token>) into a list. Return the list.
+	do
+	{
+		component_values.push_back(consume_component_value());	
+	} while (!next_input_token().is_eof());
+
+	return component_values;
+}
+
 // 5.4.1. Consume a list of rules
 // https://www.w3.org/TR/css-syntax-3/#consume-a-list-of-rules
 std::vector<Rule> Parser::consume_list_of_rules(bool top_level)

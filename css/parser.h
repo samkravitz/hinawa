@@ -31,6 +31,7 @@ private:
 	std::vector<Token>::iterator pos;    // points to next token
 
 	ComponentValue parse_component_value();
+	std::vector<ComponentValue> parse_list_of_component_values();
 	std::vector<Rule> consume_list_of_rules(bool top_level = false);
 	std::optional<QualifiedRule> consume_qualified_rule();
 	std::vector<Declaration> consume_declaration_list();
