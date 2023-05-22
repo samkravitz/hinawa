@@ -41,11 +41,12 @@ void Text::split_into_lines(Box container)
 
 	auto *text_element = dynamic_cast<::Text *>(style()->node());
 	auto str = text_element->trim();
+
 	const int max_width = container.content.width;
 
 	if (lines.empty())
 		lines.push_back(Line(container.content.x, container.content.y));
-	
+
 	int current_x = lines.back().x + lines.back().width;
 	int current_y = lines.back().y;
 
@@ -58,6 +59,34 @@ void Text::split_into_lines(Box container)
 	std::string word;
 	LineFragment frag = {};
 	frag.styled_node = m_style;
+
+	auto *white_space = dynamic_cast<css::Keyword *>(style()->property("white-space"));
+	// preserve whitespace
+	if (white_space && white_space->value == "pre")
+	{
+		str = text_element->text();
+		ss = std::istringstream(str);
+
+		while (std::getline(ss, word, '\n'))
+		{
+			text.setString(word);
+			float len = text.getLocalBounds().width;
+			float height = px;
+
+			frag.str = word;
+			frag.len = len;
+			frag.styled_node = m_style;
+			lines.back().fragments.push_back(frag);
+			lines.back().height = height;
+			lines.back().width = len;
+
+			current_y += height;
+			lines.push_back(Line(current_x, current_y));
+			m_dimensions.content.width = std::max((float) m_dimensions.content.width, (float) frag.len);
+			m_dimensions.content.height += height;
+		}
+		return;
+	}
 
 	while (std::getline(ss, word, ' '))
 	{

@@ -101,6 +101,11 @@
     "initial_value": "",
     "valid_types": ["keyword"]
   },
+  "white-space": {
+	"inherited": true,
+	"initial_value": "normal",
+	"valid_types": ["keyword"]
+  },
   "width": {
 	"inherited": false,
 	"initial_value": "auto",
