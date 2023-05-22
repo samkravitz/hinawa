@@ -24,7 +24,7 @@ TEST(SelectorParseTests, ParseSimpleList)
 		h5,
 		h6,
 		p,
-		ul {})";
+		ul)";
 
 	auto selector = Parser::parse_selector(css);
 
@@ -45,7 +45,7 @@ TEST(SelectorParseTests, ParseSimpleList)
 
 TEST(SelectorParseTests, ParseCompound)
 {
-	std::string css = R"(div.my_class {})";
+	std::string css = R"(div.my_class)";
 
 	auto selector = Parser::parse_selector(css);
 

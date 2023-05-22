@@ -259,10 +259,8 @@ std::vector<ComponentValue> Parser::parse_list_of_component_values()
 
 	// 2. Repeatedly consume a component value from input until an <EOF-token> is returned,
 	// appending the returned values (except the final <EOF-token>) into a list. Return the list.
-	do
-	{
+	while (!next_input_token().is_eof())
 		component_values.push_back(consume_component_value());
-	} while (!next_input_token().is_eof());
 
 	return component_values;
 }
@@ -408,7 +406,7 @@ std::vector<Declaration> Parser::consume_declaration_list()
 			std::vector<ComponentValue> temp_list = {ComponentValue(current_input_token)};
 
 			// As long as the next input token is anything other than a <semicolon-token> or <EOF-token>, consume a component value and append it to the temporary list
-			while (current_input_token.type() != SEMICOLON && !current_input_token.is_eof())
+			while (next_input_token().type() != SEMICOLON && !next_input_token().is_eof())
 				temp_list.push_back(consume_component_value());
 
 			// Consume a declaration from the temporary list. If anything was returned, append it to the list of declarations
@@ -686,9 +684,6 @@ Token Parser::next_input_token()
 	if (pos == tokens.end())
 		return {};
 
-	if (pos == --tokens.end())
-		return {};
-
 	return *pos;
 }
 
@@ -709,7 +704,7 @@ void Parser::reconsume_current_input_token()
 	if (pos == tokens.begin())
 		return;
 
-	current_input_token = *pos--;
+	current_input_token = *(--pos - 1);
 }
 
 void Parser::skip_whitespace()
