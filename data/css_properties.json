@@ -100,5 +100,10 @@
     "inherited": false,
     "initial_value": "",
     "valid_types": ["keyword"]
+  },
+  "width": {
+	"inherited": false,
+	"initial_value": "auto",
+	"valid_types": ["length", "percentage", "keyword"]
   }
 }

@@ -77,7 +77,7 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		auto token = value[0].token;
 		if (auto *color = parse_color(token))
 			return color;
-		
+
 		return new Keyword(value_text);
 
 		fmt::print(stderr, "Bad background-color: {}\n", value_text);
@@ -157,7 +157,7 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		auto token = value[0].token;
 		if (token.type() == NUMBER || token.type() == DIMENSION)
 			return new Length(value_text);
-		
+
 		if (token.type() == IDENT)
 			return new Keyword(value_text);
 
@@ -169,7 +169,25 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		auto token = value[0].token;
 		if (token.type() == IDENT)
 			return new Keyword(token.value());
-		
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
+	else if (name == "width")
+	{
+		auto token = value[0].token;
+		if (token.type() == IDENT)
+			return new Keyword(token.value());
+
+		if (token.type() == DIMENSION)
+			return new Length(value_text);
+
+		if (token.type() == PERCENTAGE)
+		{
+			auto d = std::stod(token.value());
+			return new Percentage(d);
+		}
+
 		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 	}
 
@@ -221,7 +239,6 @@ std::optional<Selector> Parser::parse_selector(const std::string &input)
 	Parser parser(input);
 	return parse_selector_list(parser.parse_list_of_component_values());
 }
-
 
 // 5.3.8. Parse a list of declarations
 // https://www.w3.org/TR/css-syntax-3/#parse-a-list-of-declarations

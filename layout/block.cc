@@ -66,7 +66,13 @@ void Block::calculate_width(Box container)
 	total += padding_left->to_px();
 	total += padding_right->to_px();
 
-	m_dimensions.content.width = container.content.width - total;
+	m_dimensions.content.width = container.content.width;
+
+	auto *width = style()->property("width");
+	if (auto *width_len = dynamic_cast<css::Length*>(width))
+		m_dimensions.content.width = width_len->to_px();
+
+	m_dimensions.content.width -= total;
 
 	m_dimensions.padding.left = padding_left->to_px();
 	m_dimensions.padding.right = padding_right->to_px();
