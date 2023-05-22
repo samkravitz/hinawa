@@ -42,15 +42,12 @@ void Text::split_into_lines(Box container)
 	auto *text_element = dynamic_cast<::Text *>(style()->node());
 	auto str = text_element->trim();
 	const int max_width = container.content.width;
-	int current_x = container.content.x;
-	int current_y = container.content.y;
 
 	if (lines.empty())
-		lines.push_back(Line(current_x, current_y));
-
-	current_x += lines.back().width;
-
-	int available_width = max_width - lines.back().width;
+		lines.push_back(Line(container.content.x, container.content.y));
+	
+	int current_x = lines.back().x + lines.back().width;
+	int current_y = lines.back().y;
 
 	auto space = sf::Text(" ", font, px);
 	sf::Text text;
@@ -59,7 +56,7 @@ void Text::split_into_lines(Box container)
 
 	std::istringstream ss(str);
 	std::string word;
-	LineFragment frag;
+	LineFragment frag = {};
 	frag.styled_node = m_style;
 
 	while (std::getline(ss, word, ' '))
@@ -69,16 +66,15 @@ void Text::split_into_lines(Box container)
 		float height = px;
 
 		// fragment would overflow the max allowed width, so it must be put on a new line
-		if (current_x + len > available_width)
+		if (current_x + len > max_width)
 		{
-			available_width = max_width;
 			frag.offset = current_x - container.content.x - frag.len;
 			current_x = container.content.x;
 			current_y += lines.back().height;
 
 			lines.back().fragments.push_back(frag);
 			lines.push_back(Line(current_x, current_y));
-			frag = LineFragment();
+			frag = {};
 			frag.styled_node = m_style;
 		}
 
@@ -87,7 +83,7 @@ void Text::split_into_lines(Box container)
 		current_x += len;
 		current_x += space.getLocalBounds().width;
 
-		lines.back().width += len;
+		lines.back().width += len + space.getLocalBounds().width;
 		lines.back().height = std::max((float) lines.back().height, height);
 
 		m_dimensions.content.width = std::max((float) m_dimensions.content.width, (float) frag.len);
@@ -108,6 +104,7 @@ void Text::split_into_lines(Box container)
 
 		// len(" ") is usually about 4 px, but that's just an approximation
 		frag.len -= 4;
+		lines.back().width -= 4;
 	}
 
 	auto *text_align = style()->property("text-align");
