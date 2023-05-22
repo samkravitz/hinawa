@@ -19,7 +19,7 @@ public:
 	Parser() = delete;
 	static Stylesheet parse_stylesheet(const std::string &input, std::optional<Url> location = {});
 	static std::optional<Selector> parse_selector_list(const std::vector<ComponentValue> &);
-	static std::optional<Selector> parse_selector_list(const std::string &);
+	static std::optional<Selector> parse_selector(const std::string &);
 	static std::vector<Declaration> parse_inline(std::string);
 	static std::vector<Declaration> parse_declaration_list(const std::vector<ComponentValue> &);
 	static Value *parse_style_value(const std::string &, const std::vector<ComponentValue>&);

@@ -204,7 +204,7 @@ std::optional<Selector> Parser::parse_selector_list(const std::vector<ComponentV
 	return parser.parse_complex_selector_list();
 }
 
-std::optional<Selector> Parser::parse_selector_list(const std::string &input)
+std::optional<Selector> Parser::parse_selector(const std::string &input)
 {
 	Parser parser(input);
 	return parse_selector_list(parser.parse_list_of_component_values());
