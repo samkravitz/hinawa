@@ -120,7 +120,7 @@ struct Keyword : public Value
 
 	inline ValueType type() { return ValueType::Keyword; }
 
-	std::string to_string() const { return "{ Keyword: " + value + " }"; }
+	std::string to_string() const { return fmt::format("{{ Keyword: {}}}", value); }
 };
 
 struct Length : public Value

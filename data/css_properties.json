@@ -91,6 +91,11 @@
     "initial_value": "0",
     "valid_types": ["length", "percentage"]
   },
+  "text-align": {
+	"inherited": true,
+	"initial_value": "left",
+	"valid_types": ["keyword"]
+  },
   "text-decoration": {
     "inherited": false,
     "initial_value": "",

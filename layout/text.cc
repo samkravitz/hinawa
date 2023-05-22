@@ -47,9 +47,9 @@ void Text::split_into_lines(Box container)
 
 	if (lines.empty())
 		lines.push_back(Line(current_x, current_y));
-	
+
 	current_x += lines.back().width;
-	
+
 	int available_width = max_width - lines.back().width;
 
 	auto space = sf::Text(" ", font, px);
@@ -108,6 +108,16 @@ void Text::split_into_lines(Box container)
 
 		// len(" ") is usually about 4 px, but that's just an approximation
 		frag.len -= 4;
+	}
+
+	auto *text_align = style()->property("text-align");
+	if (auto *keyword = dynamic_cast<css::Keyword*>(text_align); keyword && keyword->value == "center")
+	{
+		for (auto &line : lines)
+		{
+			int center_x_offset = (max_width - line.width) / 2;
+			line.x += center_x_offset;
+		}
 	}
 }
 
