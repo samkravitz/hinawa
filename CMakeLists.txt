@@ -33,9 +33,18 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+FetchContent_MakeAvailable(googletest)
+
 add_executable(hinawa ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
+add_executable(hinawa.test)
 target_sources(hinawa PRIVATE main.cc)
+target_sources(hinawa.test PRIVATE ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
 target_include_directories(hinawa PRIVATE css js)
+target_include_directories(hinawa.test PRIVATE css js)
 
 add_subdirectory(css)
 add_subdirectory(browser)
@@ -43,6 +52,23 @@ add_subdirectory(document)
 add_subdirectory(html)
 add_subdirectory(js)
 add_subdirectory(layout)
+add_subdirectory(test)
 add_subdirectory(web)
 
 target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt nlohmann_json::nlohmann_json)
+
+enable_testing()
+
+target_link_libraries(
+	hinawa.test
+ 	GTest::gtest_main
+	curl
+	sfml-graphics
+	sfml-window
+	sfml-system
+	fmt::fmt
+	nlohmann_json::nlohmann_json
+)
+
+include(GoogleTest)
+gtest_discover_tests(hinawa.test)

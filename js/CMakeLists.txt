@@ -46,3 +46,6 @@ add_executable(js main.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer2_OUTPUTS})
 target_include_directories(js PRIVATE . ..)
 target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS})
 target_link_libraries(js fmt::fmt)
+
+target_include_directories(hinawa.test PRIVATE ..)
+target_sources(hinawa.test PUBLIC ${SOURCES} ${HEADERS})

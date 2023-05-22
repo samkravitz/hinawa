@@ -5,7 +5,6 @@
 #include "browser/browser.h"
 #include "util/hinawa.h"
 
-fs::path DATA_DIR = HINAWA_DATA_DIR;
 static const char *homepage_url = "homepage.html";
 
 int main(int argc, char **argv)

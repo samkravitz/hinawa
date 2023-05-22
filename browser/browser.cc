@@ -15,6 +15,7 @@
 #include "web/resource.h"
 
 auto font = sf::Font{};
+fs::path DATA_DIR = HINAWA_DATA_DIR;
 
 // #define DEBUG_DRAW_OUTLINE
 
