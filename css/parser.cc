@@ -204,6 +204,13 @@ std::optional<Selector> Parser::parse_selector_list(const std::vector<ComponentV
 	return parser.parse_complex_selector_list();
 }
 
+std::optional<Selector> Parser::parse_selector_list(const std::string &input)
+{
+	Parser parser(input);
+	return parse_selector_list(parser.parse_list_of_component_values());
+}
+
+
 // 5.3.8. Parse a list of declarations
 // https://www.w3.org/TR/css-syntax-3/#parse-a-list-of-declarations
 std::vector<Declaration> Parser::parse_declaration_list(const std::vector<ComponentValue> &component_values)
