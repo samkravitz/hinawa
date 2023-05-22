@@ -4,6 +4,8 @@
 
 #include "css/parser.h"
 #include "css/selector.h"
+#include "css/styled_node.h"
+#include "document/element.h"
 
 namespace css
 {
@@ -12,6 +14,8 @@ TEST(SelectorTest, BasicAssertions)
 	Selector s = {};
 	EXPECT_FALSE(s.is_selector_list());
 }
+
+// SelectorParseTests
 
 TEST(SelectorParseTests, ParseSimpleList)
 {
@@ -67,5 +71,19 @@ TEST(SelectorParseTests, ParseCompound)
 	EXPECT_EQ(div.value, "div");
 	EXPECT_EQ(my_class.type, Selector::SimpleSelector::Type::Class);
 	EXPECT_EQ(my_class.value, "my_class");
+}
+
+// SelectorMatchTests
+
+TEST(SelectorMatchTests, MatchCompound)
+{
+	auto *element = new Element("div");
+	element->add_attribute("class", "class1 class2");
+	auto styled_node = StyledNode(element);
+
+	std::string css = R"(div.class2)";
+	auto selector = Parser::parse_selector(css);
+
+	EXPECT_TRUE(selector->matches(styled_node));
 }
 }

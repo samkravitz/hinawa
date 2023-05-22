@@ -66,11 +66,11 @@ bool Selector::CompoundSelector::matches(const StyledNode &element) const
 	assert(!simple_selectors.empty());
 	for (const auto &simple : simple_selectors)
 	{
-		if (simple.matches(element))
-			return true;
+		if (!simple.matches(element))
+			return false;
 	}
 
-	return false;
+	return true;
 }
 
 bool Selector::ComplexSelector::matches(const StyledNode &element) const
