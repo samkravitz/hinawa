@@ -1,5 +1,6 @@
 #include "element.h"
 
+#include <fmt/format.h>
 #include <sstream>
 
 Element::Element(Document &document, std::string tag) :
@@ -31,7 +32,7 @@ bool Element::has_class(const std::string &name) const
 {
 	if (!has_attribute("class"))
 		return false;
-	
+
 	auto classes = get_attribute("class");
 	std::istringstream ss(classes);
 	std::string classname;
@@ -46,5 +47,9 @@ bool Element::has_class(const std::string &name) const
 
 std::string Element::to_string() const
 {
-	return "HTML " + m_tag + " Element";
+	auto s = fmt::format("HTML {} Element", m_tag);
+	for (const auto& [key, value] : attrs)
+		s += fmt::format(" {}:{}", key, value);
+	
+	return s;
 }

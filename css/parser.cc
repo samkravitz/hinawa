@@ -157,6 +157,9 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		auto token = value[0].token;
 		if (token.type() == NUMBER || token.type() == DIMENSION)
 			return new Length(value_text);
+		
+		if (token.type() == IDENT)
+			return new Keyword(value_text);
 
 		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 	}

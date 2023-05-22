@@ -12,7 +12,6 @@ Selector Rule::selector() const
 {
 	auto selector = Parser::parse_selector_list(qualified_rule.prelude);
 	assert(selector);
-	selector->print();
 	return *selector;
 }
 
