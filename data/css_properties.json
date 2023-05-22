@@ -1,4 +1,9 @@
 {
+  "background-color": {
+    "inherited": false,
+    "initial_value": "transparent",
+    "valid_types": ["color", "keyword"]
+  },
   "border-bottom": {
     "inherited": false,
     "initial_value": "0",

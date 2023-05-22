@@ -50,17 +50,10 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 	for (const auto &cv : value)
 		value_text += cv.token.value();
 
-	if (name == "display")
-	{
-		return new Keyword(value_text);
-	}
-
-	else if (name == "color")
-	{
-		auto token = value[0].token;
-		if (auto *color = Color::from_color_string(value_text))
+	auto parse_color = [](const Token &token) -> Color * {
+		if (auto *color = Color::from_color_string(token.value()))
 			return color;
-		
+
 		if (token.type() == HASH)
 		{
 			auto hex = token.value();
@@ -70,6 +63,31 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
 			return color;
 		}
+
+		return nullptr;
+	};
+
+	if (name == "display")
+	{
+		return new Keyword(value_text);
+	}
+
+	else if (name == "background-color")
+	{
+		auto token = value[0].token;
+		if (auto *color = parse_color(token))
+			return color;
+		
+		return new Keyword(value_text);
+
+		fmt::print(stderr, "Bad background-color: {}\n", value_text);
+	}
+
+	else if (name == "color")
+	{
+		auto token = value[0].token;
+		if (auto *color = parse_color(token))
+			return color;
 
 		fmt::print(stderr, "Bad color: {}\n", value_text);
 	}
@@ -109,18 +127,9 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 
 	else if (name == "background")
 	{
-		if (auto *color = Color::from_color_string(value_text))
+		auto token = value[0].token;
+		if (auto *color = parse_color(token))
 			return color;
-
-		if (value[0].token.type() == HASH)
-		{
-			auto hex = value[0].token.value();
-			auto *color = new Color();
-			color->r = std::stoul(hex.substr(0, 2), nullptr, 16);
-			color->g = std::stoul(hex.substr(2, 2), nullptr, 16);
-			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
-			return color;
-		}
 
 		fmt::print(stderr, "Bad background: {}\n", value_text);
 	}

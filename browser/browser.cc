@@ -69,7 +69,7 @@ Browser::Browser(const Url &u) :
 				{
 					width = event.size.width;
 					height = event.size.height;
-					window.setView(sf::View(sf::FloatRect{ 0, 0, (float) width, (float) height }));
+					window.setView(sf::View(sf::FloatRect{0, 0, (float) width, (float) height}));
 					viewport = layout::Box{};
 					viewport.content.width = width;
 					viewport.content.height = 0;
@@ -81,7 +81,7 @@ Browser::Browser(const Url &u) :
 
 				case sf::Event::MouseMoved:
 				{
-					auto result = layout_tree->hit_test(Point{ event.mouseMove.x, event.mouseMove.y });
+					auto result = layout_tree->hit_test(Point{event.mouseMove.x, event.mouseMove.y});
 					if (result && result.value()->is_link())
 					{
 						window.setMouseCursor(hand_cursor);
@@ -144,7 +144,7 @@ void Browser::render()
 	 * 
 	 * @ref https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
 	*/
-	auto bg = sf::RectangleShape{ sf::Vector2f(width, height) };
+	auto bg = sf::RectangleShape{sf::Vector2f(width, height)};
 	auto bg_color = sf::Color::White;
 
 	if (auto *c = layout_tree->property("background"))
@@ -176,11 +176,14 @@ void Browser::render()
 		if (auto *background = layout_node->property("background-color"))
 		{
 			auto *color = dynamic_cast<css::Color *>(background);
-			sf::RectangleShape rect;
-			rect.setPosition(x, y);
-			rect.setSize(sf::Vector2f(width, height));
-			rect.setFillColor(sf::Color(color->r, color->g, color->b));
-			window.draw(rect);
+			if (color)
+			{
+				sf::RectangleShape rect;
+				rect.setPosition(x, y);
+				rect.setSize(sf::Vector2f(width, height));
+				rect.setFillColor(sf::Color(color->r, color->g, color->b));
+				window.draw(rect);
+			}
 		}
 
 		if (layout_node->is_block())
@@ -238,7 +241,7 @@ void Browser::render()
 
 		if (layout_node->is_list_item_marker())
 		{
-			auto marker = sf::CircleShape{ width / 2.0f };
+			auto marker = sf::CircleShape{width / 2.0f};
 			marker.setPosition(sf::Vector2f(x, y));
 			marker.setFillColor(sf::Color::Black);
 			window.draw(marker);
