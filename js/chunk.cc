@@ -102,6 +102,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return jump_instruction("OP_LOOP", -1, offset);
 		case OP_CALL:
 			return byte_instruction("OP_CALL", offset);
+		case OP_CALL_CONSTRUCTOR:
+			return byte_instruction("OP_CALL_CONSTRUCTOR", offset);
 		case OP_NEW_ARRAY:
 			return byte_instruction("OP_NEW_ARRAY", offset);
 		case OP_GET_SUBSCRIPT:

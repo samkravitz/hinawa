@@ -391,6 +391,11 @@ void Compiler::compile(const Literal &expr)
 			emit_constant(Value(new std::string(str.substr(1, str.size() - 2))));
 			break;
 		}
+		case IDENTIFIER:
+		{
+			emit_constant(Value(new std::string(expr.token.value())));
+			break;
+		}
 		case KEY_FALSE:
 			emit_byte(OP_FALSE);
 			break;
@@ -472,11 +477,39 @@ void Compiler::compile(const FunctionExpr &expr)
 
 void Compiler::compile(const NewExpr &expr)
 {
-	expr.callee->accept(this);
+	if (expr.callee->is_literal())
+	{
+		auto &literal = static_cast<Literal &>(*expr.callee);
+		auto identifier = literal.token.value();
+		Opcode get_op;
+		int value = resolve_local(current, identifier);
+
+		if (value != RESOLVED_GLOBAL)
+		{
+			get_op = OP_GET_LOCAL;
+		}
+
+		else if ((value = resolve_upvalue(current, identifier)) != -1)
+		{
+			get_op = OP_GET_UPVALUE;
+		}
+
+		else
+		{
+			get_op = OP_GET_GLOBAL;
+			value = make_constant(Value(new std::string(identifier)));
+		}
+
+		emit_bytes(get_op, value);
+	}
+
+	else
+		expr.callee->accept(this);
+
 	for (const auto &ex : expr.params)
 		ex->accept(this);
 
-	emit_bytes(OP_CALL, expr.params.size());
+	emit_bytes(OP_CALL_CONSTRUCTOR, expr.params.size());
 }
 
 void Compiler::compile(const ArrayExpr &expr)

@@ -35,6 +35,7 @@ struct CallFrame
 	Closure *closure;
 	uint ip{0};
 	uint base{0};
+	bool is_constructor{false};
 
 	struct CatchEnv
 	{

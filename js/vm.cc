@@ -79,6 +79,10 @@ bool Vm::run(Function f)
 			{
 				auto result = pop();
 				auto frame = frames.top();
+				Object *new_object = nullptr;
+				if (frame.is_constructor)
+					new_object = stack[frame.base].as_object();
+
 				frames.pop();
 
 				if (frames.empty())
@@ -88,7 +92,10 @@ bool Vm::run(Function f)
 				for (uint i = 0; i < diff; i++)
 					pop();
 
-				push(result);
+				if (new_object)
+					push(Value(new_object));
+				else
+					push(result);
 				break;
 			}
 
@@ -279,7 +286,7 @@ bool Vm::run(Function f)
 						auto base = static_cast<uint>(stack.size() - num_args - 1);
 						auto cf = CallFrame{closure, base};
 						frames.push(cf);
-						//stack[base] = Value(receiver);
+						stack[base] = Value(receiver);
 						break;
 					}
 
@@ -318,6 +325,21 @@ bool Vm::run(Function f)
 				{
 					assert(!"Tried to call an uncallable object");
 				}
+
+				break;
+			}
+
+			case OP_CALL_CONSTRUCTOR:
+			{
+				auto num_args = read_byte();
+				auto callee = peek(num_args);
+				Object *constructor = callee.as_object();
+				Object *new_object = new Object;
+				auto base = static_cast<uint>(stack.size() - num_args - 1);
+				auto cf = CallFrame{constructor->as_closure(), base};
+				cf.is_constructor = true;
+				frames.push(cf);
+				stack[base] = Value(new_object);
 
 				break;
 			}

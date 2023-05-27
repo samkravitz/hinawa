@@ -413,17 +413,23 @@ std::shared_ptr<Expr> Parser::literal()
 
 std::shared_ptr<Expr> Parser::new_instance()
 {
-	auto callee = parse_precedence(PREC_SUBSCRIPT);
+	consume(IDENTIFIER, "Expect identifier");
+	auto callee = make_ast_node<Literal>(previous);
 	std::vector<std::shared_ptr<Expr>> params;
 	if (match(LEFT_PAREN))
 	{
-		do
+		if (!check(RIGHT_PAREN))
 		{
-			params.push_back(expression());
-			if (params.size() > 0xff)
-				std::cerr << "Can't have more than 255 arguments\n";
-		} while (match(COMMA));
-		consume(RIGHT_PAREN, "Expect ')' after arguments");
+			do
+			{
+				if (params.size() > 0xff)
+					std::cerr << "Can't have more than 255 parameters\n";
+
+				consume(IDENTIFIER, "Expect parameter name");
+				params.push_back(expression());
+			} while (match(COMMA));
+		}
+		consume(RIGHT_PAREN, "Expect '}'");
 	}
 
 	return make_ast_node<NewExpr>(callee, params);
