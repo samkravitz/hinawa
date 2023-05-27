@@ -463,7 +463,7 @@ bool Vm::run(Function f)
 
 				_this = obj;
 				auto val = obj->get(read_string());
-				if (val.is_object() && val.as_object()->is_function())
+				if (val.is_object() && val.as_object()->is_closure())
 					val = Value(new BoundMethod(obj, val.as_object()->as_closure()));
 
 				pop();
