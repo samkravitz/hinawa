@@ -393,7 +393,27 @@ void Compiler::compile(const Literal &expr)
 		}
 		case IDENTIFIER:
 		{
-			emit_constant(Value(new std::string(expr.token.value())));
+			const auto identifier = expr.token.value();
+			Opcode get_op;
+			int value = resolve_local(current, identifier);
+
+			if (value != RESOLVED_GLOBAL)
+			{
+				get_op = OP_GET_LOCAL;
+			}
+
+			else if ((value = resolve_upvalue(current, identifier)) != -1)
+			{
+				get_op = OP_GET_UPVALUE;
+			}
+
+			else
+			{
+				get_op = OP_GET_GLOBAL;
+				value = make_constant(Value(new std::string(identifier)));
+			}
+
+			emit_bytes(get_op, value);
 			break;
 		}
 		case KEY_FALSE:
@@ -477,34 +497,7 @@ void Compiler::compile(const FunctionExpr &expr)
 
 void Compiler::compile(const NewExpr &expr)
 {
-	if (expr.callee->is_literal())
-	{
-		auto &literal = static_cast<Literal &>(*expr.callee);
-		auto identifier = literal.token.value();
-		Opcode get_op;
-		int value = resolve_local(current, identifier);
-
-		if (value != RESOLVED_GLOBAL)
-		{
-			get_op = OP_GET_LOCAL;
-		}
-
-		else if ((value = resolve_upvalue(current, identifier)) != -1)
-		{
-			get_op = OP_GET_UPVALUE;
-		}
-
-		else
-		{
-			get_op = OP_GET_GLOBAL;
-			value = make_constant(Value(new std::string(identifier)));
-		}
-
-		emit_bytes(get_op, value);
-	}
-
-	else
-		expr.callee->accept(this);
+	expr.callee->accept(this);
 
 	for (const auto &ex : expr.params)
 		ex->accept(this);

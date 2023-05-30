@@ -413,8 +413,7 @@ std::shared_ptr<Expr> Parser::literal()
 
 std::shared_ptr<Expr> Parser::new_instance()
 {
-	consume(IDENTIFIER, "Expect identifier");
-	auto callee = make_ast_node<Literal>(previous);
+	auto callee = expression();
 	std::vector<std::shared_ptr<Expr>> params;
 	if (match(LEFT_PAREN))
 	{
