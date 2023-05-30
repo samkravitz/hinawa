@@ -98,7 +98,21 @@ std::string Object::to_string() const
 
 ObjectPrototype *ObjectPrototype::instance = nullptr;
 
-ObjectPrototype::ObjectPrototype() { }
+ObjectPrototype::ObjectPrototype()
+{
+	set_native("hasOwnProperty", [](auto &vm, const auto &argv) -> Value {
+		if (argv.empty())
+			return Value(false);
+
+		if (!argv[0].is_string())
+			return Value(false);
+
+		auto *obj = vm.current_this();
+
+		auto property = *argv[0].as_string();
+		return Value(obj->is_defined(property));
+	});
+}
 
 ObjectPrototype *ObjectPrototype::the()
 {
