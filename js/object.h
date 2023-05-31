@@ -23,6 +23,7 @@ public:
 	Value get(std::string const &);
 	void set(std::string, Value);
 	virtual Object *prototype();
+	void set_prototype(Object *proto) { m_prototype = proto; }
 
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value>&)> &);
 
@@ -42,6 +43,7 @@ public:
 
 protected:
 	std::unordered_map<std::string, Value> properties;
+	Object *m_prototype{nullptr};
 };
 
 class ObjectPrototype final : public Object

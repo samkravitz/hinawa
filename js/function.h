@@ -43,14 +43,16 @@ public:
 class Function : public Object
 {
 public:
-	Function() = default;
+	Function() :
+	    Function("", FUNCTION)
+	{ }
 
 	Function(FunctionType type) :
-	    type(type)
+	    Function("", type)
 	{ }
 
 	Function(std::string const &name) :
-	    name(name)
+	    Function(name, FUNCTION)
 	{ }
 
 	Function(std::string const &name, FunctionType type) :

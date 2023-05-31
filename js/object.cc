@@ -45,7 +45,12 @@ bool Object::has_own_property(std::string const &key) const
 	return properties.find(key) != properties.end();
 }
 
-Object *Object::prototype() { return ObjectPrototype::the(); }
+Object *Object::prototype()
+{
+	if (!m_prototype)
+		return ObjectPrototype::the();
+	return m_prototype;
+}
 
 Function *Object::as_function()
 {

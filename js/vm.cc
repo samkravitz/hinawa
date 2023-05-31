@@ -361,7 +361,21 @@ bool Vm::run(Function f)
 					num_args = arity;
 				}
 
+				/**
+				* functions have a property "prototype", that is an object
+				* with the property "constructor", which holds a reference
+				* to the function. When a new instance is created from the
+				* function with the 'new' keyword, the created object's
+				* prototype is the beforementioned object.
+				*/
+				auto *object = new Object();
+				object->set("constructor", Value(constructor));
+				constructor->set("prototype", Value(object));
+
+				auto *prototype = constructor->get("prototype").as_object();
 				Object *new_object = new Object;
+				new_object->set_prototype(prototype);
+
 				auto base = static_cast<uint>(stack.size() - num_args - 1);
 				auto cf = CallFrame{constructor->as_closure(), base};
 				cf.is_constructor = true;
