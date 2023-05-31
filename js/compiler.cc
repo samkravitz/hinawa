@@ -499,10 +499,10 @@ void Compiler::compile(const NewExpr &expr)
 {
 	expr.callee->accept(this);
 
-	for (const auto &ex : expr.params)
+	for (const auto &ex : expr.args)
 		ex->accept(this);
 
-	emit_bytes(OP_CALL_CONSTRUCTOR, expr.params.size());
+	emit_bytes(OP_CALL_CONSTRUCTOR, expr.args.size());
 }
 
 void Compiler::compile(const ArrayExpr &expr)

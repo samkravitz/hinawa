@@ -19,7 +19,7 @@ Parser::Parser(std::string input) :
 ParseRule Parser::get_rule(TokenType type)
 {
 	static std::unordered_map<TokenType, ParseRule> rules = {
-	    {LEFT_PAREN,        {&Parser::grouping, &Parser::call, PREC_CALL}       },
+	    {LEFT_PAREN,        {&Parser::grouping, &Parser::call, PREC_NEW}        },
 	    {LEFT_BRACKET,      {&Parser::array, &Parser::subscript, PREC_SUBSCRIPT}},
 	    {LEFT_BRACE,        {&Parser::object, nullptr, PREC_SUBSCRIPT}          },
 	    {DOT,	           {nullptr, &Parser::dot, PREC_CALL}                  },
@@ -70,7 +70,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {NUMBER,            {&Parser::number, nullptr, PREC_NONE}               },
 	    {KEY_FALSE,         {&Parser::literal, nullptr, PREC_NONE}              },
 	    {KEY_FUNCTION,      {&Parser::anonymous, nullptr, PREC_NONE}            },
-	    {KEY_NEW,           {&Parser::new_instance, nullptr, PREC_NONE}         },
+	    {KEY_NEW,           {&Parser::new_instance, nullptr, PREC_NEW}          },
 	    {KEY_NULL,          {&Parser::literal, nullptr, PREC_NONE}              },
 	    {KEY_THIS,          {&Parser::variable, nullptr, PREC_NONE}             },
 	    {KEY_TRUE,          {&Parser::literal, nullptr, PREC_NONE}              },
@@ -413,25 +413,24 @@ std::shared_ptr<Expr> Parser::literal()
 
 std::shared_ptr<Expr> Parser::new_instance()
 {
-	auto callee = expression();
-	std::vector<std::shared_ptr<Expr>> params;
+	auto callee = parse_precedence(PREC_GROUPING);
+	std::vector<std::shared_ptr<Expr>> args;
 	if (match(LEFT_PAREN))
 	{
 		if (!check(RIGHT_PAREN))
 		{
 			do
 			{
-				if (params.size() > 0xff)
-					std::cerr << "Can't have more than 255 parameters\n";
+				if (args.size() > 0xff)
+					std::cerr << "Can't have more than 255 arguments\n";
 
-				consume(IDENTIFIER, "Expect parameter name");
-				params.push_back(expression());
+				args.push_back(expression());
 			} while (match(COMMA));
 		}
 		consume(RIGHT_PAREN, "Expect '}'");
 	}
 
-	return make_ast_node<NewExpr>(callee, params);
+	return make_ast_node<NewExpr>(callee, args);
 }
 
 std::shared_ptr<Expr> Parser::number()

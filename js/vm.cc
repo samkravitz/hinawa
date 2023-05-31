@@ -72,7 +72,7 @@ Vm::Vm(bool headless)
 		// TODO - this should throw, instead of returning undefined
 		if (!obj.is_object())
 			return {};
-		
+
 		return Value(obj.as_object()->prototype());
 	});
 	global->set("Object", Value(object));
@@ -351,7 +351,16 @@ bool Vm::run(Function f)
 			{
 				auto num_args = read_byte();
 				auto callee = peek(num_args);
-				Object *constructor = callee.as_object();
+				auto *constructor = callee.as_object()->as_closure();
+				int arity = constructor->function->arity;
+				if (num_args < arity)
+				{
+					for (int i = 0; i < arity - num_args; i++)
+						push({});
+
+					num_args = arity;
+				}
+
 				Object *new_object = new Object;
 				auto base = static_cast<uint>(stack.size() - num_args - 1);
 				auto cf = CallFrame{constructor->as_closure(), base};

@@ -173,9 +173,9 @@ struct FunctionExpr : public Expr
 
 struct NewExpr : public Expr
 {
-	NewExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> params) :
+	NewExpr(std::shared_ptr<Expr> callee, std::vector<std::shared_ptr<Expr>> args) :
 	    callee(std::move(callee)),
-	    params(std::move(params))
+	    args(std::move(args))
 	{ }
 
 	const char *name() const { return "NewExpr"; }
@@ -183,7 +183,7 @@ struct NewExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> callee;
-	std::vector<std::shared_ptr<Expr>> params;
+	std::vector<std::shared_ptr<Expr>> args;
 };
 
 struct ArrayExpr : public Expr

@@ -26,7 +26,9 @@ enum Precedence : int
 	PREC_UNARY,
 	PREC_CALL,
 	PREC_SUBSCRIPT,
-	PREC_PRIMARY
+	PREC_PRIMARY,
+	PREC_NEW,
+	PREC_GROUPING,
 };
 
 class Parser;

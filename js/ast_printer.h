@@ -222,12 +222,12 @@ public:
 		fmt::print("callee:\n");
 		node->callee->accept(this, indent + 1);
 
-		if (!node->params.empty())
+		if (!node->args.empty())
 		{
 			print_indent(indent);
-			fmt::print("params:\n");
+			fmt::print("args:\n");
 
-			for (const auto &arg : node->params)
+			for (const auto &arg : node->args)
 				arg->accept(this, indent + 1);
 		}
 	}
