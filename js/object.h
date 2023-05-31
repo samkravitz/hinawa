@@ -24,7 +24,7 @@ public:
 	void set(std::string, Value);
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value>&)> &);
 
-	bool is_defined(std::string const &) const;
+	bool has_own_property(std::string const &) const;
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }

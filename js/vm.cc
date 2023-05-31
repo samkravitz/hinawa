@@ -213,7 +213,7 @@ bool Vm::run(Function f)
 			case OP_GET_GLOBAL:
 			{
 				auto ident = read_string();
-				if (!global->is_defined(ident))
+				if (!global->has_own_property(ident))
 				{
 					if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
 						return false;

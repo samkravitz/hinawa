@@ -13,14 +13,14 @@ namespace js
 Value Object::get(std::string const &key)
 {
 	// found the key in the properties map
-	if (is_defined(key))
+	if (has_own_property(key))
 		return properties[key];
 
 	// search up the prototype chain for the key
 	auto *proto = prototype();
 	while (proto)
 	{
-		if (proto->is_defined(key))
+		if (proto->has_own_property(key))
 			return proto->properties[key];
 
 		proto = proto->prototype();
@@ -40,7 +40,7 @@ void Object::set_native(const std::string &name, const std::function<Value(Vm &,
 	properties[name] = Value(new NativeFunction(fn));
 }
 
-bool Object::is_defined(std::string const &key) const
+bool Object::has_own_property(std::string const &key) const
 {
 	return properties.find(key) != properties.end();
 }
@@ -110,7 +110,7 @@ ObjectPrototype::ObjectPrototype()
 		auto *obj = vm.current_this();
 
 		auto property = *argv[0].as_string();
-		return Value(obj->is_defined(property));
+		return Value(obj->has_own_property(property));
 	});
 }
 
