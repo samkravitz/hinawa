@@ -28,6 +28,13 @@ bool Value::operator==(const Value &other) const
 		return a == b;
 	}
 
+	if (type() == Type::Object)
+	{
+		Object *a = as_object();
+		Object *b = other.as_object();
+		return a == b;
+	}
+
 	return false;
 }
 

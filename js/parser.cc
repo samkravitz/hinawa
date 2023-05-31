@@ -70,6 +70,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {NUMBER,            {&Parser::number, nullptr, PREC_NONE}               },
 	    {KEY_FALSE,         {&Parser::literal, nullptr, PREC_NONE}              },
 	    {KEY_FUNCTION,      {&Parser::anonymous, nullptr, PREC_NONE}            },
+	    {KEY_INSTANCEOF,    {nullptr, &Parser::binary, PREC_COMPARISON}         },
 	    {KEY_NEW,           {&Parser::new_instance, nullptr, PREC_NEW}          },
 	    {KEY_NULL,          {&Parser::literal, nullptr, PREC_NONE}              },
 	    {KEY_THIS,          {&Parser::variable, nullptr, PREC_NONE}             },

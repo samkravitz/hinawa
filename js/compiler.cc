@@ -269,6 +269,9 @@ void Compiler::compile(const BinaryExpr &expr)
 		case PIPE_PIPE:
 			emit_byte(OP_LOGICAL_OR);
 			break;
+		case KEY_INSTANCEOF:
+			emit_byte(OP_INSTANCEOF);
+			break;
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
 	}

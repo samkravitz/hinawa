@@ -625,6 +625,31 @@ bool Vm::run(Function f)
 				break;
 			}
 
+			case OP_INSTANCEOF:
+			{
+				auto constructor = peek();
+				auto obj = peek(1);
+
+				// TODO - this should be a runtime error.
+				if (!obj.is_object() || !constructor.is_object())
+				{
+					fmt::print(stderr, "{} [instanceof] {} are not objects!\n", peek().to_string(), peek(1).to_string());
+					pop();
+					pop();
+					push(Value(false));
+					break;
+				}
+
+				auto result = Value(false);
+				if (obj.as_object()->get("constructor") == constructor)
+					result = Value(true);
+
+				pop();
+				pop();
+				push(result);
+				break;
+			}
+
 			default:
 				assert(!"Unknown opcode");
 		}
