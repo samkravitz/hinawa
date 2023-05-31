@@ -58,6 +58,24 @@ Vm::Vm(bool headless)
 	});
 
 	global->set("console", Value(console));
+
+	auto *object = new Object();
+	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
+		// TODO - this should throw, instead of returning undefined
+		if (argv.empty())
+			return {};
+
+		auto obj = argv[0];
+		if (obj.is_string())
+			return Value(StringPrototype::the());
+
+		// TODO - this should throw, instead of returning undefined
+		if (!obj.is_object())
+			return {};
+		
+		return Value(obj.as_object()->prototype());
+	});
+	global->set("Object", Value(object));
 }
 
 bool Vm::run(Function f)
