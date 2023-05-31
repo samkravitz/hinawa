@@ -13,22 +13,29 @@
 
 namespace js
 {
+// javascript operator precedence
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
 enum Precedence : int
 {
-	PREC_NONE,
-	PREC_ASSIGNMENT,
-	PREC_OR,
-	PREC_AND,
-	PREC_EQUALITY,
-	PREC_COMPARISON,
-	PREC_TERM,
-	PREC_FACTOR,
-	PREC_UNARY,
-	PREC_CALL,
-	PREC_SUBSCRIPT,
-	PREC_PRIMARY,
-	PREC_NEW,
-	PREC_GROUPING,
+	PREC_GROUPING = 18,             // ( ... )
+	PREC_CALL = 17,                 // ., .?, [ ... ], new ... (...)
+	PREC_NEW = 16,                  // new ...
+	PREC_POSTFIX_INCREMENT = 15,    // ... ++, ... --
+	PREC_UNARY = 14,                // !, ~, +, -, ++ ..., -- ..., typeof, void, delete, await
+	PREC_EXPONENTIATION = 13,       // **
+	PREC_FACTOR = 12,               // .. / .., .. * .., .. % ..
+	PREC_TERM = 11,                 // .. + .., .. - ..
+	PREC_SHIFT = 10,                // <<, >>, >>>
+	PREC_COMPARISON = 9,            // <, <=, >, >=, in, instanceof
+	PREC_EQUALITY = 8,              // ==, !=, ===, !==
+	PREC_AND = 7,                   // &
+	PREC_XOR = 6,                   // ^
+	PREC_OR = 5,                    // |
+	PREC_LOGICAL_AND = 4,           // &&
+	PREC_LOGICAL_OR = 3,            // ||, ??
+	PREC_ASSIGNMENT = 2,            // =, +=, -=, **=, *=, /=, %=, <<=, >>=, &=, ^=, |=, &&=, ||=, ??=, =>, ..., yield
+	PREC_COMMA = 1,                 // ,
+	PREC_NONE = 0,
 };
 
 class Parser;
