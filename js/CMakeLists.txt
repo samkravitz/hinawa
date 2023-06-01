@@ -11,6 +11,7 @@ set(SOURCES
 	object_string.cc
 	object.cc
 	parser.cc
+	prelude.cc
 	scanner.cc
 	token.cc
 	value.cc
@@ -32,6 +33,7 @@ set(HEADERS
 	object.h
 	opcode.h
 	parser.h
+	prelude.h
 	scanner.h
 	token_type.h
 	token.h

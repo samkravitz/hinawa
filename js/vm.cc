@@ -12,6 +12,7 @@
 #include "object.h"
 #include "object_string.h"
 #include "opcode.h"
+#include "prelude.h"
 
 namespace js
 {
@@ -23,59 +24,7 @@ namespace js
 */
 Vm::Vm(bool headless)
 {
-	global = new Object();
-	global->set("window", Value(global));
-
-	global->set_native("print", [](auto &vm, const auto &argv) -> Value {
-		if (argv.empty())
-			return {};
-
-		for (uint i = 0; i < argv.size(); i++)
-		{
-			std::cout << argv[i].to_string();
-			if (i != argv.size() - 1)
-				std::cout << " ";
-		}
-
-		std::cout << "\n";
-		return {};
-	});
-
-	auto *console = new Object();
-	console->set_native("log", [](auto &vm, const auto &argv) -> Value {
-		if (argv.empty())
-			return {};
-
-		for (uint i = 0; i < argv.size(); i++)
-		{
-			std::cout << argv[i].to_string();
-			if (i != argv.size() - 1)
-				std::cout << " ";
-		}
-
-		std::cout << "\n";
-		return {};
-	});
-
-	global->set("console", Value(console));
-
-	auto *object = new Object();
-	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
-		// TODO - this should throw, instead of returning undefined
-		if (argv.empty())
-			return {};
-
-		auto obj = argv[0];
-		if (obj.is_string())
-			return Value(StringPrototype::the());
-
-		// TODO - this should throw, instead of returning undefined
-		if (!obj.is_object())
-			return {};
-
-		return Value(obj.as_object()->prototype());
-	});
-	global->set("Object", Value(object));
+	prelude(*this);
 }
 
 bool Vm::run(Function f)

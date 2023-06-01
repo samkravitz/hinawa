@@ -52,6 +52,7 @@ public:
 	Vm(bool headless = false);
 	bool run(Function);
 	Object *current_this() const { return _this; }
+	void set_global(Object *g) { global = g; }
 
 private:
 	// pointer to the global object
