@@ -118,19 +118,6 @@ private:
 	std::function<Value(Vm &, std::vector<Value>)> fn;
 };
 
-struct BoundMethod final : public Object
-{
-	BoundMethod(Object *receiver, Closure *method) :
-	    receiver(receiver),
-	    method(method)
-	{ }
-
-	bool is_bound_method() const { return true; }
-
-	Object *receiver;
-	Closure *method;
-};
-
 class Closure final : public Object
 {
 public:
@@ -164,5 +151,23 @@ private:
 	{
 		upvalues.reserve(function->upvalue_count);
 	}
+};
+
+struct BoundMethod final : public Object
+{
+	BoundMethod(Object *receiver, Closure *method) :
+	    receiver(receiver),
+	    method(method)
+	{ }
+
+	bool is_bound_method() const override { return true; }
+
+	std::string to_string() const override
+	{
+		return fmt::format("{{ BoundMethod this: {} method: {} }}", receiver->to_string(), method->to_string());
+	}
+
+	Object *receiver;
+	Closure *method;
 };
 }
