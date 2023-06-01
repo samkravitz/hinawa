@@ -36,6 +36,22 @@ ArrayPrototype::ArrayPrototype()
 		arr->set("length", len);
 		return len;
 	});
+
+	set_native("map", [](auto &vm, const auto &argv) -> Value {
+		auto *arr = vm.current_this()->as_array();
+		auto callback = argv[0].as_object()->as_closure();
+
+		auto *new_arr = new Array();
+		for (const auto &val : *arr)
+		{
+			vm.push(val);
+			vm.call(callback);
+			auto res = vm.pop();
+			new_arr->push_back(res);
+		}
+
+		return Value(new_arr);
+	});
 }
 
 ArrayPrototype *ArrayPrototype::the()

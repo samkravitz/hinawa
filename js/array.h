@@ -15,8 +15,8 @@ public:
 
 	virtual Object *prototype() override;
 
-	bool is_array() const { return true; }
-	std::string to_string() const;
+	bool is_array() const override { return true; }
+	std::string to_string() const override;
 };
 
 class ArrayPrototype final : public Object

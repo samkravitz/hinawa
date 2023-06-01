@@ -433,6 +433,8 @@ std::shared_ptr<Expr> Parser::grouping()
 	auto state = save_state();
 	auto expr = expression();
 
+	match(RIGHT_PAREN);
+
 	if (!expr || check(ARROW))
 	{
 		restore_state(state);

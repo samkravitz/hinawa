@@ -53,6 +53,11 @@ public:
 	bool run(Function);
 	Object *current_this() const { return _this; }
 	void set_global(Object *g) { global = g; }
+	void call(Closure *);
+
+	void push(Value);
+	Value pop();
+	Value peek(uint offset = 0);
 
 private:
 	// pointer to the global object
@@ -64,9 +69,7 @@ private:
 	std::vector<Value> stack;
 	std::stack<CallFrame> frames;
 
-	void push(Value);
-	Value pop();
-	Value peek(uint offset = 0);
+	bool run_instruction(bool in_call);
 
 	void binary_op(Operator);
 
@@ -76,6 +79,7 @@ private:
 	std::string read_string();
 	Upvalue *capture_upvalue(Value *);
 
+	void print_stack() const;
 	bool runtime_error(std::string const &);
 };
 }
