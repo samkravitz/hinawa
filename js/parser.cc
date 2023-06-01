@@ -369,6 +369,28 @@ std::shared_ptr<Expr> Parser::array()
 	return make_ast_node<ArrayExpr>(elements);
 }
 
+std::shared_ptr<Expr> Parser::arrow()
+{
+	std::vector<std::string> params;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (params.size() > 0xff)
+				std::cerr << "Can't have more than 255 parameters\n";
+
+			consume(IDENTIFIER, "Expect parameter name");
+			params.push_back(previous.value());
+		} while (match(COMMA));
+	}
+	consume(RIGHT_PAREN, "Expected ')'");
+	consume(ARROW, "Expected '=>'");
+	consume(LEFT_BRACE, "Expected '{'");
+	auto body = block_stmt();
+
+	return make_ast_node<FunctionExpr>(params, std::static_pointer_cast<BlockStmt>(body));
+}
+
 std::shared_ptr<Expr> Parser::assign(std::shared_ptr<Expr> left)
 {
 	auto right = expression();
@@ -408,7 +430,16 @@ std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 
 std::shared_ptr<Expr> Parser::grouping()
 {
-	return nullptr;
+	auto state = save_state();
+	auto expr = expression();
+
+	if (!expr || check(ARROW))
+	{
+		restore_state(state);
+		return arrow();
+	}
+
+	return expr;
 }
 
 std::shared_ptr<Expr> Parser::literal()
@@ -577,5 +608,17 @@ void Parser::consume(TokenType type, const char *msg)
 TokenType Parser::peek()
 {
 	return current.type();
+}
+
+std::vector<Token>::iterator Parser::save_state() const
+{
+	return pos;
+}
+
+void Parser::restore_state(const std::vector<Token>::iterator &saved_pos)
+{
+	pos = saved_pos;
+	current = *pos;
+	previous = *(pos - 1);
 }
 }

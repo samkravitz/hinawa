@@ -59,6 +59,7 @@ public:
 	std::shared_ptr<Expr> expression();
 	std::shared_ptr<Expr> anonymous();
 	std::shared_ptr<Expr> array();
+	std::shared_ptr<Expr> arrow();
 	std::shared_ptr<Expr> assign(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> binary(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> call(std::shared_ptr<Expr>);
@@ -102,6 +103,10 @@ private:
 
 	std::vector<Token> tokens;
 	std::vector<Token>::iterator pos;
+
+	std::vector<Token>::iterator save_state() const;
+	void restore_state(const std::vector<Token>::iterator &);
+
 	template<class T, typename... Params> std::shared_ptr<T> make_ast_node(Params &&...params)
 	{
 		auto node = std::make_shared<T>(std::forward<Params>(params)...);
