@@ -155,7 +155,7 @@
 	// Identifier
 %}
 
-[a-zA-Z_][a-zA-Z0-9_]*      { return IDENTIFIER; }
+[a-zA-Z_$][a-zA-Z0-9_$]*      { return IDENTIFIER; }
 
 %{
 	// Unknown Token
