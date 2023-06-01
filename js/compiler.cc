@@ -209,7 +209,20 @@ void Compiler::compile(const TryStmt &stmt)
 	}
 }
 
-void Compiler::compile(const UnaryExpr &expr) { }
+void Compiler::compile(const UnaryExpr &expr)
+{
+	expr.rhs->accept(this);
+	auto op = expr.op.type();
+
+	switch (op)
+	{
+		case KEY_TYPEOF:
+			emit_byte(OP_TYPEOF);
+			break;
+		default:
+			fmt::print(stderr, "Unknown unary op {}\n", op);
+	}
+}
 
 void Compiler::compile(const UpdateExpr &expr) { }
 

@@ -642,6 +642,15 @@ bool Vm::run_instruction(bool in_call)
 			break;
 		}
 
+		case OP_TYPEOF:
+		{
+			auto val = peek();
+			auto typeof_val = Value(new std::string(val.type_of()));
+			pop();
+			push(typeof_val);
+			break;
+		}
+
 		default:
 			assert(!"Unknown opcode");
 	}

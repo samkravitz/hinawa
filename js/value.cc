@@ -70,4 +70,32 @@ bool Value::is_falsy() const
 	
 	return false;
 }
+
+const char *Value::type_of() const
+{
+	switch (type())
+	{
+		case Type::Bool:
+			return "boolean";
+		case Type::Number:
+			return "number";
+		case Type::Null:
+			return "object";
+		case Type::Object:
+		{
+			auto *obj = as_object();
+			if (obj->is_closure() || obj->is_native() || obj->is_bound_method())
+				return "function";
+
+			return "object";
+		}
+		case Type::Undefined:
+			return "undefined";
+		case Type::String:
+			return "string";
+		default:
+			assert(!"Unknown value type!");
+			return "";
+	}
+}
 }

@@ -79,7 +79,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {KEY_NULL,          {&Parser::literal, nullptr, PREC_NONE}         },
 	    {KEY_THIS,          {&Parser::variable, nullptr, PREC_NONE}        },
 	    {KEY_TRUE,          {&Parser::literal, nullptr, PREC_NONE}         },
-	    {KEY_TYPEOF,        {&Parser::unary, nullptr, PREC_NONE}           },
+	    {KEY_TYPEOF,        {&Parser::unary, nullptr, PREC_UNARY}          },
 	    {KEY_UNDEFINED,     {&Parser::literal, nullptr, PREC_NONE}         },
 	};
 

@@ -75,6 +75,7 @@ public:
 	bool operator==(const Value &) const;
 
 	bool is_falsy() const;
+	const char *type_of() const;
 	std::string to_string() const;
 
 private:
