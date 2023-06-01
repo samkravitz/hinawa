@@ -87,9 +87,23 @@ class Vm;
 class NativeFunction final : public Function
 {
 public:
-	NativeFunction(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn) :
-	    fn(fn)
-	{ }
+	static NativeFunction *create(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn)
+	{
+		auto *native = new NativeFunction(fn);
+
+		/**
+		* functions have a property "prototype", that is an object
+		* with the property "constructor", which holds a reference
+		* to the function. When a new instance is created from the
+		* function with the 'new' keyword, the created object's
+		* prototype is the beforementioned object.
+		*/
+		auto *object = new Object();
+		object->set("constructor", Value(native));
+		native->set("prototype", Value(object));
+
+		return native;
+	}
 
 	Value call(Vm &vm, const std::vector<Value> &argv) const { return fn(vm, argv); }
 	bool is_native() const { return true; }
@@ -97,6 +111,10 @@ public:
 	std::string to_string() const { return "<native fn>"; }
 
 private:
+	NativeFunction(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn) :
+	    fn(fn)
+	{ }
+
 	std::function<Value(Vm &, std::vector<Value>)> fn;
 };
 

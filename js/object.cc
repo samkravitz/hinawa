@@ -37,7 +37,7 @@ void Object::set(std::string key, Value value)
 
 void Object::set_native(const std::string &name, const std::function<Value(Vm &, const std::vector<Value> &)> &fn)
 {
-	properties[name] = Value(new NativeFunction(fn));
+	properties[name] = Value(NativeFunction::create(fn));
 }
 
 bool Object::has_own_property(std::string const &key) const

@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "array.h"
 #include "function.h"
 #include "object_string.h"
 #include "vm.h"
@@ -14,7 +15,7 @@ namespace js
 */
 static Object *prelude_object(Vm &vm)
 {
-	auto *object = new NativeFunction([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
+	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
 
 	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
 		// TODO - this should throw, instead of returning undefined
@@ -33,6 +34,19 @@ static Object *prelude_object(Vm &vm)
 	});
 
 	return object;
+}
+
+/**
+* prelude for the global Array object in javascript.
+*/
+static Object *prelude_array(Vm &vm)
+{
+	auto *array = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		auto *array = new Array();
+		return Value(array);
+	});
+
+	return array;
 }
 
 void prelude(Vm &vm)
@@ -76,6 +90,9 @@ void prelude(Vm &vm)
 
 	auto *object = prelude_object(vm);
 	global->set("Object", Value(object));
+
+	auto *array = prelude_array(vm);
+	global->set("Array", Value(array));
 
 	vm.set_global(global);
 }

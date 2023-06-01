@@ -5,6 +5,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 set(SOURCES
+	array.cc
 	chunk.cc
 	compiler.cc
 	heap.cc
