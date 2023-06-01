@@ -8,7 +8,6 @@
 
 #include "ast/expr.h"
 #include "ast/stmt.h"
-#include "scanner.h"
 #include "token.h"
 
 namespace js
@@ -49,11 +48,10 @@ struct ParseRule
 class Parser
 {
 public:
-	Parser(std::string);
+	Parser(const std::string &);
 
 	std::vector<std::shared_ptr<Stmt>> parse();
 
-	Scanner scanner;
 	Token current;
 	Token previous;
 
@@ -102,6 +100,8 @@ private:
 	inline bool check(TokenType type) { return current.type() == type; }
 	bool check_any(std::initializer_list<TokenType> const &);
 
+	std::vector<Token> tokens;
+	std::vector<Token>::iterator pos;
 	template<class T, typename... Params> std::shared_ptr<T> make_ast_node(Params &&...params)
 	{
 		auto node = std::make_shared<T>(std::forward<Params>(params)...);

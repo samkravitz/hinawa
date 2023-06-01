@@ -8,12 +8,16 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "scanner.h"
+
 namespace js
 {
-Parser::Parser(std::string input) :
-    scanner(input.c_str())
+Parser::Parser(const std::string &input)
 {
-	advance();
+	Scanner scanner(input.c_str());
+	tokens = scanner.scan();
+	pos = tokens.begin();
+	current = *pos;
 }
 
 ParseRule Parser::get_rule(TokenType type)
@@ -524,7 +528,11 @@ std::shared_ptr<Expr> Parser::parse_precedence(Precedence precedence)
 void Parser::advance()
 {
 	previous = current;
-	current = scanner.next();
+
+	if (pos == tokens.end() - 1)
+		current = {};
+	else
+		current = *++pos;
 }
 
 bool Parser::match(TokenType type)
@@ -563,9 +571,7 @@ bool Parser::match_any(std::initializer_list<TokenType> const &tokens)
 void Parser::consume(TokenType type, const char *msg)
 {
 	if (!match(type))
-	{
-		std::cout << msg << "\n";
-	}
+		fmt::print("{}\n", msg);
 }
 
 TokenType Parser::peek()

@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 #undef yyFlexLexer
 #define yyFlexLexer jsFlexLexer
@@ -17,6 +18,7 @@ public:
 	Scanner(const char *);
 	~Scanner();
 
+	std::vector<Token> scan();
 	Token next();
 	std::string to_string();
 

@@ -1,9 +1,13 @@
 #include "token.h"
 
-#include <sstream>
+#include <fmt/format.h>
 
 namespace js
 {
+Token::Token() :
+    Token("", TOKEN_EOF, 0, 0)
+{ }
+
 Token::Token(std::string value, TokenType type, int line, int col) :
     m_value(value),
     m_type(type),
@@ -13,13 +17,6 @@ Token::Token(std::string value, TokenType type, int line, int col) :
 
 std::string Token::to_string()
 {
-	std::stringstream str;
-	str << "{";
-	str << " value: " << m_value;
-	str << ", type: " << m_type;
-	str << ", line: " << m_line;
-	str << ", col: " << m_col;
-	str << " }";
-	return str.str();
+	return fmt::format("{{ value: {}, type: {}, line: {}, col: {} }}", m_value, m_type, m_line, m_col);
 }
 }
