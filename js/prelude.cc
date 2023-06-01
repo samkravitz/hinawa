@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "function.h"
 #include "object_string.h"
 #include "vm.h"
 
@@ -13,7 +14,8 @@ namespace js
 */
 static Object *prelude_object(Vm &vm)
 {
-	auto *object = new Object();
+	auto *object = new NativeFunction([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
+
 	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
 		// TODO - this should throw, instead of returning undefined
 		if (argv.empty())

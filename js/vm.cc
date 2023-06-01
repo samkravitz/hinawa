@@ -300,36 +300,66 @@ bool Vm::run(Function f)
 			{
 				auto num_args = read_byte();
 				auto callee = peek(num_args);
-				auto *constructor = callee.as_object()->as_closure();
-				int arity = constructor->function->arity;
-				if (num_args < arity)
-				{
-					for (int i = 0; i < arity - num_args; i++)
-						push({});
 
-					num_args = arity;
+				if (callee.is_object())
+				{
+					auto *obj = callee.as_object();
+
+					if (obj->is_closure())
+					{
+						auto *constructor = obj->as_closure();
+						int arity = constructor->function->arity;
+						if (num_args < arity)
+						{
+							for (int i = 0; i < arity - num_args; i++)
+								push({});
+
+							num_args = arity;
+						}
+
+						/**
+						* functions have a property "prototype", that is an object
+						* with the property "constructor", which holds a reference
+						* to the function. When a new instance is created from the
+						* function with the 'new' keyword, the created object's
+						* prototype is the beforementioned object.
+						*/
+						auto *object = new Object();
+						object->set("constructor", Value(constructor));
+						constructor->set("prototype", Value(object));
+
+						auto *prototype = constructor->get("prototype").as_object();
+						Object *new_object = new Object;
+						new_object->set_prototype(prototype);
+
+						auto base = static_cast<uint>(stack.size() - num_args - 1);
+						auto cf = CallFrame{constructor->as_closure(), base};
+						cf.is_constructor = true;
+						frames.push(cf);
+						stack[base] = Value(new_object);
+					}
+
+					else if (obj->is_native())
+					{
+						auto *native = obj->as_native();
+						int i = num_args;
+						std::vector<Value> argv;
+
+						while (i--)
+							argv.push_back(peek(i));
+
+						auto result = native->call(*this, argv);
+						for (int i = 0; i < num_args + 1; i++)
+							pop();
+
+						push(result);
+					}
 				}
 
-				/**
-				* functions have a property "prototype", that is an object
-				* with the property "constructor", which holds a reference
-				* to the function. When a new instance is created from the
-				* function with the 'new' keyword, the created object's
-				* prototype is the beforementioned object.
-				*/
-				auto *object = new Object();
-				object->set("constructor", Value(constructor));
-				constructor->set("prototype", Value(object));
-
-				auto *prototype = constructor->get("prototype").as_object();
-				Object *new_object = new Object;
-				new_object->set_prototype(prototype);
-
-				auto base = static_cast<uint>(stack.size() - num_args - 1);
-				auto cf = CallFrame{constructor->as_closure(), base};
-				cf.is_constructor = true;
-				frames.push(cf);
-				stack[base] = Value(new_object);
+				else
+				{
+					assert(!"Ivalid new expression with an uncallable object");
+				}
 
 				break;
 			}
