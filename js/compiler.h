@@ -20,6 +20,7 @@ public:
 	Compiler(const std::vector<std::shared_ptr<Stmt>> &);
 
 	Function compile();
+	int current_line{0};
 
 private:
 	struct FunctionCompiler

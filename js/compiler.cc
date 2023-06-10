@@ -53,6 +53,7 @@ Function Compiler::compile()
 
 void Compiler::compile(const BlockStmt &stmt)
 {
+	current_line = stmt.line;
 	begin_scope();
 	for (auto s : stmt.stmts)
 		s->accept(this);
@@ -61,6 +62,7 @@ void Compiler::compile(const BlockStmt &stmt)
 
 void Compiler::compile(const VarDecl &stmt)
 {
+	current_line = stmt.line;
 	for (const auto &declarator : stmt.declorators)
 	{
 		auto global = parse_variable(declarator.identifier);
@@ -75,12 +77,14 @@ void Compiler::compile(const VarDecl &stmt)
 
 void Compiler::compile(const ExpressionStmt &stmt)
 {
+	current_line = stmt.line;
 	stmt.expr->accept(this);
 	emit_byte(OP_POP);
 }
 
 void Compiler::compile(const IfStmt &stmt)
 {
+	current_line = stmt.line;
 	stmt.test->accept(this);
 	auto then_offset = emit_jump(OP_JUMP_IF_FALSE);
 	emit_byte(OP_POP);
@@ -98,6 +102,7 @@ void Compiler::compile(const IfStmt &stmt)
 
 void Compiler::compile(const ForStmt &stmt)
 {
+	current_line = stmt.line;
 	begin_scope();
 
 	if (stmt.initialization)
@@ -133,6 +138,7 @@ void Compiler::compile(const ForStmt &stmt)
 
 void Compiler::compile(const FunctionDecl &stmt)
 {
+	current_line = stmt.line;
 	auto global = parse_variable(stmt.function_name);
 	Function function{stmt.function_name};
 	function.arity = stmt.args.size();
@@ -164,6 +170,7 @@ void Compiler::compile(const EmptyStmt &stmt) { }
 
 void Compiler::compile(const ReturnStmt &stmt)
 {
+	current_line = stmt.line;
 	if (stmt.expr)
 		stmt.expr->accept(this);
 	else
@@ -174,12 +181,14 @@ void Compiler::compile(const ReturnStmt &stmt)
 
 void Compiler::compile(const ThrowStmt &stmt)
 {
+	current_line = stmt.line;
 	stmt.expr->accept(this);
 	emit_byte(OP_THROW);
 }
 
 void Compiler::compile(const TryStmt &stmt)
 {
+	current_line = stmt.line;
 	int catch_jump = emit_jump(OP_PUSH_EXCEPTION);
 	stmt.block->accept(this);
 	int finally_jump = emit_jump(OP_JUMP);
@@ -211,6 +220,7 @@ void Compiler::compile(const TryStmt &stmt)
 
 void Compiler::compile(const UnaryExpr &expr)
 {
+	current_line = expr.line;
 	expr.rhs->accept(this);
 	auto op = expr.op.type();
 
@@ -228,6 +238,7 @@ void Compiler::compile(const UpdateExpr &expr) { }
 
 void Compiler::compile(const BinaryExpr &expr)
 {
+	current_line = expr.line;
 	expr.lhs->accept(this);
 	expr.rhs->accept(this);
 	auto op = expr.op.type();
@@ -292,6 +303,7 @@ void Compiler::compile(const BinaryExpr &expr)
 
 void Compiler::compile(const AssignmentExpr &expr)
 {
+	current_line = expr.line;
 	std::string identifier;
 	int value{};
 	if (expr.lhs->is_variable())
@@ -365,6 +377,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 
 void Compiler::compile(const CallExpr &expr)
 {
+	current_line = expr.line;
 	expr.callee->accept(this);
 	for (const auto &ex : expr.args)
 		ex->accept(this);
@@ -374,6 +387,7 @@ void Compiler::compile(const CallExpr &expr)
 
 void Compiler::compile(const MemberExpr &expr)
 {
+	current_line = expr.line;
 	expr.object->accept(this);
 	if (expr.property->is_literal())
 	{
@@ -393,6 +407,7 @@ void Compiler::compile(const MemberExpr &expr)
 
 void Compiler::compile(const Literal &expr)
 {
+	current_line = expr.line;
 	switch (expr.token.type())
 	{
 		case NUMBER:
@@ -451,6 +466,7 @@ void Compiler::compile(const Literal &expr)
 
 void Compiler::compile(const Variable &expr)
 {
+	current_line = expr.line;
 	auto identifier = expr.ident;
 
 	Opcode get_op;
@@ -477,6 +493,7 @@ void Compiler::compile(const Variable &expr)
 
 void Compiler::compile(const ObjectExpr &expr)
 {
+	current_line = expr.line;
 	for (const auto &property : expr.properties)
 		property.second->accept(this);
 
@@ -487,6 +504,7 @@ void Compiler::compile(const ObjectExpr &expr)
 
 void Compiler::compile(const FunctionExpr &expr)
 {
+	current_line = expr.line;
 	auto function = Function(ANONYMOUS);
 	function.arity = expr.args.size();
 	FunctionCompiler compiler(current, &function);
@@ -513,6 +531,7 @@ void Compiler::compile(const FunctionExpr &expr)
 
 void Compiler::compile(const NewExpr &expr)
 {
+	current_line = expr.line;
 	expr.callee->accept(this);
 
 	for (const auto &ex : expr.args)
@@ -523,6 +542,7 @@ void Compiler::compile(const NewExpr &expr)
 
 void Compiler::compile(const ArrayExpr &expr)
 {
+	current_line = expr.line;
 	for (const auto &element : expr.elements)
 		element->accept(this);
 
@@ -543,7 +563,7 @@ size_t Compiler::make_constant(Value value)
 
 void Compiler::emit_byte(u8 byte)
 {
-	current_function().chunk.write(byte, 0);
+	current_function().chunk.write(byte, current_line);
 }
 
 void Compiler::emit_bytes(u8 a, u8 b)
