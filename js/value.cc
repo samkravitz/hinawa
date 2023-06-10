@@ -9,7 +9,13 @@
 
 namespace js
 {
-bool Value::operator==(const Value &other) const
+bool Value::eq(const Value &other) const
+{
+	// TODO - for now, === and == are equivalent
+	return strict_eq(other);
+}
+
+bool Value::strict_eq(const Value &other) const
 {
 	if (type() != other.type())
 		return false;

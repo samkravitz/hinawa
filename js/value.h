@@ -60,6 +60,15 @@ public:
 
 	inline Type type() const { return m_type; }
 
+	// equality operator, == in JS
+	bool eq(const Value &) const;
+
+	// strict equality operator, === in JS
+	bool strict_eq(const Value &) const;
+
+	// in C++, our == operator will be equivalent to strict equals
+	bool operator == (const Value &other) const { return this->strict_eq(other); }
+
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_null() const { return m_type == Type::Null; }
 	inline bool is_number() const { return m_type == Type::Number; }
@@ -71,8 +80,6 @@ public:
 	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
 	inline std::string *as_string() const { return string; }
-
-	bool operator==(const Value &) const;
 
 	bool is_falsy() const;
 	const char *type_of() const;
