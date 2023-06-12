@@ -4,8 +4,8 @@
 #include <cmath>
 #include <sstream>
 
-#include "object.h"
 #include "function.h"
+#include "object.h"
 
 namespace js
 {
@@ -19,7 +19,7 @@ bool Value::strict_eq(const Value &other) const
 {
 	if (type() != other.type())
 		return false;
-	
+
 	if (type() == Type::String)
 	{
 		std::string str1 = *as_string();
@@ -41,15 +41,17 @@ bool Value::strict_eq(const Value &other) const
 		return a == b;
 	}
 
-	return false;
+	return true;
 }
 
 std::string Value::to_string() const
 {
 	switch (type())
 	{
-		case Type::Bool: return as_bool() ? "true" : "false";
-		case Type::Null: return "null";
+		case Type::Bool:
+			return as_bool() ? "true" : "false";
+		case Type::Null:
+			return "null";
 		case Type::Number:
 		{
 			double num = as_number();
@@ -57,9 +59,12 @@ std::string Value::to_string() const
 				return std::to_string((int) num);
 			return std::to_string(num);
 		}
-		case Type::Object: return as_object()->to_string();
-		case Type::Undefined: return "undefined";
-		case Type::String: return *as_string();
+		case Type::Object:
+			return as_object()->to_string();
+		case Type::Undefined:
+			return "undefined";
+		case Type::String:
+			return *as_string();
 		default:
 			assert(!"Unknown value type!");
 			return "";
@@ -70,10 +75,10 @@ bool Value::is_falsy() const
 {
 	if (is_bool())
 		return !as_bool();
-	
+
 	if (is_null() || is_undefined())
 		return true;
-	
+
 	return false;
 }
 

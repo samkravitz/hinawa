@@ -6,10 +6,11 @@ namespace js
 {
 // StrictEqualityTests
 
-TEST(StrictEqualityTests, UndefinedEqualsUndefined) { 
-    Value a = {};
-    Value b = {};
-    EXPECT_TRUE(a.strict_eq(b));
-    EXPECT_TRUE(a == b);
+TEST(StrictEqualityTests, UndefinedEqualsUndefined)
+{
+	Value a = {};
+	Value b = {};
+	EXPECT_TRUE(a.strict_eq(b));
+	EXPECT_TRUE(a == b);
 }
 }

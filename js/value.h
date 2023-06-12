@@ -25,17 +25,14 @@ public:
 	};
 
 	// construct undefined value
-	Value()
-	{
-		m_type = Type::Undefined;
-	}
+	Value() { m_type = Type::Undefined; }
 
 	explicit Value(Type type) :
 	    m_type(type)
 	{ }
 
 	explicit Value(std::nullptr_t p) :
-		m_type(Type::Null)
+	    m_type(Type::Null)
 	{ }
 
 	explicit Value(bool boolean) :
@@ -54,8 +51,8 @@ public:
 	{ }
 
 	explicit Value(Object *object) :
-		m_type(Type::Object),
-		object(object)
+	    m_type(Type::Object),
+	    object(object)
 	{ }
 
 	inline Type type() const { return m_type; }
@@ -67,7 +64,7 @@ public:
 	bool strict_eq(const Value &) const;
 
 	// in C++, our == operator will be equivalent to strict equals
-	bool operator == (const Value &other) const { return this->strict_eq(other); }
+	bool operator==(const Value &other) const { return this->strict_eq(other); }
 
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_null() const { return m_type == Type::Null; }
