@@ -66,6 +66,9 @@ public:
 	// in C++, our == operator will be equivalent to strict equals
 	bool operator==(const Value &other) const { return this->strict_eq(other); }
 
+	static Value js_null();
+	static Value js_undefined();
+
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_null() const { return m_type == Type::Null; }
 	inline bool is_number() const { return m_type == Type::Number; }

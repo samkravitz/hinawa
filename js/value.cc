@@ -9,6 +9,17 @@
 
 namespace js
 {
+
+Value Value::js_null()
+{
+	return Value(Type::Null);
+}
+
+Value Value::js_undefined()
+{
+	return {};
+}
+
 bool Value::eq(const Value &other) const
 {
 	// TODO - for now, === and == are equivalent
