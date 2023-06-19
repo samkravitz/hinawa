@@ -7,3 +7,8 @@ std::shared_ptr<Element> create_element(Document &document, const std::string &n
 
 	return std::make_shared<Element>(document, name);
 }
+
+std::shared_ptr<Element> create_element(const std::string &name)
+{
+	return std::make_shared<Element>(name);
+}

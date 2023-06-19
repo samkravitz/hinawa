@@ -9,7 +9,7 @@ struct Element : public Node
 {
 public:
 	Element(Document &, std::string);
-	Element(std::string);
+	Element(const std::string &);
 	inline NodeType type() const { return NodeType::Element; }
 	inline std::string tag() const { return m_tag; }
 

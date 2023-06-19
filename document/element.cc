@@ -9,7 +9,7 @@ Element::Element(Document &document, std::string tag) :
 	m_tag = tag;
 }
 
-Element::Element(std::string tag) :
+Element::Element(const std::string &tag) :
     m_tag(tag)
 { }
 
