@@ -42,7 +42,7 @@ void Text::split_into_lines(Box container)
 	auto *text_element = dynamic_cast<::Text *>(style()->node());
 	auto str = text_element->trim();
 
-	const int max_width = container.content.width;
+	const int max_x = container.content.width + container.content.x;
 
 	if (lines.empty())
 		lines.push_back(Line(container.content.x, container.content.y));
@@ -95,7 +95,7 @@ void Text::split_into_lines(Box container)
 		float height = px;
 
 		// fragment would overflow the max allowed width, so it must be put on a new line
-		if (current_x + len > max_width)
+		if (current_x + len > max_x)
 		{
 			frag.offset = current_x - container.content.x - frag.len;
 			current_x = container.content.x;
@@ -141,7 +141,7 @@ void Text::split_into_lines(Box container)
 	{
 		for (auto &line : lines)
 		{
-			int center_x_offset = (max_width - line.width) / 2;
+			int center_x_offset = (max_x - container.content.x - line.width) / 2;
 			line.x += center_x_offset;
 		}
 	}
