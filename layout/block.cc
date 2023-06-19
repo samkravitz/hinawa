@@ -48,14 +48,16 @@ void Block::calculate_width(Box container)
 	if (m_anonymous)
 		m_style = parent()->style();
 
-	auto *margin_left = m_style->property("margin-left");
-	auto *margin_right = m_style->property("margin-right");
+	auto* margin_left = m_style->property("margin-left");
+	auto* margin_right = m_style->property("margin-right");
 
-	auto *border_left = m_style->property("border-left");
-	auto *border_right = m_style->property("border-right");
+	auto* border_left = m_style->property("border-left");
+	auto* border_right = m_style->property("border-right");
 
-	auto *padding_left = m_style->property("padding-left");
-	auto *padding_right = m_style->property("padding-right");
+	auto* padding_left = m_style->property("padding-left");
+	auto* padding_right = m_style->property("padding-right");
+
+	auto* width = style()->property("width");
 
 	// total width in px
 	int total = 0;
@@ -68,11 +70,95 @@ void Block::calculate_width(Box container)
 
 	m_dimensions.content.width = container.content.width;
 
-	auto *width = style()->property("width");
-	if (auto *width_len = dynamic_cast<css::Length*>(width))
-		m_dimensions.content.width = width_len->to_px();
+	bool width_is_auto = false;
+	bool margin_left_is_auto = false;
+	bool margin_right_is_auto = false;
 
-	m_dimensions.content.width -= total;
+	if (auto* width_len = dynamic_cast<css::Length*>(width))
+	{
+		m_dimensions.content.width = width_len->to_px();
+		total += width_len->to_px();
+	}
+
+	if (auto* width_keyword = dynamic_cast<css::Keyword*>(width); width_keyword && width_keyword->value == "auto")
+		width_is_auto = true;
+
+	if (auto* margin_left_keyword = dynamic_cast<css::Keyword*>(margin_left);
+	    margin_left_keyword && margin_left_keyword->value == "auto")
+		margin_left_is_auto = true;
+
+	if (auto* margin_right_keyword = dynamic_cast<css::Keyword*>(margin_right);
+	    margin_right_keyword && margin_right_keyword->value == "auto")
+		margin_right_is_auto = true;
+
+	int underflow = container.content.width - total;
+
+	// https://www.w3.org/TR/CSS2/visudet.html#blockwidth
+	// If 'width' is not 'auto' and 'border-left-width' + 'padding-left' + 'width' + 'padding-right' + 'border-right-width'
+	// (plus any of 'margin-left' or 'margin-right' that are not 'auto') is larger than the width of the containing block,
+	// then any 'auto' values for 'margin-left' or 'margin-right' are, for the following rules, treated as zero.
+	if (!width_is_auto && total > container.content.width)
+	{
+		if (margin_left_is_auto)
+			margin_left = new css::Length;
+
+		if (margin_right_is_auto)
+			margin_right = new css::Length;
+	}
+
+	// If 'width' is set to 'auto'
+	// any other 'auto' values become '0' and 'width' follows from the resulting equality.
+	if (width_is_auto)
+	{
+		if (margin_left_is_auto)
+			margin_left = new css::Length;
+
+		if (margin_right_is_auto)
+			margin_right = new css::Length;
+
+		if (underflow >= 0)
+		{
+			width = new css::Length(underflow, css::Length::PX);
+		}
+		else
+		{
+			width = new css::Length;
+			margin_right = new css::Length(margin_right->to_px() + underflow, css::Length::PX);
+		}
+	}
+
+	else
+	{
+		// If all of the above have a computed value other than 'auto', the values are said to be "over-constrained"
+		// and one of the used values will have to be different from its computed value.
+		// there are no auto values. Adjust margin_right to fill available space
+		if (!margin_left_is_auto && !margin_right_is_auto)
+		{
+			margin_right = new css::Length(margin_right->to_px() + underflow, css::Length::PX);
+		}
+
+		// both margin_left and margin_right are auto
+		// split the remaining space between them
+		else if (margin_left_is_auto && margin_right_is_auto)
+		{
+			double w = underflow / 2.0;
+			margin_left = new css::Length(w, css::Length::PX);
+			margin_right = new css::Length(w, css::Length::PX);
+		}
+
+		// only 1 of margin_left or margin_right is auto
+		// adjust its value to fill available space
+		else
+		{
+			if (margin_left_is_auto)
+				margin_left = new css::Length;
+
+			if (margin_right_is_auto)
+				margin_right = new css::Length;
+		}
+	}
+
+	m_dimensions.content.width = width->to_px();
 
 	m_dimensions.padding.left = padding_left->to_px();
 	m_dimensions.padding.right = padding_right->to_px();
