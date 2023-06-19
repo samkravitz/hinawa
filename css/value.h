@@ -62,7 +62,7 @@ struct Color : public Value
 	u8 b;
 	u8 a;
 
-	static Color *from_color_string(std::string const &color)
+	static Color* from_color_string(std::string const &color)
 	{
 		if (color == "black")
 			return new Color(0, 0, 0);
@@ -120,7 +120,7 @@ struct Keyword : public Value
 
 	inline ValueType type() { return ValueType::Keyword; }
 
-	std::string to_string() const { return fmt::format("{{ Keyword: {}}}", value); }
+	std::string to_string() const { return fmt::format("{{ Keyword: {} }}", value); }
 };
 
 struct Length : public Value
@@ -208,15 +208,17 @@ struct Percentage : public Value
 	    percent(percent)
 	{ }
 	double percent;
+
+	std::string to_string() const override { return fmt::format("{{ Percentage: {}% }}", percent); }
 };
 
 struct ValueArray : public Value
 {
 	ValueArray() = default;
-	ValueArray(const std::vector<Value *> &values) :
+	ValueArray(const std::vector<Value*> &values) :
 	    values(values)
 	{ }
 
-	std::vector<Value *> values;
+	std::vector<Value*> values;
 };
 }

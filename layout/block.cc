@@ -68,16 +68,19 @@ void Block::calculate_width(Box container)
 	total += padding_left->to_px();
 	total += padding_right->to_px();
 
-	m_dimensions.content.width = container.content.width;
-
 	bool width_is_auto = false;
 	bool margin_left_is_auto = false;
 	bool margin_right_is_auto = false;
 
 	if (auto* width_len = dynamic_cast<css::Length*>(width))
-	{
-		m_dimensions.content.width = width_len->to_px();
 		total += width_len->to_px();
+
+	// width is a percentage, adjust to container's width accordingly
+	if (auto* width_percentage = dynamic_cast<css::Percentage*>(width))
+	{
+		float px = container.content.width * (width_percentage->percent / 100.0);
+		width = new css::Length(px, css::Length::PX);
+		total += width->to_px();
 	}
 
 	if (auto* width_keyword = dynamic_cast<css::Keyword*>(width); width_keyword && width_keyword->value == "auto")
