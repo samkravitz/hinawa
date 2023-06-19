@@ -83,6 +83,24 @@ bool Selector::ComplexSelector::matches(const StyledNode &element) const
 		return compound.matches(element);
 	}
 
+	for (int i = compound_selectors.size() - 1; i > 0; i--)
+	{
+		auto right = compound_selectors[i];
+		auto left = compound_selectors[i - 1];
+
+		if (!right.matches(element))
+			return false;
+
+		switch (right.combinator)
+		{
+			case Combinator::Descendant:
+				return element.parent_matches_condition([&left](auto *parent) { return left.matches(*parent); });
+
+			default:
+				return false;
+		}
+	}
+
 	return false;
 }
 

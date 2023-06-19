@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <memory>
 #include <string>
 
 #include "css/parser.h"
 #include "css/selector.h"
 #include "css/styled_node.h"
 #include "document/element.h"
+#include "document/element_factory.h"
 
 namespace css
 {
@@ -85,5 +87,32 @@ TEST(SelectorMatchTests, MatchCompound)
 	auto selector = Parser::parse_selector(css);
 
 	EXPECT_TRUE(selector->matches(styled_node));
+}
+
+/**
+* Tests that this selector:
+* div.parent span
+*
+* matches this html snippet:
+*
+* <div class="parent">
+*   <span>
+* </div>
+*
+*/
+TEST(SelectorMatchTests, MatchComplex)
+{
+	auto div = create_element("div");
+	div->add_attribute("class", "parent");
+	auto div_styled_node = std::make_shared<StyledNode>(div.get());
+
+	auto span = create_element("span");
+	auto styled_node = std::make_shared<StyledNode>(span.get());
+	div_styled_node->add_child(styled_node);
+
+	std::string css = R"(div.parent span)";
+	auto selector = Parser::parse_selector(css);
+
+	EXPECT_TRUE(selector->matches(*styled_node));
 }
 }

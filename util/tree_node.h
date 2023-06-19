@@ -55,6 +55,27 @@ public:
 			f(child.get());
 	}
 
+	bool has_child_that_matches_condition(std::function<bool(const T*)> f) const
+	{
+		for (const auto &child : children)
+		{
+			if (f(child.get()))
+				return true;
+
+			return child->has_child_that_matches_condition(f);
+		}
+
+		return false;
+	}
+
+	bool parent_matches_condition(std::function<bool(const T*)> f) const
+	{
+		if (!parent())
+			return false;
+
+		return f(parent());
+	}
+
 	T *last_child()
 	{
 		if (!has_children())
