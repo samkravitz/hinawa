@@ -203,6 +203,9 @@ void Browser::render()
 				for (auto const &frag : line.fragments)
 				{
 					auto *styled_node = frag.styled_node;
+					if (!styled_node)
+						continue;
+
 					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
 					auto color = sf::Color(color_value->r, color_value->g, color_value->b);
 					auto *font_size = styled_node->property("font-size");

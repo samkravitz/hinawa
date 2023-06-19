@@ -13,7 +13,7 @@ public:
 
 	void layout(Box container) override;
 	bool is_inline() const override { return true; }
-	bool is_anonymous() const { return true; }
+	bool is_anonymous() const override { return true; }
 	bool is_list_item_marker() const override { return true; }
 
 	std::string to_string() const override { return "<ListItemMarker>"; }
