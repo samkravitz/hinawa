@@ -8,7 +8,7 @@ Block::Block() :
 	m_anonymous = true;
 }
 
-Block::Block(css::StyledNode *node) :
+Block::Block(css::StyledNode* node) :
     Node(node)
 {
 	m_anonymous = false;
@@ -192,7 +192,7 @@ void Block::calculate_position(Box container)
 
 void Block::calculate_height(Box container) { }
 
-std::optional<::Node *> Block::hit_test(const Point &p)
+std::optional<::Node*> Block::hit_test(const Point &p)
 {
 	if (!m_inline_format_context)
 		return Node::hit_test(p);
@@ -204,8 +204,9 @@ std::optional<::Node *> Block::hit_test(const Point &p)
 		int height = line.height;
 		for (auto const &fragment : line.fragments)
 		{
-			if (Rect(x + fragment.offset, y, fragment.len, height).contains(p))
-				return { fragment.styled_node->node() };
+			Rect r = {x + fragment.offset, y, fragment.len, height};
+			if (r.contains(p))
+				return {fragment.styled_node->node()};
 		}
 	}
 	return {};
