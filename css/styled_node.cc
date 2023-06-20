@@ -208,6 +208,65 @@ void StyledNode::assign(const std::string &name, Value *value)
 			return;
 		}
 
+		if (name == "padding")
+		{
+			const auto &values = value_array->values;
+			assert(!values.empty() && values.size() <= 4);
+
+			// if the padding has 1 value, all 4 paddings are that value
+			if (values.size() == 1)
+			{
+				m_values["padding-top"] = values[0];
+				m_values["padding-right"] = values[0];
+				m_values["padding-bottom"] = values[0];
+				m_values["padding-left"] = values[0];
+			}
+
+			/**
+			* If the padding has 2 values:
+			* top and bottom paddings are the first value
+			* left and right paddings are the second value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["padding-top"] = values[0];
+				m_values["padding-right"] = values[1];
+				m_values["padding-bottom"] = values[0];
+				m_values["padding-left"] = values[1];
+			}
+
+			/**
+			* If the padding has 3 values:
+			* top padding is the first value
+			* left and right paddings are the second value
+			* bottom padding is the third value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["padding-top"] = values[0];
+				m_values["padding-right"] = values[1];
+				m_values["padding-bottom"] = values[2];
+				m_values["padding-left"] = values[1];
+			}
+
+			/**
+			* If the padding has 4 values:
+			* top padding is the first value
+			* right padding is the second value
+			* bottom padding is the third value
+			* left padding is the fourth value
+			*/
+			if (values.size() == 4)
+			{
+				m_values["padding-top"] = values[0];
+				m_values["padding-right"] = values[1];
+				m_values["padding-bottom"] = values[2];
+				m_values["padding-left"] = values[3];
+			}
+
+			return;
+		}
+
 		if (name == "border-width")
 		{
 			const auto &values = value_array->values;
