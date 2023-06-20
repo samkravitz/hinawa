@@ -63,7 +63,6 @@ std::string &Token::system_identifier()
 	return std::get<DoctypeData>(data).system_identifier;
 }
 
-
 std::string &Token::comment()
 {
 	assert(is_comment());

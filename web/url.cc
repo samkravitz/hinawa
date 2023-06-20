@@ -1,8 +1,8 @@
 #include "url.h"
 
 #include <cassert>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 #include "url_parser.h"
 
@@ -10,7 +10,7 @@ Url::Url(const std::string &url_string) :
     Url(UrlParser().parse(url_string))
 { }
 
-Url::Url(const std::string &url_string, Url *base) :
+Url::Url(const std::string &url_string, Url* base) :
     Url(UrlParser().parse(url_string, base, {}))
 { }
 

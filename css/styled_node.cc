@@ -71,11 +71,11 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 	stylesheets.push_back(user_stylesheet);
 	auto node = std::make_shared<StyledNode>(body);
 
-	node->preorder([&](auto *n) {
-		if (auto *p = n->parent())
+	node->preorder([&](auto* n) {
+		if (auto* p = n->parent())
 			n->inherit_properties(*p);
 
-		if (auto *element = dynamic_cast<Element*>(n->node()))
+		if (auto* element = dynamic_cast<Element*>(n->node()))
 		{
 			for (const auto &stylesheet : stylesheets)
 				stylesheet.style(n);
@@ -91,11 +91,11 @@ std::shared_ptr<StyledNode> build_style_tree(const Document &document)
 	return node;
 }
 
-StyledNode::StyledNode(Node *node) :
+StyledNode::StyledNode(Node* node) :
     m_node(node)
 {
-	node->for_each_child([&](auto *child) {
-		if (auto *text = dynamic_cast<Text*>(child))
+	node->for_each_child([&](auto* child) {
+		if (auto* text = dynamic_cast<Text*>(child))
 		{
 			if (text->whitespace_only())
 				return;
@@ -105,7 +105,7 @@ StyledNode::StyledNode(Node *node) :
 	});
 }
 
-Value *StyledNode::property(const std::string &property_name) const
+Value* StyledNode::property(const std::string &property_name) const
 {
 	if (m_values.find(property_name) != m_values.end())
 		return m_values.at(property_name);
@@ -123,8 +123,8 @@ void StyledNode::inherit_properties(const StyledNode &parent)
 
 Display StyledNode::display()
 {
-	auto *display = property("display");
-	auto *keyword = dynamic_cast<Keyword *>(display);
+	auto* display = property("display");
+	auto* keyword = dynamic_cast<Keyword*>(display);
 
 	if (keyword->value == "block" || keyword->value == "table")
 		return Display::Block;
@@ -144,9 +144,9 @@ Display StyledNode::display()
 	return Display::Inline;
 }
 
-void StyledNode::assign(const std::string &name, Value *value)
+void StyledNode::assign(const std::string &name, Value* value)
 {
-	ValueArray *value_array = dynamic_cast<ValueArray*>(value);
+	ValueArray* value_array = dynamic_cast<ValueArray*>(value);
 	if (value_array)
 	{
 		if (name == "margin")

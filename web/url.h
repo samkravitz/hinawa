@@ -14,7 +14,7 @@ class Url
 public:
 	Url() = default;
 	Url(const std::string &);
-	Url(const std::string &, Url *);
+	Url(const std::string &, Url*);
 
 	static int default_port(const std::string &);
 

@@ -111,12 +111,12 @@ public:
 
 private:
 	TokenType m_type;
-	std::variant<
-		DoctypeData,      // Doctype
-		TagData,          // StartTag, EndTag
-		u32,              // Character
-		std::string,      // Comment
-		std::monostate    // EOF
-	> data;
+	std::variant<DoctypeData,      // Doctype
+	             TagData,          // StartTag, EndTag
+	             u32,              // Character
+	             std::string,      // Comment
+	             std::monostate    // EOF
+	             >
+	    data;
 };
 }

@@ -37,7 +37,7 @@ Vm::Vm(Document* document) :
 bool Vm::run(Function f)
 {
 	push(Value(&f));
-	auto *closure = Closure::create(&f);
+	auto* closure = Closure::create(&f);
 	auto cf = CallFrame{closure, 0};
 	frames.push(cf);
 	pop();
@@ -52,7 +52,7 @@ bool Vm::run(Function f)
 	return true;
 }
 
-void Vm::call(Closure *closure)
+void Vm::call(Closure* closure)
 {
 	auto num_args = closure->function->arity;
 	auto base = static_cast<unsigned>(stack.size() - num_args - 1);
@@ -76,7 +76,7 @@ bool Vm::run_instruction(bool in_call)
 		{
 			auto result = pop();
 			auto frame = frames.top();
-			Object *new_object = nullptr;
+			Object* new_object = nullptr;
 			if (frame.is_constructor)
 				new_object = stack[frame.base].as_object();
 
@@ -277,12 +277,12 @@ bool Vm::run_instruction(bool in_call)
 
 			if (callee.is_object())
 			{
-				Object *obj = callee.as_object();
+				Object* obj = callee.as_object();
 				Object *method = obj, *receiver = obj;
 
 				if (obj->is_closure())
 				{
-					auto *closure = obj->as_closure();
+					auto* closure = obj->as_closure();
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{closure, base};
 					frames.push(cf);
@@ -292,7 +292,7 @@ bool Vm::run_instruction(bool in_call)
 
 				if (obj->is_bound_method())
 				{
-					auto *bound = static_cast<BoundMethod *>(obj);
+					auto* bound = static_cast<BoundMethod*>(obj);
 					method = bound->method;
 					receiver = bound->receiver;
 				}
@@ -336,11 +336,11 @@ bool Vm::run_instruction(bool in_call)
 
 			if (callee.is_object())
 			{
-				auto *obj = callee.as_object();
+				auto* obj = callee.as_object();
 
 				if (obj->is_closure())
 				{
-					auto *constructor = obj->as_closure();
+					auto* constructor = obj->as_closure();
 					int arity = constructor->function->arity;
 					if (num_args < arity)
 					{
@@ -350,8 +350,8 @@ bool Vm::run_instruction(bool in_call)
 						num_args = arity;
 					}
 
-					auto *prototype = constructor->get("prototype").as_object();
-					Object *new_object = new Object;
+					auto* prototype = constructor->get("prototype").as_object();
+					Object* new_object = new Object;
 					new_object->set_prototype(prototype);
 
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
@@ -363,7 +363,7 @@ bool Vm::run_instruction(bool in_call)
 
 				else if (obj->is_native())
 				{
-					auto *native = obj->as_native();
+					auto* native = obj->as_native();
 					int i = num_args;
 					std::vector<Value> argv;
 
@@ -482,7 +482,7 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_GET_PROPERTY:
 		{
-			Object *obj;
+			Object* obj;
 
 			if (peek().is_string())
 			{
@@ -520,7 +520,7 @@ bool Vm::run_instruction(bool in_call)
 				break;
 			}
 
-			auto *obj = peek(1).as_object();
+			auto* obj = peek(1).as_object();
 			obj->set(read_string(), peek());
 			auto value = pop();
 			push(value);
@@ -530,7 +530,7 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_NEW_OBJECT:
 		{
-			Object *obj = new Object();
+			Object* obj = new Object();
 			auto property_count = read_byte();
 
 			for (int i = property_count - 1; i >= 0; i--)
@@ -594,8 +594,8 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_CLOSURE:
 		{
-			auto *function = read_constant().as_object()->as_function();
-			auto *closure = Closure::create(function);
+			auto* function = read_constant().as_object()->as_function();
+			auto* closure = Closure::create(function);
 			push(Value(closure));
 
 			for (int i = 0; i < function->upvalue_count; i++)
@@ -794,7 +794,7 @@ std::string Vm::read_string()
 	return *constant.as_string();
 }
 
-Upvalue *Vm::capture_upvalue(Value *local)
+Upvalue* Vm::capture_upvalue(Value* local)
 {
 	return new Upvalue(local);
 }

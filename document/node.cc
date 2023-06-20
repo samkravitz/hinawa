@@ -8,12 +8,12 @@ Node::Node(Document &document) :
 
 bool Node::is_link() const
 {
-	for (auto *tree_node = parent(); tree_node; tree_node = tree_node->parent())
+	for (auto* tree_node = parent(); tree_node; tree_node = tree_node->parent())
 	{
-		auto *node = static_cast<Node *>(tree_node);
+		auto* node = static_cast<Node*>(tree_node);
 		if (node->type() == NodeType::Element)
 		{
-			auto *element = static_cast<Element*>(node);
+			auto* element = static_cast<Element*>(node);
 			if (element->tag() == "a")
 				return true;
 		}
@@ -36,7 +36,7 @@ std::string Node::element_name() const
 {
 	if (type() == NodeType::Element)
 	{
-		auto *element = static_cast<Element const*>(this);
+		auto* element = static_cast<Element const*>(this);
 		return element->tag();
 	}
 

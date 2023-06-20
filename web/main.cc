@@ -4,7 +4,7 @@
 
 int main()
 {
-	auto req = Http { "https://serenityos.org" };
+	auto req = Http{"https://serenityos.org"};
 	auto res = req.send();
 
 	std::cout << res.body() << "\n";

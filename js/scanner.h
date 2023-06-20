@@ -15,7 +15,7 @@ namespace js
 class Scanner
 {
 public:
-	Scanner(const char *);
+	Scanner(const char*);
 	~Scanner();
 
 	std::vector<Token> scan();
@@ -25,6 +25,6 @@ public:
 private:
 	std::string source;
 	std::istringstream istream;
-	FlexLexer *lexer;
+	FlexLexer* lexer;
 };
 }

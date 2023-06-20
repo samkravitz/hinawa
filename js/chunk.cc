@@ -4,9 +4,9 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 
+#include "function.h"
 #include "opcode.h"
 #include "value.h"
-#include "function.h"
 
 namespace js
 {
@@ -22,7 +22,7 @@ size_t Chunk::add_constant(Value value)
 	return constants.size() - 1;
 }
 
-void Chunk::disassemble(const char *name)
+void Chunk::disassemble(const char* name)
 {
 	fmt::print("== {} ==\n", name);
 	size_t offset = 0;
@@ -137,8 +137,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			offset++;
 			auto constant = code[offset++];
 			fmt::print("{:16} {:4} {}\n", "OP_CLOSURE", constant, constants[constant].to_string());
-			auto *function = constants[constant].as_object()->as_function();
-			for (int i = 0;i < function->upvalue_count; i++)
+			auto* function = constants[constant].as_object()->as_function();
+			for (int i = 0; i < function->upvalue_count; i++)
 			{
 				int is_local = code[offset++];
 				int index = code[offset++];
@@ -153,34 +153,34 @@ size_t Chunk::disassemble_instruction(size_t offset)
 	}
 }
 
-size_t Chunk::simple_instruction(const char *name, size_t offset)
+size_t Chunk::simple_instruction(const char* name, size_t offset)
 {
 	fmt::print("{}\n", name);
 	return offset + 1;
 }
 
-size_t Chunk::constant_instruction(const char *name, size_t offset)
+size_t Chunk::constant_instruction(const char* name, size_t offset)
 {
 	auto constant = code[offset + 1];
 	fmt::print("{:16} {:4} {}\n", name, constant, constants[constant].to_string());
 	return offset + 2;
 }
 
-size_t Chunk::byte_instruction(const char *name, size_t offset)
+size_t Chunk::byte_instruction(const char* name, size_t offset)
 {
 	auto slot = code[offset + 1];
 	std::printf("%-16s %4d\n", name, slot);
 	return offset + 2;
 }
 
-size_t Chunk::jump_instruction(const char *name, int sign, size_t offset)
+size_t Chunk::jump_instruction(const char* name, int sign, size_t offset)
 {
 	auto jump = (uint16_t) (code[offset + 1] << 8) | code[offset + 2];
 	std::printf("%-16s %4ld -> %ld\n", name, offset, offset + 3 + sign * jump);
 	return offset + 3;
 }
 
-size_t Chunk::new_object_instruction(const char *name, size_t offset)
+size_t Chunk::new_object_instruction(const char* name, size_t offset)
 {
 	u8 num_properties = code[offset + 1];
 	std::printf("%-16s %4d\n", name, num_properties);

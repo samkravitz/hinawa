@@ -31,12 +31,7 @@ struct Rect
 	{
 		int x2 = x + width;
 		int y2 = y + height;
-		return (
-			p.x >= x &&
-			p.x <= x2 &&
-			p.y >= y &&
-			p.y <= y2
-		);
+		return (p.x >= x && p.x <= x2 && p.y >= y && p.y <= y2);
 	}
 
 	std::string to_string() const

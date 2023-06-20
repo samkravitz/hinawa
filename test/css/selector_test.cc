@@ -79,7 +79,7 @@ TEST(SelectorParseTests, ParseCompound)
 
 TEST(SelectorMatchTests, MatchCompound)
 {
-	auto *element = new Element("div");
+	auto* element = new Element("div");
 	element->add_attribute("class", "class1 class2");
 	auto styled_node = StyledNode(element);
 

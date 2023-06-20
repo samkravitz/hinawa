@@ -13,7 +13,7 @@
 
 namespace layout
 {
-std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
+std::shared_ptr<Node> build_layout_tree(css::StyledNode* styled_node)
 {
 	std::shared_ptr<Node> node = nullptr;
 
@@ -31,7 +31,7 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 			break;
 
 		case css::Display::InlineBlock:
-			if (dynamic_cast<HtmlImageElement *>(styled_node->node()))
+			if (dynamic_cast<HtmlImageElement*>(styled_node->node()))
 				node = std::make_shared<Image>(styled_node);
 			break;
 
@@ -40,14 +40,14 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 			break;
 
 		default:
-			std::cerr << "Found display: none!\n"; 
+			std::cerr << "Found display: none!\n";
 			return nullptr;
 	}
 
 	bool contains_inline_children = false;
 	bool contains_block_children = false;
 
-	styled_node->for_each_child([&](auto *styled_child) {
+	styled_node->for_each_child([&](auto* styled_child) {
 		auto child = build_layout_tree(styled_child);
 		node->add_child(child);
 
@@ -70,7 +70,7 @@ Node::Node() :
     m_style(nullptr)
 { }
 
-Node::Node(css::StyledNode *node) :
+Node::Node(css::StyledNode* node) :
     m_style(node)
 { }
 
@@ -98,7 +98,7 @@ std::string Node::tag_name() const
 	return m_style->node()->element_name();
 }
 
-std::optional<::Node *> Node::hit_test(const Point &p)
+std::optional<::Node*> Node::hit_test(const Point &p)
 {
 	if (!m_dimensions.content.contains(p))
 		return {};
@@ -106,8 +106,8 @@ std::optional<::Node *> Node::hit_test(const Point &p)
 	if (!m_style || !m_style->node())
 		return {};
 
-	std::optional<::Node *> result = { m_style->node() };
-	for_each_child([&](auto *child) {
+	std::optional<::Node*> result = {m_style->node()};
+	for_each_child([&](auto* child) {
 		auto child_result = child->hit_test(p);
 		if (child_result.has_value())
 			result = child_result;
@@ -115,7 +115,7 @@ std::optional<::Node *> Node::hit_test(const Point &p)
 	return result;
 }
 
-void print_tree_with_lines(Node *root)
+void print_tree_with_lines(Node* root)
 {
 	static int indent = 0;
 	for (int i = 0; i < indent * 2; i++)
@@ -124,7 +124,7 @@ void print_tree_with_lines(Node *root)
 	std::cout << root->to_string() << "\n";
 	if (root->is_block())
 	{
-		auto *block = static_cast<Block *>(root);
+		auto* block = static_cast<Block*>(root);
 		int saved_indent = indent;
 		indent++;
 		for (uint i = 0; i < block->lines.size(); i++)
@@ -150,7 +150,7 @@ void print_tree_with_lines(Node *root)
 		indent = saved_indent;
 	}
 
-	root->for_each_child([](auto *child) {
+	root->for_each_child([](auto* child) {
 		indent++;
 		print_tree_with_lines(child);
 		indent--;

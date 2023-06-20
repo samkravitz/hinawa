@@ -21,7 +21,7 @@ private:
 	u32 next_codepoint() const;
 
 	std::string input;
-	std::size_t pos{ 0 };
+	std::size_t pos{0};
 
 	void consume_comments();
 	void consume_whitespace();

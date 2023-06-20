@@ -7,7 +7,7 @@ void HtmlImageElement::add_attribute(std::string name, std::string value)
 	if (name == "src")
 	{
 		auto origin = document().origin();
-		load({ value, &origin }, [this](const auto &data) {
+		load({value, &origin}, [this](const auto &data) {
 			m_image.loadFromMemory(data.data(), data.size());
 			document().set_needs_reflow();
 		});

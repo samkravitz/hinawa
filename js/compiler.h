@@ -25,7 +25,7 @@ public:
 private:
 	struct FunctionCompiler
 	{
-		FunctionCompiler(FunctionCompiler *enclosing, Function *function) :
+		FunctionCompiler(FunctionCompiler* enclosing, Function* function) :
 		    enclosing(enclosing),
 		    function(function)
 		{ }
@@ -36,18 +36,18 @@ private:
 			bool is_local{false};
 		};
 
-		FunctionCompiler *enclosing{nullptr};
-		Function *function;
+		FunctionCompiler* enclosing{nullptr};
+		Function* function;
 		int scope_depth{0};
 		std::vector<Local> locals;
 		std::vector<CompilerUpvalue> upvalues;
 		int local_count() { return locals.size(); }
 		int upvalue_count() { return upvalues.size(); }
-	} *current{nullptr};
+	}* current{nullptr};
 
 	std::vector<std::shared_ptr<Stmt>> stmts;
 
-	void init_compiler(FunctionCompiler *);
+	void init_compiler(FunctionCompiler*);
 	void end_compiler();
 
 	// compile statements
@@ -93,9 +93,9 @@ private:
 	void end_scope();
 
 	void declare_local(const std::string &);
-	int resolve_local(FunctionCompiler *, const std::string &);
-	int resolve_upvalue(FunctionCompiler *, const std::string &);
-	int add_upvalue(FunctionCompiler *, u8, bool);
+	int resolve_local(FunctionCompiler*, const std::string &);
+	int resolve_upvalue(FunctionCompiler*, const std::string &);
+	int add_upvalue(FunctionCompiler*, u8, bool);
 
 	bool is_global() const;
 

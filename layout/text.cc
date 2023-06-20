@@ -11,7 +11,7 @@ extern sf::Font font;
 
 namespace layout
 {
-Text::Text(css::StyledNode *node) :
+Text::Text(css::StyledNode* node) :
     Node(node)
 { }
 
@@ -24,8 +24,8 @@ void Text::layout(Box container)
 void Text::split_into_lines(Box container)
 {
 	// nearest ancestor that is block layout
-	Block *block_ancestor = nullptr;
-	for (auto *p = parent(); p; p = p->parent())
+	Block* block_ancestor = nullptr;
+	for (auto* p = parent(); p; p = p->parent())
 	{
 		if (p->is_block())
 		{
@@ -36,10 +36,10 @@ void Text::split_into_lines(Box container)
 	assert(block_ancestor);
 	auto &lines = block_ancestor->lines;
 
-	auto *font_size = style()->property("font-size");
+	auto* font_size = style()->property("font-size");
 	float px = font_size->font_size();
 
-	auto *text_element = dynamic_cast<::Text *>(style()->node());
+	auto* text_element = dynamic_cast<::Text*>(style()->node());
 	auto str = text_element->trim();
 
 	const int max_x = container.content.width + container.content.x;
@@ -60,7 +60,7 @@ void Text::split_into_lines(Box container)
 	LineFragment frag = {};
 	frag.styled_node = m_style;
 
-	auto *white_space = dynamic_cast<css::Keyword *>(style()->property("white-space"));
+	auto* white_space = dynamic_cast<css::Keyword*>(style()->property("white-space"));
 	// preserve whitespace
 	if (white_space && white_space->value == "pre")
 	{

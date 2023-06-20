@@ -23,7 +23,7 @@ void load(const Url &url, std::function<void(const std::vector<u8> &)> callback)
 
 	else if (url.scheme() == "http" || url.scheme() == "https")
 	{
-		auto req = Http{ url };
+		auto req = Http{url};
 		auto res = req.send();
 		const auto &str = res.body();
 		auto data = std::vector<u8>(str.begin(), str.end());

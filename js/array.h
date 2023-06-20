@@ -13,7 +13,7 @@ public:
 
 	Array(std::vector<Value>);
 
-	virtual Object *prototype() override;
+	virtual Object* prototype() override;
 
 	bool is_array() const override { return true; }
 	std::string to_string() const override;
@@ -24,12 +24,12 @@ class ArrayPrototype final : public Object
 public:
 	ArrayPrototype(ArrayPrototype &other) = delete;
 	void operator=(const ArrayPrototype &) = delete;
-	Object *prototype() override { return ObjectPrototype::the(); }
+	Object* prototype() override { return ObjectPrototype::the(); }
 
-	static ArrayPrototype *the();
+	static ArrayPrototype* the();
 
 private:
 	ArrayPrototype();
-	static ArrayPrototype *instance;
+	static ArrayPrototype* instance;
 };
 }

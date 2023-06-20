@@ -33,7 +33,7 @@ private:
 	int width = 1600;
 	int height = 1200;
 
-	sf::RenderWindow window{ sf::VideoMode(width, height), "hinawa" };
+	sf::RenderWindow window{sf::VideoMode(width, height), "hinawa"};
 	sf::Cursor arrow_cursor, hand_cursor;
 
 	void load(const Url &);

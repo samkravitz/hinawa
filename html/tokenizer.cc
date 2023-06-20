@@ -404,7 +404,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.tag_name() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.tag_name() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1021,7 +1021,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.attribute_name() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.attribute_name() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1142,7 +1142,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.attribute_value() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1178,7 +1178,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.attribute_value() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1219,7 +1219,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.attribute_value() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.attribute_value() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1349,7 +1349,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-parse-error");
-					current_token.comment() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.comment() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1462,7 +1462,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.comment() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.comment() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1704,7 +1704,7 @@ loop_start:
 				{
 					parse_error("unexpected-null-character");
 					current_token = Token::make_doctype();
-					current_token.doctype_name() = reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.doctype_name() = reinterpret_cast<const char*>(u8"\ufffd");
 					SWITCH_TO(DOCTYPEName);
 				}
 
@@ -1755,7 +1755,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.doctype_name() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.doctype_name() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1931,7 +1931,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.public_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.public_identifier() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -1972,7 +1972,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.public_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.public_identifier() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -2201,7 +2201,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.system_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.system_identifier() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -2242,7 +2242,7 @@ loop_start:
 				ON_NULL
 				{
 					parse_error("unexpected-null-character");
-					current_token.system_identifier() += reinterpret_cast<const char *>(u8"\ufffd");
+					current_token.system_identifier() += reinterpret_cast<const char*>(u8"\ufffd");
 					continue;
 				}
 
@@ -2589,7 +2589,7 @@ bool Tokenizer::consume_if_match(std::string const &str, bool case_sensitive)
 	return true;
 }
 
-void Tokenizer::parse_error(const char *msg)
+void Tokenizer::parse_error(const char* msg)
 {
 	fmt::print(stderr, "[html] Parse error: {}\n", msg);
 }

@@ -8,14 +8,14 @@ namespace js
 {
 class ObjectString : public Object
 {
-friend class StringPrototype;
+	friend class StringPrototype;
 
 public:
-	ObjectString(std::string *);
-	virtual Object *prototype() override;
+	ObjectString(std::string*);
+	virtual Object* prototype() override;
 
 private:
-	std::string *primitive_string;
+	std::string* primitive_string;
 };
 
 class StringPrototype final : public Object
@@ -23,12 +23,12 @@ class StringPrototype final : public Object
 public:
 	StringPrototype(StringPrototype &other) = delete;
 	void operator=(const StringPrototype &) = delete;
-	Object *prototype() override { return ObjectPrototype::the(); }
+	Object* prototype() override { return ObjectPrototype::the(); }
 
-	static StringPrototype *the();
+	static StringPrototype* the();
 
 private:
 	StringPrototype();
-	static StringPrototype *instance;
+	static StringPrototype* instance;
 };
 }

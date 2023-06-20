@@ -20,7 +20,7 @@ std::vector<Declaration> Rule::declarations() const
 	return Parser::parse_declaration_list(qualified_rule.block.value);
 }
 
-void Stylesheet::style(StyledNode *styled_node) const
+void Stylesheet::style(StyledNode* styled_node) const
 {
 	assert(styled_node);
 	for (const auto &rule : rules)
@@ -36,7 +36,7 @@ void Stylesheet::style(StyledNode *styled_node) const
 	}
 }
 
-Value *Declaration::style_value() const
+Value* Declaration::style_value() const
 {
 	return Parser::parse_style_value(name, value);
 }

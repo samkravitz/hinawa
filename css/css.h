@@ -14,5 +14,5 @@ struct Property
 
 Stylesheet read_default_stylesheet();
 void read_properties_file();
-Value *initial_value(const std::string &);
+Value* initial_value(const std::string &);
 }

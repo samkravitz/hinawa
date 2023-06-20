@@ -5,17 +5,50 @@
 namespace css
 {
 
-static inline bool is_digit(u32 c) { return c >= '0' && c <= '9'; }
-static inline bool is_hex_digit(u32 c) { return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
-static inline bool is_uppercase_letter(u32 c) { return c >= 'A' && c <= 'Z'; }
-static inline bool is_lowercase_letter(u32 c) { return c >= 'a' && c <= 'z'; }
-static inline bool is_letter(u32 c) { return is_uppercase_letter(c) || is_lowercase_letter(c); }
-static inline bool is_non_ascii(u32 c) { return c >= 80; }
-static inline bool is_ident_start(u32 c) { return is_letter(c) || is_non_ascii(c) || c == '_'; }
-static inline bool is_ident(u32 c) { return is_ident_start(c) || is_digit(c) || c == '-'; }
-static inline bool is_non_printable(u32 c) { return (c >= 0 && c <= 8) || c == 0xb || (c >= 0xe && c <= 0x1f) || c == 0x7f; }
-static inline bool is_newline(u32 c) { return c == '\n'; }
-static inline bool is_whitespace(u32 c) { return c == '\n' || c == '\t' || c == ' '; }
+static inline bool is_digit(u32 c)
+{
+	return c >= '0' && c <= '9';
+}
+static inline bool is_hex_digit(u32 c)
+{
+	return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
+static inline bool is_uppercase_letter(u32 c)
+{
+	return c >= 'A' && c <= 'Z';
+}
+static inline bool is_lowercase_letter(u32 c)
+{
+	return c >= 'a' && c <= 'z';
+}
+static inline bool is_letter(u32 c)
+{
+	return is_uppercase_letter(c) || is_lowercase_letter(c);
+}
+static inline bool is_non_ascii(u32 c)
+{
+	return c >= 80;
+}
+static inline bool is_ident_start(u32 c)
+{
+	return is_letter(c) || is_non_ascii(c) || c == '_';
+}
+static inline bool is_ident(u32 c)
+{
+	return is_ident_start(c) || is_digit(c) || c == '-';
+}
+static inline bool is_non_printable(u32 c)
+{
+	return (c >= 0 && c <= 8) || c == 0xb || (c >= 0xe && c <= 0x1f) || c == 0x7f;
+}
+static inline bool is_newline(u32 c)
+{
+	return c == '\n';
+}
+static inline bool is_whitespace(u32 c)
+{
+	return c == '\n' || c == '\t' || c == ' ';
+}
 
 static inline bool is_valid_escape(u32 first, u32 second)
 {
@@ -32,7 +65,7 @@ static Token make_delim(u32 c)
 {
 	std::string str;
 	str.push_back((char) c);
-	return { DELIM, str };
+	return {DELIM, str};
 }
 
 Scanner::Scanner(const std::string &input) :
@@ -58,7 +91,7 @@ Token Scanner::next()
 	if (is_whitespace(current_codepoint))
 	{
 		consume_whitespace();
-		return { WHITESPACE };
+		return {WHITESPACE};
 	}
 
 	if (current_codepoint == '"')
@@ -90,12 +123,12 @@ Token Scanner::next()
 
 	if (current_codepoint == '(')
 	{
-		return { OPEN_PAREN };
+		return {OPEN_PAREN};
 	}
 
 	if (current_codepoint == ')')
 	{
-		return { CLOSE_PAREN };
+		return {CLOSE_PAREN};
 	}
 
 	if (current_codepoint == '+')
@@ -111,7 +144,7 @@ Token Scanner::next()
 
 	if (current_codepoint == ',')
 	{
-		return { COMMA };
+		return {COMMA};
 	}
 
 	if (current_codepoint == '-')
@@ -122,11 +155,11 @@ Token Scanner::next()
 			return consume_numeric();
 		}
 
-		if (next_code_points_are({ '-', '>' }))
+		if (next_code_points_are({'-', '>'}))
 		{
 			consume_next_code_point();
 			consume_next_code_point();
-			return { CDC };
+			return {CDC};
 		}
 
 		if (would_start_ident_sequence())
@@ -151,22 +184,22 @@ Token Scanner::next()
 
 	if (current_codepoint == ':')
 	{
-		return { COLON };
+		return {COLON};
 	}
 
 	if (current_codepoint == ';')
 	{
-		return { SEMICOLON };
+		return {SEMICOLON};
 	}
 
 	if (current_codepoint == '<')
 	{
-		if (next_code_points_are({ '!', '-', '-' }))
+		if (next_code_points_are({'!', '-', '-'}))
 		{
 			consume_next_code_point();
 			consume_next_code_point();
 			consume_next_code_point();
-			return { CDO };
+			return {CDO};
 		}
 
 		return make_delim(current_codepoint);
@@ -176,7 +209,7 @@ Token Scanner::next()
 	{
 		if (would_start_ident_sequence())
 		{
-			return { AT_KEYWORD, consume_ident_sequence() };
+			return {AT_KEYWORD, consume_ident_sequence()};
 		}
 
 		return make_delim(current_codepoint);
@@ -184,7 +217,7 @@ Token Scanner::next()
 
 	if (current_codepoint == '[')
 	{
-		return { OPEN_SQUARE };
+		return {OPEN_SQUARE};
 	}
 
 	if (current_codepoint == '\\')
@@ -192,17 +225,17 @@ Token Scanner::next()
 
 	if (current_codepoint == ']')
 	{
-		return { CLOSE_SQUARE };
+		return {CLOSE_SQUARE};
 	}
 
 	if (current_codepoint == '{')
 	{
-		return { OPEN_CURLY };
+		return {OPEN_CURLY};
 	}
 
 	if (current_codepoint == '}')
 	{
-		return { CLOSE_CURLY };
+		return {CLOSE_CURLY};
 	}
 
 	if (is_digit(current_codepoint))
@@ -227,7 +260,7 @@ Token Scanner::next()
 
 void Scanner::consume_comments()
 {
-	if (next_code_points_are({ '/', '*' }))
+	if (next_code_points_are({'/', '*'}))
 	{
 		consume_next_code_point();
 		consume_next_code_point();
@@ -237,7 +270,7 @@ void Scanner::consume_comments()
 			if (current_codepoint == '\0')
 				return;
 
-			if (next_code_points_are({ '*', '/' }))
+			if (next_code_points_are({'*', '/'}))
 			{
 				consume_next_code_point();
 				consume_next_code_point();
@@ -303,10 +336,10 @@ Token Scanner::consume_string(u32 ending_codepoint)
 		consume_next_code_point();
 
 		if (current_codepoint == ending_codepoint)
-			return { STRING, str };
+			return {STRING, str};
 
 		if (current_codepoint == '\0')
-			return { STRING, str };
+			return {STRING, str};
 
 		if (is_newline(current_codepoint))
 			;
@@ -403,16 +436,16 @@ Token Scanner::consume_numeric()
 
 	if (would_start_ident_sequence())
 	{
-		return { DIMENSION, number + consume_ident_sequence() };
+		return {DIMENSION, number + consume_ident_sequence()};
 	}
 
 	if (next_codepoint() == '%')
 	{
 		consume_next_code_point();
-		return { PERCENTAGE, number };
+		return {PERCENTAGE, number};
 	}
 
-	return { NUMBER, number };
+	return {NUMBER, number};
 }
 
 std::string Scanner::consume_number()
@@ -444,10 +477,10 @@ Token Scanner::consume_ident_like()
 	if (next_codepoint() == '(')
 	{
 		consume_next_code_point();
-		return { FUNCTION, string };
+		return {FUNCTION, string};
 	}
 
-	return { IDENT, string };
+	return {IDENT, string};
 }
 
 u32 Scanner::consume_escape()

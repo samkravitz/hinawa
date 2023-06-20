@@ -91,7 +91,7 @@ Browser::Browser(const Url &u) :
 						window.setMouseCursor(hand_cursor);
 
 						// grabs the most specific node (Text), when we want the Element to see the href
-						auto *element = dynamic_cast<Element *>(result.value()->parent());
+						auto* element = dynamic_cast<Element*>(result.value()->parent());
 						auto href = element->get_attribute("href");
 						hovered_href = href;
 					}
@@ -128,7 +128,7 @@ void Browser::load(const Url &new_url)
 	::load(url, [&](const auto &data) {
 		document = Document(url);
 		auto parser = html::Parser(document);
-		document = parser.parse(std::string((const char *) data.data(), data.size()));
+		document = parser.parse(std::string((const char*) data.data(), data.size()));
 		document.print("Document");
 
 		style_tree = css::build_style_tree(document);
@@ -162,9 +162,9 @@ void Browser::render()
 	auto bg = sf::RectangleShape{sf::Vector2f(width, height)};
 	auto bg_color = sf::Color::White;
 
-	if (auto *c = layout_tree->property("background"))
+	if (auto* c = layout_tree->property("background"))
 	{
-		auto *color_value = dynamic_cast<css::Color *>(c);
+		auto* color_value = dynamic_cast<css::Color*>(c);
 		bg_color = sf::Color(color_value->r, color_value->g, color_value->b);
 	}
 
@@ -178,9 +178,9 @@ void Browser::render()
 		auto dimensions = layout_node->dimensions();
 		auto [x, y, width, height] = dimensions.content;
 
-		if (auto *background = layout_node->property("background"))
+		if (auto* background = layout_node->property("background"))
 		{
-			auto *color = dynamic_cast<css::Color *>(background);
+			auto* color = dynamic_cast<css::Color*>(background);
 			sf::RectangleShape rect;
 			rect.setPosition(x, y);
 			rect.setSize(sf::Vector2f(width, height));
@@ -188,12 +188,12 @@ void Browser::render()
 			window.draw(rect);
 		}
 
-		if (auto *background = layout_node->property("background-color"))
+		if (auto* background = layout_node->property("background-color"))
 		{
-			auto *color = dynamic_cast<css::Color *>(background);
+			auto* color = dynamic_cast<css::Color*>(background);
 			if (color)
 			{
-				auto *dom_node = layout_node->style()->node();
+				auto* dom_node = layout_node->style()->node();
 				if (dom_node && dom_node->element_name() == "body")
 				{
 					width = this->width;
@@ -246,13 +246,13 @@ void Browser::render()
 			{
 				for (auto const &frag : line.fragments)
 				{
-					auto *styled_node = frag.styled_node;
+					auto* styled_node = frag.styled_node;
 					if (!styled_node)
 						continue;
 
-					css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
+					css::Color* color_value = dynamic_cast<css::Color*>(styled_node->property("color"));
 					auto color = sf::Color(color_value->r, color_value->g, color_value->b);
-					auto *font_size = styled_node->property("font-size");
+					auto* font_size = styled_node->property("font-size");
 
 					sf::Text text(frag.str, font);
 					text.setCharacterSize(font_size->font_size());
@@ -260,9 +260,9 @@ void Browser::render()
 					text.setPosition(line.x + frag.offset, line.y);
 					window.draw(text);
 
-					if (auto *decoration = styled_node->property("text-decoration"))
+					if (auto* decoration = styled_node->property("text-decoration"))
 					{
-						auto *keyword = dynamic_cast<css::Keyword *>(decoration);
+						auto* keyword = dynamic_cast<css::Keyword*>(decoration);
 						if (keyword->value == "underline")
 						{
 							sf::RectangleShape rect;
@@ -278,7 +278,7 @@ void Browser::render()
 
 		if (layout_node->is_image())
 		{
-			auto *image_node = static_cast<layout::Image *>(layout_node);
+			auto* image_node = static_cast<layout::Image*>(layout_node);
 			auto image = image_node->image_element()->image();
 			auto texture = sf::Texture{};
 			texture.loadFromImage(image);

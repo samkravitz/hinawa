@@ -5,9 +5,9 @@
 #include "browser/browser.h"
 #include "util/hinawa.h"
 
-static const char *homepage_url = "homepage.html";
+static const char* homepage_url = "homepage.html";
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	std::string html_file = DATA_DIR / homepage_url;
 	if (argc > 1)

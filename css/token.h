@@ -35,7 +35,7 @@ enum TokenType
 
 class Token
 {
-friend class Scanner;
+	friend class Scanner;
 
 public:
 	Token() :
@@ -47,16 +47,35 @@ public:
 	{
 		switch (type)
 		{
-			case COMMA: m_value = ","; break;
-			case COLON: m_value = ":"; break;
-			case SEMICOLON: m_value = ";"; break;
-			case OPEN_CURLY: m_value = "{"; break;
-			case CLOSE_CURLY: m_value = "}"; break;
-			case OPEN_SQUARE: m_value = "["; break;
-			case CLOSE_SQUARE: m_value = "]"; break;
-			case OPEN_PAREN: m_value = "("; break;
-			case CLOSE_PAREN: m_value = ")"; break;
-			default: break;
+			case COMMA:
+				m_value = ",";
+				break;
+			case COLON:
+				m_value = ":";
+				break;
+			case SEMICOLON:
+				m_value = ";";
+				break;
+			case OPEN_CURLY:
+				m_value = "{";
+				break;
+			case CLOSE_CURLY:
+				m_value = "}";
+				break;
+			case OPEN_SQUARE:
+				m_value = "[";
+				break;
+			case CLOSE_SQUARE:
+				m_value = "]";
+				break;
+			case OPEN_PAREN:
+				m_value = "(";
+				break;
+			case CLOSE_PAREN:
+				m_value = ")";
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -78,7 +97,7 @@ public:
 private:
 	TokenType m_type;
 	std::string m_value;
-	bool m_flag{ false };    // true if id, false if unrestricted
+	bool m_flag{false};    // true if id, false if unrestricted
 	std::string m_unit;
 };
 }

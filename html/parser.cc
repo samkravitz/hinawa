@@ -40,11 +40,15 @@ Document &Parser::parse(std::string const &input)
 						// ignore the character
 						break;
 
-					case Comment: break;
+					case Comment:
+						break;
 
-					case Doctype: break;
+					case Doctype:
+						break;
 
-					default: insertion_mode = InsertionMode::BeforeHtml; goto reprocess_token;
+					default:
+						insertion_mode = InsertionMode::BeforeHtml;
+						goto reprocess_token;
 				}
 				break;
 
@@ -56,7 +60,8 @@ Document &Parser::parse(std::string const &input)
 						// ignore the token
 						break;
 
-					case Comment: break;
+					case Comment:
+						break;
 
 					case Character:
 					{
@@ -132,7 +137,8 @@ Document &Parser::parse(std::string const &input)
 						break;
 					}
 
-					case Comment: break;
+					case Comment:
+						break;
 
 					case Doctype:
 						// ignore the token
@@ -255,7 +261,8 @@ Document &Parser::parse(std::string const &input)
 				break;
 
 			// 13.2.6.4.5 The "in head noscript" insertion mode
-			case InsertionMode::InHeadNoScript: break;
+			case InsertionMode::InHeadNoScript:
+				break;
 
 			// 13.2.6.4.6 The "after head" insertion mode
 			case InsertionMode::AfterHead:
@@ -302,11 +309,15 @@ Document &Parser::parse(std::string const &input)
 			case InsertionMode::InBody:
 				switch (token.type())
 				{
-					case Character: insert_character(token); break;
+					case Character:
+						insert_character(token);
+						break;
 
-					case Comment: break;
+					case Comment:
+						break;
 
-					case Doctype: break;
+					case Doctype:
+						break;
 
 					case StartTag:
 					{
@@ -346,7 +357,9 @@ Document &Parser::parse(std::string const &input)
 					}
 
 					in_body_anything_else:
-					default: insertion_mode = InsertionMode::BeforeHtml; goto reprocess_token;
+					default:
+						insertion_mode = InsertionMode::BeforeHtml;
+						goto reprocess_token;
 				}
 				break;
 
@@ -354,10 +367,13 @@ Document &Parser::parse(std::string const &input)
 			case InsertionMode::Text:
 				switch (token.type())
 				{
-					case Character: insert_character(token); break;
+					case Character:
+						insert_character(token);
+						break;
 
 					// TODO
-					case Eof: break;
+					case Eof:
+						break;
 
 					case EndTag:
 					{
@@ -376,34 +392,44 @@ Document &Parser::parse(std::string const &input)
 				break;
 
 			// 13.2.6.4.9 The "in table" insertion mode
-			case InsertionMode::InTable: break;
+			case InsertionMode::InTable:
+				break;
 
 			// 13.2.6.4.10 The "in table text" insertion mode
-			case InsertionMode::InTableText: break;
+			case InsertionMode::InTableText:
+				break;
 
 			// 13.2.6.4.11 The "in caption" insertion mode
-			case InsertionMode::InCaption: break;
+			case InsertionMode::InCaption:
+				break;
 
 			// 13.2.6.4.12 The "in column group" insertion mode
-			case InsertionMode::InColumnBody: break;
+			case InsertionMode::InColumnBody:
+				break;
 
 			// 13.2.6.4.13 The "in table body" insertion mode
-			case InsertionMode::InTableBody: break;
+			case InsertionMode::InTableBody:
+				break;
 
 			// 13.2.6.4.14 The "in row" insertion mode
-			case InsertionMode::InRow: break;
+			case InsertionMode::InRow:
+				break;
 
 			// 13.2.6.4.15 The "in cell" insertion mode
-			case InsertionMode::InCell: break;
+			case InsertionMode::InCell:
+				break;
 
 			// 13.2.6.4.16 The "in select" insertion mode
-			case InsertionMode::InSelect: break;
+			case InsertionMode::InSelect:
+				break;
 
 			// 13.2.6.4.17 The "in select in table" insertion mode
-			case InsertionMode::InSelectInTable: break;
+			case InsertionMode::InSelectInTable:
+				break;
 
 			// 13.2.6.4.18 The "in template" insertion mode
-			case InsertionMode::InTemplate: break;
+			case InsertionMode::InTemplate:
+				break;
 
 			// 13.2.6.4.19 The "after body" insertion mode
 			case InsertionMode::AfterBody:
@@ -425,24 +451,29 @@ Document &Parser::parse(std::string const &input)
 						break;
 					}
 
-					case Eof: return m_document;
+					case Eof:
+						return m_document;
 
-					    after_body_anything_else:
+					after_body_anything_else:
 					default:;
 				}
 				break;
 
 			// 13.2.6.4.20 The "in frameset" insertion mode
-			case InsertionMode::InFrameset: break;
+			case InsertionMode::InFrameset:
+				break;
 
 			// 13.2.6.4.21 The "after frameset" insertion mode
-			case InsertionMode::AfterFrameset: break;
+			case InsertionMode::AfterFrameset:
+				break;
 
 			// 13.2.6.4.22 The "after after body" insertion mode
-			case InsertionMode::AfterAfterBody: break;
+			case InsertionMode::AfterAfterBody:
+				break;
 
 			// 13.2.6.4.23 The "after after frameset" insertion mode
-			case InsertionMode::AfterAfterFrameset: break;
+			case InsertionMode::AfterAfterFrameset:
+				break;
 		}
 	}
 
@@ -534,7 +565,7 @@ void Parser::insert_character(Token t)
 	auto previous_node = target->last_child();
 	if (previous_node && previous_node->type() == NodeType::Text)
 	{
-		auto *text_element = dynamic_cast<Text *>(previous_node);
+		auto* text_element = dynamic_cast<Text*>(previous_node);
 		text_element->append(data);
 	}
 

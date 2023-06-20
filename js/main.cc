@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "vm.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc < 2)
 	{
@@ -22,10 +22,10 @@ int main(int argc, char **argv)
 	auto parser = js::Parser(buffer.str());
 	auto stmts = parser.parse();
 
-	#ifdef DEBUG_PRINT_AST
+#ifdef DEBUG_PRINT_AST
 	auto printer = js::AstPrinter{};
 	printer.print(stmts);
-	#endif
+#endif
 
 	js::Compiler compiler{stmts};
 	auto fn = compiler.compile();

@@ -22,7 +22,7 @@ class Http
 public:
 	Http() = default;
 	Http(const std::string &uri_string) :
-	    Http(Url{ uri_string })
+	    Http(Url{uri_string})
 	{ }
 
 	Http(const Url &url) :
@@ -44,6 +44,6 @@ public:
 private:
 	std::unordered_map<std::string, std::string> headers;
 	std::string m_body;
-	Method method{ GET };
+	Method method{GET};
 	Url uri;
 };

@@ -4,27 +4,27 @@
 
 #include "url.h"
 
-#define STATES \
-	STATE(SchemeStart) \
-	STATE(Scheme) \
-	STATE(NoScheme) \
-	STATE(SpecialRelativeOrAuthority) \
-	STATE(PathOrAuthority) \
-	STATE(Relative) \
-	STATE(RelativeSlash) \
-	STATE(SpecialAuthoritySlashes) \
+#define STATES                           \
+	STATE(SchemeStart)                   \
+	STATE(Scheme)                        \
+	STATE(NoScheme)                      \
+	STATE(SpecialRelativeOrAuthority)    \
+	STATE(PathOrAuthority)               \
+	STATE(Relative)                      \
+	STATE(RelativeSlash)                 \
+	STATE(SpecialAuthoritySlashes)       \
 	STATE(SpecialAuthorityIgnoreSlashes) \
-	STATE(Authority) \
-	STATE(Host) \
-	STATE(Hostname) \
-	STATE(Port) \
-	STATE(File) \
-	STATE(FileSlash) \
-	STATE(FileHost) \
-	STATE(PathStart) \
-	STATE(Path) \
-	STATE(OpaquePath) \
-	STATE(Query) \
+	STATE(Authority)                     \
+	STATE(Host)                          \
+	STATE(Hostname)                      \
+	STATE(Port)                          \
+	STATE(File)                          \
+	STATE(FileSlash)                     \
+	STATE(FileHost)                      \
+	STATE(PathStart)                     \
+	STATE(Path)                          \
+	STATE(OpaquePath)                    \
+	STATE(Query)                         \
 	STATE(Fragment)
 
 class UrlParser
@@ -37,7 +37,7 @@ public:
 #undef STATE
 	};
 
-	Url parse(const std::string &input, Url *base = nullptr, std::optional<State> state_override = {});
+	Url parse(const std::string &input, Url* base = nullptr, std::optional<State> state_override = {});
 
 private:
 	State state = State::SchemeStart;

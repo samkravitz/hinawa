@@ -40,8 +40,8 @@ enum Precedence : int
 class Parser;
 struct ParseRule
 {
-	std::function<std::shared_ptr<Expr>(Parser *)> prefix;
-	std::function<std::shared_ptr<Expr>(Parser *, std::shared_ptr<Expr>)> infix;
+	std::function<std::shared_ptr<Expr>(Parser*)> prefix;
+	std::function<std::shared_ptr<Expr>(Parser*, std::shared_ptr<Expr>)> infix;
 	Precedence precedence;
 };
 
@@ -94,7 +94,7 @@ private:
 	std::shared_ptr<Expr> parse_precedence(Precedence);
 	ParseRule get_rule(TokenType);
 	void advance();
-	void consume(TokenType, const char *);
+	void consume(TokenType, const char*);
 	bool match(TokenType);
 	bool match_any(std::initializer_list<TokenType> const &);
 	TokenType peek();
@@ -107,7 +107,7 @@ private:
 	std::vector<Token>::iterator save_state() const;
 	void restore_state(const std::vector<Token>::iterator &);
 
-	template<class T, typename... Params> std::shared_ptr<T> make_ast_node(Params &&...params)
+	template<class T, typename... Params> std::shared_ptr<T> make_ast_node(Params &&... params)
 	{
 		auto node = std::make_shared<T>(std::forward<Params>(params)...);
 		node->line = previous.line();

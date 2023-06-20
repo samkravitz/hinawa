@@ -21,7 +21,7 @@ struct Declaration
 	std::vector<ComponentValue> value;
 	bool important{false};
 
-	Value *style_value() const;
+	Value* style_value() const;
 
 	std::string value_text() const
 	{
@@ -89,7 +89,7 @@ struct Stylesheet
 
 	std::vector<Rule> rules;
 
-	void style(StyledNode *) const;
+	void style(StyledNode*) const;
 	void print() const
 	{
 		fmt::print("Stylesheet:\n");

@@ -4,16 +4,16 @@
 
 namespace js
 {
-ObjectString::ObjectString(std::string *string) :
+ObjectString::ObjectString(std::string* string) :
     primitive_string(string)
 { }
 
-Object *ObjectString::prototype()
+Object* ObjectString::prototype()
 {
 	return StringPrototype::the();
 }
 
-StringPrototype *StringPrototype::instance = nullptr;
+StringPrototype* StringPrototype::instance = nullptr;
 
 StringPrototype::StringPrototype()
 {
@@ -21,13 +21,13 @@ StringPrototype::StringPrototype()
 		// TODO - arguments checking and validity.
 		// This is wildly unsafe as is
 		int index = (int) argv[0].as_number();
-		auto *string_object = static_cast<ObjectString*>(vm.current_this());
-		auto *underlying_string = string_object->primitive_string;
+		auto* string_object = static_cast<ObjectString*>(vm.current_this());
+		auto* underlying_string = string_object->primitive_string;
 		return Value(new std::string(1, underlying_string->at(index)));
 	});
 }
 
-StringPrototype *StringPrototype::the()
+StringPrototype* StringPrototype::the()
 {
 	if (!instance)
 		instance = new StringPrototype;

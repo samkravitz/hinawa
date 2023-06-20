@@ -47,8 +47,8 @@ bool Value::strict_eq(const Value &other) const
 
 	if (type() == Type::Object)
 	{
-		Object *a = as_object();
-		Object *b = other.as_object();
+		Object* a = as_object();
+		Object* b = other.as_object();
 		return a == b;
 	}
 
@@ -93,7 +93,7 @@ bool Value::is_falsy() const
 	return false;
 }
 
-const char *Value::type_of() const
+const char* Value::type_of() const
 {
 	switch (type())
 	{
@@ -105,7 +105,7 @@ const char *Value::type_of() const
 			return "object";
 		case Type::Object:
 		{
-			auto *obj = as_object();
+			auto* obj = as_object();
 			if (obj->is_closure() || obj->is_native() || obj->is_bound_method())
 				return "function";
 

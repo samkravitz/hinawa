@@ -20,7 +20,7 @@ bool Selector::matches(const StyledNode &element) const
 
 bool Selector::SimpleSelector::matches(const StyledNode &element) const
 {
-	auto *dom_node = element.node();
+	auto* dom_node = element.node();
 	if (!dom_node)
 		return false;
 
@@ -35,7 +35,7 @@ bool Selector::SimpleSelector::matches(const StyledNode &element) const
 			if (dom_node->type() != NodeType::Element)
 				return false;
 
-			auto *el = static_cast<Element *>(dom_node);
+			auto* el = static_cast<Element*>(dom_node);
 			return el->has_class(value);
 			if (!el->has_attribute("class"))
 				return false;
@@ -48,7 +48,7 @@ bool Selector::SimpleSelector::matches(const StyledNode &element) const
 			if (dom_node->type() != NodeType::Element)
 				return false;
 
-			auto *el = static_cast<Element *>(dom_node);
+			auto* el = static_cast<Element*>(dom_node);
 			if (!el->has_attribute("id"))
 				return false;
 
@@ -94,7 +94,7 @@ bool Selector::ComplexSelector::matches(const StyledNode &element) const
 		switch (right.combinator)
 		{
 			case Combinator::Descendant:
-				return element.parent_matches_condition([&left](auto *parent) { return left.matches(*parent); });
+				return element.parent_matches_condition([&left](auto* parent) { return left.matches(*parent); });
 
 			default:
 				return false;

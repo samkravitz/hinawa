@@ -10,16 +10,16 @@
 
 Http Http::send() const
 {
-	CURL *curl = curl_easy_init();
+	CURL* curl = curl_easy_init();
 	CURLcode res;
 
 	std::string data;
 	if (curl)
 	{
 		curl_easy_setopt(curl, CURLOPT_URL, uri.serialize().c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &data);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) &data);
 		curl_easy_setopt(
-		    curl, CURLOPT_WRITEFUNCTION, +[](char *ptr, size_t size, size_t nmemb, std::string *stream) -> size_t {
+		    curl, CURLOPT_WRITEFUNCTION, +[](char* ptr, size_t size, size_t nmemb, std::string* stream) -> size_t {
 			    stream->append(ptr, size * nmemb);
 			    return size * nmemb;
 		    });

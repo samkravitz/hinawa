@@ -6,13 +6,34 @@
 
 #include "util/hinawa.h"
 
-static inline bool is_ascii_digit(u32 c) { return c >= '0' && c <= '9'; }
-static inline bool is_ascii_upper_hex_digit(u32 c) { return c >= 'A' && c <= 'F'; }
-static inline bool is_ascii_lower_hex_digit(u32 c) { return c >= 'a' && c <= 'f'; }
-static inline bool is_ascii_upper_alpha(u32 c) { return c >= 'A' && c <= 'Z'; }
-static inline bool is_ascii_lower_alpha(u32 c) { return c >= 'a' && c <= 'z'; }
-static inline bool is_ascii_alpha(u32 c) { return is_ascii_upper_alpha(c) || is_ascii_lower_alpha(c); }
-static inline bool is_ascii_alphanumeric(u32 c) { return is_ascii_alpha(c) || is_ascii_digit(c); }
+static inline bool is_ascii_digit(u32 c)
+{
+	return c >= '0' && c <= '9';
+}
+static inline bool is_ascii_upper_hex_digit(u32 c)
+{
+	return c >= 'A' && c <= 'F';
+}
+static inline bool is_ascii_lower_hex_digit(u32 c)
+{
+	return c >= 'a' && c <= 'f';
+}
+static inline bool is_ascii_upper_alpha(u32 c)
+{
+	return c >= 'A' && c <= 'Z';
+}
+static inline bool is_ascii_lower_alpha(u32 c)
+{
+	return c >= 'a' && c <= 'z';
+}
+static inline bool is_ascii_alpha(u32 c)
+{
+	return is_ascii_upper_alpha(c) || is_ascii_lower_alpha(c);
+}
+static inline bool is_ascii_alphanumeric(u32 c)
+{
+	return is_ascii_alpha(c) || is_ascii_digit(c);
+}
 
 // https://url.spec.whatwg.org/#url-code-points
 static inline bool is_url_codepoint(u32 c)
@@ -31,7 +52,7 @@ static std::string domain_to_ascii(const std::string &input, bool be_strict)
 
 // implements the basic URL parser spec
 // https://url.spec.whatwg.org/#concept-basic-url-parser
-Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> state_override)
+Url UrlParser::parse(const std::string &input, Url* base, std::optional<State> state_override)
 {
 	Url url;
 	buffer = "";
@@ -42,13 +63,12 @@ Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> s
 	// current code point
 	u32 c;
 
-	auto remaining_starts_with = [](auto const &it, std::string const &rem) -> bool
-	{
+	auto remaining_starts_with = [](auto const &it, std::string const &rem) -> bool {
 		auto remainder = std::string(it + 1, it + rem.size() + 1);
 		return remainder == rem;
 	};
 
-	start_over:
+start_over:
 	for (auto pointer = input.begin();; pointer++)
 	{
 		c = '\0';

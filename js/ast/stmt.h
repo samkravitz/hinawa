@@ -11,9 +11,9 @@ namespace js
 {
 struct Stmt : public AstNode
 {
-	const char *name() const = 0;
-	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
-	virtual void accept(CompilerVisitor *compiler) const = 0;
+	const char* name() const = 0;
+	virtual void accept(const PrintVisitor* visitor, int indent) const = 0;
+	virtual void accept(CompilerVisitor* compiler) const = 0;
 };
 
 struct BlockStmt : public Stmt
@@ -22,18 +22,18 @@ struct BlockStmt : public Stmt
 	    stmts(stmts)
 	{ }
 
-	const char *name() const { return "BlockStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "BlockStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::vector<std::shared_ptr<Stmt>> stmts;
 };
 
 struct EmptyStmt : public Stmt
 {
-	const char *name() const { return "EmptyStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "EmptyStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 };
 
 struct ExpressionStmt : public Stmt
@@ -42,9 +42,9 @@ struct ExpressionStmt : public Stmt
 	    expr(std::move(expr))
 	{ }
 
-	const char *name() const { return "ExpressionStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "ExpressionStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> expr;
 };
@@ -57,9 +57,9 @@ struct IfStmt : public Stmt
 	    alternate(std::move(alternate))
 	{ }
 
-	const char *name() const { return "IfStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "IfStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> test;
 	std::shared_ptr<Stmt> consequence;
@@ -78,9 +78,9 @@ struct ForStmt : public Stmt
 	    statement(std::move(statement))
 	{ }
 
-	const char *name() const { return "ForStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "ForStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<AstNode> initialization;
 	std::shared_ptr<Expr> condition;
@@ -106,9 +106,9 @@ struct ReturnStmt : public Stmt
 	    expr(std::move(expr))
 	{ }
 
-	const char *name() const { return "ReturnStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "ReturnStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> expr;
 };
@@ -130,9 +130,9 @@ struct VarDecl : public Stmt
 	    declorators(declorators)
 	{ }
 
-	const char *name() const { return "VarDecl"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "VarDecl"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::vector<VarDeclarator> declorators;
 };
@@ -145,9 +145,9 @@ struct FunctionDecl : public Stmt
 	    block(std::move(block))
 	{ }
 
-	const char *name() const { return "FunctionDecl"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "FunctionDecl"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::string function_name;
 	std::vector<std::string> args;
@@ -160,9 +160,9 @@ struct ThrowStmt : public Stmt
 	    expr(std::move(expr))
 	{ }
 
-	const char *name() const { return "ThrowStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "ThrowStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> expr;
 };
@@ -179,9 +179,9 @@ struct TryStmt : public Stmt
 	    catch_param(catch_param)
 	{ }
 
-	const char *name() const { return "TryStmt"; }
-	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
-	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+	const char* name() const { return "TryStmt"; }
+	void accept(const PrintVisitor* visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor* compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<BlockStmt> block;
 	std::shared_ptr<BlockStmt> handler{nullptr};

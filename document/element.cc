@@ -48,8 +48,8 @@ bool Element::has_class(const std::string &name) const
 std::string Element::to_string() const
 {
 	auto s = fmt::format("HTML {} Element", m_tag);
-	for (const auto& [key, value] : attrs)
+	for (const auto &[key, value] : attrs)
 		s += fmt::format(" {}:{}", key, value);
-	
+
 	return s;
 }
