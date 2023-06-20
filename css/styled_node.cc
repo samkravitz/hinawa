@@ -126,7 +126,7 @@ Display StyledNode::display()
 	auto *display = property("display");
 	auto *keyword = dynamic_cast<Keyword *>(display);
 
-	if (keyword->value == "block")
+	if (keyword->value == "block" || keyword->value == "table")
 		return Display::Block;
 
 	if (keyword->value == "inline")
