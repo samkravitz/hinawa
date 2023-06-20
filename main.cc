@@ -5,11 +5,11 @@
 #include "browser/browser.h"
 #include "util/hinawa.h"
 
-static const char* homepage_url = "homepage.html";
+static const char* homepage_url = "index.html";
 
 int main(int argc, char** argv)
 {
-	std::string html_file = DATA_DIR / homepage_url;
+	std::string html_file = DATA_DIR / "homepage" / homepage_url;
 	if (argc > 1)
 	{
 		html_file = argv[1];
