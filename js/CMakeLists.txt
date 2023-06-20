@@ -17,6 +17,11 @@ set(SOURCES
 	token.cc
 	value.cc
 	vm.cc
+
+	../document/document.cc
+	../document/node.cc
+	../document/element.cc
+	../document/text.cc
 )
 
 set(HEADERS
@@ -40,6 +45,11 @@ set(HEADERS
 	token.h
 	value.h
 	vm.h
+
+	../document/document.cc
+	../document/node.cc
+	../document/element.cc
+	../document/text.cc
 )
 
 flex_target(JsLexer2 lex.ll lex.yy.cc)

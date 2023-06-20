@@ -60,3 +60,9 @@ void Document::add_child(const std::shared_ptr<Node> &child)
 	else
 		m_root->add_child(child);
 }
+
+void Document::set_alert(const std::string &text)
+{
+	m_show_alert = true;
+	m_alert_text = text;
+}

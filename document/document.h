@@ -24,8 +24,15 @@ public:
 	inline void set_needs_reflow(bool b = true) { m_needs_reflow = b; }
 	inline bool needs_reflow() const { return m_needs_reflow; }
 
+	inline bool show_alert() const { return m_show_alert; }
+	void set_alert(const std::string &);
+	void clear_alert() { m_show_alert = false; }
+	const std::string &alert_text() const { return m_alert_text; }
+
 private:
 	std::shared_ptr<Node> m_root{nullptr};
 	Url m_origin;
 	bool m_needs_reflow{false};
+	bool m_show_alert{false};
+	std::string m_alert_text = "";
 };

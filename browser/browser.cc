@@ -106,6 +106,7 @@ Browser::Browser(const Url &u) :
 
 				case sf::Event::MouseButtonPressed:
 				{
+					Point p = {event.mouseButton.x, event.mouseButton.y};
 					if (!hovered_href.empty())
 					{
 						auto new_url = Url(hovered_href, &url);
@@ -113,6 +114,12 @@ Browser::Browser(const Url &u) :
 						layout_tree->layout(viewport);
 						render();
 						break;
+					}
+
+					if (document.show_alert() && alert_box.contains(p))
+					{
+						document.clear_alert();
+						render();
 					}
 				}
 				default:
@@ -142,7 +149,7 @@ void Browser::load(const Url &new_url)
 		auto program = js_parser.parse();
 		js::Compiler compiler{program};
 		auto fn = compiler.compile();
-		js::Vm vm{};
+		js::Vm vm(&document);
 		vm.run(std::move(fn));
 	});
 }
@@ -297,6 +304,33 @@ void Browser::render()
 	};
 
 	layout_tree->preorder(paint);
+
+	if (document.show_alert())
+	{
+		constexpr int ALERT_BOX_WIDTH = 400;
+		constexpr int ALERT_BOX_HEIGHT = 250;
+		constexpr int ALERT_BOX_Y = 4;
+
+		alert_box.x = (width - ALERT_BOX_WIDTH) / 2.0;
+		alert_box.y = ALERT_BOX_Y;
+		alert_box.width = ALERT_BOX_WIDTH;
+		alert_box.height = ALERT_BOX_HEIGHT;
+
+		sf::RectangleShape rect;
+		auto gray = sf::Color(0xa6, 0xa6, 0xa6);
+		rect.setPosition(alert_box.x, alert_box.y);
+		rect.setSize(sf::Vector2f(alert_box.width, alert_box.height));
+		rect.setFillColor(gray);
+		window.draw(rect);
+
+		auto alert_text = document.alert_text();
+		sf::Text text(alert_text, font);
+		text.setCharacterSize(24);
+		text.setFillColor(sf::Color::White);
+		text.setPosition(alert_box.x + 8, (ALERT_BOX_HEIGHT + ALERT_BOX_Y) / 2.0);
+		window.draw(text);
+	}
+
 	window.display();
 }
 }

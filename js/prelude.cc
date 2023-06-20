@@ -94,6 +94,15 @@ void prelude(Vm &vm)
 	auto* array = prelude_array(vm);
 	global->set("Array", Value(array));
 
+	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
+		std::string text = "";
+		if (!argv.empty())
+			text = *argv[0].as_string();
+
+		vm.document().set_alert(text);
+		return {};
+	});
+
 	vm.set_global(global);
 }
 }

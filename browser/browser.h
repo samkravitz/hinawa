@@ -6,6 +6,7 @@
 #include "css/styled_node.h"
 #include "document/document.h"
 #include "layout/node.h"
+#include "layout/rect.h"
 #include "web/url.h"
 
 #include <SFML/Graphics.hpp>
@@ -35,6 +36,7 @@ private:
 
 	sf::RenderWindow window{sf::VideoMode(width, height), "hinawa"};
 	sf::Cursor arrow_cursor, hand_cursor;
+	layout::Rect alert_box;
 
 	void load(const Url &);
 	void render();
