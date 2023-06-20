@@ -211,7 +211,7 @@ Document &Parser::parse(std::string const &input)
 					case StartTag:
 					{
 						if (token.tag_name() == "noframes" || token.tag_name() == "style" ||
-						    token.tag_name() == "title")
+						    token.tag_name() == "title" || token.tag_name() == "script")
 							parse_raw_text(token);
 
 						else if (token.tag_name() == "meta")

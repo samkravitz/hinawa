@@ -9,6 +9,9 @@
 #include "document/element.h"
 #include "document/text.h"
 #include "html/parser.h"
+#include "js/compiler.h"
+#include "js/parser.h"
+#include "js/vm.h"
 #include "layout/block.h"
 #include "layout/image.h"
 #include "layout/node.h"
@@ -130,6 +133,17 @@ void Browser::load(const Url &new_url)
 
 		style_tree = css::build_style_tree(document);
 		layout_tree = layout::build_layout_tree(style_tree.get());
+
+		auto javascript = document.get_script();
+		if (javascript == "")
+			return;
+
+		auto js_parser = js::Parser(javascript);
+		auto program = js_parser.parse();
+		js::Compiler compiler{program};
+		auto fn = compiler.compile();
+		js::Vm vm{};
+		vm.run(std::move(fn));
 	});
 }
 

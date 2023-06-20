@@ -9,6 +9,7 @@
 
 #include "array.h"
 #include "chunk.h"
+#include "document/document.h"
 #include "object.h"
 #include "object_string.h"
 #include "opcode.h"
@@ -23,6 +24,12 @@ namespace js
  * 
 */
 Vm::Vm(bool headless)
+{
+	prelude(*this);
+}
+
+Vm::Vm(Document* document) :
+    m_document(document)
 {
 	prelude(*this);
 }

@@ -39,6 +39,20 @@ std::string Document::get_style() const
 	return style_text;
 }
 
+// returns the source code of the javascript in the document, if any
+std::string Document::get_script() const
+{
+	std::string source = "";
+	m_root->preorder([&source](auto* child) {
+		if (child->element_name() == "script")
+		{
+			auto* text_element = dynamic_cast<Text*>(child->last_child());
+			source = text_element->text();
+		}
+	});
+	return source;
+}
+
 void Document::add_child(const std::shared_ptr<Node> &child)
 {
 	if (!m_root)

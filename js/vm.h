@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "chunk.h"
+#include "document/document.h"
 #include "function.h"
 #include "value.h"
 
@@ -50,10 +51,14 @@ class Vm
 {
 public:
 	Vm(bool headless = false);
+	Vm(Document*);
+
 	bool run(Function);
 	Object *current_this() const { return _this; }
 	void set_global(Object *g) { global = g; }
 	void call(Closure *);
+
+	inline Document &document() { return *m_document; }
 
 	void push(Value);
 	Value pop();
@@ -78,6 +83,7 @@ private:
 	Value read_constant();
 	std::string read_string();
 	Upvalue *capture_upvalue(Value *);
+	Document* m_document{nullptr};
 
 	void print_stack() const;
 	bool runtime_error(std::string const &);
