@@ -17,48 +17,48 @@ namespace css
  * @ref https://www.w3.org/TR/CSS21/propidx.html
 */
 static std::string INHERITED_PROPERTIES[] = {
-	"azimuth",
-	"border-collapse",
-	"border-spacing",
-	"caption-side",
-	"color",
-	"cursor",
-	"direction",
-	"elevation",
-	"empty-cells",
-	"font-family",
-	"font-size",
-	"font-style",
-	"font-variant",
-	"font-weight",
-	"font",
-	"letter-spacing",
-	"line-height",
-	"list-style-image",
-	"list-style-position",
-	"list-style-type",
-	"list-style",
-	"orphans",
-	"pitch-range",
-	"pitch",
-	"quotes",
-	"richness",
-	"speak-header",
-	"speak-numeral",
-	"speak-punctuation",
-	"speak",
-	"speech-rate",
-	"stress",
-	"text-align",
-	"text-decoration",    // TODO - remove this
-	"text-indent",
-	"text-transform",
-	"visibility",
-	"voice-family",
-	"volume",
-	"white-space",
-	"widows",
-	"word-spacing",
+    "azimuth",
+    "border-collapse",
+    "border-spacing",
+    "caption-side",
+    "color",
+    "cursor",
+    "direction",
+    "elevation",
+    "empty-cells",
+    "font-family",
+    "font-size",
+    "font-style",
+    "font-variant",
+    "font-weight",
+    "font",
+    "letter-spacing",
+    "line-height",
+    "list-style-image",
+    "list-style-position",
+    "list-style-type",
+    "list-style",
+    "orphans",
+    "pitch-range",
+    "pitch",
+    "quotes",
+    "richness",
+    "speak-header",
+    "speak-numeral",
+    "speak-punctuation",
+    "speak",
+    "speech-rate",
+    "stress",
+    "text-align",
+    "text-decoration",    // TODO - remove this
+    "text-indent",
+    "text-transform",
+    "visibility",
+    "voice-family",
+    "volume",
+    "white-space",
+    "widows",
+    "word-spacing",
 };
 
 std::shared_ptr<StyledNode> build_style_tree(const Document &document)
@@ -203,6 +203,65 @@ void StyledNode::assign(const std::string &name, Value *value)
 				m_values["margin-right"] = values[1];
 				m_values["margin-bottom"] = values[2];
 				m_values["margin-left"] = values[3];
+			}
+
+			return;
+		}
+
+		if (name == "border-width")
+		{
+			const auto &values = value_array->values;
+			assert(!values.empty() && values.size() <= 4);
+
+			// if the border-width has 1 value, all 4 border-widths are that value
+			if (values.size() == 1)
+			{
+				m_values["border-top-width"] = values[0];
+				m_values["border-right-width"] = values[0];
+				m_values["border-bottom-width"] = values[0];
+				m_values["border-left-width"] = values[0];
+			}
+
+			/**
+			* If the border-width has 2 values:
+			* top and bottom border-widths are the first value
+			* left and right border-widths are the second value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["border-top-width"] = values[0];
+				m_values["border-right-width"] = values[1];
+				m_values["border-bottom-width"] = values[0];
+				m_values["border-left-width"] = values[1];
+			}
+
+			/**
+			* If the border-width has 3 values:
+			* top border-width is the first value
+			* left and right border-widths are the second value
+			* bottom border-width is the third value
+			*/
+			if (values.size() == 2)
+			{
+				m_values["border-top-width"] = values[0];
+				m_values["border-right-width"] = values[1];
+				m_values["border-bottom-width"] = values[2];
+				m_values["border-left-width"] = values[1];
+			}
+
+			/**
+			* If the border-width has 4 values:
+			* top border-width is the first value
+			* right border-width is the second value
+			* bottom border-width is the third value
+			* left border-width is the fourth value
+			*/
+			if (values.size() == 4)
+			{
+				m_values["border-top-width"] = values[0];
+				m_values["border-right-width"] = values[1];
+				m_values["border-bottom-width"] = values[2];
+				m_values["border-left-width"] = values[3];
 			}
 
 			return;

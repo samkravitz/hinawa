@@ -204,7 +204,30 @@ void Browser::render()
 			window.draw(r);
 #endif
 
-			auto *block = static_cast<layout::Block *>(layout_node);
+			auto border_box = dimensions.border_box();
+			sf::RectangleShape border;
+			border.setFillColor(sf::Color::Black);
+			// left border
+			border.setPosition(border_box.x, border_box.y);
+			border.setSize(sf::Vector2f(dimensions.border.left, border_box.height));
+			window.draw(border);
+
+			// right border
+			border.setPosition(border_box.x + border_box.width - dimensions.border.right, border_box.y);
+			border.setSize(sf::Vector2f(dimensions.border.right, border_box.height));
+			window.draw(border);
+
+			// top border
+			border.setPosition(border_box.x, border_box.y);
+			border.setSize(sf::Vector2f(border_box.width, dimensions.border.top));
+			window.draw(border);
+
+			// bottom border
+			border.setPosition(border_box.x, border_box.y + border_box.height - dimensions.border.bottom);
+			border.setSize(sf::Vector2f(border_box.width, dimensions.border.bottom));
+			window.draw(border);
+
+			auto* block = static_cast<layout::Block*>(layout_node);
 			for (auto const &line : block->lines)
 			{
 				for (auto const &frag : line.fragments)

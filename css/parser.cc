@@ -200,6 +200,36 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 	}
 
+	else if (name == "border-width")
+	{
+		auto value_array = new ValueArray();
+		for (const auto &cv : value)
+		{
+			if (cv.token.is_whitespace())
+				continue;
+
+			if (cv.token.type() == DIMENSION)
+				value_array->values.push_back(new Length(cv.token.value()));
+
+			else
+				fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+		}
+
+		return value_array;
+	}
+
+	else if (name == "border-left-width" || name == "border-right-width" || name == "border-top-width" || name == "border-bottom-width")
+	{
+		auto token = value[0].token;
+		if (token.type() == NUMBER || token.type() == DIMENSION)
+			return new Length(value_text);
+
+		if (token.type() == IDENT)
+			return new Keyword(value_text);
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
 	fmt::print(stderr, "Unsupported style: {}: {}\n", name, value_text);
 	return nullptr;
 }

@@ -51,8 +51,8 @@ void Block::calculate_width(Box container)
 	auto* margin_left = m_style->property("margin-left");
 	auto* margin_right = m_style->property("margin-right");
 
-	auto* border_left = m_style->property("border-left");
-	auto* border_right = m_style->property("border-right");
+	auto* border_left = m_style->property("border-left-width");
+	auto* border_right = m_style->property("border-right-width");
 
 	auto* padding_left = m_style->property("padding-left");
 	auto* padding_right = m_style->property("padding-right");
@@ -181,8 +181,8 @@ void Block::calculate_position(Box container)
 	m_dimensions.margin.top = m_style->property("margin-top")->to_px();
 	m_dimensions.margin.bottom = m_style->property("margin-bottom")->to_px();
 
-	m_dimensions.border.top = m_style->property("border-top")->to_px();
-	m_dimensions.border.bottom = m_style->property("border-bottom")->to_px();
+	m_dimensions.border.top = m_style->property("border-top-width")->to_px();
+	m_dimensions.border.bottom = m_style->property("border-bottom-width")->to_px();
 
 	m_dimensions.padding.top = m_style->property("padding-top")->to_px();
 	m_dimensions.padding.bottom = m_style->property("padding-bottom")->to_px();

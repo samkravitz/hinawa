@@ -4,25 +4,31 @@
     "initial_value": "transparent",
     "valid_types": ["color", "keyword"]
   },
-  "border-bottom": {
+  "border-bottom-width": {
     "inherited": false,
-    "initial_value": "0",
+    "initial_value": "0px",
     "valid_types": ["length", "percentage"]
   },
-  "border-left": {
+  "border-left-width": {
     "inherited": false,
-    "initial_value": "0",
+    "initial_value": "0px",
     "valid_types": ["length", "percentage"]
   },
-  "border-right": {
+  "border-right-width": {
     "inherited": false,
-    "initial_value": "0",
+    "initial_value": "0px",
     "valid_types": ["length", "percentage"]
   },
-  "border-top": {
+  "border-top-width": {
     "inherited": false,
-    "initial_value": "0",
+    "initial_value": "0px",
     "valid_types": ["length", "percentage"]
+  },
+  "border-width": {
+    "inherited": false,
+    "initial_value": "medium",
+    "valid_types": ["keyword", "length"],
+    "max_values": 4
   },
   "color": {
     "inherited": true,
@@ -92,9 +98,9 @@
     "valid_types": ["length", "percentage"]
   },
   "text-align": {
-	"inherited": true,
-	"initial_value": "left",
-	"valid_types": ["keyword"]
+    "inherited": true,
+    "initial_value": "left",
+    "valid_types": ["keyword"]
   },
   "text-decoration": {
     "inherited": false,
@@ -102,13 +108,13 @@
     "valid_types": ["keyword"]
   },
   "white-space": {
-	"inherited": true,
-	"initial_value": "normal",
-	"valid_types": ["keyword"]
+    "inherited": true,
+    "initial_value": "normal",
+    "valid_types": ["keyword"]
   },
   "width": {
-	"inherited": false,
-	"initial_value": "auto",
-	"valid_types": ["length", "percentage", "keyword"]
+    "inherited": false,
+    "initial_value": "auto",
+    "valid_types": ["length", "percentage", "keyword"]
   }
 }
