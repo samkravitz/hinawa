@@ -179,6 +179,13 @@ void Browser::render()
 			auto *color = dynamic_cast<css::Color *>(background);
 			if (color)
 			{
+				auto *dom_node = layout_node->style()->node();
+				if (dom_node && dom_node->element_name() == "body")
+				{
+					width = this->width;
+					height = this->height;
+				}
+
 				sf::RectangleShape rect;
 				rect.setPosition(x, y);
 				rect.setSize(sf::Vector2f(width, height));
