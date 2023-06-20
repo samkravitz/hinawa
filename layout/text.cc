@@ -125,19 +125,8 @@ void Text::split_into_lines(Box container)
 		lines.back().fragments.push_back(frag);
 	}
 
-	// remove trailing " " from fragment
-	if (!lines.empty())
-	{
-		auto &frag = lines.back().fragments.back();
-		frag.str.pop_back();
-
-		// len(" ") is usually about 4 px, but that's just an approximation
-		frag.len -= 4;
-		lines.back().width -= 4;
-	}
-
-	auto *text_align = style()->property("text-align");
-	if (auto *keyword = dynamic_cast<css::Keyword*>(text_align); keyword && keyword->value == "center")
+	auto* text_align = style()->property("text-align");
+	if (auto* keyword = dynamic_cast<css::Keyword*>(text_align); keyword && keyword->value == "center")
 	{
 		for (auto &line : lines)
 		{
