@@ -65,7 +65,7 @@ ArrayPrototype* ArrayPrototype::the()
 std::string Array::to_string() const
 {
 	std::stringstream stream;
-	std::vector<Value> vec = *this;
+	auto &vec = static_cast<const std::vector<Value> &>(*this);
 	stream << "[";
 	for (unsigned i = 0; i < vec.size(); i++)
 	{

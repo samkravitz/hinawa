@@ -77,12 +77,6 @@ bool Selector::ComplexSelector::matches(const StyledNode &element) const
 {
 	assert(!compound_selectors.empty());
 
-	if (compound_selectors.size() == 1)
-	{
-		auto compound = compound_selectors[0];
-		return compound.matches(element);
-	}
-
 	for (int i = compound_selectors.size() - 1; i > 0; i--)
 	{
 		auto right = compound_selectors[i];
