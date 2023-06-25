@@ -28,6 +28,9 @@ find_package(fmt REQUIRED)
 find_package(FLEX REQUIRED)
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
 
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-4.0)
+
 include(FetchContent)
 
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
@@ -45,6 +48,7 @@ target_sources(hinawa PRIVATE main.cc)
 target_sources(hinawa.test PRIVATE ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
 target_include_directories(hinawa PRIVATE css js)
 target_include_directories(hinawa.test PRIVATE css js)
+include_directories(${GTKMM_INCLUDE_DIRS})
 
 add_subdirectory(css)
 add_subdirectory(browser)
@@ -55,7 +59,7 @@ add_subdirectory(layout)
 add_subdirectory(test)
 add_subdirectory(web)
 
-target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt nlohmann_json::nlohmann_json)
+target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt nlohmann_json::nlohmann_json ${GTKMM_LIBRARIES})
 
 enable_testing()
 
