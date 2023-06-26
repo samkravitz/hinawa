@@ -9,6 +9,11 @@
 #include <QLabel>
 #include <QMainWindow>
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkPath.h"
+
 namespace browser
 {
 class BrowserWindow : public QMainWindow
@@ -28,9 +33,17 @@ private:
 	std::string hovered_href = "";
 
 	QLabel label;
+	QImage image;
+	std::vector<char> data;
 
 	// width, height of window in px
 	int width = 1600;
 	int height = 1200;
+
+	layout::Rect alert_box;
+
+	void load(const Url &);
+	void render();
+	std::vector<char> raster(int, int, void (*draw)(SkCanvas*));
 };
 }

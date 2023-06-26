@@ -40,7 +40,8 @@ file(STRINGS "skia_path.txt" Skia_INSTALL_DIR)
 set(Skia_BUILD_DIR ${Skia_INSTALL_DIR} CACHE PATH "Skia build directory")
 
 find_path(Skia_INCLUDE_DIR
-	PATH ${Skia_BUILD_DIR}/include
+	core/SkCanvas.h
+	HINTS ${Skia_BUILD_DIR}/include
 )
 
 find_library(Skia_LIBRARY
