@@ -1,8 +1,9 @@
+#include <QApplication>
 #include <curl/curl.h>
 #include <filesystem>
 #include <string>
 
-#include "browser/browser.h"
+#include "browser/browser_window.h"
 #include "util/hinawa.h"
 
 static const char* homepage_url = "index.html";
@@ -23,7 +24,9 @@ int main(int argc, char** argv)
 		url = Url(html_file);
 
 	curl_global_init(CURL_GLOBAL_ALL);
-	auto hinawa = browser::Browser(url);
+	QApplication app(argc, argv);
+	auto hinawa = browser::BrowserWindow(url);
+	auto ret = app.exec();
 	curl_global_cleanup();
-	return 0;
+	return ret;
 }

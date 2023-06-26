@@ -1,9 +1,11 @@
 set(SOURCES
 	browser.cc
+	browser_window.cc
 )
 
 set(browser
 	browser.h
+	browser_window.h
 )
 
 target_include_directories(hinawa PRIVATE ..)

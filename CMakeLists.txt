@@ -28,6 +28,12 @@ find_package(fmt REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Fontconfig REQUIRED)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
 
 file(STRINGS "skia_path.txt" Skia_INSTALL_DIR)
@@ -57,9 +63,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(hinawa ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
+qt_add_executable(hinawa
+    main.cc
+	${FLEX_CssLexer_OUTPUTS}
+	${FLEX_JsLexer_OUTPUTS}
+)
+
 add_executable(hinawa.test)
-target_sources(hinawa PRIVATE main.cc)
 target_sources(hinawa.test PRIVATE ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
 target_include_directories(hinawa PRIVATE css js)
 target_include_directories(hinawa.test PRIVATE css js)
@@ -74,12 +84,16 @@ add_subdirectory(test)
 add_subdirectory(web)
 
 target_link_libraries(hinawa
+	PRIVATE
 	curl
 	sfml-graphics
 	sfml-window
 	sfml-system
 	fmt::fmt
 	nlohmann_json::nlohmann_json
+	Qt6::Widgets
+	Qt6::Core
+	Qt6::Gui
 	${Skia_LIBRARY}
 	${FREETYPE_LIBRARIES}
 	Fontconfig::Fontconfig
@@ -96,6 +110,12 @@ target_link_libraries(
 	sfml-system
 	fmt::fmt
 	nlohmann_json::nlohmann_json
+	Qt6::Widgets
+	Qt6::Core
+	Qt6::Gui
+	${Skia_LIBRARY}
+	${FREETYPE_LIBRARIES}
+	Fontconfig::Fontconfig
 )
 
 include(GoogleTest)
