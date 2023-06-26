@@ -26,7 +26,25 @@ project(hinawa)
 find_package(CURL REQUIRED)
 find_package(fmt REQUIRED)
 find_package(FLEX REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(Fontconfig REQUIRED)
 flex_target(JsLexer js/lex.ll js/lex.yy.cc)
+
+file(STRINGS "skia_path.txt" Skia_INSTALL_DIR)
+set(Skia_BUILD_DIR ${Skia_INSTALL_DIR} CACHE PATH "Skia build directory")
+
+find_path(Skia_INCLUDE_DIR
+	PATH ${Skia_BUILD_DIR}/include
+)
+
+find_library(Skia_LIBRARY
+	skia
+	PATH ${Skia_BUILD_DIR}/out/Static
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Skia DEFAULT_MSG Skia_LIBRARY Skia_INCLUDE_DIR)
+MARK_AS_ADVANCED(Skia_INCLUDE_DIR Skia_LIBRARY)
 
 include(FetchContent)
 
@@ -55,7 +73,17 @@ add_subdirectory(layout)
 add_subdirectory(test)
 add_subdirectory(web)
 
-target_link_libraries(hinawa curl sfml-graphics sfml-window sfml-system fmt::fmt nlohmann_json::nlohmann_json)
+target_link_libraries(hinawa
+	curl
+	sfml-graphics
+	sfml-window
+	sfml-system
+	fmt::fmt
+	nlohmann_json::nlohmann_json
+	${Skia_LIBRARY}
+	${FREETYPE_LIBRARIES}
+	Fontconfig::Fontconfig
+)
 
 enable_testing()
 
