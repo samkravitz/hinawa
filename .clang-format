@@ -69,7 +69,7 @@ Language: Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 PackConstructorInitializers: Never
-PointerAlignment: Left
+PointerAlignment: Right
 # QualifierOrder: ['inline', 'static' , 'constexpr', 'type', 'const']
 ReferenceAlignment: Right
 ReflowComments: false
