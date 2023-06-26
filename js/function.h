@@ -33,11 +33,11 @@ enum FunctionType
 class Upvalue final : public Object
 {
 public:
-	Upvalue(Value* location) :
+	Upvalue(Value *location) :
 	    location(location)
 	{ }
 
-	Value* location;
+	Value *location;
 };
 
 class Function : public Object
@@ -87,9 +87,9 @@ class Vm;
 class NativeFunction final : public Function
 {
 public:
-	static NativeFunction* create(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn)
+	static NativeFunction *create(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn)
 	{
-		auto* native = new NativeFunction(fn);
+		auto *native = new NativeFunction(fn);
 
 		/**
 		* functions have a property "prototype", that is an object
@@ -98,7 +98,7 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto* object = new Object();
+		auto *object = new Object();
 		object->set("constructor", Value(native));
 		native->set("prototype", Value(object));
 
@@ -121,9 +121,9 @@ private:
 class Closure final : public Object
 {
 public:
-	static Closure* create(Function* function)
+	static Closure *create(Function *function)
 	{
-		auto* closure = new Closure(function);
+		auto *closure = new Closure(function);
 
 		/**
 		* functions have a property "prototype", that is an object
@@ -132,21 +132,21 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto* object = new Object();
+		auto *object = new Object();
 		object->set("constructor", Value(closure));
 		closure->set("prototype", Value(object));
 
 		return closure;
 	}
 
-	Function* function;
-	std::vector<Upvalue*> upvalues;
+	Function *function;
+	std::vector<Upvalue *> upvalues;
 
 	bool is_closure() const { return true; }
 	std::string to_string() const { return function->to_string(); }
 
 private:
-	Closure(Function* function) :
+	Closure(Function *function) :
 	    function(function)
 	{
 		upvalues.reserve(function->upvalue_count);
@@ -155,7 +155,7 @@ private:
 
 struct BoundMethod final : public Object
 {
-	BoundMethod(Object* receiver, Closure* method) :
+	BoundMethod(Object *receiver, Closure *method) :
 	    receiver(receiver),
 	    method(method)
 	{ }
@@ -167,7 +167,7 @@ struct BoundMethod final : public Object
 		return fmt::format("{{ BoundMethod this: {} method: {} }}", receiver->to_string(), method->to_string());
 	}
 
-	Object* receiver;
-	Closure* method;
+	Object *receiver;
+	Closure *method;
 };
 }

@@ -7,7 +7,7 @@ namespace layout
 class Inline : public Node
 {
 public:
-	Inline(css::StyledNode*);
+	Inline(css::StyledNode *);
 	Inline() = delete;
 
 	void layout(Box);

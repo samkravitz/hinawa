@@ -28,7 +28,7 @@ Parser::Parser(const std::vector<ComponentValue> &input)
 	pos = tokens.begin();
 }
 
-Value* Parser::parse_style_value(const std::string &name, const std::string &value)
+Value *Parser::parse_style_value(const std::string &name, const std::string &value)
 {
 	// TODO - remove this
 	if (value == "")
@@ -44,20 +44,20 @@ Value* Parser::parse_style_value(const std::string &name, const std::string &val
 * @param value list of tokens comprising the declaration's value
 *
 */
-Value* Parser::parse_style_value(const std::string &name, const std::vector<ComponentValue> &value)
+Value *Parser::parse_style_value(const std::string &name, const std::vector<ComponentValue> &value)
 {
 	std::string value_text{};
 	for (const auto &cv : value)
 		value_text += cv.token.value();
 
-	auto parse_color = [](const Token &token) -> Color* {
-		if (auto* color = Color::from_color_string(token.value()))
+	auto parse_color = [](const Token &token) -> Color * {
+		if (auto *color = Color::from_color_string(token.value()))
 			return color;
 
 		if (token.type() == HASH)
 		{
 			auto hex = token.value();
-			auto* color = new Color();
+			auto *color = new Color();
 			color->r = std::stoul(hex.substr(0, 2), nullptr, 16);
 			color->g = std::stoul(hex.substr(2, 2), nullptr, 16);
 			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
@@ -75,7 +75,7 @@ Value* Parser::parse_style_value(const std::string &name, const std::vector<Comp
 	else if (name == "background-color")
 	{
 		auto token = value[0].token;
-		if (auto* color = parse_color(token))
+		if (auto *color = parse_color(token))
 			return color;
 
 		return new Keyword(value_text);
@@ -86,7 +86,7 @@ Value* Parser::parse_style_value(const std::string &name, const std::vector<Comp
 	else if (name == "color")
 	{
 		auto token = value[0].token;
-		if (auto* color = parse_color(token))
+		if (auto *color = parse_color(token))
 			return color;
 
 		fmt::print(stderr, "Bad color: {}\n", value_text);
@@ -128,7 +128,7 @@ Value* Parser::parse_style_value(const std::string &name, const std::vector<Comp
 	else if (name == "background")
 	{
 		auto token = value[0].token;
-		if (auto* color = parse_color(token))
+		if (auto *color = parse_color(token))
 			return color;
 
 		fmt::print(stderr, "Bad background: {}\n", value_text);

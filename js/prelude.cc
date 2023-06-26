@@ -13,9 +13,9 @@ namespace js
 * prelude for the global Object object in javascript.
 * adds methods like Object.getPrototypeOf()
 */
-static Object* prelude_object(Vm &vm)
+static Object *prelude_object(Vm &vm)
 {
-	auto* object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
+	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
 
 	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
 		// TODO - this should throw, instead of returning undefined
@@ -39,10 +39,10 @@ static Object* prelude_object(Vm &vm)
 /**
 * prelude for the global Array object in javascript.
 */
-static Object* prelude_array(Vm &vm)
+static Object *prelude_array(Vm &vm)
 {
-	auto* array = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
-		auto* array = new Array();
+	auto *array = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		auto *array = new Array();
 		return Value(array);
 	});
 
@@ -52,7 +52,7 @@ static Object* prelude_array(Vm &vm)
 void prelude(Vm &vm)
 {
 	// create the global object and put some functions on it
-	auto* global = new Object();
+	auto *global = new Object();
 	global->set("window", Value(global));
 
 	global->set_native("print", [](auto &vm, const auto &argv) -> Value {
@@ -70,7 +70,7 @@ void prelude(Vm &vm)
 		return {};
 	});
 
-	auto* console = new Object();
+	auto *console = new Object();
 	console->set_native("log", [](auto &vm, const auto &argv) -> Value {
 		if (argv.empty())
 			return {};
@@ -88,10 +88,10 @@ void prelude(Vm &vm)
 
 	global->set("console", Value(console));
 
-	auto* object = prelude_object(vm);
+	auto *object = prelude_object(vm);
 	global->set("Object", Value(object));
 
-	auto* array = prelude_array(vm);
+	auto *array = prelude_array(vm);
 	global->set("Array", Value(array));
 
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {

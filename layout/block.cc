@@ -8,7 +8,7 @@ Block::Block() :
 	m_anonymous = true;
 }
 
-Block::Block(css::StyledNode* node) :
+Block::Block(css::StyledNode *node) :
     Node(node)
 {
 	m_anonymous = false;
@@ -48,16 +48,16 @@ void Block::calculate_width(Box container)
 	if (m_anonymous)
 		m_style = parent()->style();
 
-	auto* margin_left = m_style->property("margin-left");
-	auto* margin_right = m_style->property("margin-right");
+	auto *margin_left = m_style->property("margin-left");
+	auto *margin_right = m_style->property("margin-right");
 
-	auto* border_left = m_style->property("border-left-width");
-	auto* border_right = m_style->property("border-right-width");
+	auto *border_left = m_style->property("border-left-width");
+	auto *border_right = m_style->property("border-right-width");
 
-	auto* padding_left = m_style->property("padding-left");
-	auto* padding_right = m_style->property("padding-right");
+	auto *padding_left = m_style->property("padding-left");
+	auto *padding_right = m_style->property("padding-right");
 
-	auto* width = style()->property("width");
+	auto *width = style()->property("width");
 
 	// total width in px
 	int total = 0;
@@ -72,25 +72,25 @@ void Block::calculate_width(Box container)
 	bool margin_left_is_auto = false;
 	bool margin_right_is_auto = false;
 
-	if (auto* width_len = dynamic_cast<css::Length*>(width))
+	if (auto *width_len = dynamic_cast<css::Length *>(width))
 		total += width_len->to_px();
 
 	// width is a percentage, adjust to container's width accordingly
-	if (auto* width_percentage = dynamic_cast<css::Percentage*>(width))
+	if (auto *width_percentage = dynamic_cast<css::Percentage *>(width))
 	{
 		float px = container.content.width * (width_percentage->percent / 100.0);
 		width = new css::Length(px, css::Length::PX);
 		total += width->to_px();
 	}
 
-	if (auto* width_keyword = dynamic_cast<css::Keyword*>(width); width_keyword && width_keyword->value == "auto")
+	if (auto *width_keyword = dynamic_cast<css::Keyword *>(width); width_keyword && width_keyword->value == "auto")
 		width_is_auto = true;
 
-	if (auto* margin_left_keyword = dynamic_cast<css::Keyword*>(margin_left);
+	if (auto *margin_left_keyword = dynamic_cast<css::Keyword *>(margin_left);
 	    margin_left_keyword && margin_left_keyword->value == "auto")
 		margin_left_is_auto = true;
 
-	if (auto* margin_right_keyword = dynamic_cast<css::Keyword*>(margin_right);
+	if (auto *margin_right_keyword = dynamic_cast<css::Keyword *>(margin_right);
 	    margin_right_keyword && margin_right_keyword->value == "auto")
 		margin_right_is_auto = true;
 
@@ -195,7 +195,7 @@ void Block::calculate_position(Box container)
 
 void Block::calculate_height(Box container) { }
 
-std::optional<::Node*> Block::hit_test(const Point &p)
+std::optional<::Node *> Block::hit_test(const Point &p)
 {
 	if (!m_inline_format_context)
 		return Node::hit_test(p);

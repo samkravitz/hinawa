@@ -4,7 +4,7 @@
 
 namespace browser
 {
-Painter::Painter(SkCanvas* canvas) :
+Painter::Painter(SkCanvas *canvas) :
     canvas(canvas)
 { }
 }

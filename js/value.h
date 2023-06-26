@@ -45,12 +45,12 @@ public:
 	    number(number)
 	{ }
 
-	explicit Value(std::string* str) :
+	explicit Value(std::string *str) :
 	    m_type(Type::String),
 	    string(str)
 	{ }
 
-	explicit Value(Object* object) :
+	explicit Value(Object *object) :
 	    m_type(Type::Object),
 	    object(object)
 	{ }
@@ -77,12 +77,12 @@ public:
 	inline bool is_undefined() const { return m_type == Type::Undefined; }
 
 	inline bool as_bool() const { return boolean; }
-	inline Object* as_object() const { return object; }
+	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
-	inline std::string* as_string() const { return string; }
+	inline std::string *as_string() const { return string; }
 
 	bool is_falsy() const;
-	const char* type_of() const;
+	const char *type_of() const;
 	std::string to_string() const;
 
 private:
@@ -90,9 +90,9 @@ private:
 	union
 	{
 		bool boolean;
-		Object* object;
+		Object *object;
 		double number;
-		std::string* string;
+		std::string *string;
 	};
 };
 }

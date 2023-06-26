@@ -45,7 +45,7 @@ void BrowserWindow::load(const Url &new_url)
 	::load(url, [&](const auto &data) {
 		document = Document(url);
 		auto parser = html::Parser(document);
-		document = parser.parse(std::string((const char*) data.data(), data.size()));
+		document = parser.parse(std::string((const char *) data.data(), data.size()));
 		document.print("Document");
 
 		style_tree = css::build_style_tree(document);
@@ -64,19 +64,19 @@ void BrowserWindow::load(const Url &new_url)
 	});
 }
 
-std::vector<char> BrowserWindow::raster(int width, int height, void (*draw)(SkCanvas*))
+std::vector<char> BrowserWindow::raster(int width, int height, void (*draw)(SkCanvas *))
 {
 	SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 	auto row_bytes = info.minRowBytes();
 	auto size = info.computeByteSize(row_bytes);
 	std::vector<char> pixels(size);
 	sk_sp<SkSurface> surface = SkSurfaces::WrapPixels(info, &pixels[0], row_bytes);
-	auto* canvas = surface->getCanvas();
+	auto *canvas = surface->getCanvas();
 	draw(canvas);
 	return pixels;
 }
 
-void draw(SkCanvas* canvas)
+void draw(SkCanvas *canvas)
 {
 	canvas->drawColor(SK_ColorWHITE);
 
@@ -107,7 +107,7 @@ void draw(SkCanvas* canvas)
 void BrowserWindow::render()
 {
 	data = raster(width, height, draw);
-	image = QImage((const uchar*) data.data(), width, height, QImage::Format::Format_RGB32);
+	image = QImage((const uchar *) data.data(), width, height, QImage::Format::Format_RGB32);
 	label.setPixmap(QPixmap::fromImage(image));
 	label.show();
 }

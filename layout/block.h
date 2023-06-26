@@ -23,7 +23,7 @@ struct LineFragment
 	// length in pixels of the line fragment
 	int len;
 
-	css::StyledNode* styled_node;
+	css::StyledNode *styled_node;
 };
 
 struct Line
@@ -43,11 +43,11 @@ struct Line
 class Block : public Node
 {
 public:
-	Block(css::StyledNode*);
+	Block(css::StyledNode *);
 	Block();
 
 	void layout(Box);
-	std::optional<::Node*> hit_test(const Point &) override;
+	std::optional<::Node *> hit_test(const Point &) override;
 
 	std::vector<Line> lines;
 

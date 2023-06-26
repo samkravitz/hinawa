@@ -7,7 +7,7 @@ namespace browser
 class Painter
 {
 public:
-	Painter(SkCanvas*);
+	Painter(SkCanvas *);
 
 private:
 	SkCanvas *canvas;

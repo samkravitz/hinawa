@@ -601,7 +601,7 @@ bool Parser::match_any(std::initializer_list<TokenType> const &tokens)
 	return false;
 }
 
-void Parser::consume(TokenType type, const char* msg)
+void Parser::consume(TokenType type, const char *msg)
 {
 	if (!match(type))
 		fmt::print("{}\n", msg);

@@ -17,7 +17,7 @@ Compiler::Compiler(const std::vector<std::shared_ptr<Stmt>> &stmts) :
     stmts(stmts)
 { }
 
-void Compiler::init_compiler(FunctionCompiler* compiler)
+void Compiler::init_compiler(FunctionCompiler *compiler)
 {
 	compiler->enclosing = current;
 	current = compiler;
@@ -31,7 +31,7 @@ void Compiler::end_compiler()
 
 	auto function = *current->function;
 #ifdef DEBUG_PRINT_CODE
-	const char* name = function.type == ANONYMOUS ? "anonymous" : function.name.c_str();
+	const char *name = function.type == ANONYMOUS ? "anonymous" : function.name.c_str();
 	function.chunk.disassemble(name);
 #endif
 
@@ -674,7 +674,7 @@ void Compiler::declare_local(const std::string &name)
 	current->locals.push_back({name, current->scope_depth});
 }
 
-int Compiler::resolve_local(FunctionCompiler* compiler, const std::string &name)
+int Compiler::resolve_local(FunctionCompiler *compiler, const std::string &name)
 {
 	auto local_count = compiler->local_count();
 	// Using C++20 ranges: iterate backwards
@@ -688,7 +688,7 @@ int Compiler::resolve_local(FunctionCompiler* compiler, const std::string &name)
 	return RESOLVED_GLOBAL;
 }
 
-int Compiler::resolve_upvalue(FunctionCompiler* compiler, const std::string &name)
+int Compiler::resolve_upvalue(FunctionCompiler *compiler, const std::string &name)
 {
 	if (!compiler->enclosing)
 		return -1;
@@ -704,7 +704,7 @@ int Compiler::resolve_upvalue(FunctionCompiler* compiler, const std::string &nam
 	return -1;
 }
 
-int Compiler::add_upvalue(FunctionCompiler* compiler, u8 index, bool is_local)
+int Compiler::add_upvalue(FunctionCompiler *compiler, u8 index, bool is_local)
 {
 	for (unsigned i = 0; i < compiler->upvalues.size(); i++)
 	{

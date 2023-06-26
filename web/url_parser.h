@@ -37,7 +37,7 @@ public:
 #undef STATE
 	};
 
-	Url parse(const std::string &input, Url* base = nullptr, std::optional<State> state_override = {});
+	Url parse(const std::string &input, Url *base = nullptr, std::optional<State> state_override = {});
 
 private:
 	State state = State::SchemeStart;

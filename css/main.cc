@@ -13,7 +13,7 @@ int main()
 
 	std::istringstream istream(buffer.str());
 
-	FlexLexer* lexer = new yyFlexLexer(&istream);
+	FlexLexer *lexer = new yyFlexLexer(&istream);
 
 	int tok;
 

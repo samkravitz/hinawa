@@ -3,9 +3,9 @@
 #include <optional>
 
 #include "box.h"
+#include "browser/painter.h"
 #include "css/styled_node.h"
 #include "util/tree_node.h"
-#include "browser/painter.h"
 
 namespace layout
 {
@@ -13,12 +13,12 @@ class Node : public util::TreeNode<Node>
 {
 public:
 	Node();
-	Node(css::StyledNode*);
+	Node(css::StyledNode *);
 
 	void insert_anonymous_container();
-	virtual std::optional<::Node*> hit_test(const Point &);
+	virtual std::optional<::Node *> hit_test(const Point &);
 	std::string tag_name() const;
-	css::Value* property(const std::string &name) const
+	css::Value *property(const std::string &name) const
 	{
 		if (is_anonymous())
 		{
@@ -30,7 +30,7 @@ public:
 		return m_style->property(name);
 	}
 
-	inline css::StyledNode* style() const { return m_style; }
+	inline css::StyledNode *style() const { return m_style; }
 	inline Box &dimensions() { return m_dimensions; }
 	inline void reset() { m_dimensions = Box{}; }
 	inline void set_block_format_context() { m_inline_format_context = false; }
@@ -48,13 +48,13 @@ public:
 
 protected:
 	// pointer to the styled node to be rendered
-	css::StyledNode* m_style;
+	css::StyledNode *m_style;
 
 	Box m_dimensions;
 
 	bool m_inline_format_context = true;
 };
 
-std::shared_ptr<Node> build_layout_tree(css::StyledNode*);
-void print_tree_with_lines(Node*);
+std::shared_ptr<Node> build_layout_tree(css::StyledNode *);
+void print_tree_with_lines(Node *);
 }

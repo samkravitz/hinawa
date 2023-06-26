@@ -8,8 +8,7 @@
 
 namespace util
 {
-template<class T>
-class TreeNode
+template<class T> class TreeNode
 {
 public:
 	TreeNode() = default;
@@ -19,43 +18,43 @@ public:
 
 	void add_child(const std::shared_ptr<T> &node)
 	{
-		node->m_parent = static_cast<T*>(this);
+		node->m_parent = static_cast<T *>(this);
 		children.push_back(node);
 	}
 
 	void prepend_child(const std::shared_ptr<T> &node)
 	{
-		node->m_parent = static_cast<T*>(this);
+		node->m_parent = static_cast<T *>(this);
 		children.insert(children.begin(), 1, node);
 	}
 
-	T* parent() const { return m_parent; }
+	T *parent() const { return m_parent; }
 
-	void preorder(std::function<void(T*)> f)
+	void preorder(std::function<void(T *)> f)
 	{
-		auto* p = static_cast<T*>(this);
+		auto *p = static_cast<T *>(this);
 		f(p);
 
 		for (auto child : children)
 			child->preorder(f);
 	}
 
-	void postorder(std::function<void(T*)> f)
+	void postorder(std::function<void(T *)> f)
 	{
 		for (auto child : children)
 			child->postorder(f);
 
-		auto* p = static_cast<T*>(this);
+		auto *p = static_cast<T *>(this);
 		f(p);
 	}
 
-	void for_each_child(std::function<void(T*)> f)
+	void for_each_child(std::function<void(T *)> f)
 	{
 		for (auto child : children)
 			f(child.get());
 	}
 
-	bool has_child_that_matches_condition(std::function<bool(const T*)> f) const
+	bool has_child_that_matches_condition(std::function<bool(const T *)> f) const
 	{
 		for (const auto &child : children)
 		{
@@ -68,7 +67,7 @@ public:
 		return false;
 	}
 
-	bool parent_matches_condition(std::function<bool(const T*)> f) const
+	bool parent_matches_condition(std::function<bool(const T *)> f) const
 	{
 		if (!parent())
 			return false;
@@ -76,7 +75,7 @@ public:
 		return f(parent());
 	}
 
-	T* last_child()
+	T *last_child()
 	{
 		if (!has_children())
 			return nullptr;
@@ -105,7 +104,7 @@ public:
 	}
 
 protected:
-	T* m_parent = nullptr;
+	T *m_parent = nullptr;
 	std::vector<std::shared_ptr<T>> children;
 
 private:

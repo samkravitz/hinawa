@@ -62,7 +62,7 @@ struct Color : public Value
 	u8 b;
 	u8 a;
 
-	static Color* from_color_string(std::string const &color)
+	static Color *from_color_string(std::string const &color)
 	{
 		if (color == "black")
 			return new Color(0, 0, 0);
@@ -215,10 +215,10 @@ struct Percentage : public Value
 struct ValueArray : public Value
 {
 	ValueArray() = default;
-	ValueArray(const std::vector<Value*> &values) :
+	ValueArray(const std::vector<Value *> &values) :
 	    values(values)
 	{ }
 
-	std::vector<Value*> values;
+	std::vector<Value *> values;
 };
 }

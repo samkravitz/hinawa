@@ -52,7 +52,7 @@ static std::string domain_to_ascii(const std::string &input, bool be_strict)
 
 // implements the basic URL parser spec
 // https://url.spec.whatwg.org/#concept-basic-url-parser
-Url UrlParser::parse(const std::string &input, Url* base, std::optional<State> state_override)
+Url UrlParser::parse(const std::string &input, Url *base, std::optional<State> state_override)
 {
 	Url url;
 	buffer = "";

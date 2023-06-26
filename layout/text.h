@@ -7,7 +7,7 @@ namespace layout
 class Text : public Node
 {
 public:
-	Text(css::StyledNode*);
+	Text(css::StyledNode *);
 	Text() = delete;
 
 	void layout(Box);

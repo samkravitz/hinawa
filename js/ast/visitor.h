@@ -28,28 +28,28 @@ struct ArrayExpr;
 
 struct PrintVisitor
 {
-	virtual void visit(const BlockStmt*, int indent) const = 0;
-	virtual void visit(const VarDecl*, int indent) const = 0;
-	virtual void visit(const EmptyStmt*, int indent) const = 0;
-	virtual void visit(const IfStmt*, int indent) const = 0;
-	virtual void visit(const ReturnStmt*, int indent) const = 0;
-	virtual void visit(const ExpressionStmt*, int indent) const = 0;
-	virtual void visit(const FunctionDecl*, int indent) const = 0;
-	virtual void visit(const ForStmt*, int indent) const = 0;
-	virtual void visit(const ThrowStmt*, int indent) const = 0;
-	virtual void visit(const TryStmt*, int indent) const = 0;
-	virtual void visit(const UnaryExpr*, int indent) const = 0;
-	virtual void visit(const UpdateExpr*, int indent) const = 0;
-	virtual void visit(const BinaryExpr*, int indent) const = 0;
-	virtual void visit(const AssignmentExpr*, int indent) const = 0;
-	virtual void visit(const CallExpr*, int indent) const = 0;
-	virtual void visit(const MemberExpr*, int indent) const = 0;
-	virtual void visit(const Literal*, int indent) const = 0;
-	virtual void visit(const Variable*, int indent) const = 0;
-	virtual void visit(const ObjectExpr*, int indent) const = 0;
-	virtual void visit(const FunctionExpr*, int indent) const = 0;
-	virtual void visit(const NewExpr*, int indent) const = 0;
-	virtual void visit(const ArrayExpr*, int indent) const = 0;
+	virtual void visit(const BlockStmt *, int indent) const = 0;
+	virtual void visit(const VarDecl *, int indent) const = 0;
+	virtual void visit(const EmptyStmt *, int indent) const = 0;
+	virtual void visit(const IfStmt *, int indent) const = 0;
+	virtual void visit(const ReturnStmt *, int indent) const = 0;
+	virtual void visit(const ExpressionStmt *, int indent) const = 0;
+	virtual void visit(const FunctionDecl *, int indent) const = 0;
+	virtual void visit(const ForStmt *, int indent) const = 0;
+	virtual void visit(const ThrowStmt *, int indent) const = 0;
+	virtual void visit(const TryStmt *, int indent) const = 0;
+	virtual void visit(const UnaryExpr *, int indent) const = 0;
+	virtual void visit(const UpdateExpr *, int indent) const = 0;
+	virtual void visit(const BinaryExpr *, int indent) const = 0;
+	virtual void visit(const AssignmentExpr *, int indent) const = 0;
+	virtual void visit(const CallExpr *, int indent) const = 0;
+	virtual void visit(const MemberExpr *, int indent) const = 0;
+	virtual void visit(const Literal *, int indent) const = 0;
+	virtual void visit(const Variable *, int indent) const = 0;
+	virtual void visit(const ObjectExpr *, int indent) const = 0;
+	virtual void visit(const FunctionExpr *, int indent) const = 0;
+	virtual void visit(const NewExpr *, int indent) const = 0;
+	virtual void visit(const ArrayExpr *, int indent) const = 0;
 };
 
 struct CompilerVisitor

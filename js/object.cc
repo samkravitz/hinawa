@@ -17,7 +17,7 @@ Value Object::get(std::string const &key)
 		return properties[key];
 
 	// search up the prototype chain for the key
-	auto* proto = prototype();
+	auto *proto = prototype();
 	while (proto)
 	{
 		if (proto->has_own_property(key))
@@ -45,35 +45,35 @@ bool Object::has_own_property(std::string const &key) const
 	return properties.find(key) != properties.end();
 }
 
-Object* Object::prototype()
+Object *Object::prototype()
 {
 	if (!m_prototype)
 		return ObjectPrototype::the();
 	return m_prototype;
 }
 
-Function* Object::as_function()
+Function *Object::as_function()
 {
 	assert(is_function());
-	return static_cast<Function*>(this);
+	return static_cast<Function *>(this);
 }
 
-NativeFunction* Object::as_native()
+NativeFunction *Object::as_native()
 {
 	assert(is_native());
-	return static_cast<NativeFunction*>(this);
+	return static_cast<NativeFunction *>(this);
 }
 
-Closure* Object::as_closure()
+Closure *Object::as_closure()
 {
 	assert(is_closure());
-	return static_cast<Closure*>(this);
+	return static_cast<Closure *>(this);
 }
 
-Array* Object::as_array()
+Array *Object::as_array()
 {
 	assert(is_array());
-	return static_cast<Array*>(this);
+	return static_cast<Array *>(this);
 }
 
 std::string Object::to_string() const
@@ -101,7 +101,7 @@ std::string Object::to_string() const
 	return stream.str();
 }
 
-ObjectPrototype* ObjectPrototype::instance = nullptr;
+ObjectPrototype *ObjectPrototype::instance = nullptr;
 
 ObjectPrototype::ObjectPrototype()
 {
@@ -112,14 +112,14 @@ ObjectPrototype::ObjectPrototype()
 		if (!argv[0].is_string())
 			return Value(false);
 
-		auto* obj = vm.current_this();
+		auto *obj = vm.current_this();
 
 		auto property = *argv[0].as_string();
 		return Value(obj->has_own_property(property));
 	});
 }
 
-ObjectPrototype* ObjectPrototype::the()
+ObjectPrototype *ObjectPrototype::the()
 {
 	if (instance == nullptr)
 		instance = new ObjectPrototype;

@@ -14,7 +14,7 @@ using json = nlohmann::json;
 namespace css
 {
 
-css::Value* const default_font_size = new css::Length(16, css::Length::PX);
+css::Value *const default_font_size = new css::Length(16, css::Length::PX);
 std::unordered_map<std::string, Property> properties;
 
 Stylesheet read_default_stylesheet()
@@ -53,7 +53,7 @@ void read_properties_file()
 * @brief gets the initial value of a css property
 * @param property_name property name
 */
-Value* initial_value(const std::string &property_name)
+Value *initial_value(const std::string &property_name)
 {
 	if (properties.find(property_name) == properties.end())
 	{
@@ -67,10 +67,10 @@ Value* initial_value(const std::string &property_name)
 
 float Value::font_size() const
 {
-	if (auto* font_size_len = dynamic_cast<const Length*>(this))
+	if (auto *font_size_len = dynamic_cast<const Length *>(this))
 		return font_size_len->value;
 
-	if (auto* font_size_percent = dynamic_cast<const Percentage*>(this))
+	if (auto *font_size_percent = dynamic_cast<const Percentage *>(this))
 		return default_font_size->to_px() * (font_size_percent->percent / 100.f);
 
 	fmt::print(stderr, "Bad font-size {}\n", to_string());

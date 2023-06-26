@@ -22,7 +22,7 @@ public:
 class ListItem final : public Block
 {
 public:
-	ListItem(css::StyledNode* style);
+	ListItem(css::StyledNode *style);
 
 	void layout(Box container) override;
 	bool is_list_item() const override { return true; }

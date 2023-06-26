@@ -10,9 +10,9 @@
 #include <QMainWindow>
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkPath.h"
 
 namespace browser
 {
@@ -44,6 +44,6 @@ private:
 
 	void load(const Url &);
 	void render();
-	std::vector<char> raster(int, int, void (*draw)(SkCanvas*));
+	std::vector<char> raster(int, int, void (*draw)(SkCanvas *));
 };
 }

@@ -10,7 +10,7 @@ Url::Url(const std::string &url_string) :
     Url(UrlParser().parse(url_string))
 { }
 
-Url::Url(const std::string &url_string, Url* base) :
+Url::Url(const std::string &url_string, Url *base) :
     Url(UrlParser().parse(url_string, base, {}))
 { }
 

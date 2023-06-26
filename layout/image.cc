@@ -2,7 +2,7 @@
 
 namespace layout
 {
-Image::Image(css::StyledNode* node) :
+Image::Image(css::StyledNode *node) :
     Block(node)
 { }
 

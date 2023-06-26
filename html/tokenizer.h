@@ -111,7 +111,7 @@ private:
 	bool eof();
 	void consume_next_input_character();
 	bool consume_if_match(std::string const &str, bool case_sensitive = false);
-	void parse_error(const char*);
+	void parse_error(const char *);
 	bool consumed_as_part_of_an_attribute() const;
 	bool appropriate_end_tag_token() const;
 

@@ -28,12 +28,12 @@ enum class Operator
 
 struct CallFrame
 {
-	CallFrame(Closure* closure, uint base) :
+	CallFrame(Closure *closure, uint base) :
 	    closure(closure),
 	    base(base)
 	{ }
 
-	Closure* closure;
+	Closure *closure;
 	uint ip{0};
 	uint base{0};
 	bool is_constructor{false};
@@ -51,12 +51,12 @@ class Vm
 {
 public:
 	Vm(bool headless = false);
-	Vm(Document*);
+	Vm(Document *);
 
 	bool run(Function);
-	Object* current_this() const { return _this; }
-	void set_global(Object* g) { global = g; }
-	void call(Closure*);
+	Object *current_this() const { return _this; }
+	void set_global(Object *g) { global = g; }
+	void call(Closure *);
 
 	inline Document &document() { return *m_document; }
 
@@ -66,10 +66,10 @@ public:
 
 private:
 	// pointer to the global object
-	Object* global = nullptr;
+	Object *global = nullptr;
 
 	// pointer to the current this object
-	Object* _this = nullptr;
+	Object *_this = nullptr;
 
 	std::vector<Value> stack;
 	std::stack<CallFrame> frames;
@@ -82,8 +82,8 @@ private:
 	u16 read_short();
 	Value read_constant();
 	std::string read_string();
-	Upvalue* capture_upvalue(Value*);
-	Document* m_document{nullptr};
+	Upvalue *capture_upvalue(Value *);
+	Document *m_document{nullptr};
 
 	void print_stack() const;
 	bool runtime_error(std::string const &);

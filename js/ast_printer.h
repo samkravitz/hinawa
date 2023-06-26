@@ -27,7 +27,7 @@ public:
 			stmt->accept(this, 0);
 	}
 
-	void visit(const BlockStmt* node, int indent) const
+	void visit(const BlockStmt *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -35,7 +35,7 @@ public:
 			stmt->accept(this, indent + 1);
 	}
 
-	void visit(const VarDecl* node, int indent) const
+	void visit(const VarDecl *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -49,15 +49,15 @@ public:
 		}
 	}
 
-	void visit(const EmptyStmt* node, int indent) const { node->print_header(indent); }
+	void visit(const EmptyStmt *node, int indent) const { node->print_header(indent); }
 
-	void visit(const IfStmt* node, int indent) const
+	void visit(const IfStmt *node, int indent) const
 	{
 		node->print_header(indent);
 		node->test->accept(this, indent + 1);
 	}
 
-	void visit(const ReturnStmt* node, int indent) const
+	void visit(const ReturnStmt *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -65,19 +65,19 @@ public:
 			node->expr->accept(this, indent + 1);
 	}
 
-	void visit(const ExpressionStmt* node, int indent) const
+	void visit(const ExpressionStmt *node, int indent) const
 	{
 		node->print_header(indent);
 		node->expr->accept(this, indent + 1);
 	}
 
-	void visit(const FunctionDecl* node, int indent) const
+	void visit(const FunctionDecl *node, int indent) const
 	{
 		node->print_header(indent);
 		node->block->accept(this, indent + 1);
 	}
 
-	void visit(const ForStmt* node, int indent) const
+	void visit(const ForStmt *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -117,15 +117,15 @@ public:
 		}
 	}
 
-	void visit(const ThrowStmt* node, int indent) const
+	void visit(const ThrowStmt *node, int indent) const
 	{
 		node->print_header(indent);
 		node->expr->accept(this, indent + 1);
 	}
 
-	void visit(const TryStmt* node, int indent) const { node->print_header(indent); }
+	void visit(const TryStmt *node, int indent) const { node->print_header(indent); }
 
-	void visit(const UnaryExpr* node, int indent) const
+	void visit(const UnaryExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent + 1);
@@ -133,7 +133,7 @@ public:
 		node->rhs->accept(this, indent + 1);
 	}
 
-	void visit(const UpdateExpr* node, int indent) const
+	void visit(const UpdateExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent);
@@ -145,7 +145,7 @@ public:
 		std::cout << "prefix: " << node->prefix << '\n';
 	}
 
-	void visit(const BinaryExpr* node, int indent) const
+	void visit(const BinaryExpr *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -155,7 +155,7 @@ public:
 		node->rhs->accept(this, indent + 1);
 	}
 
-	void visit(const AssignmentExpr* node, int indent) const
+	void visit(const AssignmentExpr *node, int indent) const
 	{
 		node->print_header(indent);
 
@@ -164,7 +164,7 @@ public:
 		node->rhs->accept(this, indent);
 	}
 
-	void visit(const CallExpr* node, int indent) const
+	void visit(const CallExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent);
@@ -182,7 +182,7 @@ public:
 		}
 	}
 
-	void visit(const MemberExpr* node, int indent) const
+	void visit(const MemberExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent);
@@ -195,27 +195,27 @@ public:
 		node->property->accept(this, indent);
 	}
 
-	void visit(const Literal* node, int indent) const
+	void visit(const Literal *node, int indent) const
 	{
 		print_indent(indent);
 		std::cout << node->token.value() << "\n";
 	}
 
-	void visit(const Variable* node, int indent) const
+	void visit(const Variable *node, int indent) const
 	{
 		print_indent(indent);
 		std::cout << node->ident << "\n";
 	}
 
-	void visit(const ObjectExpr* node, int indent) const { node->print_header(indent); }
+	void visit(const ObjectExpr *node, int indent) const { node->print_header(indent); }
 
-	void visit(const FunctionExpr* node, int indent) const
+	void visit(const FunctionExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		node->body->accept(this, indent + 1);
 	}
 
-	void visit(const NewExpr* node, int indent) const
+	void visit(const NewExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent);
@@ -232,7 +232,7 @@ public:
 		}
 	}
 
-	void visit(const ArrayExpr* node, int indent) const
+	void visit(const ArrayExpr *node, int indent) const
 	{
 		node->print_header(indent);
 		print_indent(indent);

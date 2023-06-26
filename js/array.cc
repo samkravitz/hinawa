@@ -18,17 +18,17 @@ Array::Array(std::vector<Value> array)
 	set("length", Value((double) size()));
 }
 
-Object* Array::prototype()
+Object *Array::prototype()
 {
 	return ArrayPrototype::the();
 }
 
-ArrayPrototype* ArrayPrototype::instance = nullptr;
+ArrayPrototype *ArrayPrototype::instance = nullptr;
 
 ArrayPrototype::ArrayPrototype()
 {
 	set_native("push", [](auto &vm, const auto &argv) -> Value {
-		auto* arr = vm.current_this()->as_array();
+		auto *arr = vm.current_this()->as_array();
 		for (const auto &val : argv)
 			arr->push_back(val);
 
@@ -38,10 +38,10 @@ ArrayPrototype::ArrayPrototype()
 	});
 
 	set_native("map", [](auto &vm, const auto &argv) -> Value {
-		auto* arr = vm.current_this()->as_array();
+		auto *arr = vm.current_this()->as_array();
 		auto callback = argv[0].as_object()->as_closure();
 
-		auto* new_arr = new Array();
+		auto *new_arr = new Array();
 		for (const auto &val : *arr)
 		{
 			vm.push(val);
@@ -54,7 +54,7 @@ ArrayPrototype::ArrayPrototype()
 	});
 }
 
-ArrayPrototype* ArrayPrototype::the()
+ArrayPrototype *ArrayPrototype::the()
 {
 	if (!instance)
 		instance = new ArrayPrototype;

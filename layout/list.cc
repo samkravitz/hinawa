@@ -26,7 +26,7 @@ void ListItemMarker::layout(Box container)
 	// lines.push_back(line);
 }
 
-ListItem::ListItem(css::StyledNode* style) :
+ListItem::ListItem(css::StyledNode *style) :
     Block(style)
 {
 	prepend_child(std::make_shared<ListItemMarker>());
@@ -36,7 +36,7 @@ void ListItem::layout(Box container)
 {
 	Block::layout(container);
 
-	auto* marker = children[0].get();
+	auto *marker = children[0].get();
 	marker->dimensions().content.y = m_dimensions.margin_box().y + m_dimensions.margin_box().height / 2;
 }
 }

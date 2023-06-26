@@ -22,8 +22,8 @@ public:
 
 	Value get(std::string const &);
 	void set(std::string, Value);
-	virtual Object* prototype();
-	void set_prototype(Object* proto) { m_prototype = proto; }
+	virtual Object *prototype();
+	void set_prototype(Object *proto) { m_prototype = proto; }
 
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value> &)> &);
 
@@ -34,16 +34,16 @@ public:
 	virtual bool is_closure() const { return false; }
 	virtual bool is_array() const { return false; }
 
-	Function* as_function();
-	NativeFunction* as_native();
-	Closure* as_closure();
-	Array* as_array();
+	Function *as_function();
+	NativeFunction *as_native();
+	Closure *as_closure();
+	Array *as_array();
 
 	virtual std::string to_string() const;
 
 protected:
 	std::unordered_map<std::string, Value> properties;
-	Object* m_prototype{nullptr};
+	Object *m_prototype{nullptr};
 };
 
 class ObjectPrototype final : public Object
@@ -51,12 +51,12 @@ class ObjectPrototype final : public Object
 public:
 	ObjectPrototype(ObjectPrototype &other) = delete;
 	void operator=(const ObjectPrototype &) = delete;
-	Object* prototype() override { return nullptr; }
+	Object *prototype() override { return nullptr; }
 
-	static ObjectPrototype* the();
+	static ObjectPrototype *the();
 
 private:
 	ObjectPrototype();
-	static ObjectPrototype* instance;
+	static ObjectPrototype *instance;
 };
 }

@@ -17,7 +17,7 @@ public:
 	void print(std::string const &) const;
 	inline std::shared_ptr<Node> root() const { return m_root; }
 	Url origin() const { return m_origin; }
-	Node* get_body() const;
+	Node *get_body() const;
 	std::string get_style() const;
 	std::string get_script() const;
 	void add_child(const std::shared_ptr<Node> &);

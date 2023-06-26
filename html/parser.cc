@@ -565,7 +565,7 @@ void Parser::insert_character(Token t)
 	auto previous_node = target->last_child();
 	if (previous_node && previous_node->type() == NodeType::Text)
 	{
-		auto* text_element = dynamic_cast<Text*>(previous_node);
+		auto *text_element = dynamic_cast<Text *>(previous_node);
 		text_element->append(data);
 	}
 

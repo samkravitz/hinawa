@@ -16,10 +16,10 @@ void Document::print(std::string const &title) const
 	m_root->print(title);
 }
 
-Node* Document::get_body() const
+Node *Document::get_body() const
 {
-	Node* body = nullptr;
-	m_root->preorder([&](auto* child) {
+	Node *body = nullptr;
+	m_root->preorder([&](auto *child) {
 		if (child->element_name() == "body")
 			body = child;
 	});
@@ -29,10 +29,10 @@ Node* Document::get_body() const
 std::string Document::get_style() const
 {
 	std::string style_text = "";
-	m_root->preorder([&](auto* child) {
+	m_root->preorder([&](auto *child) {
 		if (child->element_name() == "style")
 		{
-			auto* text_element = dynamic_cast<Text*>(child->last_child());
+			auto *text_element = dynamic_cast<Text *>(child->last_child());
 			style_text = text_element->text();
 		}
 	});
@@ -43,10 +43,10 @@ std::string Document::get_style() const
 std::string Document::get_script() const
 {
 	std::string source = "";
-	m_root->preorder([&source](auto* child) {
+	m_root->preorder([&source](auto *child) {
 		if (child->element_name() == "script")
 		{
-			auto* text_element = dynamic_cast<Text*>(child->last_child());
+			auto *text_element = dynamic_cast<Text *>(child->last_child());
 			source = text_element->text();
 		}
 	});

@@ -2,7 +2,7 @@
 
 namespace js
 {
-Scanner::Scanner(const char* src) :
+Scanner::Scanner(const char *src) :
     source(src),
     istream(src)
 {
