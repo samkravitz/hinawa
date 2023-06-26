@@ -1,11 +1,13 @@
 set(SOURCES
 	browser.cc
 	browser_window.cc
+	painter.cc
 )
 
-set(browser
+set(HEADERS
 	browser.h
 	browser_window.h
+	painter.h
 )
 
 target_include_directories(hinawa

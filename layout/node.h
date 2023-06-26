@@ -5,6 +5,7 @@
 #include "box.h"
 #include "css/styled_node.h"
 #include "util/tree_node.h"
+#include "browser/painter.h"
 
 namespace layout
 {
