@@ -3,7 +3,6 @@
 #include <cassert>
 
 #include "block.h"
-#include "browser/browser.h"
 #include "document/text.h"
 #include "value.h"
 

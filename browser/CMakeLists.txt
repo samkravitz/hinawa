@@ -1,11 +1,9 @@
 set(SOURCES
-	browser.cc
 	browser_window.cc
 	painter.cc
 )
 
 set(HEADERS
-	browser.h
 	browser_window.h
 	painter.h
 )

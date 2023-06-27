@@ -87,9 +87,6 @@ add_subdirectory(web)
 target_link_libraries(hinawa
 	PRIVATE
 	curl
-	sfml-graphics
-	sfml-window
-	sfml-system
 	fmt::fmt
 	nlohmann_json::nlohmann_json
 	Qt6::Widgets
@@ -106,9 +103,6 @@ target_link_libraries(
 	hinawa.test
  	GTest::gtest_main
 	curl
-	sfml-graphics
-	sfml-window
-	sfml-system
 	fmt::fmt
 	nlohmann_json::nlohmann_json
 	Qt6::Widgets

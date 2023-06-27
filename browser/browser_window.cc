@@ -22,6 +22,8 @@
 #include "SkRRect.h"
 #include "SkSurface.h"
 
+fs::path DATA_DIR = HINAWA_DATA_DIR;
+
 namespace browser
 {
 BrowserWindow::BrowserWindow(const Url &u) :
