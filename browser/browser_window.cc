@@ -27,6 +27,9 @@ namespace browser
 BrowserWindow::BrowserWindow(const Url &u) :
     url(u)
 {
+	QMainWindow::resize(width, height);
+	label.setParent(this);
+
 	css::read_properties_file();
 	load(url);
 
@@ -37,6 +40,23 @@ BrowserWindow::BrowserWindow(const Url &u) :
 	layout::print_tree_with_lines(layout_tree.get());
 
 	resize();
+	render();
+	show();
+}
+
+void BrowserWindow::resizeEvent(QResizeEvent *event)
+{
+	QMainWindow::resizeEvent(event);
+	auto size = event->size();
+	width = size.width();
+	height = size.height();
+
+	resize();
+	layout::Box viewport = {};
+	viewport.content.width = width;
+	viewport.content.height = 0;
+	layout_tree->layout(viewport);
+	layout_tree->print("Layout Tree");
 	render();
 }
 
@@ -72,6 +92,7 @@ void BrowserWindow::resize()
 	auto size = info.computeByteSize(row_bytes);
 	pixels.reserve(size);
 	surface = SkSurfaces::WrapPixels(info, &pixels[0], row_bytes);
+	label.resize(width, height);
 }
 
 void BrowserWindow::raster()

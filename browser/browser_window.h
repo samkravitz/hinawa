@@ -8,6 +8,7 @@
 
 #include <QLabel>
 #include <QMainWindow>
+#include <QResizeEvent>
 
 #include "SkSurface.h"
 
@@ -44,5 +45,7 @@ private:
 	void render();
 	void raster();
 	void resize();
+
+	virtual void resizeEvent(QResizeEvent *) override;
 };
 }

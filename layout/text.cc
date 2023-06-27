@@ -100,8 +100,6 @@ void Text::split_into_lines(Box container)
 	while (std::getline(ss, word, ' '))
 	{
 		std::string s(frag.str + word);
-		fmt::print("str {}\n", s);
-		//m_blob = SkTextBlob::MakeFromString(std::string(frag.str + word).c_str(), font);
 		auto blob = SkTextBlob::MakeFromString(word.c_str(), m_font);
 
 		float len = blob->bounds().width();
