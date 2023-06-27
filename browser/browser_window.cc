@@ -31,6 +31,8 @@ BrowserWindow::BrowserWindow(const Url &u) :
 {
 	QMainWindow::resize(width, height);
 	label.setParent(this);
+	setMouseTracking(true);
+	label.setMouseTracking(true);
 
 	css::read_properties_file();
 	load(url);
@@ -60,6 +62,52 @@ void BrowserWindow::resizeEvent(QResizeEvent *event)
 	layout_tree->layout(viewport);
 	layout_tree->print("Layout Tree");
 	render();
+}
+
+void BrowserWindow::mouseMoveEvent(QMouseEvent *event)
+{
+	QMainWindow::mouseMoveEvent(event);
+	auto pos = event->pos();
+
+	auto result = layout_tree->hit_test(Point{pos.x(), pos.y()});
+	if (result && result.value()->is_link())
+	{
+		setCursor(Qt::PointingHandCursor);
+
+		// grabs the most specific node (Text), when we want the Element to see the href
+		auto *element = dynamic_cast<Element *>(result.value()->parent());
+		auto href = element->get_attribute("href");
+		hovered_href = href;
+	}
+
+	else
+	{
+		setCursor(Qt::ArrowCursor);
+		hovered_href = "";
+	}
+}
+
+void BrowserWindow::mousePressEvent(QMouseEvent *event)
+{
+	QMainWindow::mousePressEvent(event);
+
+	if (event->button() == Qt::LeftButton)
+	{
+		auto pos = event->pos();
+
+		Point p = {pos.x(), pos.y()};
+		if (!hovered_href.empty())
+		{
+			auto new_url = Url(hovered_href, &url);
+			load(new_url);
+			layout::Box viewport = {};
+			viewport.content.width = width;
+			viewport.content.height = 0;
+			layout_tree->layout(viewport);
+			layout_tree->print("Layout Tree");
+			render();
+		}
+	}
 }
 
 void BrowserWindow::load(const Url &new_url)
@@ -101,6 +149,8 @@ void BrowserWindow::raster()
 {
 	auto *canvas = surface->getCanvas();
 	Painter painter(canvas, width, height);
+
+	painter.fill_rect(Color::WHITE());
 
 	layout_tree->preorder([&painter](auto const &layout_node) { layout_node->render(painter); });
 }

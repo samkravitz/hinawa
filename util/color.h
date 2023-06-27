@@ -27,6 +27,9 @@ struct Color
 	    a(a)
 	{ }
 
+	static Color WHITE() { return Color(0xff, 0xff, 0xff); }
+	static Color BLACK() { return Color(0, 0, 0); }
+
 	u32 to_u32() const { return (a << 24) | (r << 16) | (g << 8) | b; }
 
 	u8 r;

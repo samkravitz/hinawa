@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QResizeEvent>
+#include <QMouseEvent>
 
 #include "SkSurface.h"
 
@@ -47,5 +48,8 @@ private:
 	void resize();
 
 	virtual void resizeEvent(QResizeEvent *) override;
+	virtual void mouseMoveEvent(QMouseEvent *) override;
+	virtual void mousePressEvent(QMouseEvent *) override;
+
 };
 }
