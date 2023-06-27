@@ -279,8 +279,6 @@ void Block::render_text(browser::Painter &painter) const
 			if (!styled_node)
 				continue;
 
-			fmt::print("to_String {}\n", to_string());
-
 			css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
 			auto color = Color(*color_value);
 

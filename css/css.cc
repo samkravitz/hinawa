@@ -57,7 +57,7 @@ Value *initial_value(const std::string &property_name)
 {
 	if (properties.find(property_name) == properties.end())
 	{
-		fmt::print(stderr, "Can't get initial value for property {}\n", property_name);
+		//fmt::print(stderr, "Can't get initial value for property {}\n", property_name);
 		return nullptr;
 	}
 

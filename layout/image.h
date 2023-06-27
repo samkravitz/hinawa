@@ -15,5 +15,7 @@ public:
 	void layout(Box) override;
 	HtmlImageElement *image_element() const { return static_cast<HtmlImageElement *>(m_style->node()); }
 	bool is_image() const override { return true; }
+
+	void render(browser::Painter &) const override;
 };
 }

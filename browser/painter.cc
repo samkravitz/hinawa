@@ -37,4 +37,9 @@ void Painter::draw_text(const std::string &str, const SkFont &font, int x, int y
 
 	canvas->drawString(SkString(str), x, y + font.getSize(), font, paint);
 }
+
+void Painter::draw_image(const sk_sp<SkImage> &image, int x, int y)
+{
+	canvas->drawImage(image, x, y);
+}
 }

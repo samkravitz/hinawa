@@ -3,6 +3,8 @@
 #include "layout/rect.h"
 #include "util/color.h"
 
+#include "SkImage.h"
+
 class SkCanvas;
 class SkFont;
 
@@ -16,7 +18,7 @@ public:
 	void fill_rect(const layout::Rect &, const Color &);
 	void fill_rect(const Color &);
 	void draw_text(const std::string &, const SkFont &, int, int, const Color &);
-
+	void draw_image(const sk_sp<SkImage> &, int, int);
 
 private:
 	SkCanvas *canvas;
