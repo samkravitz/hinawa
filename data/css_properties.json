@@ -104,7 +104,7 @@
   },
   "text-decoration": {
     "inherited": false,
-    "initial_value": "",
+    "initial_value": "none",
     "valid_types": ["keyword"]
   },
   "white-space": {

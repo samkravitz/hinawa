@@ -4,6 +4,7 @@
 #include "util/color.h"
 
 class SkCanvas;
+class SkFont;
 
 namespace browser
 {
@@ -14,6 +15,8 @@ public:
 
 	void fill_rect(const layout::Rect &, const Color &);
 	void fill_rect(const Color &);
+	void draw_text(const std::string &, const SkFont &, int, int, const Color &);
+
 
 private:
 	SkCanvas *canvas;

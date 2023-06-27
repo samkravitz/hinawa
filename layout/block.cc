@@ -1,6 +1,9 @@
 #include "block.h"
 
+#include "SkFont.h"
+#include "SkFontMgr.h"
 #include "document/node.h"
+#include "text.h"
 #include "util/hinawa.h"
 
 namespace layout
@@ -259,6 +262,40 @@ void Block::render(browser::Painter &painter) const
 	border.set_size(border_box.width, m_dimensions.border.bottom);
 	painter.fill_rect(border, black);
 
+	render_text(painter);
+}
+
+void Block::render_text(browser::Painter &painter) const
+{
+	for (const auto &line : lines)
+	{
+		for (const auto &frag : line.fragments)
+		{
+			auto *text_node = frag.text_node;
+			if (!text_node)
+				continue;
+
+			auto *styled_node = text_node->style();
+			if (!styled_node)
+				continue;
+
+			fmt::print("to_String {}\n", to_string());
+
+			css::Color *color_value = dynamic_cast<css::Color *>(styled_node->property("color"));
+			auto color = Color(*color_value);
+
+			painter.draw_text(frag.str, text_node->font(), line.x + frag.offset, line.y, color);
+
+			auto decoration = styled_node->string_or_fallback("text-decoration", "none");
+			if (decoration == "underline")
+			{
+				Rect rect = {};
+				rect.set_position(line.x + frag.offset, line.y + text_node->font().getSize() + 1);
+				rect.set_size(frag.len, 2);
+				painter.fill_rect(rect, color);
+			}
+		}
+	}
 }
 
 std::string Block::to_string() const

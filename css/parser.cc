@@ -231,6 +231,15 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 	}
 
+	else if (name == "text-decoration")
+	{
+		auto token = value[0].token;
+		if (token.type() == IDENT)
+			return new Keyword(token.value());
+
+		fmt::print(stderr, "Bad {}: {}\n", name, value_text);
+	}
+
 	fmt::print(stderr, "Unsupported style: {}: {}\n", name, value_text);
 	return nullptr;
 }

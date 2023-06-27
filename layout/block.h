@@ -5,6 +5,8 @@
 
 namespace layout
 {
+class Text;
+
 struct LineFragment
 {
 	LineFragment()
@@ -24,6 +26,7 @@ struct LineFragment
 	int len;
 
 	css::StyledNode *styled_node;
+	Text *text_node;
 };
 
 struct Line
@@ -63,5 +66,7 @@ private:
 	void calculate_width(Box);
 	void calculate_position(Box);
 	void calculate_height(Box);
+
+	void render_text(browser::Painter &painter) const;
 };
 }

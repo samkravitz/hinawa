@@ -7,7 +7,9 @@
 #include "document/text.h"
 #include "value.h"
 
-extern sf::Font font;
+#include "SkFont.h"
+#include "SkFontMgr.h"
+#include "SkTextBlob.h"
 
 namespace layout
 {
@@ -50,15 +52,20 @@ void Text::split_into_lines(Box container)
 	int current_x = lines.back().x + lines.back().width;
 	int current_y = lines.back().y;
 
-	auto space = sf::Text(" ", font, px);
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(px);
+	const char *fontFamily = nullptr;
+	SkFontStyle fontStyle;
+	auto fontManager = SkFontMgr::RefDefault();
+	auto typeface = fontManager->legacyMakeTypeface(fontFamily, fontStyle);
+	m_font = SkFont(typeface, px);
+
+	auto space = SkTextBlob::MakeFromString(" ", m_font);
+	const auto space_width = space->bounds().width();
 
 	std::istringstream ss(str);
 	std::string word;
 	LineFragment frag = {};
 	frag.styled_node = m_style;
+	frag.text_node = this;
 
 	auto *white_space = dynamic_cast<css::Keyword *>(style()->property("white-space"));
 	// preserve whitespace
@@ -69,13 +76,15 @@ void Text::split_into_lines(Box container)
 
 		while (std::getline(ss, word, '\n'))
 		{
-			text.setString(word);
-			float len = text.getLocalBounds().width;
+			auto blob = SkTextBlob::MakeFromString(word.c_str(), m_font);
+			float len = blob->bounds().width();
 			float height = px;
 
 			frag.str = word;
 			frag.len = len;
 			frag.styled_node = m_style;
+			frag.text_node = this;
+
 			lines.back().fragments.push_back(frag);
 			lines.back().height = height;
 			lines.back().width = len;
@@ -90,14 +99,18 @@ void Text::split_into_lines(Box container)
 
 	while (std::getline(ss, word, ' '))
 	{
-		text.setString(word);
-		float len = text.getLocalBounds().width;
+		std::string s(frag.str + word);
+		fmt::print("str {}\n", s);
+		//m_blob = SkTextBlob::MakeFromString(std::string(frag.str + word).c_str(), font);
+		auto blob = SkTextBlob::MakeFromString(word.c_str(), m_font);
+
+		float len = blob->bounds().width();
 		float height = px;
 
 		// fragment would overflow the max allowed width, so it must be put on a new line
 		if (current_x + len > max_x)
 		{
-			frag.offset = current_x - container.content.x - frag.len;
+			frag.offset = std::max((float) (current_x - container.content.x - frag.len), 0.0f);
 			current_x = container.content.x;
 			current_y += lines.back().height;
 
@@ -105,14 +118,15 @@ void Text::split_into_lines(Box container)
 			lines.push_back(Line(current_x, current_y));
 			frag = {};
 			frag.styled_node = m_style;
+			frag.text_node = this;
 		}
 
 		frag.str += word + " ";
-		frag.len += len + space.getLocalBounds().width;
+		frag.len += len + space_width;
 		current_x += len;
-		current_x += space.getLocalBounds().width;
+		current_x += space_width;
 
-		lines.back().width += len + space.getLocalBounds().width;
+		lines.back().width += len + space_width;
 		lines.back().height = std::max((float) lines.back().height, height);
 
 		m_dimensions.content.width = std::max((float) m_dimensions.content.width, (float) frag.len);
@@ -121,7 +135,7 @@ void Text::split_into_lines(Box container)
 
 	if (!frag.str.empty())
 	{
-		frag.offset = current_x - container.content.x - frag.len;
+		frag.offset = std::max((float) (current_x - container.content.x - frag.len), 0.0f);
 		lines.back().fragments.push_back(frag);
 	}
 

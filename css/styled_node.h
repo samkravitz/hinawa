@@ -22,6 +22,7 @@ public:
 	void assign(const std::string &name, Value *value);
 
 	Value *property(const std::string &property_name) const;
+	std::string string_or_fallback(const std::string &, const std::string &) const;
 	Display display();
 	void inherit_properties(const StyledNode &);
 

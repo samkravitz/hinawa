@@ -34,16 +34,16 @@ struct Rect
 		return (p.x >= x && p.x <= x2 && p.y >= y && p.y <= y2);
 	}
 
-	void set_position(int x, int y)
+	void set_position(int nx, int ny)
 	{
-		x = x;
-		y = y;
+		x = nx;
+		y = ny;
 	}
 
-	void set_size(int width, int height)
+	void set_size(int w, int h)
 	{
-		width = width;
-		height = height;
+		width = w;
+		height = h;
 	}
 
 	std::string to_string() const

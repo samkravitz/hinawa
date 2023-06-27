@@ -113,6 +113,19 @@ Value *StyledNode::property(const std::string &property_name) const
 	return initial_value(property_name);
 }
 
+std::string StyledNode::string_or_fallback(const std::string &property_name, const std::string &fallback) const
+{
+	if (m_values.find(property_name) == m_values.end())
+		return fallback;
+
+	auto *value = m_values.at(property_name);
+	auto *keyword = dynamic_cast<css::Keyword *>(value);
+	if (!keyword)
+		return fallback;
+
+	return keyword->value;
+}
+
 void StyledNode::inherit_properties(const StyledNode &parent)
 {
 	for (const auto &property : INHERITED_PROPERTIES)
