@@ -1,5 +1,8 @@
 #include "block.h"
 
+#include "document/node.h"
+#include "util/hinawa.h"
+
 namespace layout
 {
 Block::Block() :
@@ -213,6 +216,22 @@ std::optional<::Node *> Block::hit_test(const Point &p)
 		}
 	}
 	return {};
+}
+
+void Block::render(browser::Painter &painter) const
+{
+	if (auto *background = property("background"))
+	{
+		auto *color = dynamic_cast<css::Color *>(background);
+		if (color)
+		{
+			auto *dom_node = style()->node();
+			if (dom_node && (dom_node->element_name() == "body" || dom_node->element_name() == "html"))
+				painter.fill_rect(Color(*color));
+			else
+				painter.fill_rect(m_dimensions.content, Color(*color));
+		}
+	}
 }
 
 std::string Block::to_string() const

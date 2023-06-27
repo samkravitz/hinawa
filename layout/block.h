@@ -54,6 +54,8 @@ public:
 	bool is_block() const override { return true; }
 	bool is_anonymous() const override { return m_anonymous; }
 
+	void render(browser::Painter &painter) const override;
+
 	std::string to_string() const;
 
 private:

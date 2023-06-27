@@ -6,6 +6,7 @@
 #include "browser/painter.h"
 #include "css/styled_node.h"
 #include "util/tree_node.h"
+#include "browser/painter.h"
 
 namespace layout
 {
@@ -43,6 +44,8 @@ public:
 	virtual bool is_image() const { return false; }
 	virtual bool is_list_item() const { return false; }
 	virtual bool is_list_item_marker() const { return false; }
+
+	virtual void render(browser::Painter &painter) const { }
 
 	virtual std::string to_string() const = 0;
 

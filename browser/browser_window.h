@@ -9,10 +9,7 @@
 #include <QLabel>
 #include <QMainWindow>
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkRRect.h"
-#include "include/core/SkSurface.h"
+#include "SkSurface.h"
 
 namespace browser
 {
@@ -34,7 +31,8 @@ private:
 
 	QLabel label;
 	QImage image;
-	std::vector<char> data;
+	std::vector<unsigned char> pixels;
+	sk_sp<SkSurface> surface;
 
 	// width, height of window in px
 	int width = 1600;
@@ -44,6 +42,7 @@ private:
 
 	void load(const Url &);
 	void render();
-	std::vector<char> raster(int, int, void (*draw)(SkCanvas *));
+	void raster();
+	void resize();
 };
 }
