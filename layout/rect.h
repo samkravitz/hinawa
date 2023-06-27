@@ -15,7 +15,7 @@ struct Rect
 	int width = 0;
 	int height = 0;
 
-	Rect expanded_by(Edges edges)
+	Rect expanded_by(const Edges &edges) const
 	{
 		auto rect = Rect{};
 
@@ -32,6 +32,18 @@ struct Rect
 		int x2 = x + width;
 		int y2 = y + height;
 		return (p.x >= x && p.x <= x2 && p.y >= y && p.y <= y2);
+	}
+
+	void set_position(int x, int y)
+	{
+		x = x;
+		y = y;
+	}
+
+	void set_size(int width, int height)
+	{
+		width = width;
+		height = height;
 	}
 
 	std::string to_string() const

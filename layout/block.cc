@@ -220,6 +220,7 @@ std::optional<::Node *> Block::hit_test(const Point &p)
 
 void Block::render(browser::Painter &painter) const
 {
+	// background
 	if (auto *background = property("background"))
 	{
 		auto *color = dynamic_cast<css::Color *>(background);
@@ -232,6 +233,32 @@ void Block::render(browser::Painter &painter) const
 				painter.fill_rect(m_dimensions.content, Color(*color));
 		}
 	}
+
+	// border
+	auto border_box = m_dimensions.border_box();
+	auto black = Color(0xff, 0xff, 0xff);
+	Rect border = {};
+
+	// left border
+	border.set_position(border_box.x, border_box.y);
+	border.set_size(m_dimensions.border.left, border_box.height);
+	painter.fill_rect(border, black);
+
+	// right border
+	border.set_position(border_box.x + border_box.width - m_dimensions.border.right, border_box.y);
+	border.set_size(m_dimensions.border.right, border_box.height);
+	painter.fill_rect(border, black);
+
+	// top border
+	border.set_position(border_box.x, border_box.y);
+	border.set_size(border_box.width, m_dimensions.border.top);
+	painter.fill_rect(border, black);
+
+	// bottom border
+	border.set_position(border_box.x, border_box.y + border_box.height - m_dimensions.border.bottom);
+	border.set_size(border_box.width, m_dimensions.border.bottom);
+	painter.fill_rect(border, black);
+
 }
 
 std::string Block::to_string() const

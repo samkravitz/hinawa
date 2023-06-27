@@ -17,9 +17,9 @@ struct Box
 	Edges margin;
 	Edges padding;
 
-	Rect padding_box() { return content.expanded_by(padding); }
-	Rect border_box() { return padding_box().expanded_by(border); }
-	Rect margin_box() { return border_box().expanded_by(margin); }
+	Rect padding_box() const { return content.expanded_by(padding); }
+	Rect border_box() const { return padding_box().expanded_by(border); }
+	Rect margin_box() const { return border_box().expanded_by(margin); }
 
 	std::string to_string() const
 	{
