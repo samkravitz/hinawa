@@ -237,9 +237,23 @@ void Block::render(browser::Painter &painter) const
 		}
 	}
 
+	// background-color
+	if (auto *background = property("background-color"))
+	{
+		auto *color = dynamic_cast<css::Color *>(background);
+		if (color)
+		{
+			auto *dom_node = style()->node();
+			if (dom_node && (dom_node->element_name() == "body" || dom_node->element_name() == "html"))
+				painter.fill_rect(Color(*color));
+			else
+				painter.fill_rect(m_dimensions.content, Color(*color));
+		}
+	}
+
 	// border
 	auto border_box = m_dimensions.border_box();
-	auto black = Color(0xff, 0xff, 0xff);
+	auto black = Color::BLACK();
 	Rect border = {};
 
 	// left border
