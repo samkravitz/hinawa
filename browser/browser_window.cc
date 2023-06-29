@@ -15,9 +15,13 @@
 #include "layout/block.h"
 #include "layout/image.h"
 #include "layout/node.h"
+#include "layout/rect.h"
 #include "web/resource.h"
 
 #include "SkCanvas.h"
+#include "SkFont.h"
+#include "SkFontMgr.h"
+#include "SkFontStyle.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
@@ -91,22 +95,28 @@ void BrowserWindow::mousePressEvent(QMouseEvent *event)
 {
 	QMainWindow::mousePressEvent(event);
 
-	if (event->button() == Qt::LeftButton)
-	{
-		auto pos = event->pos();
+	if (event->button() != Qt::LeftButton)
+		return;
 
-		Point p = {pos.x(), pos.y()};
-		if (!hovered_href.empty())
-		{
-			auto new_url = Url(hovered_href, &url);
-			load(new_url);
-			layout::Box viewport = {};
-			viewport.content.width = width;
-			viewport.content.height = 0;
-			layout_tree->layout(viewport);
-			layout_tree->print("Layout Tree");
-			render();
-		}
+	auto pos = event->pos();
+
+	Point p = {pos.x(), pos.y()};
+	if (!hovered_href.empty())
+	{
+		auto new_url = Url(hovered_href, &url);
+		load(new_url);
+		layout::Box viewport = {};
+		viewport.content.width = width;
+		viewport.content.height = 0;
+		layout_tree->layout(viewport);
+		layout_tree->print("Layout Tree");
+		render();
+	}
+
+	if (document.show_alert() && alert_box.contains(p))
+	{
+		document.clear_alert();
+		render();
 	}
 }
 
@@ -150,37 +160,43 @@ void BrowserWindow::raster()
 	auto *canvas = surface->getCanvas();
 	Painter painter(canvas, width, height);
 
+	/**
+	 * Before rendering, paint the entire canvas white.
+	 * Here we will also check for an edge condition, where the background property of the <body>
+	 * element is set. If it is, instead of just covering the dimensions that the body element
+	 * takes up, the entire canvas is to be covered with that background color
+	 * 
+	 * @ref https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
+	*/
 	painter.fill_rect(Color::WHITE());
 
 	layout_tree->preorder([&painter](auto const &layout_node) { layout_node->render(painter); });
-}
 
-void draw(SkCanvas *canvas)
-{
-	canvas->drawColor(SK_ColorWHITE);
+	if (document.show_alert())
+	{
+		constexpr int ALERT_BOX_WIDTH = 400;
+		constexpr int ALERT_BOX_HEIGHT = 250;
+		constexpr int ALERT_BOX_Y = 4;
+		constexpr int ALERT_FONT_SIZE = 24;
 
-	SkPaint paint;
-	paint.setStyle(SkPaint::kFill_Style);
-	paint.setAntiAlias(true);
-	paint.setStrokeWidth(4);
-	paint.setColor(0xff4285F4);
+		alert_box.x = (width - ALERT_BOX_WIDTH) / 2.0;
+		alert_box.y = ALERT_BOX_Y;
+		alert_box.width = ALERT_BOX_WIDTH;
+		alert_box.height = ALERT_BOX_HEIGHT;
 
-	SkRect rect = SkRect::MakeXYWH(10, 10, 100, 160);
-	canvas->drawRect(rect, paint);
+		layout::Rect rect = {};
+		auto gray = Color(0xa6, 0xa6, 0xa6);
+		rect.set_position(alert_box.x, alert_box.y);
+		rect.set_size(alert_box.width, alert_box.height);
+		painter.fill_rect(rect, gray);
 
-	SkRRect oval;
-	oval.setOval(rect);
-	oval.offset(40, 80);
-	paint.setColor(0xffDB4437);
-	canvas->drawRRect(oval, paint);
-
-	paint.setColor(0xff0F9D58);
-	canvas->drawCircle(180, 50, 25, paint);
-
-	rect.offset(80, 50);
-	paint.setColor(0xffF4B400);
-	paint.setStyle(SkPaint::kStroke_Style);
-	canvas->drawRoundRect(rect, 10, 10, paint);
+		auto alert_text = document.alert_text();
+		SkFontStyle font_style;
+		auto font_mgr = SkFontMgr::RefDefault();
+		auto typeface = font_mgr->legacyMakeTypeface(nullptr, font_style);
+		auto font = SkFont(typeface, ALERT_FONT_SIZE);
+		painter.draw_text(alert_text, font, alert_box.x + 8, (ALERT_BOX_HEIGHT + ALERT_BOX_Y) / 2.0, Color::WHITE());
+	}
 }
 
 void BrowserWindow::render()
