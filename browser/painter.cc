@@ -1,9 +1,9 @@
 #include "painter.h"
 
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkRect.h"
 #include "SkString.h"
-#include "SkFont.h"
 
 namespace browser
 {
@@ -41,5 +41,14 @@ void Painter::draw_text(const std::string &str, const SkFont &font, int x, int y
 void Painter::draw_image(const sk_sp<SkImage> &image, int x, int y)
 {
 	canvas->drawImage(image, x, y);
+}
+
+void Painter::draw_circle(const Point &at, float r, const Color &color)
+{
+	SkPaint paint;
+	paint.setAntiAlias(true);
+	paint.setColor(color.to_u32());
+
+	canvas->drawCircle(at.x, at.y, r, paint);
 }
 }

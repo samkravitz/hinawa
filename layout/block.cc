@@ -253,7 +253,7 @@ void Block::render(browser::Painter &painter) const
 
 	// border
 	auto border_box = m_dimensions.border_box();
-	auto black = Color::BLACK();
+	auto black = Color::BLACK;
 	Rect border = {};
 
 	// left border

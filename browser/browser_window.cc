@@ -168,7 +168,7 @@ void BrowserWindow::raster()
 	 * 
 	 * @ref https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
 	*/
-	painter.fill_rect(Color::WHITE());
+	painter.fill_rect(Color::WHITE);
 
 	layout_tree->preorder([&painter](auto const &layout_node) { layout_node->render(painter); });
 
@@ -195,7 +195,7 @@ void BrowserWindow::raster()
 		auto font_mgr = SkFontMgr::RefDefault();
 		auto typeface = font_mgr->legacyMakeTypeface(nullptr, font_style);
 		auto font = SkFont(typeface, ALERT_FONT_SIZE);
-		painter.draw_text(alert_text, font, alert_box.x + 8, (ALERT_BOX_HEIGHT + ALERT_BOX_Y) / 2.0, Color::WHITE());
+		painter.draw_text(alert_text, font, alert_box.x + 8, (ALERT_BOX_HEIGHT + ALERT_BOX_Y) / 2.0, Color::WHITE);
 	}
 }
 

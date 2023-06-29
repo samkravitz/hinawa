@@ -16,6 +16,8 @@ public:
 	bool is_anonymous() const override { return true; }
 	bool is_list_item_marker() const override { return true; }
 
+	void render(browser::Painter &) const override;
+
 	std::string to_string() const override { return "<ListItemMarker>"; }
 };
 

@@ -26,6 +26,11 @@ void ListItemMarker::layout(Box container)
 	// lines.push_back(line);
 }
 
+void ListItemMarker::render(browser::Painter &painter) const
+{
+	painter.draw_circle({m_dimensions.content.x, m_dimensions.content.y}, m_dimensions.content.width / 2.0f);
+}
+
 ListItem::ListItem(css::StyledNode *style) :
     Block(style)
 {
