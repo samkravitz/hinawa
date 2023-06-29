@@ -2,10 +2,10 @@
 
 #include "web/resource.h"
 
+#include <QImage>
 #include <fmt/format.h>
 
 #include "SkImageInfo.h"
-#include <QImage>
 
 void HtmlImageElement::add_attribute(std::string name, std::string value)
 {
@@ -20,8 +20,10 @@ void HtmlImageElement::add_attribute(std::string name, std::string value)
 				return;
 			}
 
-			m_image = SkImageInfo::Make(image.width(), image.height(), kBGRA_8888_SkColorType, kPremul_SkAlphaType);
-			m_bitmap.setInfo(m_image);
+			image.convertTo(QImage::Format_ARGB32);
+			auto image_info =
+			    SkImageInfo::Make(image.width(), image.height(), kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
+			m_bitmap.setInfo(image_info);
 			m_data = std::vector<u8>((u8 *) image.bits(), image.bits() + image.sizeInBytes());
 			m_bitmap.setPixels((void *) m_data.data());
 
@@ -34,10 +36,10 @@ void HtmlImageElement::add_attribute(std::string name, std::string value)
 
 float HtmlImageElement::width() const
 {
-	return m_image.width();
+	return m_bitmap.width();
 }
 
 float HtmlImageElement::height() const
 {
-	return m_image.height();
+	return m_bitmap.height();
 }
