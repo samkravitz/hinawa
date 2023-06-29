@@ -40,7 +40,7 @@ void Text::split_into_lines(Box container)
 	float px = font_size->font_size();
 
 	auto *text_element = dynamic_cast<::Text *>(style()->node());
-	auto str = text_element->trim();
+	auto str = text_element->text_for_rendering();
 
 	const int max_x = container.content.width + container.content.x;
 

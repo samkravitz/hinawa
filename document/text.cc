@@ -42,7 +42,7 @@ bool Text::whitespace_only() const
 	return std::all_of(m_text.begin(), m_text.end(), [](char c) { return std::isspace(c); });
 }
 
-std::string Text::trim()
+std::string Text::text_for_rendering()
 {
 	// remove all whitespace from beginning and end of text
 	auto whitespace_trimmed = rtrim(ltrim(m_text));
