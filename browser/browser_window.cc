@@ -158,7 +158,7 @@ void BrowserWindow::resize()
 void BrowserWindow::raster()
 {
 	auto *canvas = surface->getCanvas();
-	Painter painter(canvas, width, height);
+	gfx::Painter painter(canvas, width, height);
 
 	/**
 	 * Before rendering, paint the entire canvas white.

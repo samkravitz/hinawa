@@ -5,7 +5,7 @@
 #include "SkRect.h"
 #include "SkString.h"
 
-namespace browser
+namespace gfx
 {
 Painter::Painter(SkCanvas *canvas, int width, int height) :
     canvas(canvas),

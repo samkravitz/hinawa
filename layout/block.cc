@@ -221,7 +221,7 @@ std::optional<::Node *> Block::hit_test(const Point &p)
 	return {};
 }
 
-void Block::render(browser::Painter &painter) const
+void Block::render(gfx::Painter &painter) const
 {
 	// background
 	if (auto *background = property("background"))
@@ -279,7 +279,7 @@ void Block::render(browser::Painter &painter) const
 	render_text(painter);
 }
 
-void Block::render_text(browser::Painter &painter) const
+void Block::render_text(gfx::Painter &painter) const
 {
 	for (const auto &line : lines)
 	{

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "edges.h"
+#include "gfx/point.h"
 #include "util/hinawa.h"
 
 namespace layout

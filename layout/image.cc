@@ -14,7 +14,7 @@ void Image::layout(Box container)
 	m_dimensions.content.height = image_element()->height();
 }
 
-void Image::render(browser::Painter &painter) const
+void Image::render(gfx::Painter &painter) const
 {
 	auto image = image_element()->bitmap().asImage();
 	painter.draw_image(image, m_dimensions.content.x, m_dimensions.content.y);

@@ -9,11 +9,5 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using uint = unsigned;
 
-struct Point
-{
-	int x;
-	int y;
-};
-
 namespace fs = std::filesystem;
 extern fs::path DATA_DIR;

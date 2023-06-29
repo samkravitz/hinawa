@@ -1,9 +1,11 @@
 set(SOURCES
-	browser_window.cc
+	painter.cc
 )
 
 set(HEADERS
-	browser_window.h
+	color.h
+	painter.h
+	point.h
 )
 
 target_include_directories(hinawa

@@ -57,7 +57,7 @@ public:
 	bool is_block() const override { return true; }
 	bool is_anonymous() const override { return m_anonymous; }
 
-	void render(browser::Painter &painter) const override;
+	void render(gfx::Painter &painter) const override;
 
 	std::string to_string() const;
 
@@ -67,6 +67,6 @@ private:
 	void calculate_position(Box);
 	void calculate_height(Box);
 
-	void render_text(browser::Painter &painter) const;
+	void render_text(gfx::Painter &painter) const;
 };
 }

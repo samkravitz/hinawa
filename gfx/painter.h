@@ -1,14 +1,15 @@
 #pragma once
 
+#include "color.h"
 #include "layout/rect.h"
-#include "util/color.h"
+#include "point.h"
 
 #include "SkImage.h"
 
 class SkCanvas;
 class SkFont;
 
-namespace browser
+namespace gfx
 {
 class Painter
 {
