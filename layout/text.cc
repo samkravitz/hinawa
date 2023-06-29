@@ -8,7 +8,6 @@
 
 #include "SkFont.h"
 #include "SkFontMgr.h"
-#include "SkTextBlob.h"
 
 namespace layout
 {
@@ -57,8 +56,7 @@ void Text::split_into_lines(Box container)
 	auto typeface = fontManager->legacyMakeTypeface(fontFamily, fontStyle);
 	m_font = SkFont(typeface, px);
 
-	auto space = SkTextBlob::MakeFromString(" ", m_font);
-	const auto space_width = space->bounds().width();
+	const auto space_width = m_font.measureText(" ", 1, SkTextEncoding::kUTF8);
 
 	std::istringstream ss(str);
 	std::string word;
@@ -75,8 +73,7 @@ void Text::split_into_lines(Box container)
 
 		while (std::getline(ss, word, '\n'))
 		{
-			auto blob = SkTextBlob::MakeFromString(word.c_str(), m_font);
-			float len = blob->bounds().width();
+			const auto len = m_font.measureText(word.c_str(), word.size(), SkTextEncoding::kUTF8);
 			float height = px;
 
 			frag.str = word;
@@ -98,10 +95,7 @@ void Text::split_into_lines(Box container)
 
 	while (std::getline(ss, word, ' '))
 	{
-		std::string s(frag.str + word);
-		auto blob = SkTextBlob::MakeFromString(word.c_str(), m_font);
-
-		float len = blob->bounds().width();
+		const auto len = m_font.measureText(word.c_str(), word.size(), SkTextEncoding::kUTF8);
 		float height = px;
 
 		// fragment would overflow the max allowed width, so it must be put on a new line
