@@ -68,6 +68,7 @@ public:
 
 	static Value js_null();
 	static Value js_undefined();
+	static Value js_nan();
 
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_null() const { return m_type == Type::Null; }
@@ -82,6 +83,7 @@ public:
 	inline std::string *as_string() const { return string; }
 
 	bool is_falsy() const;
+	bool is_nan() const;
 	const char *type_of() const;
 	std::string to_string() const;
 

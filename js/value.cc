@@ -20,6 +20,11 @@ Value Value::js_undefined()
 	return {};
 }
 
+Value Value::js_nan()
+{
+	return Value(NAN);
+}
+
 bool Value::eq(const Value &other) const
 {
 	// TODO - for now, === and == are equivalent
@@ -66,6 +71,8 @@ std::string Value::to_string() const
 		case Type::Number:
 		{
 			double num = as_number();
+			if (std::isnan(num))
+				return "NaN";
 			if (num == std::trunc(num))
 				return std::to_string((int) num);
 			return std::to_string(num);
@@ -80,6 +87,14 @@ std::string Value::to_string() const
 			assert(!"Unknown value type!");
 			return "";
 	}
+}
+
+bool Value::is_nan() const
+{
+	if (!is_number())
+		return false;
+
+	return std::isnan(as_number());
 }
 
 bool Value::is_falsy() const

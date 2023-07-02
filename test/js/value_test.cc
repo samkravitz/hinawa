@@ -29,4 +29,14 @@ TEST(StrictEqualityTests, UndefinedNotEqualsNull)
 	EXPECT_FALSE(a.strict_eq(b));
 	EXPECT_FALSE(a == b);
 }
+
+// NaNTests
+TEST(NaNTests, NaNIsNaN)
+{
+	auto nan = Value::js_nan();
+	EXPECT_TRUE(nan.is_nan());
+
+	auto not_nan = Value(5.0);
+	EXPECT_FALSE(not_nan.is_nan());
+}
 }
