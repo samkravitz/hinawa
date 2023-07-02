@@ -360,6 +360,13 @@ void Compiler::compile(const AssignmentExpr &expr)
 		}
 
 		expr.rhs->accept(this);
+
+		if (expr.op.value() == "+=")
+		{
+			expr.lhs->accept(this);
+			emit_byte(OP_ADD);
+		}
+
 		emit_bytes(set_op, value);
 		return;
 	}

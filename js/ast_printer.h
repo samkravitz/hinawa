@@ -161,6 +161,8 @@ public:
 
 		node->lhs->accept(this, indent + 1);
 		print_indent(indent);
+		fmt::print("op: {}\n", node->op.value());
+		print_indent(indent);
 		node->rhs->accept(this, indent);
 	}
 

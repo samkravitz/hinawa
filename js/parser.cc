@@ -45,13 +45,13 @@ ParseRule Parser::get_rule(TokenType type)
 	    {EQUAL_EQUAL,       {nullptr, &Parser::binary, PREC_COMPARISON}    },
 	    {GREATER_EQUAL,     {nullptr, &Parser::binary, PREC_COMPARISON}    },
 	    {LESS_EQUAL,        {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {PLUS_EQUAL,        {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {MINUS_EQUAL,       {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {STAR_EQUAL,        {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {SLASH_EQUAL,       {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {AND_EQUAL,         {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {PIPE_EQUAL,        {nullptr, &Parser::binary, PREC_COMPARISON}    },
-	    {CARET_EQUAL,       {nullptr, &Parser::binary, PREC_COMPARISON}    },
+	    {PLUS_EQUAL,        {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {MINUS_EQUAL,       {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {STAR_EQUAL,        {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {SLASH_EQUAL,       {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {AND_EQUAL,         {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {PIPE_EQUAL,        {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
+	    {CARET_EQUAL,       {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
 	    {AND_AND,           {nullptr, &Parser::binary, PREC_AND}           },
 	    {PIPE_PIPE,         {nullptr, &Parser::binary, PREC_OR}            },
 	    {ARROW,             {nullptr, &Parser::binary, PREC_AND}           },
@@ -397,8 +397,9 @@ std::shared_ptr<Expr> Parser::arrow()
 
 std::shared_ptr<Expr> Parser::assign(std::shared_ptr<Expr> left)
 {
+	auto op = previous;
 	auto right = expression();
-	return make_ast_node<AssignmentExpr>(left, right);
+	return make_ast_node<AssignmentExpr>(left, op, right);
 }
 
 std::shared_ptr<Expr> Parser::binary(std::shared_ptr<Expr> left)

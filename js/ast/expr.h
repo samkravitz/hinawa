@@ -71,8 +71,9 @@ struct BinaryExpr : public Expr
 
 struct AssignmentExpr : public Expr
 {
-	AssignmentExpr(std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs) :
+	AssignmentExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
 	    lhs(std::move(lhs)),
+		op(op),
 	    rhs(std::move(rhs))
 	{ }
 
@@ -81,6 +82,7 @@ struct AssignmentExpr : public Expr
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::shared_ptr<Expr> lhs;
+	Token op;
 	std::shared_ptr<Expr> rhs;
 };
 
