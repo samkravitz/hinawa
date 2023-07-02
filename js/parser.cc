@@ -206,7 +206,7 @@ std::shared_ptr<Stmt> Parser::if_statement()
 
 std::shared_ptr<Stmt> Parser::return_statement()
 {
-	auto expr = expression();
+	auto expr = expression(false);
 
 	// match optional semicolon after return statement
 	match(SEMICOLON);
@@ -319,9 +319,13 @@ std::shared_ptr<Stmt> Parser::function_declaration()
 	return make_ast_node<FunctionDecl>(name, args, std::static_pointer_cast<BlockStmt>(block));
 }
 
-std::shared_ptr<Expr> Parser::expression()
+std::shared_ptr<Expr> Parser::expression(bool required)
 {
-	return parse_precedence(PREC_ASSIGNMENT);
+	auto expr = parse_precedence(PREC_ASSIGNMENT);
+	if (!expr && required)
+		fmt::print(stderr, "Expect expression\n");
+
+	return expr;
 }
 
 std::shared_ptr<Expr> Parser::anonymous()
@@ -541,10 +545,7 @@ std::shared_ptr<Expr> Parser::parse_precedence(Precedence precedence)
 	advance();
 	auto prefix = get_rule(previous.type()).prefix;
 	if (!prefix)
-	{
-		fmt::print(stderr, "Expect expression\n");
 		return nullptr;
-	}
 
 	std::shared_ptr<Expr> expr = prefix(this);
 

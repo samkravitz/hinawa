@@ -56,7 +56,7 @@ public:
 	Token previous;
 
 	// parse expressions
-	std::shared_ptr<Expr> expression();
+	std::shared_ptr<Expr> expression(bool required = true);
 	std::shared_ptr<Expr> anonymous();
 	std::shared_ptr<Expr> array();
 	std::shared_ptr<Expr> arrow();
