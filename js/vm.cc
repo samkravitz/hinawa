@@ -575,6 +575,7 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_THROW:
 		{
+			m_has_error = true;
 			bool caught = false;
 			auto val = pop();
 			while (!frames.empty())

@@ -64,12 +64,16 @@ public:
 	Value pop();
 	Value peek(uint offset = 0);
 
+	bool has_error() const { return m_has_error; }
+
 private:
 	// pointer to the global object
 	Object *global = nullptr;
 
 	// pointer to the current this object
 	Object *_this = nullptr;
+
+	bool m_has_error{false};
 
 	std::vector<Value> stack;
 	std::stack<CallFrame> frames;
