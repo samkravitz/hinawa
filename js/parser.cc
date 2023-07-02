@@ -89,7 +89,13 @@ ParseRule Parser::get_rule(TokenType type)
 	return rules[type];
 }
 
-std::vector<std::shared_ptr<Stmt>> Parser::parse()
+std::vector<std::shared_ptr<Stmt>> Parser::parse(const std::string &input)
+{
+	Parser parser(input);
+	return parser.parse_impl();
+}
+
+std::vector<std::shared_ptr<Stmt>> Parser::parse_impl()
 {
 	std::vector<std::shared_ptr<Stmt>> program;
 

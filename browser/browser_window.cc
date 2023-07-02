@@ -136,10 +136,8 @@ void BrowserWindow::load(const Url &new_url)
 		if (javascript == "")
 			return;
 
-		auto js_parser = js::Parser(javascript);
-		auto program = js_parser.parse();
-		js::Compiler compiler{program};
-		auto fn = compiler.compile();
+		auto program = js::Parser::parse(javascript);
+		auto fn = js::Compiler::compile(program);
 		js::Vm vm(&document);
 		vm.run(std::move(fn));
 	});

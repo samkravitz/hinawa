@@ -38,7 +38,13 @@ void Compiler::end_compiler()
 	current = current->enclosing;
 }
 
-Function Compiler::compile()
+Function Compiler::compile(const std::vector<std::shared_ptr<Stmt>> &stmts)
+{
+	Compiler c(stmts);
+	return c.compile_impl();
+}
+
+Function Compiler::compile_impl()
 {
 	Function script("script", SCRIPT);
 	FunctionCompiler compiler(current, &script);

@@ -48,9 +48,7 @@ struct ParseRule
 class Parser
 {
 public:
-	Parser(const std::string &);
-
-	std::vector<std::shared_ptr<Stmt>> parse();
+	static std::vector<std::shared_ptr<Stmt>> parse(const std::string &);
 
 	Token current;
 	Token previous;
@@ -76,6 +74,10 @@ public:
 	std::shared_ptr<Expr> variable();
 
 private:
+	Parser(const std::string &);
+
+	std::vector<std::shared_ptr<Stmt>> parse_impl();
+
 	// parse statements
 	std::shared_ptr<Stmt> statement();
 	std::shared_ptr<Stmt> block_stmt();

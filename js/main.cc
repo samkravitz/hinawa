@@ -19,16 +19,14 @@ int main(int argc, char **argv)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	auto parser = js::Parser(buffer.str());
-	auto stmts = parser.parse();
+	auto program = js::Parser::parse(buffer.str());
 
 #ifdef DEBUG_PRINT_AST
 	auto printer = js::AstPrinter{};
-	printer.print(stmts);
+	printer.print(program);
 #endif
 
-	js::Compiler compiler{stmts};
-	auto fn = compiler.compile();
+	auto fn = js::Compiler::compile(program);
 	js::Vm vm{};
 	vm.run(std::move(fn));
 }
