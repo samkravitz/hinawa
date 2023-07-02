@@ -234,7 +234,34 @@ void Compiler::compile(const UnaryExpr &expr)
 	}
 }
 
-void Compiler::compile(const UpdateExpr &expr) { }
+void Compiler::compile(const UpdateExpr &expr)
+{
+	current_line = expr.line;
+	expr.operand->accept(this);
+
+	Opcode inc_or_dec{};
+	switch (expr.op.type())
+	{
+		case PLUS_PLUS:
+			inc_or_dec = OP_INCREMENT;
+			break;
+		case MINUS_MINUS:
+			inc_or_dec = OP_DECREMENT;
+			break;
+		default:
+			assert(!fmt::format("Unknown update expr {}", expr.op.value()).c_str());
+	}
+
+	emit_byte(inc_or_dec);
+	assignment_target(*expr.operand);
+	emit_byte(OP_POP);
+
+	if (expr.prefix)
+	{
+		emit_byte(OP_POP);
+		expr.operand->accept(this);
+	}
+}
 
 void Compiler::compile(const BinaryExpr &expr)
 {
@@ -547,6 +574,75 @@ void Compiler::compile(const ArrayExpr &expr)
 		element->accept(this);
 
 	emit_bytes(OP_NEW_ARRAY, expr.elements.size());
+}
+
+void Compiler::assignment_target(const Expr &expr)
+{
+	std::string identifier;
+	int value{};
+	if (expr.is_variable())
+	{
+		Opcode set_op{};
+		auto &var = static_cast<const Variable &>(expr);
+		identifier = var.ident;
+		value = resolve_local(current, identifier);
+
+		if (value != RESOLVED_GLOBAL)
+		{
+			set_op = OP_SET_LOCAL;
+		}
+
+		else if ((value = resolve_upvalue(current, identifier)) != -1)
+		{
+			set_op = OP_SET_UPVALUE;
+		}
+
+		else
+		{
+			set_op = OP_SET_GLOBAL;
+			value = make_constant(Value(new std::string(identifier)));
+		}
+
+		emit_bytes(set_op, value);
+		return;
+	}
+
+	else if (expr.is_member_expr())
+	{
+		auto &member = static_cast<const MemberExpr &>(expr);
+		member.object->accept(this);
+		if (member.property->is_literal())
+		{
+			auto &literal = static_cast<Literal &>(*member.property);
+
+			if (literal.token.type() == IDENTIFIER)
+			{
+				identifier = literal.token.value();
+				value = make_constant(Value(new std::string(identifier)));
+				emit_bytes(OP_SET_PROPERTY, value);
+				return;
+			}
+
+			else
+			{
+				member.property->accept(this);
+				emit_byte(OP_SET_SUBSCRIPT);
+				return;
+			}
+		}
+
+		else
+		{
+			member.property->accept(this);
+			emit_byte(OP_SET_SUBSCRIPT);
+			return;
+		}
+	}
+
+	else
+	{
+		assert(!"Expr is not a valid assignment target\n");
+	}
 }
 
 size_t Compiler::make_constant(Value value)

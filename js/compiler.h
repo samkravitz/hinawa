@@ -76,6 +76,8 @@ private:
 	void compile(const NewExpr &);
 	void compile(const ArrayExpr &);
 
+	void assignment_target(const Expr &);
+
 	size_t make_constant(Value);
 	void emit_byte(u8);
 	void emit_bytes(u8, u8);

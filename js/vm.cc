@@ -112,14 +112,14 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_INCREMENT:
 		{
-			auto value = pop();
+			auto value = peek();
 			push(Value(value.as_number() + 1));
 			break;
 		}
 
 		case OP_DECREMENT:
 		{
-			auto value = pop();
+			auto value = peek();
 			push(Value(value.as_number() - 1));
 			break;
 		}
