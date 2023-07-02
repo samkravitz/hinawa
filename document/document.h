@@ -6,6 +6,7 @@
 #include "web/url.h"
 
 class Node;
+class Element;
 
 class Document
 {
@@ -13,6 +14,8 @@ public:
 	Document() = default;
 	Document(std::shared_ptr<Node>);
 	Document(const Url &);
+
+	Element *get_element_by_id(const std::string &);
 
 	void print(std::string const &) const;
 	inline std::shared_ptr<Node> root() const { return m_root; }

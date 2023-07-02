@@ -16,6 +16,27 @@ void Document::print(std::string const &title) const
 	m_root->print(title);
 }
 
+Element *Document::get_element_by_id(const std::string &id)
+{
+	auto *element = m_root->first_child_that_matches_condition([&](auto *child) {
+		if (child->type() == NodeType::Element)
+		{
+			auto *element = static_cast<const Element *>(child);
+			if (!element->has_attribute("id"))
+				return false;
+
+			return element->get_attribute("id") == id;
+		}
+
+		return false;
+	});
+
+	if (!element)
+		return nullptr;
+
+	return static_cast<Element *>(element);
+}
+
 Node *Document::get_body() const
 {
 	Node *body = nullptr;

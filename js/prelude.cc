@@ -49,6 +49,24 @@ static Object *prelude_array(Vm &vm)
 	return array;
 }
 
+/**
+* prelude for the document object in javascript.
+*/
+static Object *prelude_document(Vm &vm)
+{
+	auto *document = new Object();
+
+	document->set_native("getElementById", [](auto &vm, const auto &argv) -> Value {
+		if (argv.empty())
+			return Value::js_null();
+
+		auto id = argv[0].to_string();
+		return Value(vm.document().get_element_by_id(id));
+	});
+
+	return document;
+}
+
 void prelude(Vm &vm)
 {
 	// create the global object and put some functions on it
@@ -93,6 +111,9 @@ void prelude(Vm &vm)
 
 	auto *array = prelude_array(vm);
 	global->set("Array", Value(array));
+
+	auto *document = prelude_document(vm);
+	global->set("document", Value(document));
 
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
 		std::string text = "";
