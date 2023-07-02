@@ -175,6 +175,14 @@ bool Vm::run_instruction(bool in_call)
 		{
 			auto b = pop();
 			auto a = pop();
+			push(Value(a.eq(b)));
+			break;
+		}
+
+		case OP_STRICT_EQUAL:
+		{
+			auto b = pop();
+			auto a = pop();
 			push(Value(a == b));
 			break;
 		}

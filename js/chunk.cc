@@ -78,6 +78,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return constant_instruction("OP_SET_GLOBAL", offset);
 		case OP_EQUAL:
 			return simple_instruction("OP_EQUAL", offset);
+		case OP_STRICT_EQUAL:
+			return simple_instruction("OP_STRICT_EQUAL", offset);
 		case OP_GREATER:
 			return simple_instruction("OP_GREATER", offset);
 		case OP_LESS:

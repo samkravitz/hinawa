@@ -294,7 +294,10 @@ void Compiler::compile(const BinaryExpr &expr)
 			emit_byte(OP_EQUAL);
 			break;
 		case EQUAL_EQUAL_EQUAL:
-			emit_byte(OP_EQUAL);
+			emit_byte(OP_STRICT_EQUAL);
+			break;
+		case BANG_EQUAL_EQUAL:
+			emit_bytes(OP_STRICT_EQUAL, OP_NOT);
 			break;
 		case GREATER:
 			emit_byte(OP_GREATER);
