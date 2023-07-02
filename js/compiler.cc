@@ -222,15 +222,21 @@ void Compiler::compile(const UnaryExpr &expr)
 {
 	current_line = expr.line;
 	expr.rhs->accept(this);
-	auto op = expr.op.type();
+	auto op = expr.op;
 
-	switch (op)
+	switch (op.type())
 	{
 		case KEY_TYPEOF:
 			emit_byte(OP_TYPEOF);
 			break;
+		case MINUS:
+			emit_byte(OP_NEGATE);
+			break;
+		case BANG:
+			emit_byte(OP_NOT);
+			break;
 		default:
-			fmt::print(stderr, "Unknown unary op {}\n", op);
+			fmt::print(stderr, "Unknown unary op {}\n", op.value());
 	}
 }
 
