@@ -68,6 +68,10 @@ void Vm::call(Closure *closure)
 
 bool Vm::run_instruction(bool in_call)
 {
+#ifdef DEBUG_PRINT_STACK
+	frames.top().closure->function->chunk.disassemble_instruction(frames.top().ip);
+#endif
+
 	auto instruction = static_cast<Opcode>(read_byte());
 
 	switch (instruction)

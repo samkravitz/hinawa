@@ -18,6 +18,7 @@ public:
 	void write(u8, int);
 	size_t add_constant(Value);
 	void disassemble(const char *);
+	size_t disassemble_instruction(size_t);
 	size_t size();
 
 	std::vector<u8> code;
@@ -25,7 +26,6 @@ public:
 	std::vector<int> lines;
 
 private:
-	size_t disassemble_instruction(size_t);
 	size_t binary_instruction(Opcode, size_t);
 	size_t simple_instruction(const char *, size_t);
 	size_t constant_instruction(const char *, size_t);
