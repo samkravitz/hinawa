@@ -60,6 +60,116 @@ bool Value::strict_eq(const Value &other) const
 	return true;
 }
 
+Value Value::operator+(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a + b);
+}
+
+Value Value::operator-(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a - b);
+}
+
+Value Value::operator*(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a * b);
+}
+
+Value Value::operator/(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a / b);
+}
+
+Value Value::operator%(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	int a = (int) as_number();
+	int b = (int) other.as_number();
+	return Value(static_cast<double>(a % b));
+}
+
+Value Value::operator<(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return Value(false);
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a < b);
+}
+
+Value Value::operator>(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return Value(false);
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a > b);
+}
+
+Value Value::operator&(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	int a = (int) as_number();
+	int b = (int) other.as_number();
+	return Value(static_cast<double>(a & b));
+}
+
+Value Value::operator&&(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a && b);
+}
+
+Value Value::operator|(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	int a = (int) as_number();
+	int b = (int) other.as_number();
+	return Value(static_cast<double>(a | b));
+}
+
+Value Value::operator||(const Value &other) const
+{
+	if (!is_number() || !other.is_number())
+		return js_nan();
+
+	auto a = as_number();
+	auto b = other.as_number();
+	return Value(a || b);
+}
+
 std::string Value::to_string() const
 {
 	switch (type())

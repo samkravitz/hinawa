@@ -700,78 +700,61 @@ Value Vm::peek(uint offset)
 
 void Vm::binary_op(Operator op)
 {
-	if (!peek(0).is_number() || !peek(1).is_number())
-	{
-		if (!runtime_error("Operands must be numbers"))
-			exit(1);
-		return;
-	}
-
-	double result;
-	bool x;
-	auto b = pop().as_number();
-	auto a = pop().as_number();
+	Value result = {};
+	auto b = pop();
+	auto a = pop();
 
 	switch (op)
 	{
 		case Operator::Plus:
 			result = a + b;
-			push(Value(result));
 			break;
 
 		case Operator::Minus:
 			result = a - b;
-			push(Value(result));
 			break;
 
 		case Operator::Star:
 			result = a * b;
-			push(Value(result));
 			break;
 
 		case Operator::Slash:
 			result = a / b;
-			push(Value(result));
 			break;
 
 		case Operator::Mod:
-			result = (int) a % (int) b;
-			push(Value(result));
+			result = a % b;
 			break;
 
 		case Operator::LessThan:
-			x = a < b;
-			push(Value(x));
+			result = a < b;
 			break;
 
 		case Operator::GreaterThan:
-			x = a > b;
-			push(Value(x));
+			result = a > b;
 			break;
 
 		case Operator::Amp:
-			x = (int) a & (int) b;
-			push(Value(x));
+			result = a & b;
 			break;
 
 		case Operator::AmpAmp:
-			x = (int) a && (int) b;
-			push(Value(x));
+			result = a && b;
 			break;
 
 		case Operator::Pipe:
-			x = (int) a | (int) b;
-			push(Value(x));
+			result = a | b;
 			break;
 
 		case Operator::PipePipe:
-			x = (int) a || (int) b;
-			push(Value(x));
+			result = a || b;
 			break;
 
 		default:
 			assert(!"Unreachable");
 	}
+
+	push(result);
 }
 
 u8 Vm::read_byte()

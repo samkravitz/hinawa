@@ -77,6 +77,18 @@ public:
 	inline bool is_object() const { return m_type == Type::Object; }
 	inline bool is_undefined() const { return m_type == Type::Undefined; }
 
+	Value operator+(const Value &) const;
+	Value operator-(const Value &) const;
+	Value operator*(const Value &) const;
+	Value operator/(const Value &) const;
+	Value operator%(const Value &) const;
+	Value operator<(const Value &) const;
+	Value operator>(const Value &) const;
+	Value operator&(const Value &) const;
+	Value operator&&(const Value &) const;
+	Value operator|(const Value &) const;
+	Value operator||(const Value &) const;
+
 	inline bool as_bool() const { return boolean; }
 	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
