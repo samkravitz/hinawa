@@ -21,6 +21,8 @@ public:
 
 class ArrayPrototype final : public Object
 {
+	friend class Heap;
+
 public:
 	ArrayPrototype(ArrayPrototype &other) = delete;
 	void operator=(const ArrayPrototype &) = delete;

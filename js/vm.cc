@@ -11,6 +11,7 @@
 #include "bindings/document_wrapper.h"
 #include "chunk.h"
 #include "document/document.h"
+#include "heap.h"
 #include "object.h"
 #include "object_string.h"
 #include "opcode.h"
@@ -18,16 +19,9 @@
 
 namespace js
 {
-/**
- * @brief initialize the Vm
- * @param headless if true, the Vm will not construct global variables
- * that are present in the javascript browser environment (i.e. window)
- * 
-*/
-Vm::Vm(bool headless)
-{
-	prelude(*this);
-}
+Vm::Vm() :
+    Vm(nullptr)
+{ }
 
 Vm::Vm(Document *document)
 {
@@ -368,7 +362,7 @@ bool Vm::run_instruction(bool in_call)
 					}
 
 					auto *prototype = constructor->get("prototype").as_object();
-					Object *new_object = new Object;
+					Object *new_object = heap().allocate();
 					new_object->set_prototype(prototype);
 
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
@@ -417,7 +411,7 @@ bool Vm::run_instruction(bool in_call)
 			}
 
 			//std::reverse(array->begin(), array->end());
-			push(Value(new Array(array)));
+			push(Value(heap().allocate<Array>(array)));
 			break;
 		}
 
@@ -503,7 +497,7 @@ bool Vm::run_instruction(bool in_call)
 
 			if (peek().is_string())
 			{
-				obj = new ObjectString(peek().as_string());
+				obj = heap().allocate<ObjectString>(peek().as_string());
 			}
 
 			else if (peek().is_object())
@@ -521,7 +515,7 @@ bool Vm::run_instruction(bool in_call)
 			_this = obj;
 			auto val = obj->get(read_string());
 			if (val.is_object() && val.as_object()->is_closure())
-				val = Value(new BoundMethod(obj, val.as_object()->as_closure()));
+				val = Value(heap().allocate<BoundMethod>(obj, val.as_object()->as_closure()));
 
 			pop();
 			push(val);
@@ -547,7 +541,7 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_NEW_OBJECT:
 		{
-			Object *obj = new Object();
+			Object *obj = heap().allocate();
 			auto property_count = read_byte();
 
 			for (int i = property_count - 1; i >= 0; i--)
@@ -670,7 +664,7 @@ bool Vm::run_instruction(bool in_call)
 		case OP_TYPEOF:
 		{
 			auto val = peek();
-			auto typeof_val = Value(new std::string(val.type_of()));
+			auto typeof_val = Value(heap().allocate<ObjectString>(val.type_of()));
 			pop();
 			push(typeof_val);
 			break;
@@ -797,7 +791,7 @@ std::string Vm::read_string()
 
 Upvalue *Vm::capture_upvalue(Value *local)
 {
-	return new Upvalue(local);
+	return heap().allocate<Upvalue>(local);
 }
 
 void Vm::print_stack() const

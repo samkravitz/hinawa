@@ -4,9 +4,19 @@
 
 namespace js
 {
+ObjectString::ObjectString(const std::string &string) :
+    ObjectString(new std::string(string))
+{ }
+
 ObjectString::ObjectString(std::string *string) :
     primitive_string(string)
 { }
+
+ObjectString::~ObjectString()
+{
+	if (primitive_string)
+		delete primitive_string;
+}
 
 Object *ObjectString::prototype()
 {
@@ -23,14 +33,15 @@ StringPrototype::StringPrototype()
 		int index = (int) argv[0].as_number();
 		auto *string_object = static_cast<ObjectString *>(vm.current_this());
 		auto *underlying_string = string_object->primitive_string;
-		return Value(new std::string(1, underlying_string->at(index)));
+		auto *allocated_string = new std::string(1, underlying_string->at(index));
+		return Value(heap().allocate<ObjectString>(allocated_string));
 	});
 }
 
 StringPrototype *StringPrototype::the()
 {
 	if (!instance)
-		instance = new StringPrototype;
+		instance = heap().allocate<StringPrototype>();
 
 	return instance;
 }

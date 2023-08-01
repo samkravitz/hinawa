@@ -41,7 +41,7 @@ ArrayPrototype::ArrayPrototype()
 		auto *arr = vm.current_this()->as_array();
 		auto callback = argv[0].as_object()->as_closure();
 
-		auto *new_arr = new Array();
+		auto *new_arr = heap().allocate<Array>();
 		for (const auto &val : *arr)
 		{
 			vm.push(val);
@@ -57,7 +57,7 @@ ArrayPrototype::ArrayPrototype()
 ArrayPrototype *ArrayPrototype::the()
 {
 	if (!instance)
-		instance = new ArrayPrototype;
+		instance = heap().allocate<ArrayPrototype>();
 
 	return instance;
 }

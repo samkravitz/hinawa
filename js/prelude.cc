@@ -6,6 +6,7 @@
 #include "bindings/document_wrapper.h"
 #include "document/document.h"
 #include "function.h"
+#include "heap.h"
 #include "object_string.h"
 #include "vm.h"
 
@@ -17,7 +18,7 @@ namespace js
 */
 static Object *prelude_object(Vm &vm)
 {
-	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(new Object); });
+	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate()); });
 
 	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
 		// TODO - this should throw, instead of returning undefined
@@ -44,7 +45,7 @@ static Object *prelude_object(Vm &vm)
 static Object *prelude_array(Vm &vm)
 {
 	auto *array = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
-		auto *array = new Array();
+		auto *array = heap().allocate<Array>();
 		return Value(array);
 	});
 
@@ -56,7 +57,7 @@ static Object *prelude_array(Vm &vm)
 */
 static Object *prelude_document(Vm &vm, Document *document)
 {
-	auto *document_wrapper = new bindings::DocumentWrapper(document);
+	auto *document_wrapper = heap().allocate<bindings::DocumentWrapper>(document);
 	vm.set_document_wrapper(document_wrapper);
 
 	return document_wrapper;
@@ -65,7 +66,7 @@ static Object *prelude_document(Vm &vm, Document *document)
 void prelude(Vm &vm, Document *document)
 {
 	// create the global object and put some functions on it
-	auto *global = new Object();
+	auto *global = heap().allocate();
 	global->set("window", Value(global));
 
 	global->set_native("print", [](auto &vm, const auto &argv) -> Value {
@@ -83,7 +84,7 @@ void prelude(Vm &vm, Document *document)
 		return {};
 	});
 
-	auto *console = new Object();
+	auto *console = heap().allocate();
 	console->set_native("log", [](auto &vm, const auto &argv) -> Value {
 		if (argv.empty())
 			return {};

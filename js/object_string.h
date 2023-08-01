@@ -11,7 +11,9 @@ class ObjectString : public Object
 	friend class StringPrototype;
 
 public:
+	ObjectString(const std::string &);
 	ObjectString(std::string *);
+	~ObjectString();
 	virtual Object *prototype() override;
 
 private:
@@ -20,6 +22,8 @@ private:
 
 class StringPrototype final : public Object
 {
+	friend class Heap;
+
 public:
 	StringPrototype(StringPrototype &other) = delete;
 	void operator=(const StringPrototype &) = delete;

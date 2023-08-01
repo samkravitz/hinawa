@@ -55,7 +55,7 @@ struct CallFrame
 class Vm
 {
 public:
-	Vm(bool headless = false);
+	Vm();
 	Vm(Document *);
 
 	bool run(Function);

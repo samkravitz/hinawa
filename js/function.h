@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "chunk.h"
+#include "heap.h"
 #include "object.h"
 #include "token.h"
 
@@ -86,10 +87,12 @@ public:
 class Vm;
 class NativeFunction final : public Function
 {
+	friend class Heap;
+
 public:
 	static NativeFunction *create(const std::function<Value(Vm &vm, const std::vector<Value>)> &fn)
 	{
-		auto *native = new NativeFunction(fn);
+		auto *native = heap().allocate<NativeFunction>(fn);
 
 		/**
 		* functions have a property "prototype", that is an object
@@ -98,7 +101,7 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto *object = new Object();
+		auto *object = heap().allocate<Object>();
 		object->set("constructor", Value(native));
 		native->set("prototype", Value(object));
 
@@ -132,7 +135,7 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto *object = new Object();
+		auto *object = heap().allocate<Object>();
 		object->set("constructor", Value(closure));
 		closure->set("prototype", Value(object));
 

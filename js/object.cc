@@ -122,7 +122,7 @@ ObjectPrototype::ObjectPrototype()
 ObjectPrototype *ObjectPrototype::the()
 {
 	if (instance == nullptr)
-		instance = new ObjectPrototype;
+		instance = heap().allocate<ObjectPrototype>();
 
 	return instance;
 }

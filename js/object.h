@@ -41,6 +41,8 @@ public:
 
 	virtual std::string to_string() const;
 
+	Object *next = nullptr;
+
 protected:
 	std::unordered_map<std::string, Value> properties;
 	Object *m_prototype{nullptr};
@@ -48,6 +50,8 @@ protected:
 
 class ObjectPrototype final : public Object
 {
+	friend class Heap;
+
 public:
 	ObjectPrototype(ObjectPrototype &other) = delete;
 	void operator=(const ObjectPrototype &) = delete;
