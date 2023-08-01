@@ -5,6 +5,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 set(SOURCES
+	bindings/document_wrapper.cc
+	bindings/node_wrapper.cc
+
 	array.cc
 	chunk.cc
 	compiler.cc
@@ -29,6 +32,10 @@ set(HEADERS
 	ast/expr.h
 	ast/stmt.h
 	ast/visitor.h
+
+	bindings/document_wrapper.h
+	bindings/node_wrapper.h
+	bindings/wrapper.h
 
 	array.h
 	chunk.h
