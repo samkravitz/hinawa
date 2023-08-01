@@ -3,6 +3,8 @@
 #include <fmt/format.h>
 
 #include "array.h"
+#include "bindings/document_wrapper.h"
+#include "document/document.h"
 #include "function.h"
 #include "object_string.h"
 #include "vm.h"
@@ -52,22 +54,15 @@ static Object *prelude_array(Vm &vm)
 /**
 * prelude for the document object in javascript.
 */
-static Object *prelude_document(Vm &vm)
+static Object *prelude_document(Vm &vm, Document *document)
 {
-	auto *document = new Object();
+	auto *document_wrapper = new bindings::DocumentWrapper(document);
+	vm.set_document_wrapper(document_wrapper);
 
-	document->set_native("getElementById", [](auto &vm, const auto &argv) -> Value {
-		if (argv.empty())
-			return Value::js_null();
-
-		auto id = argv[0].to_string();
-		return Value(vm.document().get_element_by_id(id));
-	});
-
-	return document;
+	return document_wrapper;
 }
 
-void prelude(Vm &vm)
+void prelude(Vm &vm, Document *document)
 {
 	// create the global object and put some functions on it
 	auto *global = new Object();
@@ -112,8 +107,11 @@ void prelude(Vm &vm)
 	auto *array = prelude_array(vm);
 	global->set("Array", Value(array));
 
-	auto *document = prelude_document(vm);
-	global->set("document", Value(document));
+	if (document)
+	{
+		auto *document_wrapper = prelude_document(vm, document);
+		global->set("document", Value(document_wrapper));
+	}
 
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
 		std::string text = "";

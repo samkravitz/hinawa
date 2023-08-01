@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 
 #include "array.h"
+#include "bindings/document_wrapper.h"
 #include "chunk.h"
 #include "document/document.h"
 #include "object.h"
@@ -28,10 +29,14 @@ Vm::Vm(bool headless)
 	prelude(*this);
 }
 
-Vm::Vm(Document *document) :
-    m_document(document)
+Vm::Vm(Document *document)
 {
-	prelude(*this);
+	prelude(*this, document);
+}
+
+Document &Vm::document()
+{
+	return m_document_wrapper->document();
 }
 
 bool Vm::run(Function f)

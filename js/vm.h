@@ -11,6 +11,11 @@
 
 namespace js
 {
+namespace bindings
+{
+class DocumentWrapper;
+}
+
 enum class Operator
 {
 	Plus,
@@ -58,7 +63,8 @@ public:
 	void set_global(Object *g) { global = g; }
 	void call(Closure *);
 
-	inline Document &document() { return *m_document; }
+	Document &document();
+	void set_document_wrapper(bindings::DocumentWrapper *wrapper) { m_document_wrapper = wrapper; }
 
 	void push(Value);
 	Value pop();
@@ -87,7 +93,7 @@ private:
 	Value read_constant();
 	std::string read_string();
 	Upvalue *capture_upvalue(Value *);
-	Document *m_document{nullptr};
+	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 
 	void print_stack() const;
 	bool runtime_error(std::string const &);

@@ -61,7 +61,9 @@ public:
 			if (f(child.get()))
 				return child.get();
 
-			return child->first_child_that_matches_condition(f);
+			auto *first_child_match = child->first_child_that_matches_condition(f);
+			if (first_child_match)
+				return first_child_match;
 		}
 
 		return nullptr;
