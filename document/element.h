@@ -5,7 +5,7 @@
 
 #include "node.h"
 
-struct Element : public Node
+class Element : public Node
 {
 public:
 	Element(Document &, std::string);
