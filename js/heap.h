@@ -7,12 +7,13 @@
 #include "cell.h"
 #include "object.h"
 #include "primitive_string.h"
-#include "vm.h"
+#include <fmt/format.h>
 
 #define DEBUG_STRESS_GC
 
 namespace js
 {
+class Vm;
 
 class Heap
 {
@@ -49,11 +50,11 @@ public:
 private:
 	Cell *cells = nullptr;
 	Vm *m_vm = nullptr;
-	std::vector<Cell*> grey_cells;
+	std::vector<Cell *> gray_cells;
 
 	void collect_garbage();
-	void mark_roots();
-	void trace_references();
+	void mark();
+	void trace();
 
 	void blacken_cell(Cell *);
 	void mark_value(Value);

@@ -1,9 +1,10 @@
 #include "heap.h"
 
-#include <fmt/format.h>
+
+#include "vm.h"
+
 namespace js
 {
-	class Upvalue;
 Heap g_heap = {};
 
 Heap &heap()
@@ -20,18 +21,19 @@ void Heap::collect_garbage()
 	fmt::print("-- gc begin\n");
 #endif
 
-	// mark the global object as clear
-	mark_cell(vm().global);
-	mark_roots();
-	trace_references();
+	mark();
+	trace();
 
 #ifdef DEBUG_LOG_GC
 	fmt::print("-- gc end\n");
 #endif
 }
 
-void Heap::mark_roots()
+void Heap::mark()
 {
+	// mark the global object as clear
+	mark_cell(vm().global);
+
 	for (auto &value : vm().stack)
 		mark_value(value);
 
@@ -45,22 +47,19 @@ void Heap::mark_roots()
 	}
 }
 
-void Heap::trace_references()
+void Heap::trace()
 {
-	while (!grey_cells.empty())
+	while (!gray_cells.empty())
 	{
-		auto *cell = grey_cells.last();
-		grey_cells.pop_back();
+		auto *cell = gray_cells.back();
 		blacken_cell(cell);
+		gray_cells.pop_back();
 	}
 }
 
-void Heap::blacken_cell(Cell *cell)
-{
+void Heap::blacken_cell(Cell *cell) { }
 
-}
-
-void mark_value(Value value)
+void Heap::mark_value(Value value)
 {
 	if (value.is_string())
 		mark_cell(&value.as_string());
@@ -69,7 +68,7 @@ void mark_value(Value value)
 		mark_cell(value.as_object());
 }
 
-void mark_cell(Cell *cell)
+void Heap::mark_cell(Cell *cell)
 {
 	if (!cell)
 		return;
@@ -79,6 +78,6 @@ void mark_cell(Cell *cell)
 #endif
 
 	cell->marked = true;
-	gray_stack.push_back(cell);
+	gray_cells.push_back(cell);
 }
 }
