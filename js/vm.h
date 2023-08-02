@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -85,7 +84,7 @@ private:
 	bool m_has_error{false};
 
 	std::vector<Value> stack;
-	std::stack<CallFrame> frames;
+	std::vector<CallFrame> frames;
 
 	bool run_instruction(bool in_call);
 
