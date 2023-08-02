@@ -55,6 +55,8 @@ struct CallFrame
 
 class Vm
 {
+	friend class Heap;
+
 public:
 	Vm();
 	Vm(Document *);
