@@ -6,18 +6,19 @@
 
 namespace js
 {
+class PrimitiveString;
+
 class ObjectString : public Object
 {
 	friend class StringPrototype;
 
 public:
-	ObjectString(const std::string &);
-	ObjectString(std::string *);
-	~ObjectString();
+	ObjectString(PrimitiveString &);
+	ObjectString(PrimitiveString *);
 	virtual Object *prototype() override;
 
 private:
-	std::string *primitive_string;
+	PrimitiveString *primitive_string;
 };
 
 class StringPrototype final : public Object

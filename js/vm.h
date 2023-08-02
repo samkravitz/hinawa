@@ -11,6 +11,7 @@
 
 namespace js
 {
+class PrimitiveString;
 namespace bindings
 {
 class DocumentWrapper;
@@ -91,7 +92,7 @@ private:
 	u8 read_byte();
 	u16 read_short();
 	Value read_constant();
-	std::string read_string();
+	PrimitiveString &read_string();
 	Upvalue *capture_upvalue(Value *);
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 

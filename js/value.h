@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "primitive_string.h"
+
 namespace js
 {
 class Function;
@@ -45,7 +47,7 @@ public:
 	    number(number)
 	{ }
 
-	explicit Value(std::string *str) :
+	explicit Value(PrimitiveString *str) :
 	    m_type(Type::String),
 	    string(str)
 	{ }
@@ -92,7 +94,7 @@ public:
 	inline bool as_bool() const { return boolean; }
 	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
-	inline std::string *as_string() const { return string; }
+	inline PrimitiveString &as_string() const { return *string; }
 
 	bool is_falsy() const;
 	bool is_nan() const;
@@ -106,7 +108,7 @@ private:
 		bool boolean;
 		Object *object;
 		double number;
-		std::string *string;
+		PrimitiveString *string;
 	};
 };
 }

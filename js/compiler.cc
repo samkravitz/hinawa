@@ -370,7 +370,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 		else
 		{
 			set_op = OP_SET_GLOBAL;
-			value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+			value = make_constant(Value(heap().allocate_string(identifier)));
 		}
 
 		expr.rhs->accept(this);
@@ -396,7 +396,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 			if (literal.token.type() == IDENTIFIER)
 			{
 				identifier = literal.token.value();
-				value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+				value = make_constant(Value(heap().allocate_string(identifier)));
 				expr.rhs->accept(this);
 				emit_bytes(OP_SET_PROPERTY, value);
 				return;
@@ -445,7 +445,7 @@ void Compiler::compile(const MemberExpr &expr)
 		auto &literal = static_cast<Literal &>(*expr.property);
 		assert(literal.token.type() == IDENTIFIER);
 		auto identifier = literal.token.value();
-		auto constant = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+		auto constant = make_constant(Value(heap().allocate_string(identifier)));
 		emit_bytes(OP_GET_PROPERTY, constant);
 	}
 
@@ -470,7 +470,8 @@ void Compiler::compile(const Literal &expr)
 		case STRING:
 		{
 			auto str = expr.token.value();
-			emit_constant(Value(heap().allocate<ObjectString>(str.substr(1, str.size() - 2))));
+			auto quotes_removed = str.substr(1, str.size() - 2);
+			emit_constant(Value(heap().allocate_string(quotes_removed)));
 			break;
 		}
 		case IDENTIFIER:
@@ -492,7 +493,7 @@ void Compiler::compile(const Literal &expr)
 			else
 			{
 				get_op = OP_GET_GLOBAL;
-				value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+				value = make_constant(Value(heap().allocate_string(identifier)));
 			}
 
 			emit_bytes(get_op, value);
@@ -536,7 +537,7 @@ void Compiler::compile(const Variable &expr)
 	else
 	{
 		get_op = OP_GET_GLOBAL;
-		value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+		value = make_constant(Value(heap().allocate_string(identifier)));
 	}
 
 	emit_bytes(get_op, value);
@@ -624,7 +625,7 @@ void Compiler::assignment_target(const Expr &expr)
 		else
 		{
 			set_op = OP_SET_GLOBAL;
-			value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+			value = make_constant(Value(heap().allocate_string(identifier)));
 		}
 
 		emit_bytes(set_op, value);
@@ -642,7 +643,7 @@ void Compiler::assignment_target(const Expr &expr)
 			if (literal.token.type() == IDENTIFIER)
 			{
 				identifier = literal.token.value();
-				value = make_constant(Value(heap().allocate<ObjectString>(identifier)));
+				value = make_constant(Value(heap().allocate_string(identifier)));
 				emit_bytes(OP_SET_PROPERTY, value);
 				return;
 			}
@@ -750,7 +751,7 @@ void Compiler::define_variable(u8 global)
 
 u8 Compiler::identifier_constant(const std::string &name)
 {
-	return make_constant(Value(heap().allocate<ObjectString>(name)));
+	return make_constant(Value(heap().allocate_string(name)));
 }
 
 void Compiler::mark_initialized()

@@ -6,11 +6,22 @@
 
 #include "array.h"
 #include "function.h"
+#include "primitive_string.h"
 #include "vm.h"
 
 namespace js
 {
-Value Object::get(std::string const &key)
+Value Object::get(const PrimitiveString &primitive_string)
+{
+	return get(primitive_string.string());
+}
+
+void Object::set(const PrimitiveString &key, Value value)
+{
+	set(key.string(), value);
+}
+
+Value Object::get(const std::string &key)
 {
 	// found the key in the properties map
 	if (has_own_property(key))
@@ -30,7 +41,7 @@ Value Object::get(std::string const &key)
 	return {};
 }
 
-void Object::set(std::string key, Value value)
+void Object::set(const std::string &key, Value value)
 {
 	properties[key] = value;
 }
@@ -40,9 +51,14 @@ void Object::set_native(const std::string &name, const std::function<Value(Vm &,
 	properties[name] = Value(NativeFunction::create(fn));
 }
 
-bool Object::has_own_property(std::string const &key) const
+bool Object::has_own_property(const std::string &key) const
 {
 	return properties.find(key) != properties.end();
+}
+
+bool Object::has_own_property(const PrimitiveString &primitive_string) const
+{
+	return has_own_property(primitive_string.string());
 }
 
 Object *Object::prototype()
@@ -114,7 +130,7 @@ ObjectPrototype::ObjectPrototype()
 
 		auto *obj = vm.current_this();
 
-		auto property = *argv[0].as_string();
+		const auto &property = argv[0].as_string();
 		return Value(obj->has_own_property(property));
 	});
 }

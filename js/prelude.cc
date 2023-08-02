@@ -117,7 +117,7 @@ void prelude(Vm &vm, Document *document)
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
 		std::string text = "";
 		if (!argv.empty())
-			text = *argv[0].as_string();
+			text = argv[0].to_string();
 
 		vm.document().set_alert(text);
 		return {};

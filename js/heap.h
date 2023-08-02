@@ -3,8 +3,9 @@
 #include <string>
 #include <utility>
 
+#include "cell.h"
 #include "object.h"
-#include "object_string.h"
+#include "primitive_string.h"
 
 namespace js
 {
@@ -15,27 +16,24 @@ public:
 
 	template<class T, typename... Params> T *allocate(Params &&...params)
 	{
-		static_assert(std::is_base_of<Object, T>::value, "T not derived from Object");
+		static_assert(std::is_base_of<Cell, T>::value, "T not derived from Object");
 
-		auto *object = new T(std::forward<Params>(params)...);
-		object->next = objects;
-		objects = object;
-		return object;
+		auto *cell = new T(std::forward<Params>(params)...);
+		cell->next = cells;
+		cells = cell;
+		return cell;
 	}
 
-	//template<> Object *allocate<std::string>(const std::string &str)
-	//{
-	//	auto *object = new std(std::forward<Params>(params)...);
-	//	object->next = objects;
-	//	objects = object;
-	//	return object;
-	//}
+	PrimitiveString *allocate_string(std::string str)
+	{
+		return allocate<PrimitiveString>(str);
+	}
 
 	// allocates an empty object, {}
 	Object *allocate() { return allocate<Object>(); }
 
 private:
-	Object *objects = nullptr;
+	Cell *cells = nullptr;
 };
 
 extern Heap g_heap;

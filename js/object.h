@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "cell.h"
 #include "value.h"
 
 namespace js
@@ -14,20 +15,25 @@ class Function;
 class NativeFunction;
 class Closure;
 class Array;
+class PrimitiveString;
 
-class Object
+class Object : public Cell
 {
 public:
 	virtual ~Object() { }
 
-	Value get(std::string const &);
-	void set(std::string, Value);
+	Value get(const PrimitiveString &);
+	Value get(const std::string &);
+	void set(const PrimitiveString &, Value);
+	void set(const std::string &, Value);
+
 	virtual Object *prototype();
 	void set_prototype(Object *proto) { m_prototype = proto; }
 
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value> &)> &);
 
-	bool has_own_property(std::string const &) const;
+	bool has_own_property(const std::string &) const;
+	bool has_own_property(const PrimitiveString &) const;
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }
@@ -40,9 +46,6 @@ public:
 	Array *as_array();
 
 	virtual std::string to_string() const;
-
-	Object *next = nullptr;
-
 protected:
 	std::unordered_map<std::string, Value> properties;
 	Object *m_prototype{nullptr};

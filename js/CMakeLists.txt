@@ -38,6 +38,7 @@ set(HEADERS
 	bindings/wrapper.h
 
 	array.h
+	cell.h
 	chunk.h
 	compiler.h
 	function.h
@@ -47,6 +48,7 @@ set(HEADERS
 	opcode.h
 	parser.h
 	prelude.h
+	primitive_string.h
 	scanner.h
 	token_type.h
 	token.h

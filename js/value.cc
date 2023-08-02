@@ -38,8 +38,8 @@ bool Value::strict_eq(const Value &other) const
 
 	if (type() == Type::String)
 	{
-		std::string str1 = *as_string();
-		std::string str2 = *other.as_string();
+		const auto &str1 = as_string();
+		const auto &str2 = other.as_string();
 		return str1 == str2;
 	}
 
@@ -192,7 +192,7 @@ std::string Value::to_string() const
 		case Type::Undefined:
 			return "undefined";
 		case Type::String:
-			return *as_string();
+			return as_string().string();
 		default:
 			assert(!"Unknown value type!");
 			return "";

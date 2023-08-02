@@ -13,7 +13,7 @@ namespace bindings
 NodeWrapper::NodeWrapper(Node *node) :
     m_node(node)
 {
-	auto *js_string = heap().allocate<ObjectString>(node->element_name());
+	auto *js_string = heap().allocate_string(node->element_name());
 	set("nodeName", Value(js_string));
 }
 }

@@ -16,6 +16,7 @@
 #include "object_string.h"
 #include "opcode.h"
 #include "prelude.h"
+#include "primitive_string.h"
 
 namespace js
 {
@@ -216,17 +217,17 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_DEFINE_GLOBAL:
 		{
-			auto ident = read_string();
+			const auto &ident = read_string();
 			global->set(ident, pop());
 			break;
 		}
 
 		case OP_GET_GLOBAL:
 		{
-			auto ident = read_string();
+			const auto &ident = read_string();
 			if (!global->has_own_property(ident))
 			{
-				if (!runtime_error(fmt::format("Undefined variable '{}'", ident)))
+				if (!runtime_error(fmt::format("Undefined variable '{}'", ident.string())))
 					return false;
 				break;
 			}
@@ -237,7 +238,7 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_SET_GLOBAL:
 		{
-			auto ident = read_string();
+			const auto &ident = read_string();
 			global->set(ident, peek(0));
 			break;
 		}
@@ -546,7 +547,7 @@ bool Vm::run_instruction(bool in_call)
 
 			for (int i = property_count - 1; i >= 0; i--)
 			{
-				auto key = read_string();
+				const auto &key = read_string();
 				auto value = peek(i);
 				obj->set(key, value);
 			}
@@ -664,7 +665,7 @@ bool Vm::run_instruction(bool in_call)
 		case OP_TYPEOF:
 		{
 			auto val = peek();
-			auto typeof_val = Value(heap().allocate<ObjectString>(val.type_of()));
+			auto typeof_val = Value(heap().allocate_string(val.type_of()));
 			pop();
 			push(typeof_val);
 			break;
@@ -781,12 +782,11 @@ Value Vm::read_constant()
 	return frames.top().closure->function->chunk.constants[byte];
 }
 
-std::string Vm::read_string()
+PrimitiveString &Vm::read_string()
 {
 	auto constant = read_constant();
 	assert(constant.is_string());
-	auto str = *constant.as_string();
-	return *constant.as_string();
+	return constant.as_string();
 }
 
 Upvalue *Vm::capture_upvalue(Value *local)
