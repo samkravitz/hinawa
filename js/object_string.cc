@@ -4,11 +4,11 @@
 
 namespace js
 {
-ObjectString::ObjectString(PrimitiveString &string) :
+ObjectString::ObjectString(String &string) :
     ObjectString(&string)
 { }
 
-ObjectString::ObjectString(PrimitiveString *string) :
+ObjectString::ObjectString(String *string) :
     primitive_string(string)
 { }
 

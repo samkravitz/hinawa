@@ -2,7 +2,7 @@
 
 namespace js
 {
-Function::Function(std::string const &name) :
+Function::Function(String *name) :
     name(name)
 {
 	arity = 0;

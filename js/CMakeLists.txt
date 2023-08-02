@@ -49,8 +49,8 @@ set(HEADERS
 	opcode.h
 	parser.h
 	prelude.h
-	primitive_string.h
 	scanner.h
+	string.hh
 	token_type.h
 	token.h
 	value.h

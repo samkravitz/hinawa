@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "primitive_string.h"
+#include "string.hh"
 
 namespace js
 {
@@ -47,7 +47,7 @@ public:
 	    number(number)
 	{ }
 
-	explicit Value(PrimitiveString *str) :
+	explicit Value(String *str) :
 	    m_type(Type::String),
 	    string(str)
 	{ }
@@ -94,7 +94,7 @@ public:
 	inline bool as_bool() const { return boolean; }
 	inline Object *as_object() const { return object; }
 	inline double as_number() const { return number; }
-	inline PrimitiveString &as_string() const { return *string; }
+	inline String &as_string() const { return *string; }
 
 	bool is_falsy() const;
 	bool is_nan() const;
@@ -108,7 +108,7 @@ private:
 		bool boolean;
 		Object *object;
 		double number;
-		PrimitiveString *string;
+		String *string;
 	};
 };
 }

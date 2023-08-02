@@ -13,6 +13,17 @@ Heap &heap()
 	return g_heap;
 }
 
+String *Heap::allocate_string(std::string str)
+{
+	auto hash = String::hash_string(str);
+	if (strings.contains(hash))
+		return strings[hash];
+
+	auto *string = allocate<String>(str);
+	strings[hash] = string;
+	return string;
+}
+
 void Heap::collect_garbage()
 {
 	if (!has_vm())

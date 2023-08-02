@@ -15,7 +15,7 @@ class Function;
 class NativeFunction;
 class Closure;
 class Array;
-class PrimitiveString;
+class String;
 
 class Object : public Cell
 {
@@ -24,9 +24,9 @@ class Object : public Cell
 public:
 	virtual ~Object() { }
 
-	Value get(const PrimitiveString &);
+	Value get(const String &);
 	Value get(const std::string &);
-	void set(const PrimitiveString &, Value);
+	void set(const String &, Value);
 	void set(const std::string &, Value);
 
 	virtual Object *prototype();
@@ -35,7 +35,7 @@ public:
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value> &)> &);
 
 	bool has_own_property(const std::string &) const;
-	bool has_own_property(const PrimitiveString &) const;
+	bool has_own_property(const String &) const;
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }

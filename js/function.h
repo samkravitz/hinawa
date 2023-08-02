@@ -9,6 +9,7 @@
 #include "chunk.h"
 #include "heap.h"
 #include "object.h"
+#include "string.hh"
 #include "token.h"
 
 namespace js
@@ -45,25 +46,29 @@ class Function : public Object
 {
 public:
 	Function() :
-	    Function("", FUNCTION)
+	    Function(nullptr, FUNCTION)
 	{ }
 
 	Function(FunctionType type) :
-	    Function("", type)
+	    Function(nullptr, type)
 	{ }
 
-	Function(std::string const &name) :
-	    Function(name, FUNCTION)
+	Function(const std::string &name) :
+	    Function(heap().allocate_string(name), FUNCTION)
 	{ }
 
-	Function(std::string const &name, FunctionType type) :
+	Function(String *name, FunctionType type) :
 	    name(name),
 	    type(type)
 	{ }
 
+	Function(const std::string &name, FunctionType type) :
+	    Function(heap().allocate_string(name), type)
+	{ }
+
 	size_t arity = 0;
 	Chunk chunk;
-	std::string name;
+	String *name = nullptr;
 	FunctionType type{FUNCTION};
 	u8 upvalue_count{0};
 
@@ -79,7 +84,7 @@ public:
 			case SCRIPT:
 				return "<script>";
 			default:
-				return fmt::format("<fn {}>", name);
+				return fmt::format("<fn {}>", name->string());
 		}
 	}
 };

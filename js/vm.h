@@ -10,7 +10,7 @@
 
 namespace js
 {
-class PrimitiveString;
+class String;
 namespace bindings
 {
 class DocumentWrapper;
@@ -93,7 +93,7 @@ private:
 	u8 read_byte();
 	u16 read_short();
 	Value read_constant();
-	PrimitiveString &read_string();
+	String &read_string();
 	Upvalue *capture_upvalue(Value *);
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 

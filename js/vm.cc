@@ -16,7 +16,7 @@
 #include "object_string.h"
 #include "opcode.h"
 #include "prelude.h"
-#include "primitive_string.h"
+#include "string.hh"
 
 namespace js
 {
@@ -783,7 +783,7 @@ Value Vm::read_constant()
 	return frames.back().closure->function->chunk.constants[byte];
 }
 
-PrimitiveString &Vm::read_string()
+String &Vm::read_string()
 {
 	auto constant = read_constant();
 	assert(constant.is_string());

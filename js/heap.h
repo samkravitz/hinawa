@@ -1,12 +1,13 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "cell.h"
 #include "object.h"
-#include "primitive_string.h"
+#include "string.hh"
 #include <fmt/format.h>
 
 #define DEBUG_STRESS_GC
@@ -39,7 +40,7 @@ public:
 		return cell;
 	}
 
-	PrimitiveString *allocate_string(std::string str) { return allocate<PrimitiveString>(str); }
+	String *allocate_string(std::string str);
 
 	// allocates an empty object, {}
 	Object *allocate() { return allocate<Object>(); }
@@ -53,6 +54,7 @@ private:
 	Vm *m_vm = nullptr;
 	std::vector<Cell *> gray_cells;
 	std::size_t bytes_allocated = 0;
+	std::unordered_map<u32, String *> strings;
 
 	void collect_garbage();
 	void mark();

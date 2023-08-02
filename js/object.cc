@@ -6,17 +6,17 @@
 
 #include "array.h"
 #include "function.h"
-#include "primitive_string.h"
+#include "string.hh"
 #include "vm.h"
 
 namespace js
 {
-Value Object::get(const PrimitiveString &primitive_string)
+Value Object::get(const String &primitive_string)
 {
 	return get(primitive_string.string());
 }
 
-void Object::set(const PrimitiveString &key, Value value)
+void Object::set(const String &key, Value value)
 {
 	set(key.string(), value);
 }
@@ -56,7 +56,7 @@ bool Object::has_own_property(const std::string &key) const
 	return properties.find(key) != properties.end();
 }
 
-bool Object::has_own_property(const PrimitiveString &primitive_string) const
+bool Object::has_own_property(const String &primitive_string) const
 {
 	return has_own_property(primitive_string.string());
 }

@@ -33,7 +33,7 @@ void Compiler::end_compiler()
 
 	auto function = *current->function;
 #ifdef DEBUG_PRINT_CODE
-	const char *name = function.type == ANONYMOUS ? "anonymous" : function.name.c_str();
+	const char *name = function.type == ANONYMOUS ? "anonymous" : function.name->string().c_str();
 	function.chunk.disassemble(name);
 #endif
 

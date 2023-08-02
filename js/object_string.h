@@ -6,19 +6,19 @@
 
 namespace js
 {
-class PrimitiveString;
+class String;
 
 class ObjectString : public Object
 {
 	friend class StringPrototype;
 
 public:
-	ObjectString(PrimitiveString &);
-	ObjectString(PrimitiveString *);
+	ObjectString(String &);
+	ObjectString(String *);
 	virtual Object *prototype() override;
 
 private:
-	PrimitiveString *primitive_string;
+	String *primitive_string;
 };
 
 class StringPrototype final : public Object
