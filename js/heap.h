@@ -10,7 +10,7 @@
 #include "string.hh"
 #include <fmt/format.h>
 
-#define DEBUG_STRESS_GC
+// #define DEBUG_STRESS_GC
 
 namespace js
 {
