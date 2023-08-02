@@ -30,9 +30,10 @@ public:
 		auto *cell = new T(std::forward<Params>(params)...);
 
 #ifdef DEBUG_LOG_GC
-		fmt::print("{} allocate {} for {}\n", (void *) cell, sizeof(T), cell->to_string());
+		fmt::print("{} allocate {} bytes for {}\n", (void *) cell, sizeof(T), cell->to_string());
 #endif
 
+		bytes_allocated += sizeof(T);
 		cell->next = cells;
 		cells = cell;
 		return cell;
@@ -51,14 +52,17 @@ private:
 	Cell *cells = nullptr;
 	Vm *m_vm = nullptr;
 	std::vector<Cell *> gray_cells;
+	std::size_t bytes_allocated = 0;
 
 	void collect_garbage();
 	void mark();
 	void trace();
+	void sweep();
 
 	void blacken_cell(Cell *);
 	void mark_value(Value);
 	void mark_cell(Cell *);
+	void free_cell(Cell *);
 };
 
 extern Heap g_heap;

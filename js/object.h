@@ -19,6 +19,8 @@ class PrimitiveString;
 
 class Object : public Cell
 {
+	friend class Heap;
+
 public:
 	virtual ~Object() { }
 
@@ -39,6 +41,7 @@ public:
 	virtual bool is_bound_method() const { return false; }
 	virtual bool is_closure() const { return false; }
 	virtual bool is_array() const { return false; }
+	virtual bool is_object() const { return true; }
 
 	Function *as_function();
 	NativeFunction *as_native();

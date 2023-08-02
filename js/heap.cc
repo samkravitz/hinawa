@@ -1,5 +1,6 @@
 #include "heap.h"
 
+#include <cassert>
 
 #include "vm.h"
 
@@ -23,20 +24,24 @@ void Heap::collect_garbage()
 
 	mark();
 	trace();
+	sweep();
 
 #ifdef DEBUG_LOG_GC
 	fmt::print("-- gc end\n");
 #endif
 }
 
+// mark roots
 void Heap::mark()
 {
 	// mark the global object as clear
 	mark_cell(vm().global);
 
+	// mark values on the vm's value stack
 	for (auto &value : vm().stack)
 		mark_value(value);
 
+	// mark closures and upvalues on vm's call stack
 	for (auto &frame : vm().frames)
 	{
 		auto *closure = frame.closure;
@@ -57,7 +62,60 @@ void Heap::trace()
 	}
 }
 
-void Heap::blacken_cell(Cell *cell) { }
+void Heap::sweep()
+{
+	Cell *prev = nullptr;
+	Cell *cell = cells;
+
+	while (cell)
+	{
+		if (cell->marked)
+		{
+			cell->marked = false;
+			prev = cell;
+			cell = cell->next;
+		}
+
+		else
+		{
+			Cell *swept = cell;
+			cell = cell->next;
+
+			if (prev)
+				prev->next = cell;
+			else
+				cells = cell;
+
+			fmt::print("sweep {}\n", swept->to_string());
+
+			free_cell(swept);
+		}
+	}
+}
+
+void Heap::blacken_cell(Cell *cell)
+{
+#ifdef DEBUG_LOG_GC
+	fmt::print("{} blacken {}\n", (void *) cell, cell->to_string());
+#endif
+
+	if (cell->is_object())
+	{
+		auto *object = static_cast<Object *>(cell);
+
+		// mark object's properties
+		for (const auto &[key, value] : object->properties)
+			mark_value(value);
+
+		if (object->is_function())
+		{
+			auto *function = static_cast<Function *>(object);
+			// mark all constants in function
+			for (auto value : function->chunk.constants)
+				mark_value(value);
+		}
+	}
+}
 
 void Heap::mark_value(Value value)
 {
@@ -70,7 +128,7 @@ void Heap::mark_value(Value value)
 
 void Heap::mark_cell(Cell *cell)
 {
-	if (!cell)
+	if (!cell || cell->marked)
 		return;
 
 #ifdef DEBUG_LOG_GC
@@ -79,5 +137,16 @@ void Heap::mark_cell(Cell *cell)
 
 	cell->marked = true;
 	gray_cells.push_back(cell);
+}
+
+void Heap::free_cell(Cell *cell)
+{
+	assert(cell);
+#ifdef DEBUG_LOG_GC
+	fmt::print("{} free {} bytes {}\n", (void *) cell, sizeof(*cell), cell->to_string());
+#endif
+
+	bytes_allocated -= sizeof(*cell);
+	delete cell;
 }
 }

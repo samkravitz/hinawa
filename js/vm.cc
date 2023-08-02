@@ -27,6 +27,7 @@ Vm::Vm() :
 Vm::Vm(Document *document)
 {
 	prelude(*this, document);
+	heap().set_vm(*this);
 }
 
 Document &Vm::document()
