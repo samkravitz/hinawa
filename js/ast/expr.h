@@ -73,7 +73,7 @@ struct AssignmentExpr : public Expr
 {
 	AssignmentExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
 	    lhs(std::move(lhs)),
-		op(op),
+	    op(op),
 	    rhs(std::move(rhs))
 	{ }
 
@@ -103,9 +103,10 @@ struct CallExpr : public Expr
 
 struct MemberExpr : public Expr
 {
-	MemberExpr(std::shared_ptr<Expr> object, std::shared_ptr<Expr> property) :
+	MemberExpr(std::shared_ptr<Expr> object, std::shared_ptr<Expr> property, bool is_dot = false) :
 	    object(std::move(object)),
-	    property(std::move(property))
+	    property(std::move(property)),
+	    is_dot(is_dot)
 	{ }
 
 	const char *name() const { return "MemberExpr"; }
@@ -115,6 +116,7 @@ struct MemberExpr : public Expr
 
 	std::shared_ptr<Expr> object;
 	std::shared_ptr<Expr> property;
+	bool is_dot{false};
 };
 
 struct Literal : public Expr

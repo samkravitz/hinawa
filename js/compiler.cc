@@ -387,28 +387,16 @@ void Compiler::compile(const AssignmentExpr &expr)
 
 	else if (expr.lhs->is_member_expr())
 	{
-		auto &member = static_cast<MemberExpr &>(*expr.lhs);
+		auto &member = static_cast<const MemberExpr &>(*expr.lhs);
 		member.object->accept(this);
-		if (member.property->is_literal())
+		if (member.is_dot)
 		{
-			auto &literal = static_cast<Literal &>(*member.property);
-
-			if (literal.token.type() == IDENTIFIER)
-			{
-				identifier = literal.token.value();
-				value = make_constant(Value(heap().allocate_string(identifier)));
-				expr.rhs->accept(this);
-				emit_bytes(OP_SET_PROPERTY, value);
-				return;
-			}
-
-			else
-			{
-				member.property->accept(this);
-				expr.rhs->accept(this);
-				emit_byte(OP_SET_SUBSCRIPT);
-				return;
-			}
+			assert(member.property->is_variable());
+			expr.rhs->accept(this);
+			auto &variable = static_cast<Variable &>(*member.property);
+			auto identifier = variable.ident;
+			auto constant = make_constant(Value(heap().allocate_string(identifier)));
+			emit_bytes(OP_SET_PROPERTY, constant);
 		}
 
 		else
@@ -416,7 +404,6 @@ void Compiler::compile(const AssignmentExpr &expr)
 			member.property->accept(this);
 			expr.rhs->accept(this);
 			emit_byte(OP_SET_SUBSCRIPT);
-			return;
 		}
 	}
 
@@ -440,11 +427,12 @@ void Compiler::compile(const MemberExpr &expr)
 {
 	current_line = expr.line;
 	expr.object->accept(this);
-	if (expr.property->is_literal())
+
+	if (expr.is_dot)
 	{
-		auto &literal = static_cast<Literal &>(*expr.property);
-		assert(literal.token.type() == IDENTIFIER);
-		auto identifier = literal.token.value();
+		assert(expr.property->is_variable());
+		auto &variable = static_cast<Variable &>(*expr.property);
+		auto identifier = variable.ident;
 		auto constant = make_constant(Value(heap().allocate_string(identifier)));
 		emit_bytes(OP_GET_PROPERTY, constant);
 	}
@@ -476,6 +464,7 @@ void Compiler::compile(const Literal &expr)
 		}
 		case IDENTIFIER:
 		{
+			assert(false);
 			const auto identifier = expr.token.value();
 			Opcode get_op;
 			int value = resolve_local(current, identifier);
@@ -636,31 +625,19 @@ void Compiler::assignment_target(const Expr &expr)
 	{
 		auto &member = static_cast<const MemberExpr &>(expr);
 		member.object->accept(this);
-		if (member.property->is_literal())
+		if (member.is_dot)
 		{
-			auto &literal = static_cast<Literal &>(*member.property);
-
-			if (literal.token.type() == IDENTIFIER)
-			{
-				identifier = literal.token.value();
-				value = make_constant(Value(heap().allocate_string(identifier)));
-				emit_bytes(OP_SET_PROPERTY, value);
-				return;
-			}
-
-			else
-			{
-				member.property->accept(this);
-				emit_byte(OP_SET_SUBSCRIPT);
-				return;
-			}
+			assert(member.property->is_variable());
+			auto &variable = static_cast<Variable &>(*member.property);
+			auto identifier = variable.ident;
+			auto constant = make_constant(Value(heap().allocate_string(identifier)));
+			emit_bytes(OP_SET_PROPERTY, constant);
 		}
 
 		else
 		{
 			member.property->accept(this);
-			emit_byte(OP_SET_SUBSCRIPT);
-			return;
+			emit_byte(OP_GET_SUBSCRIPT);
 		}
 	}
 

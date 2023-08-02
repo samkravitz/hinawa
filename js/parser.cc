@@ -329,7 +329,7 @@ std::shared_ptr<Expr> Parser::expression(bool required)
 {
 	auto expr = parse_precedence(PREC_ASSIGNMENT);
 	if (!expr && required)
-		fmt::print(stderr, "Expect expression\n");
+		fmt::print(stderr, "[line {}]: Expect expression\n", current.line());
 
 	return expr;
 }
@@ -436,7 +436,7 @@ std::shared_ptr<Expr> Parser::call(std::shared_ptr<Expr> left)
 std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
-	return make_ast_node<MemberExpr>(left, make_ast_node<Literal>(previous));
+	return make_ast_node<MemberExpr>(left, make_ast_node<Variable>(previous.value()), true);
 }
 
 std::shared_ptr<Expr> Parser::grouping()
