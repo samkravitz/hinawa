@@ -68,8 +68,8 @@ void Heap::trace()
 	while (!gray_cells.empty())
 	{
 		auto *cell = gray_cells.back();
-		blacken_cell(cell);
 		gray_cells.pop_back();
+		blacken_cell(cell);
 	}
 }
 
