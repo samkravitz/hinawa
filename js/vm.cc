@@ -35,7 +35,7 @@ Document &Vm::document()
 	return m_document_wrapper->document();
 }
 
-bool Vm::run(Function f)
+bool Vm::run(Function &f)
 {
 	push(Value(&f));
 	auto *closure = Closure::create(&f);

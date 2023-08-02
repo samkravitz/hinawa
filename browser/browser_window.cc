@@ -139,7 +139,7 @@ void BrowserWindow::load(const Url &new_url)
 		auto program = js::Parser::parse(javascript);
 		auto fn = js::Compiler::compile(program);
 		js::Vm vm(&document);
-		vm.run(std::move(fn));
+		vm.run(*fn);
 	});
 }
 

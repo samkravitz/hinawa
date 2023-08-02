@@ -53,9 +53,9 @@ void test_262_runner(const std::string &test_262_dir)
 
 			auto program = js::Parser::parse(buffer.str());
 
-			auto fn = js::Compiler::compile(program);
+			auto *fn = js::Compiler::compile(program);
 			js::Vm vm{};
-			vm.run(std::move(fn));
+			vm.run(*fn);
 
 			int result = RESULT_TEST_PASSED;
 			if (vm.has_error())
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 	printer.print(program);
 #endif
 
-	auto fn = js::Compiler::compile(program);
+	auto *fn = js::Compiler::compile(program);
 	js::Vm vm{};
-	vm.run(std::move(fn));
+	vm.run(*fn);
 }

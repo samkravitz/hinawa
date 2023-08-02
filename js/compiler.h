@@ -17,13 +17,13 @@ namespace js
 class Compiler : public CompilerVisitor
 {
 public:
-	static Function compile(const std::vector<std::shared_ptr<Stmt>> &);
+	static Function *compile(const std::vector<std::shared_ptr<Stmt>> &);
 	int current_line{0};
 
 private:
 	Compiler(const std::vector<std::shared_ptr<Stmt>> &);
 
-	Function compile_impl();
+	Function *compile_impl();
 
 	struct FunctionCompiler
 	{

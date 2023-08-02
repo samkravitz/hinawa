@@ -60,7 +60,7 @@ public:
 	Vm();
 	Vm(Document *);
 
-	bool run(Function);
+	bool run(Function &);
 	Object *current_this() const { return _this; }
 	void set_global(Object *g) { global = g; }
 	void call(Closure *);

@@ -12,6 +12,7 @@ set(SOURCES
 	array.cc
 	chunk.cc
 	compiler.cc
+	function.cc
 	heap.cc
 	object_string.cc
 	object.cc

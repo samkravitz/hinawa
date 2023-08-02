@@ -40,16 +40,16 @@ void Compiler::end_compiler()
 	current = current->enclosing;
 }
 
-Function Compiler::compile(const std::vector<std::shared_ptr<Stmt>> &stmts)
+Function *Compiler::compile(const std::vector<std::shared_ptr<Stmt>> &stmts)
 {
 	Compiler c(stmts);
 	return c.compile_impl();
 }
 
-Function Compiler::compile_impl()
+Function *Compiler::compile_impl()
 {
-	Function script("script", SCRIPT);
-	FunctionCompiler compiler(current, &script);
+	auto *script = heap().allocate<Function>("script", SCRIPT);
+	FunctionCompiler compiler(current, script);
 	init_compiler(&compiler);
 
 	for (auto stmt : stmts)
@@ -148,9 +148,9 @@ void Compiler::compile(const FunctionDecl &stmt)
 {
 	current_line = stmt.line;
 	auto global = parse_variable(stmt.function_name);
-	Function function{stmt.function_name};
-	function.arity = stmt.args.size();
-	FunctionCompiler compiler(current, &function);
+	auto *function = heap().allocate<Function>(stmt.function_name);
+	function->arity = stmt.args.size();
+	FunctionCompiler compiler(current, function);
 	init_compiler(&compiler);
 	begin_scope();
 
@@ -162,8 +162,8 @@ void Compiler::compile(const FunctionDecl &stmt)
 
 	stmt.block->accept(this);
 	end_compiler();
-	function.upvalue_count = compiler.upvalue_count();
-	emit_bytes(OP_CLOSURE, make_constant(Value(heap().allocate<Function>(function))));
+	function->upvalue_count = compiler.upvalue_count();
+	emit_bytes(OP_CLOSURE, make_constant(Value(heap().allocate<Function>(*function))));
 
 	for (const auto &upvalue : compiler.upvalues)
 	{
@@ -557,9 +557,9 @@ void Compiler::compile(const ObjectExpr &expr)
 void Compiler::compile(const FunctionExpr &expr)
 {
 	current_line = expr.line;
-	auto function = Function(ANONYMOUS);
-	function.arity = expr.args.size();
-	FunctionCompiler compiler(current, &function);
+	auto function = heap().allocate<Function>(ANONYMOUS);
+	function->arity = expr.args.size();
+	FunctionCompiler compiler(current, function);
 	init_compiler(&compiler);
 	begin_scope();
 
@@ -571,8 +571,8 @@ void Compiler::compile(const FunctionExpr &expr)
 
 	expr.body->accept(this);
 	end_compiler();
-	function.upvalue_count = compiler.upvalue_count();
-	emit_bytes(OP_CLOSURE, make_constant(Value(heap().allocate<Function>(function))));
+	function->upvalue_count = compiler.upvalue_count();
+	emit_bytes(OP_CLOSURE, make_constant(Value(heap().allocate<Function>(*function))));
 
 	for (const auto &upvalue : compiler.upvalues)
 	{
