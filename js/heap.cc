@@ -121,9 +121,21 @@ void Heap::blacken_cell(Cell *cell)
 		if (object->is_function())
 		{
 			auto *function = static_cast<Function *>(object);
+
+			// mark function name
+			mark_cell(function->name);
+
 			// mark all constants in function
 			for (auto value : function->chunk.constants)
 				mark_value(value);
+		}
+
+		if (object->is_closure())
+		{
+			auto *closure = static_cast<Closure *>(cell);
+			mark_cell(closure->function);
+			for (auto *upvalue : closure->upvalues)
+				mark_cell(upvalue);
 		}
 	}
 }

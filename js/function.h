@@ -106,7 +106,7 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto *object = heap().allocate<Object>();
+		auto *object = heap().allocate();
 		object->set("constructor", Value(native));
 		native->set("prototype", Value(object));
 
@@ -128,10 +128,12 @@ private:
 
 class Closure final : public Object
 {
+	friend class Heap;
+
 public:
 	static Closure *create(Function *function)
 	{
-		auto *closure = new Closure(function);
+		auto *closure = heap().allocate<Closure>(function);
 
 		/**
 		* functions have a property "prototype", that is an object
@@ -140,7 +142,7 @@ public:
 		* function with the 'new' keyword, the created object's
 		* prototype is the beforementioned object.
 		*/
-		auto *object = heap().allocate<Object>();
+		auto *object = heap().allocate();
 		object->set("constructor", Value(closure));
 		closure->set("prototype", Value(object));
 
