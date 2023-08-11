@@ -590,7 +590,7 @@ bool Vm::run_instruction(bool in_call)
 				}
 
 				auto catch_env = frame.catchv.back();
-				assert(catch_env.sp < stack.size());
+				assert(catch_env.sp <= stack.size());
 				while (stack.size() != catch_env.sp)
 					pop();
 
