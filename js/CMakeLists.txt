@@ -2,7 +2,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_options("-DDEBUG_PRINT_CODE")
 	add_compile_options("-DDEBUG_PRINT_STACK")
 	add_compile_options("-DDEBUG_PRINT_AST")
-	add_compile_options("-DDEBUG_LOG_GC")
+	#add_compile_options("-DDEBUG_LOG_GC")
 endif()
 
 set(SOURCES
