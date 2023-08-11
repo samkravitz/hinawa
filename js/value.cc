@@ -214,6 +214,33 @@ bool Value::is_falsy() const
 	return false;
 }
 
+Value Value::to_primitive(Type preferred_type) const
+{
+	//	1. If input is an Object, then
+	if (is_object)
+	{
+		//	a. Let exoticToPrim be ? GetMethod(input, @@toPrimitive).
+		//	b. If exoticToPrim is not undefined, then
+		// 		i. If preferredType is not present, then
+		//			1. Let hint be "default".
+		// 		ii. Else if preferredType is string, then
+		//			1. Let hint be "string".
+		// 		iii. Else,
+		//			1. Assert: preferredType is number.
+		//			2. Let hint be "number".
+		// 		iv. Let result be ? Call(exoticToPrim, input, « hint »).
+		// 		v. If result is not an Object, return result.
+		// 		vi. Throw a TypeError exception.
+		//	c. If preferredType is not present, let preferredType be number.
+
+		//	d. Return ? OrdinaryToPrimitive(input, preferredType).
+		return as_object()->ordinary_to_primitive(preferred_type);
+	}
+
+	// 2. Return input.
+	return *this;
+}
+
 const char *Value::type_of() const
 {
 	switch (type())

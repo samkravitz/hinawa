@@ -48,6 +48,9 @@ public:
 	Closure *as_closure();
 	Array *as_array();
 
+	// https://tc39.es/ecma262/#sec-ordinarytoprimitive
+	Value ordinary_to_primitive(const Value::Type &) const;
+
 	virtual std::string to_string() const;
 protected:
 	std::unordered_map<std::string, Value> properties;

@@ -92,6 +92,21 @@ Array *Object::as_array()
 	return static_cast<Array *>(this);
 }
 
+Value Object::ordinary_to_primitive(const Value::Type &hint) const
+{
+	// 1. If hint is string, then
+	// 		a. Let methodNames be « "toString", "valueOf" ».
+	// 2. Else,
+	//		a. Let methodNames be « "valueOf", "toString" ».
+	// 3. For each element name of methodNames, do
+	//		a. Let method be ? Get(O, name).
+	//		b. If IsCallable(method) is true, then
+	//			i. Let result be ? Call(method, O).
+	//			ii. If result is not an Object, return result.
+	// 4. Throw a TypeError exception.
+	return {};
+}
+
 std::string Object::to_string() const
 {
 	std::stringstream stream;

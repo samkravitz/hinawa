@@ -102,6 +102,9 @@ public:
 	const char *type_of() const;
 	std::string to_string() const;
 
+	// https://tc39.es/ecma262/#sec-toprimitive
+	Value to_primitive(Type preferred_type = Type::Number) const;
+
 private:
 	Type m_type;
 	union
