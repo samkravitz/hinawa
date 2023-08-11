@@ -142,12 +142,10 @@ Value Value::operator&(const Value &other) const
 
 Value Value::operator&&(const Value &other) const
 {
-	if (!is_number() || !other.is_number())
-		return js_nan();
+	if (is_falsy())
+		return *this;
 
-	auto a = as_number();
-	auto b = other.as_number();
-	return Value(a && b);
+	return other;
 }
 
 Value Value::operator|(const Value &other) const
@@ -162,12 +160,10 @@ Value Value::operator|(const Value &other) const
 
 Value Value::operator||(const Value &other) const
 {
-	if (!is_number() || !other.is_number())
-		return js_nan();
+	if (is_truthy())
+		return *this;
 
-	auto a = as_number();
-	auto b = other.as_number();
-	return Value(a || b);
+	return other;
 }
 
 std::string Value::to_string() const

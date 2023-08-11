@@ -97,6 +97,7 @@ public:
 	inline String &as_string() const { return *string; }
 
 	bool is_falsy() const;
+	inline bool is_truthy() const { return !is_falsy(); }
 	bool is_nan() const;
 	const char *type_of() const;
 	std::string to_string() const;
