@@ -242,14 +242,14 @@ void Vm::run_instruction(bool in_call)
 		case OP_DEFINE_GLOBAL:
 		{
 			const auto &ident = read_string();
-			global->set(ident, pop());
+			m_global->set(ident, pop());
 			break;
 		}
 
 		case OP_GET_GLOBAL:
 		{
 			const auto &ident = read_string();
-			if (!global->has_own_property(ident))
+			if (!m_global->has_own_property(ident))
 			{
 				if (!runtime_error(heap().allocate<ReferenceError>(),
 				                   fmt::format("Undefined variable '{}'", ident.string())))
@@ -257,14 +257,14 @@ void Vm::run_instruction(bool in_call)
 				break;
 			}
 
-			push(global->get(ident));
+			push(m_global->get(ident));
 			break;
 		}
 
 		case OP_SET_GLOBAL:
 		{
 			const auto &ident = read_string();
-			global->set(ident, peek(0));
+			m_global->set(ident, peek(0));
 			break;
 		}
 

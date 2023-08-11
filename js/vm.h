@@ -63,7 +63,9 @@ public:
 
 	void interpret(const std::string &);
 	Object *current_this() const { return _this; }
-	void set_global(Object *g) { global = g; }
+	inline void set_global(Object *g) { m_global = g; }
+	inline Object *global() { return m_global; }
+
 	void call(Closure *);
 
 	Document &document();
@@ -78,7 +80,7 @@ public:
 
 private:
 	// pointer to the global object
-	Object *global = nullptr;
+	Object *m_global = nullptr;
 
 	// pointer to the current this object
 	Object *_this = nullptr;

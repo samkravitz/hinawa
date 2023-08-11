@@ -46,7 +46,7 @@ void Heap::collect_garbage()
 void Heap::mark()
 {
 	// mark the global object as clear
-	mark_cell(vm().global);
+	mark_cell(vm().m_global);
 
 	// mark values on the vm's value stack
 	for (auto &value : vm().stack)
