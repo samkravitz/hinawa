@@ -5,9 +5,6 @@
 #include <sstream>
 #include <sys/wait.h>
 
-#include "ast_printer.h"
-#include "compiler.h"
-#include "parser.h"
 #include "vm.h"
 
 namespace fs = std::filesystem;
@@ -51,11 +48,8 @@ void test_262_runner(const std::string &test_262_dir)
 			buffer << sta.rdbuf();
 			buffer << test_file.rdbuf();
 
-			auto program = js::Parser::parse(buffer.str());
-
-			auto *fn = js::Compiler::compile(program);
 			js::Vm vm{};
-			vm.run(*fn);
+			vm.interpret(buffer.str());
 
 			int result = RESULT_TEST_PASSED;
 			if (vm.has_error())
@@ -107,14 +101,6 @@ int main(int argc, char **argv)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 
-	auto program = js::Parser::parse(buffer.str());
-
-#ifdef DEBUG_PRINT_AST
-	auto printer = js::AstPrinter{};
-	printer.print(program);
-#endif
-
-	auto *fn = js::Compiler::compile(program);
 	js::Vm vm{};
-	vm.run(*fn);
+	vm.interpret(buffer.str());
 }

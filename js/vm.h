@@ -60,7 +60,7 @@ public:
 	Vm();
 	Vm(Document *);
 
-	bool run(Function &);
+	void interpret(const std::string &);
 	Object *current_this() const { return _this; }
 	void set_global(Object *g) { global = g; }
 	void call(Closure *);
@@ -86,6 +86,7 @@ private:
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 
+	bool run(Function &);
 	bool run_instruction(bool in_call);
 
 	void binary_op(Operator);

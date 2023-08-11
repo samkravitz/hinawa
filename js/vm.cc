@@ -10,13 +10,19 @@
 #include "array.h"
 #include "bindings/document_wrapper.h"
 #include "chunk.h"
+#include "compiler.h"
 #include "document/document.h"
 #include "heap.h"
 #include "object.h"
 #include "object_string.h"
 #include "opcode.h"
+#include "parser.h"
 #include "prelude.h"
 #include "string.hh"
+
+#ifdef DEBUG_PRINT_AST
+	#include "ast_printer.h"
+#endif
 
 namespace js
 {
@@ -33,6 +39,19 @@ Vm::Vm(Document *document)
 Document &Vm::document()
 {
 	return m_document_wrapper->document();
+}
+
+void Vm::interpret(const std::string &program_string)
+{
+	auto program = Parser::parse(program_string);
+
+#ifdef DEBUG_PRINT_AST
+	auto printer = js::AstPrinter{};
+	printer.print(program);
+#endif
+
+	auto *fn = Compiler::compile(program);
+	run(*fn);
 }
 
 bool Vm::run(Function &f)

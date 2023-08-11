@@ -9,8 +9,6 @@
 #include "document/element.h"
 #include "document/text.h"
 #include "html/parser.h"
-#include "js/compiler.h"
-#include "js/parser.h"
 #include "js/vm.h"
 #include "layout/block.h"
 #include "layout/image.h"
@@ -136,10 +134,8 @@ void BrowserWindow::load(const Url &new_url)
 		if (javascript == "")
 			return;
 
-		auto program = js::Parser::parse(javascript);
-		auto fn = js::Compiler::compile(program);
 		js::Vm vm(&document);
-		vm.run(*fn);
+		vm.interpret(javascript);
 	});
 }
 
