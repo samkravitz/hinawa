@@ -43,6 +43,7 @@ set(HEADERS
 	cell.h
 	chunk.h
 	compiler.h
+	error.h
 	function.h
 	heap.h
 	object_string.h
