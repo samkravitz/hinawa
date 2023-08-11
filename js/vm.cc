@@ -54,7 +54,7 @@ void Vm::interpret(const std::string &program_string)
 	run(*fn);
 }
 
-bool Vm::run(Function &f)
+void Vm::run(Function &f)
 {
 	push(Value(&f));
 	auto *closure = Closure::create(&f);
@@ -65,11 +65,10 @@ bool Vm::run(Function &f)
 
 	while (1)
 	{
-		if (!run_instruction(false))
+		run_instruction(false);
+		if (has_error() || should_return)
 			break;
 	}
-
-	return true;
 }
 
 void Vm::call(Closure *closure)
@@ -81,12 +80,16 @@ void Vm::call(Closure *closure)
 
 	while (1)
 	{
-		if (!run_instruction(true))
+		run_instruction(true);
+		if (has_error() || should_return)
 			break;
 	}
+
+	should_return = false;
+	m_error = nullptr;
 }
 
-bool Vm::run_instruction(bool in_call)
+void Vm::run_instruction(bool in_call)
 {
 #ifdef DEBUG_PRINT_STACK
 	frames.back().closure->function->chunk.disassemble_instruction(frames.back().ip);
@@ -109,7 +112,8 @@ bool Vm::run_instruction(bool in_call)
 			if (frames.empty() || in_call)
 			{
 				push(result);
-				return false;
+				should_return = true;
+				return;
 			}
 
 			auto diff = stack.size() - frame.base;
@@ -247,8 +251,9 @@ bool Vm::run_instruction(bool in_call)
 			const auto &ident = read_string();
 			if (!global->has_own_property(ident))
 			{
-				if (!runtime_error(fmt::format("Undefined variable '{}'", ident.string())))
-					return false;
+				if (!runtime_error(heap().allocate<ReferenceError>(),
+				                   fmt::format("Undefined variable '{}'", ident.string())))
+					return;
 				break;
 			}
 
@@ -443,8 +448,8 @@ bool Vm::run_instruction(bool in_call)
 
 			if (!array_value.is_object() || !array_value.as_object()->is_array())
 			{
-				if (!runtime_error("Error: value is not an array"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an array"))
+					return;
 				break;
 			}
 
@@ -452,16 +457,17 @@ bool Vm::run_instruction(bool in_call)
 
 			if (!index.is_number())
 			{
-				if (!runtime_error("Error: array index is not a number"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
+					return;
 				break;
 			}
 
 			int idx = (int) index.as_number();
 			if (idx < 0 || idx >= (int) array->size())
 			{
-				if (!runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(),
+				                   fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+					return;
 				break;
 			}
 
@@ -477,8 +483,8 @@ bool Vm::run_instruction(bool in_call)
 
 			if (!array_value.is_object() || !array_value.as_object()->is_array())
 			{
-				if (!runtime_error("Error: value is not an array"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an array"))
+					return;
 				break;
 			}
 
@@ -486,16 +492,17 @@ bool Vm::run_instruction(bool in_call)
 
 			if (!index.is_number())
 			{
-				if (!runtime_error("Error: array index is not a number"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
+					return;
 				break;
 			}
 
 			int idx = (int) index.as_number();
 			if (idx < 0 || idx >= (int) array->size())
 			{
-				if (!runtime_error(fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(),
+				                   fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+					return;
 				break;
 			}
 
@@ -528,8 +535,8 @@ bool Vm::run_instruction(bool in_call)
 
 			else
 			{
-				if (!runtime_error("Error: tried to get property on a non-object"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: tried to get property on a non-object"))
+					return;
 				break;
 			}
 
@@ -547,8 +554,8 @@ bool Vm::run_instruction(bool in_call)
 		{
 			if (!peek(1).is_object())
 			{
-				if (!runtime_error("Error: tried to get property on a non-object"))
-					return false;
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: tried to get property on a non-object"))
+					return;
 				break;
 			}
 
@@ -595,7 +602,6 @@ bool Vm::run_instruction(bool in_call)
 
 		case OP_THROW:
 		{
-			m_has_error = true;
 			bool caught = false;
 			auto val = pop();
 			while (!frames.empty())
@@ -698,8 +704,6 @@ bool Vm::run_instruction(bool in_call)
 #ifdef DEBUG_PRINT_STACK
 	print_stack();
 #endif
-
-	return true;
 }
 
 void Vm::push(Value value)
@@ -823,16 +827,18 @@ void Vm::print_stack() const
 	fmt::print("]\n");
 }
 
-bool Vm::runtime_error(std::string const &msg)
+bool Vm::runtime_error(Error *err, std::string const &msg)
 {
 	if (frames.back().catchv.empty())
 	{
+		m_error = err;
 		auto ip = frames.back().ip;
 		auto line = frames.back().closure->function->chunk.lines[ip - 1];
 		fmt::print("[line {}] Uncaught {}\n", line, msg);
 		return false;
 	}
 
+	m_error = nullptr;
 	auto ip = frames.back().catchv.back().ip;
 	frames.back().ip = ip;
 	return true;

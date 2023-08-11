@@ -48,6 +48,7 @@ ArrayPrototype::ArrayPrototype()
 			vm.call(callback);
 			auto res = vm.pop();
 			new_arr->push_back(res);
+			vm.pop();
 		}
 
 		return Value(new_arr);

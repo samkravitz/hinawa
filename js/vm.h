@@ -5,6 +5,7 @@
 
 #include "chunk.h"
 #include "document/document.h"
+#include "error.h"
 #include "function.h"
 #include "value.h"
 
@@ -72,7 +73,8 @@ public:
 	Value pop();
 	Value peek(uint offset = 0);
 
-	bool has_error() const { return m_has_error; }
+	inline Error *error() const { return m_error; }
+	inline bool has_error() const { return m_error != nullptr; }
 
 private:
 	// pointer to the global object
@@ -81,13 +83,15 @@ private:
 	// pointer to the current this object
 	Object *_this = nullptr;
 
-	bool m_has_error{false};
+	Error *m_error = nullptr;
+
+	bool should_return = false;
 
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 
-	bool run(Function &);
-	bool run_instruction(bool in_call);
+	void run(Function &);
+	void run_instruction(bool in_call);
 
 	void binary_op(Operator);
 
@@ -99,6 +103,6 @@ private:
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 
 	void print_stack() const;
-	bool runtime_error(std::string const &);
+	bool runtime_error(Error *, std::string const &);
 };
 }
