@@ -44,13 +44,13 @@ struct CallFrame
 	uint base{0};
 	bool is_constructor{false};
 
-	struct CatchEnv
+	struct UnwindContext
 	{
 		unsigned ip;
 		size_t sp;
 	};
 
-	std::vector<CatchEnv> catchv;
+	std::vector<UnwindContext> unwind_contexts;
 };
 
 class Vm

@@ -599,7 +599,7 @@ void Vm::run_instruction(bool in_call)
 		case OP_PUSH_EXCEPTION:
 		{
 			auto offset = read_short();
-			call_stack.back().catchv.push_back({call_stack.back().ip + offset, stack.size()});
+			call_stack.back().unwind_contexts.push_back({call_stack.back().ip + offset, stack.size()});
 			break;
 		}
 
@@ -823,13 +823,13 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 	while (!call_stack.empty())
 	{
 		auto &call_frame = call_stack.back();
-		if (call_frame.catchv.empty())
+		if (call_frame.unwind_contexts.empty())
 		{
 			call_stack.pop_back();
 			continue;
 		}
 
-		auto catch_env = call_frame.catchv.back();
+		auto catch_env = call_frame.unwind_contexts.back();
 		assert(catch_env.sp <= stack.size());
 		while (stack.size() != catch_env.sp)
 			pop();
