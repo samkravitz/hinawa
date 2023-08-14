@@ -105,6 +105,7 @@ private:
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 
 	void print_stack() const;
-	bool runtime_error(Error *, std::string const &);
+	bool runtime_error(Error *, const std::string &);
+	bool runtime_error(Value, const std::string &);
 };
 }

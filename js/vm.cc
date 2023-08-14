@@ -251,7 +251,7 @@ void Vm::run_instruction(bool in_call)
 			const auto &ident = read_string();
 			if (!m_global->has_own_property(ident))
 			{
-				if (!runtime_error(heap().allocate<ReferenceError>(),
+				if (!runtime_error(heap().allocate<ReferenceError>(ident.string()),
 				                   fmt::format("Undefined variable '{}'", ident.string())))
 					return;
 				break;
@@ -264,6 +264,15 @@ void Vm::run_instruction(bool in_call)
 		case OP_SET_GLOBAL:
 		{
 			const auto &ident = read_string();
+			if (!m_global->has_own_property(ident))
+			{
+				pop();
+				if (!runtime_error(heap().allocate<ReferenceError>(ident.string()),
+				                   fmt::format("Undefined variable '{}'", ident.string())))
+					return;
+				break;
+			}
+
 			m_global->set(ident, peek(0));
 			break;
 		}
@@ -827,18 +836,26 @@ void Vm::print_stack() const
 	fmt::print("]\n");
 }
 
-bool Vm::runtime_error(Error *err, std::string const &msg)
+bool Vm::runtime_error(Error *err, const std::string &msg)
 {
+	m_error = err;
+	return runtime_error(Value(err), msg);
+}
+
+bool Vm::runtime_error(Value thrown_value, const std::string &msg)
+{
+	// there are no unwind frames, error is uncaught
 	if (frames.back().catchv.empty())
 	{
-		m_error = err;
 		auto ip = frames.back().ip;
 		auto line = frames.back().closure->function->chunk.lines[ip - 1];
-		fmt::print("[line {}] Uncaught {}\n", line, msg);
+		fmt::print("[line {}] Uncaught: {} {}\n", line, msg, thrown_value.to_string());
 		return false;
 	}
 
+	// there are unwind frames, error is caught
 	m_error = nullptr;
+	push(thrown_value);
 	auto ip = frames.back().catchv.back().ip;
 	frames.back().ip = ip;
 	return true;
