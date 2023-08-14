@@ -217,7 +217,7 @@ bool Value::is_falsy() const
 Value Value::to_primitive(Type preferred_type) const
 {
 	//	1. If input is an Object, then
-	if (is_object)
+	if (is_object())
 	{
 		//	a. Let exoticToPrim be ? GetMethod(input, @@toPrimitive).
 		//	b. If exoticToPrim is not undefined, then

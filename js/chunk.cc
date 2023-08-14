@@ -154,7 +154,7 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return offset;
 		}
 		default:
-			fmt::print("Unknown opcode: {}\n", instruction);
+			fmt::print("Unknown opcode: {}\n", int(instruction));
 			return offset + 1;
 	}
 }

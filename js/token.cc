@@ -17,6 +17,6 @@ Token::Token(std::string value, TokenType type, int line, int col) :
 
 std::string Token::to_string()
 {
-	return fmt::format("{{ value: {}, type: {}, line: {}, col: {} }}", m_value, m_type, m_line, m_col);
+	return fmt::format("{{ value: {}, type: {}, line: {}, col: {} }}", m_value, int(m_type), m_line, m_col);
 }
 }
