@@ -612,32 +612,9 @@ void Vm::run_instruction(bool in_call)
 
 		case OP_THROW:
 		{
-			bool caught = false;
-			auto val = pop();
-			while (!frames.empty())
-			{
-				auto &frame = frames.back();
+			if (!runtime_error(pop(), ""))
+				return;
 
-				if (frame.catchv.empty())
-				{
-					frames.pop_back();
-					continue;
-				}
-
-				auto catch_env = frame.catchv.back();
-				assert(catch_env.sp <= stack.size());
-				while (stack.size() != catch_env.sp)
-					pop();
-
-				frame.ip = catch_env.ip;
-				caught = true;
-				break;
-			}
-
-			if (!caught)
-				fmt::print(stderr, "Uncaught Exception!\n");
-
-			push(val);
 			break;
 		}
 
@@ -836,20 +813,43 @@ bool Vm::runtime_error(Error *err, const std::string &msg)
 
 bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 {
-	// there are no unwind frames, error is uncaught
-	if (frames.back().catchv.empty())
+	bool caught = false;
+	auto frames_copy = frames;
+
+	/**
+	* Iterate through the call stack backwards, finding the first frame which contains
+	* an unwind context. If no such frame exists, the error is uncaught
+	*/
+	while (!frames.empty())
 	{
-		auto ip = frames.back().ip;
-		auto line = frames.back().closure->function->chunk.lines[ip - 1];
-		fmt::print("[line {}] Uncaught: {} {}\n", line, msg, thrown_value.to_string());
+		auto &frame = frames.back();
+		if (frame.catchv.empty())
+		{
+			frames.pop_back();
+			continue;
+		}
+
+		auto catch_env = frame.catchv.back();
+		assert(catch_env.sp <= stack.size());
+		while (stack.size() != catch_env.sp)
+			pop();
+
+		frame.ip = catch_env.ip;
+		caught = true;
+		break;
+	}
+
+	if (!caught)
+	{
+		frames = frames_copy;
+		fmt::print(stderr, "Uncaught exception:\n");
+		print_stack_trace();
+		should_return = true;
 		return false;
 	}
 
-	// there are unwind frames, error is caught
 	m_error = nullptr;
 	push(thrown_value);
-	auto ip = frames.back().catchv.back().ip;
-	frames.back().ip = ip;
 	return true;
 }
 
