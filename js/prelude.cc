@@ -9,6 +9,7 @@
 #include "function.h"
 #include "heap.h"
 #include "object_string.h"
+#include "value.h"
 #include "vm.h"
 
 namespace js
@@ -58,14 +59,27 @@ static void prelude_array(Vm &vm)
 */
 static void prelude_error(Vm &vm)
 {
-	auto *error =
-	    NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate<Error>()); });
+	auto *error = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		std::string message = "";
+		if (!argv.empty())
+		{
+			auto &maybe_message = argv[0];
+			if (maybe_message.is_string())
+				message = maybe_message.as_string().string();
+		}
 
-	auto *reference_error = NativeFunction::create(
-	    [](auto &vm, const auto &argv) -> Value { return Value(heap().allocate<ReferenceError>()); });
+		return Value(heap().allocate<Error>(vm, message));
+	});
 
-	auto *type_error =
-	    NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate<TypeError>()); });
+	auto *reference_error = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		fmt::print(stderr, "Warning: Trying to construct ReferenceError. You should not do this\n");
+		return Value::js_undefined();
+	});
+
+	auto *type_error = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		fmt::print(stderr, "Warning: Trying to construct TypeError. You should not do this\n");
+		return Value::js_undefined();
+	});
 
 	vm.global()->set("Error", Value(error));
 	vm.global()->set("ReferenceError", Value(reference_error));

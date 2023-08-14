@@ -74,6 +74,7 @@ public:
 	void push(Value);
 	Value pop();
 	Value peek(uint offset = 0);
+	std::string stack_trace() const;
 
 	inline Error *error() const { return m_error; }
 	inline bool has_error() const { return m_error != nullptr; }
@@ -109,6 +110,5 @@ private:
 
 	void print_stack() const;
 	void print_stack_trace() const;
-	std::string stack_trace() const;
 };
 }

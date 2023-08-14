@@ -252,7 +252,7 @@ void Vm::run_instruction(bool in_call)
 			const auto &ident = read_string();
 			if (!m_global->has_own_property(ident))
 			{
-				if (!runtime_error(heap().allocate<ReferenceError>(ident.string()),
+				if (!runtime_error(heap().allocate<ReferenceError>(*this, ident.string()),
 				                   fmt::format("Undefined variable '{}'", ident.string())))
 					return;
 				break;
@@ -268,7 +268,7 @@ void Vm::run_instruction(bool in_call)
 			if (!m_global->has_own_property(ident))
 			{
 				pop();
-				if (!runtime_error(heap().allocate<ReferenceError>(ident.string()),
+				if (!runtime_error(heap().allocate<ReferenceError>(*this, ident.string()),
 				                   fmt::format("Undefined variable '{}'", ident.string())))
 					return;
 				break;
