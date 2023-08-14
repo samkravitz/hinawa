@@ -90,7 +90,7 @@ private:
 	bool should_return = false;
 
 	std::vector<Value> stack;
-	std::vector<CallFrame> frames;
+	std::vector<CallFrame> call_stack;
 
 	void run(Function &);
 	void run_instruction(bool in_call);

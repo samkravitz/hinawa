@@ -60,7 +60,7 @@ void Vm::run(Function &f)
 	push(Value(&f));
 	auto *closure = Closure::create(&f);
 	auto cf = CallFrame{closure, 0};
-	frames.push_back(cf);
+	call_stack.push_back(cf);
 	pop();
 	push(Value(closure));
 
@@ -77,7 +77,7 @@ void Vm::call(Closure *closure)
 	auto num_args = closure->function->arity;
 	auto base = static_cast<unsigned>(stack.size() - num_args - 1);
 	auto cf = CallFrame{closure, base};
-	frames.push_back(cf);
+	call_stack.push_back(cf);
 
 	while (1)
 	{
@@ -93,7 +93,7 @@ void Vm::call(Closure *closure)
 void Vm::run_instruction(bool in_call)
 {
 #ifdef DEBUG_PRINT_STACK
-	frames.back().closure->function->chunk.disassemble_instruction(frames.back().ip);
+	call_stack.back().closure->function->chunk.disassemble_instruction(call_stack.back().ip);
 #endif
 
 	auto instruction = static_cast<Opcode>(read_byte());
@@ -103,21 +103,21 @@ void Vm::run_instruction(bool in_call)
 		case OP_RETURN:
 		{
 			auto result = pop();
-			auto frame = frames.back();
+			auto call_frame = call_stack.back();
 			Object *new_object = nullptr;
-			if (frame.is_constructor)
-				new_object = stack[frame.base].as_object();
+			if (call_frame.is_constructor)
+				new_object = stack[call_frame.base].as_object();
 
-			frames.pop_back();
+			call_stack.pop_back();
 
-			if (frames.empty() || in_call)
+			if (call_stack.empty() || in_call)
 			{
 				push(result);
 				should_return = true;
 				return;
 			}
 
-			auto diff = stack.size() - frame.base;
+			auto diff = stack.size() - call_frame.base;
 			for (uint i = 0; i < diff; i++)
 				pop();
 
@@ -280,7 +280,7 @@ void Vm::run_instruction(bool in_call)
 
 		case OP_GET_LOCAL:
 		{
-			auto base = frames.back().base;
+			auto base = call_stack.back().base;
 			auto slot = read_byte();
 			push(stack[base + slot]);
 			break;
@@ -288,7 +288,7 @@ void Vm::run_instruction(bool in_call)
 
 		case OP_SET_LOCAL:
 		{
-			auto base = frames.back().base;
+			auto base = call_stack.back().base;
 			auto slot = read_byte();
 			stack[base + slot] = peek();
 			break;
@@ -298,7 +298,7 @@ void Vm::run_instruction(bool in_call)
 		{
 			auto offset = read_short();
 			if (peek().is_falsy())
-				frames.back().ip += offset;
+				call_stack.back().ip += offset;
 
 			break;
 		}
@@ -306,14 +306,14 @@ void Vm::run_instruction(bool in_call)
 		case OP_JUMP:
 		{
 			auto offset = read_short();
-			frames.back().ip += offset;
+			call_stack.back().ip += offset;
 			break;
 		}
 
 		case OP_LOOP:
 		{
 			auto offset = read_short();
-			frames.back().ip -= offset;
+			call_stack.back().ip -= offset;
 			break;
 		}
 
@@ -332,7 +332,7 @@ void Vm::run_instruction(bool in_call)
 					auto *closure = obj->as_closure();
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{closure, base};
-					frames.push_back(cf);
+					call_stack.push_back(cf);
 					stack[base] = Value(receiver);
 					break;
 				}
@@ -363,7 +363,7 @@ void Vm::run_instruction(bool in_call)
 				{
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{method->as_closure(), base};
-					frames.push_back(cf);
+					call_stack.push_back(cf);
 					stack[base] = Value(receiver);
 				}
 			}
@@ -404,7 +404,7 @@ void Vm::run_instruction(bool in_call)
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{constructor->as_closure(), base};
 					cf.is_constructor = true;
-					frames.push_back(cf);
+					call_stack.push_back(cf);
 					stack[base] = Value(new_object);
 				}
 
@@ -599,14 +599,14 @@ void Vm::run_instruction(bool in_call)
 		case OP_PUSH_EXCEPTION:
 		{
 			auto offset = read_short();
-			frames.back().catchv.push_back({frames.back().ip + offset, stack.size()});
+			call_stack.back().catchv.push_back({call_stack.back().ip + offset, stack.size()});
 			break;
 		}
 
 		case OP_POP_EXCEPTION:
 		{
-			assert(!frames.back().catchv.empty());
-			frames.back().catchv.pop_back();
+			assert(!call_stack.back().unwind_contexts.empty());
+			call_stack.back().unwind_contexts.pop_back();
 			break;
 		}
 
@@ -629,9 +629,9 @@ void Vm::run_instruction(bool in_call)
 				auto index = read_byte();
 				auto is_local = read_byte();
 				if (is_local)
-					closure->upvalues.push_back(capture_upvalue(&stack[frames.back().base + index]));
+					closure->upvalues.push_back(capture_upvalue(&stack[call_stack.back().base + index]));
 				else
-					closure->upvalues.push_back(frames.back().closure->upvalues[index]);
+					closure->upvalues.push_back(call_stack.back().closure->upvalues[index]);
 			}
 			break;
 		}
@@ -639,14 +639,14 @@ void Vm::run_instruction(bool in_call)
 		case OP_GET_UPVALUE:
 		{
 			auto slot = read_byte();
-			push(*frames.back().closure->upvalues[slot]->location);
+			push(*call_stack.back().closure->upvalues[slot]->location);
 			break;
 		}
 
 		case OP_SET_UPVALUE:
 		{
 			auto slot = read_byte();
-			*frames.back().closure->upvalues[slot]->location = peek();
+			*call_stack.back().closure->upvalues[slot]->location = peek();
 			break;
 		}
 
@@ -771,18 +771,18 @@ void Vm::binary_op(Operator op)
 
 u8 Vm::read_byte()
 {
-	auto ip = frames.back().ip;
-	auto byte = frames.back().closure->function->chunk.code[ip];
-	frames.back().ip += 1;
+	auto ip = call_stack.back().ip;
+	auto byte = call_stack.back().closure->function->chunk.code[ip];
+	call_stack.back().ip += 1;
 	return byte;
 }
 
 u16 Vm::read_short()
 {
-	auto ip = frames.back().ip;
-	auto a = frames.back().closure->function->chunk.code[ip];
-	auto b = frames.back().closure->function->chunk.code[ip + 1];
-	frames.back().ip += 2;
+	auto ip = call_stack.back().ip;
+	auto a = call_stack.back().closure->function->chunk.code[ip];
+	auto b = call_stack.back().closure->function->chunk.code[ip + 1];
+	call_stack.back().ip += 2;
 
 	return (a << 8) | b;
 }
@@ -790,7 +790,7 @@ u16 Vm::read_short()
 Value Vm::read_constant()
 {
 	auto byte = read_byte();
-	return frames.back().closure->function->chunk.constants[byte];
+	return call_stack.back().closure->function->chunk.constants[byte];
 }
 
 String &Vm::read_string()
@@ -814,34 +814,34 @@ bool Vm::runtime_error(Error *err, const std::string &msg)
 bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 {
 	bool caught = false;
-	auto frames_copy = frames;
+	auto call_stack_copy = call_stack;
 
 	/**
 	* Iterate through the call stack backwards, finding the first frame which contains
 	* an unwind context. If no such frame exists, the error is uncaught
 	*/
-	while (!frames.empty())
+	while (!call_stack.empty())
 	{
-		auto &frame = frames.back();
-		if (frame.catchv.empty())
+		auto &call_frame = call_stack.back();
+		if (call_frame.catchv.empty())
 		{
-			frames.pop_back();
+			call_stack.pop_back();
 			continue;
 		}
 
-		auto catch_env = frame.catchv.back();
+		auto catch_env = call_frame.catchv.back();
 		assert(catch_env.sp <= stack.size());
 		while (stack.size() != catch_env.sp)
 			pop();
 
-		frame.ip = catch_env.ip;
+		call_frame.ip = catch_env.ip;
 		caught = true;
 		break;
 	}
 
 	if (!caught)
 	{
-		frames = frames_copy;
+		call_stack = call_stack_copy;
 		fmt::print(stderr, "Uncaught exception:\n");
 		print_stack_trace();
 		should_return = true;
@@ -870,7 +870,7 @@ void Vm::print_stack_trace() const
 std::string Vm::stack_trace() const
 {
 	std::string stacktrace = "";
-	for (const auto &call_frame : frames | std::views::reverse)
+	for (const auto &call_frame : call_stack | std::views::reverse)
 	{
 		auto *function = call_frame.closure->function;
 		auto instruction = call_frame.ip - 1;

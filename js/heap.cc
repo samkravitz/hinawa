@@ -53,7 +53,7 @@ void Heap::mark()
 		mark_value(value);
 
 	// mark closures and upvalues on vm's call stack
-	for (auto &frame : vm().frames)
+	for (auto &frame : vm().call_stack)
 	{
 		auto *closure = frame.closure;
 		mark_cell(closure);
