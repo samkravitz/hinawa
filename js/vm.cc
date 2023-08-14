@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdio>
 #include <iostream>
+#include <ranges>
 
 #include <fmt/format.h>
 
@@ -827,15 +828,6 @@ Upvalue *Vm::capture_upvalue(Value *local)
 	return heap().allocate<Upvalue>(local);
 }
 
-void Vm::print_stack() const
-{
-	fmt::print("stack:          ");
-	fmt::print("[ ");
-	for (auto &x : stack)
-		fmt::print("{} ", x.to_string());
-	fmt::print("]\n");
-}
-
 bool Vm::runtime_error(Error *err, const std::string &msg)
 {
 	m_error = err;
@@ -859,5 +851,32 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 	auto ip = frames.back().catchv.back().ip;
 	frames.back().ip = ip;
 	return true;
+}
+
+void Vm::print_stack() const
+{
+	fmt::print("stack:          ");
+	fmt::print("[ ");
+	for (auto &x : stack)
+		fmt::print("{} ", x.to_string());
+	fmt::print("]\n");
+}
+
+void Vm::print_stack_trace() const
+{
+	fmt::print(stderr, "{}", stack_trace());
+}
+
+std::string Vm::stack_trace() const
+{
+	std::string stacktrace = "";
+	for (const auto &call_frame : frames | std::views::reverse)
+	{
+		auto *function = call_frame.closure->function;
+		auto instruction = call_frame.ip - 1;
+		stacktrace +=
+		    fmt::format("at {}: line {}\n", function->name_for_stack_trace(), function->chunk.lines[instruction]);
+	}
+	return stacktrace;
 }
 }

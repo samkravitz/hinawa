@@ -75,6 +75,19 @@ public:
 	bool is_function() const { return true; }
 	virtual bool is_native() const { return false; }
 
+	std::string name_for_stack_trace() const
+	{
+		switch (type)
+		{
+			case ANONYMOUS:
+				return "anonymous()";
+			case SCRIPT:
+				return "script";
+			default:
+				return fmt::format("{}()", name->string());
+		}
+	}
+
 	virtual std::string to_string() const
 	{
 		switch (type)
