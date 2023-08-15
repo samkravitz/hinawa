@@ -36,6 +36,9 @@ bool Value::strict_eq(const Value &other) const
 	if (type() != other.type())
 		return false;
 
+	if (type() == Type::Bool)
+		return as_bool() == other.as_bool();
+
 	if (type() == Type::String)
 	{
 		const auto &str1 = as_string();
