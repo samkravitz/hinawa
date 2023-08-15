@@ -32,6 +32,8 @@ public:
 
 	static StringPrototype *the();
 
+	std::string to_string() const override { return "StringPrototype{}"; }
+
 private:
 	StringPrototype();
 	static StringPrototype *instance;

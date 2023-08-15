@@ -1,2 +1,2 @@
-{ hasOwnProperty: <native fn> }
-{ charAt: <native fn> }
+ObjectPrototype{}
+StringPrototype{}

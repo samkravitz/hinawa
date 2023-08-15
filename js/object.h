@@ -69,6 +69,8 @@ public:
 
 	static ObjectPrototype *the();
 
+	std::string to_string() const override { return "ObjectPrototype{}"; }
+
 private:
 	ObjectPrototype();
 	static ObjectPrototype *instance;
