@@ -652,11 +652,11 @@ void Vm::run_instruction(bool in_call)
 
 		case OP_INSTANCEOF:
 		{
-			auto constructor = peek();
-			auto obj = peek(1);
+			auto constructor_value = peek();
+			auto obj_value = peek(1);
 
 			// TODO - this should be a runtime error.
-			if (!obj.is_object() || !constructor.is_object())
+			if (!obj_value.is_object() || !constructor_value.is_object())
 			{
 				fmt::print(stderr, "{} [instanceof] {} are not objects!\n", peek().to_string(), peek(1).to_string());
 				pop();
@@ -665,13 +665,23 @@ void Vm::run_instruction(bool in_call)
 				break;
 			}
 
-			auto result = Value(false);
-			if (obj.as_object()->get("constructor") == constructor)
-				result = Value(true);
+			auto *obj = obj_value.as_object();
+			auto *constructor = constructor_value.as_object();
+			auto constructor_prototype = constructor->get("prototype");
+
+			bool result = false;
+			for (auto *prototype = obj->prototype(); prototype; prototype = prototype->prototype())
+			{
+				if (Value(prototype) == constructor_prototype)
+				{
+					result = true;
+					break;
+				}
+			}
 
 			pop();
 			pop();
-			push(result);
+			push(Value(result));
 			break;
 		}
 

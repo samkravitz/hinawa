@@ -1,5 +1,6 @@
 #include "function.h"
 
+#include "object.h"
 #include "vm.h"
 
 namespace js

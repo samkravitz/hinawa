@@ -8,6 +8,7 @@
 #include "error.h"
 #include "function.h"
 #include "heap.h"
+#include "object.h"
 #include "object_string.h"
 #include "value.h"
 #include "vm.h"
@@ -21,24 +22,11 @@ namespace js
 static void prelude_object(Vm &vm)
 {
 	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate()); });
+	auto val = Value(object);
+	vm.global()->set("Object", val);
 
-	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
-		// TODO - this should throw, instead of returning undefined
-		if (argv.empty())
-			return {};
-
-		auto obj = argv[0];
-		if (obj.is_string())
-			return Value(StringPrototype::the());
-
-		// TODO - this should throw, instead of returning undefined
-		if (!obj.is_object())
-			return {};
-
-		return Value(obj.as_object()->prototype());
-	});
-
-	vm.global()->set("Object", Value(object));
+	object->set("prototype", Value(ObjectPrototype::the()));
+	ObjectPrototype::the()->set("constructor", val);
 }
 
 /**

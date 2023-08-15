@@ -6,6 +6,7 @@
 
 #include "array.h"
 #include "function.h"
+#include "object_string.h"
 #include "string.hh"
 #include "vm.h"
 
@@ -132,6 +133,14 @@ std::string Object::to_string() const
 	return stream.str();
 }
 
+void Object::print_prototype_chain()
+{
+	for (auto *proto = prototype(); proto; proto = proto->prototype())
+		fmt::print("{} -> \n", proto->to_string());
+
+	fmt::print("-> null\n");
+}
+
 ObjectPrototype *ObjectPrototype::instance = nullptr;
 
 ObjectPrototype::ObjectPrototype()
@@ -147,6 +156,22 @@ ObjectPrototype::ObjectPrototype()
 
 		const auto &property = argv[0].as_string();
 		return Value(obj->has_own_property(property));
+	});
+
+	set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
+		// TODO - this should throw, instead of returning undefined
+		if (argv.empty())
+			return {};
+
+		auto obj = argv[0];
+		if (obj.is_string())
+			return Value(StringPrototype::the());
+
+		// TODO - this should throw, instead of returning undefined
+		if (!obj.is_object())
+			return {};
+
+		return Value(obj.as_object()->prototype());
 	});
 }
 

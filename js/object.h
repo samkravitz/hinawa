@@ -52,6 +52,7 @@ public:
 	Value ordinary_to_primitive(const Value::Type &) const;
 
 	virtual std::string to_string() const;
+	void print_prototype_chain();
 protected:
 	std::unordered_map<std::string, Value> properties;
 	Object *m_prototype{nullptr};
