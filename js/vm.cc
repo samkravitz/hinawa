@@ -60,6 +60,7 @@ void Vm::run(Function &f)
 	push(Value(&f));
 	auto *closure = Closure::create(&f);
 	auto cf = CallFrame{closure, 0};
+	cf._this = m_global;
 	call_stack.push_back(cf);
 	pop();
 	push(Value(closure));
@@ -72,11 +73,17 @@ void Vm::run(Function &f)
 	}
 }
 
+Object *Vm::current_this() const
+{
+	return static_cast<Object *>(call_stack.back()._this);
+}
+
 void Vm::call(Closure *closure)
 {
 	auto num_args = closure->function->arity;
 	auto base = static_cast<unsigned>(stack.size() - num_args - 1);
 	auto cf = CallFrame{closure, base};
+	cf._this = m_global;
 	call_stack.push_back(cf);
 
 	while (1)
@@ -104,10 +111,7 @@ void Vm::run_instruction(bool in_call)
 		{
 			auto result = pop();
 			auto call_frame = call_stack.back();
-			Object *new_object = nullptr;
-			if (call_frame.is_constructor)
-				new_object = stack[call_frame.base].as_object();
-
+			Object *new_object = current_this();
 			call_stack.pop_back();
 
 			if (call_stack.empty() || in_call)
@@ -121,7 +125,7 @@ void Vm::run_instruction(bool in_call)
 			for (uint i = 0; i < diff; i++)
 				pop();
 
-			if (new_object)
+			if (call_frame.is_constructor)
 				push(Value(new_object));
 			else
 				push(result);
@@ -282,7 +286,14 @@ void Vm::run_instruction(bool in_call)
 		{
 			auto base = call_stack.back().base;
 			auto slot = read_byte();
-			push(stack[base + slot]);
+
+			Value value = stack[base + slot];
+
+			// special case for `this`
+			if (slot == 0)
+				value = Value(current_this());
+
+			push(value);
 			break;
 		}
 
@@ -332,14 +343,21 @@ void Vm::run_instruction(bool in_call)
 					auto *closure = obj->as_closure();
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{closure, base};
+					cf._this = receiver;
 					call_stack.push_back(cf);
-					stack[base] = Value(receiver);
 					break;
 				}
 
 				if (obj->is_bound_method())
 				{
 					auto *bound = static_cast<BoundMethod *>(obj);
+					method = bound->method;
+					receiver = bound->receiver;
+				}
+
+				if (obj->is_bound_native_method())
+				{
+					auto *bound = static_cast<BoundNativeMethod *>(obj);
 					method = bound->method;
 					receiver = bound->receiver;
 				}
@@ -352,7 +370,11 @@ void Vm::run_instruction(bool in_call)
 					while (i--)
 						argv.push_back(peek(i));
 
+					auto cf = CallFrame{0, 0};
+					cf._this = receiver;
+					call_stack.push_back(cf);
 					auto result = method->as_native()->call(*this, argv);
+					call_stack.pop_back();
 					for (int i = 0; i < num_args + 1; i++)
 						pop();
 
@@ -363,8 +385,8 @@ void Vm::run_instruction(bool in_call)
 				{
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{method->as_closure(), base};
+					cf._this = receiver;
 					call_stack.push_back(cf);
-					stack[base] = Value(receiver);
 				}
 			}
 
@@ -404,8 +426,8 @@ void Vm::run_instruction(bool in_call)
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{constructor->as_closure(), base};
 					cf.is_constructor = true;
+					cf._this = new_object;
 					call_stack.push_back(cf);
-					stack[base] = Value(new_object);
 				}
 
 				else if (obj->is_native())
@@ -550,10 +572,14 @@ void Vm::run_instruction(bool in_call)
 				break;
 			}
 
-			_this = obj;
 			auto val = obj->get(read_string());
-			if (val.is_object() && val.as_object()->is_closure())
-				val = Value(heap().allocate<BoundMethod>(obj, val.as_object()->as_closure()));
+			if (val.is_object())
+			{
+				if (val.as_object()->is_closure())
+					val = Value(heap().allocate<BoundMethod>(obj, val.as_object()->as_closure()));
+				else if (val.as_object()->is_native())
+					val = Value(heap().allocate<BoundNativeMethod>(obj, val.as_object()->as_native()));
+			}
 
 			pop();
 			push(val);

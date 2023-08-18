@@ -44,6 +44,9 @@ struct CallFrame
 	uint base{0};
 	bool is_constructor{false};
 
+	// pointer to the current this object
+	Object *_this = nullptr;
+
 	struct UnwindContext
 	{
 		unsigned ip;
@@ -62,7 +65,7 @@ public:
 	Vm(Document *);
 
 	void interpret(const std::string &);
-	Object *current_this() const { return _this; }
+	Object *current_this() const;
 	inline void set_global(Object *g) { m_global = g; }
 	inline Object *global() { return m_global; }
 
@@ -82,9 +85,6 @@ public:
 private:
 	// pointer to the global object
 	Object *m_global = nullptr;
-
-	// pointer to the current this object
-	Object *_this = nullptr;
 
 	Error *m_error = nullptr;
 

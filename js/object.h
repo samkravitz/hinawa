@@ -39,6 +39,7 @@ public:
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
 	virtual bool is_bound_method() const { return false; }
+	virtual bool is_bound_native_method() const { return false; }
 	virtual bool is_closure() const { return false; }
 	virtual bool is_array() const { return false; }
 	virtual bool is_object() const { return true; }

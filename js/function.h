@@ -161,4 +161,22 @@ struct BoundMethod final : public Object
 	Object *receiver;
 	Closure *method;
 };
+
+struct BoundNativeMethod final : public Object
+{
+	BoundNativeMethod(Object *receiver, NativeFunction *method) :
+	    receiver(receiver),
+	    method(method)
+	{ }
+
+	bool is_bound_native_method() const override { return true; }
+
+	std::string to_string() const override
+	{
+		return fmt::format("{{ BoundNativeMethod this: {} method: {} }}", receiver->to_string(), method->to_string());
+	}
+
+	Object *receiver;
+	NativeFunction *method;
+};
 }
