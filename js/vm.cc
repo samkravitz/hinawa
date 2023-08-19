@@ -52,25 +52,13 @@ void Vm::interpret(const std::string &program_string)
 #endif
 
 	auto *fn = Compiler::compile(program);
-	run(*fn);
-}
-
-void Vm::run(Function &f)
-{
-	push(Value(&f));
-	auto *closure = Closure::create(&f);
+	push(Value(fn));
+	auto *closure = Closure::create(fn);
 	auto cf = CallFrame{closure, 0};
 	cf._this = m_global;
-	call_stack.push_back(cf);
 	pop();
 	push(Value(closure));
-
-	while (1)
-	{
-		run_instruction(false);
-		if (has_error() || should_return)
-			break;
-	}
+	call(cf);
 }
 
 Object *Vm::current_this() const
@@ -78,26 +66,31 @@ Object *Vm::current_this() const
 	return static_cast<Object *>(call_stack.back()._this);
 }
 
-void Vm::call(Closure *closure)
+Value Vm::call(Closure *closure)
 {
 	auto num_args = closure->function->arity;
 	auto base = static_cast<unsigned>(stack.size() - num_args - 1);
 	auto cf = CallFrame{closure, base};
-	cf._this = m_global;
+	call(cf);
+	return pop();
+}
+
+Value Vm::call(const CallFrame &cf)
+{
 	call_stack.push_back(cf);
+	bool should_return = false;
 
 	while (1)
 	{
-		run_instruction(true);
+		run_instruction(should_return);
 		if (has_error() || should_return)
 			break;
 	}
 
-	should_return = false;
-	m_error = nullptr;
+	return peek();
 }
 
-void Vm::run_instruction(bool in_call)
+void Vm::run_instruction(bool &should_return)
 {
 #ifdef DEBUG_PRINT_STACK
 	call_stack.back().closure->function->chunk.disassemble_instruction(call_stack.back().ip);
@@ -111,24 +104,19 @@ void Vm::run_instruction(bool in_call)
 		{
 			auto result = pop();
 			auto call_frame = call_stack.back();
-			Object *new_object = current_this();
+			auto *_this = current_this();
 			call_stack.pop_back();
 
-			if (call_stack.empty() || in_call)
-			{
-				push(result);
-				should_return = true;
-				return;
-			}
-
 			auto diff = stack.size() - call_frame.base;
-			for (uint i = 0; i < diff; i++)
+			for (unsigned i = 0; i < diff; i++)
 				pop();
 
 			if (call_frame.is_constructor)
-				push(Value(new_object));
+				push(Value(_this));
 			else
 				push(result);
+
+			should_return = true;
 			break;
 		}
 
@@ -344,7 +332,7 @@ void Vm::run_instruction(bool in_call)
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{closure, base};
 					cf._this = receiver;
-					call_stack.push_back(cf);
+					call(cf);
 					break;
 				}
 
@@ -386,7 +374,7 @@ void Vm::run_instruction(bool in_call)
 					auto base = static_cast<uint>(stack.size() - num_args - 1);
 					auto cf = CallFrame{method->as_closure(), base};
 					cf._this = receiver;
-					call_stack.push_back(cf);
+					call(cf);
 				}
 			}
 
@@ -427,7 +415,7 @@ void Vm::run_instruction(bool in_call)
 					auto cf = CallFrame{constructor->as_closure(), base};
 					cf.is_constructor = true;
 					cf._this = new_object;
-					call_stack.push_back(cf);
+					call(cf);
 				}
 
 				else if (obj->is_native())
@@ -724,6 +712,9 @@ void Vm::run_instruction(bool in_call)
 			assert(!"Unknown opcode");
 	}
 
+	if (call_stack.empty())
+		should_return = true;
+
 #ifdef DEBUG_PRINT_STACK
 	print_stack();
 #endif
@@ -880,7 +871,7 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 		call_stack = call_stack_copy;
 		fmt::print(stderr, "Uncaught exception:\n");
 		print_stack_trace();
-		should_return = true;
+		m_error = heap().allocate<Error>();
 		return false;
 	}
 

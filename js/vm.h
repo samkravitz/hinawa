@@ -69,7 +69,8 @@ public:
 	inline void set_global(Object *g) { m_global = g; }
 	inline Object *global() { return m_global; }
 
-	void call(Closure *);
+	Value call(const CallFrame &);
+	Value call(Closure *);
 
 	Document &document();
 	void set_document_wrapper(bindings::DocumentWrapper *wrapper) { m_document_wrapper = wrapper; }
@@ -82,19 +83,20 @@ public:
 	inline Error *error() const { return m_error; }
 	inline bool has_error() const { return m_error != nullptr; }
 
+	inline Value last_evaluated_expression() const { return m_last_evaluated_expression; }
+
 private:
 	// pointer to the global object
 	Object *m_global = nullptr;
 
 	Error *m_error = nullptr;
 
-	bool should_return = false;
+	Value m_last_evaluated_expression = {};
 
 	std::vector<Value> stack;
 	std::vector<CallFrame> call_stack;
 
-	void run(Function &);
-	void run_instruction(bool in_call);
+	void run_instruction(bool &);
 
 	void binary_op(Operator);
 
