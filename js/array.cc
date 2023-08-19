@@ -45,10 +45,8 @@ ArrayPrototype::ArrayPrototype()
 		for (const auto &val : *arr)
 		{
 			vm.push(val);
-			vm.call(callback);
-			auto res = vm.pop();
+			auto res = vm.call(callback);
 			new_arr->push_back(res);
-			vm.pop();
 		}
 
 		return Value(new_arr);
