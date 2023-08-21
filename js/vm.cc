@@ -82,7 +82,7 @@ Value Vm::call(const CallFrame &cf)
 
 	while (1)
 	{
-		if (has_error() || should_return)
+		if (has_error() || should_return || call_stack.empty())
 			break;
 
 		run_instruction(should_return);
@@ -888,7 +888,7 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 		call_stack = call_stack_copy;
 		fmt::print(stderr, "Uncaught exception:\n");
 		print_stack_trace();
-		//should_return = true;
+		m_error = heap().allocate<Error>();
 		return false;
 	}
 

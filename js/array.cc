@@ -44,6 +44,7 @@ ArrayPrototype::ArrayPrototype()
 		auto *new_arr = heap().allocate<Array>();
 		for (const auto &val : *arr)
 		{
+			vm.push(Value(callback));
 			vm.push(val);
 			auto res = vm.call(callback);
 			new_arr->push_back(res);
