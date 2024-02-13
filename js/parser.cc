@@ -112,7 +112,7 @@ std::vector<std::shared_ptr<Stmt>> Parser::parse_impl()
 
 std::shared_ptr<Stmt> Parser::declaration()
 {
-	if (match(KEY_VAR))
+	if (match(KEY_VAR) || match(KEY_LET) || match(KEY_CONST))
 		return var_declaration();
 
 	//if (match(KEY_CLASS))
@@ -225,7 +225,7 @@ std::shared_ptr<Stmt> Parser::for_statement()
 	consume(LEFT_PAREN, "Expected '('");
 
 	std::shared_ptr<AstNode> initialization = nullptr;
-	if (match(KEY_VAR))
+	if (match(KEY_VAR) || match(KEY_LET) || match(KEY_CONST))
 	{
 		initialization = var_declaration();
 		if (!initialization)
