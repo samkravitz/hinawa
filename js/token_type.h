@@ -67,8 +67,9 @@ enum TokenType : int
 
 	// Literals
 	IDENTIFIER,
-	STRING,    // e.g. 'Hello World'
-	NUMBER,    // e.g. 3.4, -1
+	STRING,        // e.g. 'Hello World'
+	NUMBER,        // e.g. 3.4, -1
+	HEX_NUMBER,    // e.g. 0x10, 0xff
 
 	// Keywords
 	KEY_AWAIT,

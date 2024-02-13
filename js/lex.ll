@@ -142,6 +142,7 @@
 \"([^\\\"]|\\n|\\t)*\"      { return STRING; }
 \'([^\\\']|\\n|\\t)*\'      { return STRING; }
 -?([0-9]+|[0-9]*\.[0-9]+)   { return NUMBER; }
+0x[0-9a-fA-f]+              { return HEX_NUMBER; }
 
 %{
 	// Whitespace / comment

@@ -455,6 +455,12 @@ void Compiler::compile(const Literal &expr)
 			emit_constant(Value(d));
 			break;
 		}
+		case HEX_NUMBER:
+		{
+			auto hex = (double) std::stol(expr.token.value(), nullptr, 16);
+			emit_constant(Value(hex));
+			break;
+		}
 		case STRING:
 		{
 			auto str = expr.token.value();
