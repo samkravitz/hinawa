@@ -71,7 +71,9 @@ public:
 	static Value js_null();
 	static Value js_undefined();
 	static Value js_nan();
+	static Value js_bigint(long);
 
+	inline bool is_bigint() const { return m_type == Type::BigInt; }
 	inline bool is_bool() const { return m_type == Type::Bool; }
 	inline bool is_null() const { return m_type == Type::Null; }
 	inline bool is_number() const { return m_type == Type::Number; }

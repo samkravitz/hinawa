@@ -25,6 +25,13 @@ Value Value::js_nan()
 	return Value(NAN);
 }
 
+Value Value::js_bigint(long num)
+{
+	Value value(Type::BigInt);
+	value.number = (double) num;
+	return value;
+}
+
 bool Value::eq(const Value &other) const
 {
 	// TODO - for now, === and == are equivalent
@@ -173,6 +180,8 @@ std::string Value::to_string() const
 {
 	switch (type())
 	{
+		case Type::BigInt:
+			return fmt::format("{}n", (int) number);
 		case Type::Bool:
 			return as_bool() ? "true" : "false";
 		case Type::Null:
