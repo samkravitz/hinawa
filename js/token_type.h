@@ -70,6 +70,7 @@ enum TokenType : int
 	STRING,        // e.g. 'Hello World'
 	NUMBER,        // e.g. 3.4, -1
 	HEX_NUMBER,    // e.g. 0x10, 0xff
+	BIGINT,        // bigint literal, e.g. 1n
 
 	// Keywords
 	KEY_AWAIT,

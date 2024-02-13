@@ -461,6 +461,14 @@ void Compiler::compile(const Literal &expr)
 			emit_constant(Value(hex));
 			break;
 		}
+		case BIGINT:
+		{
+			// remove trailing 'n' from bigint literal
+			auto without_n = expr.token.value().substr(0, expr.token.value().size() - 1);
+			auto d = std::stod(without_n);
+			emit_constant(Value(d));
+			break;
+		}
 		case STRING:
 		{
 			auto str = expr.token.value();

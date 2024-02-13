@@ -73,6 +73,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {STRING,            {&Parser::string, nullptr, PREC_NONE}          },
 	    {NUMBER,            {&Parser::number, nullptr, PREC_NONE}          },
 	    {HEX_NUMBER,        {&Parser::number, nullptr, PREC_NONE}          },
+	    {BIGINT,            {&Parser::number, nullptr, PREC_NONE}          },
 	    {KEY_FALSE,         {&Parser::literal, nullptr, PREC_NONE}         },
 	    {KEY_FUNCTION,      {&Parser::anonymous, nullptr, PREC_NONE}       },
 	    {KEY_INSTANCEOF,    {nullptr, &Parser::binary, PREC_COMPARISON}    },
