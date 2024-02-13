@@ -50,6 +50,7 @@ set(HEADERS
 	object_string.h
 	object.h
 	opcode.h
+	operator.h
 	parser.h
 	prelude.h
 	scanner.h

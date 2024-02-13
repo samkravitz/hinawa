@@ -7,6 +7,7 @@
 #include "document/document.h"
 #include "error.h"
 #include "function.h"
+#include "operator.h"
 #include "value.h"
 
 namespace js
@@ -16,21 +17,6 @@ namespace bindings
 {
 class DocumentWrapper;
 }
-
-enum class Operator
-{
-	Plus,
-	Minus,
-	Star,
-	Slash,
-	Mod,
-	LessThan,
-	GreaterThan,
-	Amp,
-	AmpAmp,
-	Pipe,
-	PipePipe,
-};
 
 struct CallFrame
 {
