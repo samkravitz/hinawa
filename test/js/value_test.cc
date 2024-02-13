@@ -39,4 +39,20 @@ TEST(NaNTests, NaNIsNaN)
 	auto not_nan = Value(5.0);
 	EXPECT_FALSE(not_nan.is_nan());
 }
+
+// 0.0 and -0.0 tests
+TEST(ZeroTests, ZeroTests)
+{
+	auto zero = Value::js_zero();
+	auto negative_zero = Value::js_negative_zero();
+
+	EXPECT_TRUE(zero.is_zero());
+	EXPECT_FALSE(zero.is_negative_zero());
+	EXPECT_FALSE(negative_zero.is_zero());
+	EXPECT_TRUE(negative_zero.is_negative_zero());
+
+	EXPECT_TRUE(zero.as_number() == negative_zero.as_number());
+	EXPECT_TRUE(zero.strict_eq(negative_zero));
+	EXPECT_TRUE(negative_zero.strict_eq(zero));
+}
 }

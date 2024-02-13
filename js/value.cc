@@ -34,6 +34,32 @@ Value Value::js_bigint(long num)
 	return value;
 }
 
+Value Value::js_negative_zero()
+{
+	return Value(0.0);
+}
+
+Value Value::js_zero()
+{
+	return Value(-0.0);
+}
+
+bool Value::is_negative_zero() const
+{
+	if (!is_number())
+		return false;
+
+	return as_number() == 0.0 && !std::signbit(as_number());
+}
+
+bool Value::is_zero() const
+{
+	if (!is_number())
+		return false;
+
+	return as_number() == 0.0 && std::signbit(as_number());
+}
+
 bool Value::eq(const Value &other) const
 {
 	// TODO - for now, === and == are equivalent

@@ -76,6 +76,10 @@ public:
 	static Value js_undefined();
 	static Value js_nan();
 	static Value js_bigint(long);
+	static Value js_negative_zero();
+	static Value js_zero();
+	bool is_negative_zero() const;
+	bool is_zero() const;
 
 	inline bool is_bigint() const { return m_type == Type::BigInt; }
 	inline bool is_bool() const { return m_type == Type::Bool; }
