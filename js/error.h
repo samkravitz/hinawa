@@ -8,6 +8,7 @@
 namespace js
 {
 class Vm;
+class Value;
 
 class Error : public Object
 {

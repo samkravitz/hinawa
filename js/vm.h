@@ -54,6 +54,7 @@ public:
 	Object *current_this() const;
 	inline void set_global(Object *g) { m_global = g; }
 	inline Object *global() { return m_global; }
+	Heap &heap();
 
 	Value call(const CallFrame &);
 	Value call(Closure *);

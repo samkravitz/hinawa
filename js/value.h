@@ -1,8 +1,10 @@
 #pragma once
 
+#include <expected>
 #include <string>
 #include <vector>
 
+#include "operator.h"
 #include "string.hh"
 
 namespace js
@@ -10,6 +12,8 @@ namespace js
 class Function;
 class NativeFunction;
 class Object;
+class Error;
+class Vm;
 
 class Value
 {
@@ -79,6 +83,7 @@ public:
 	inline bool is_number() const { return m_type == Type::Number; }
 	inline bool is_string() const { return m_type == Type::String; }
 	inline bool is_object() const { return m_type == Type::Object; }
+	inline bool is_symbol() const { return m_type == Type::Symbol; }
 	inline bool is_undefined() const { return m_type == Type::Undefined; }
 
 	Value operator+(const Value &) const;
@@ -105,7 +110,16 @@ public:
 	std::string to_string() const;
 
 	// https://tc39.es/ecma262/#sec-toprimitive
-	Value to_primitive(Type preferred_type = Type::Number) const;
+	std::expected<Value, Error> to_primitive(Vm &, Type preferred_type = Type::Number) const;
+
+	// https://tc39.es/ecma262/#sec-tonumber
+	std::expected<Value, Error> to_number(Vm &) const;
+
+	// https://tc39.es/ecma262/#sec-tonumeric
+	std::expected<Value, Error> to_numeric(Vm &) const;
+
+	// https://tc39.es/ecma262/#sec-stringtonumber
+	Value string_to_number() const { return Value(0.0); }
 
 private:
 	Type m_type;
@@ -117,4 +131,7 @@ private:
 		String *string;
 	};
 };
+
+// https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
+std::expected<Value, Error> apply_binary_operator(Vm &, const Value &, const Operator, const Value &);
 }

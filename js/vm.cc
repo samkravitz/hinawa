@@ -42,6 +42,11 @@ Document &Vm::document()
 	return m_document_wrapper->document();
 }
 
+Heap &Vm::heap()
+{
+	return js::heap();
+}
+
 void Vm::interpret(const std::string &program_string)
 {
 	auto program = Parser::parse(program_string);

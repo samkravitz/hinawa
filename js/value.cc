@@ -4,8 +4,10 @@
 #include <cmath>
 #include <sstream>
 
+#include "error.h"
 #include "function.h"
 #include "object.h"
+#include "vm.h"
 
 namespace js
 {
@@ -226,7 +228,7 @@ bool Value::is_falsy() const
 	return false;
 }
 
-Value Value::to_primitive(Type preferred_type) const
+std::expected<Value, Error> Value::to_primitive(Vm &vm, Type preferred_type) const
 {
 	//	1. If input is an Object, then
 	if (is_object())
@@ -253,10 +255,69 @@ Value Value::to_primitive(Type preferred_type) const
 	return *this;
 }
 
+// https://tc39.es/ecma262/#sec-tonumber
+std::expected<Value, Error> Value::to_number(Vm &vm) const
+{
+	// 1. If argument is a Number, return argument
+	if (is_number())
+		return *this;
+
+	// 2. If argument is either a Symbol or a BigInt, throw a TypeError exception
+	if (is_symbol() || is_bigint())
+		return std::unexpected(*vm.heap().allocate<TypeError>());
+
+	// 3. If argument is undefined, return NaN
+	if (is_undefined())
+		return js_nan();
+
+	// 4. If argument is either null or false, return +0𝔽
+	if (is_null() || (is_bool() && !as_bool()))
+		return Value(0.0);
+
+	// 5. If argument is true, return 1𝔽
+	if (is_bool() && as_bool())
+		return Value(1.0);
+
+	// 6. If argument is a String, return StringToNumber(argument)
+	if (is_string())
+		return string_to_number();
+
+	// 7. Assert: argument is an Object
+	assert(is_object());
+
+	// 8. Let prim be ? ToPrimitive(argument, NUMBER)
+	auto prim = to_primitive(vm);
+	if (!prim)
+		return std::unexpected(prim.error());
+
+	// 9. Assert: prim is not an Object
+	assert(!prim->is_object());
+
+	// 10. Return ? ToNumber(prim)
+	return prim->to_number(vm);
+}
+
+std::expected<Value, Error> Value::to_numeric(Vm &vm) const
+{
+	// 1. Let prim be ? ToPrimitive(value, NUMBER)
+	auto prim = to_primitive(vm);
+	if (!prim)
+		return std::unexpected(prim.error());
+
+	// 2. If prim is a BigInt, return prim
+	if (prim->is_bigint())
+		return *prim;
+
+	// 3. Return ? ToNumber(prim)
+	return prim->to_number(vm);
+}
+
 const char *Value::type_of() const
 {
 	switch (type())
 	{
+		case Type::BigInt:
+			return "bigint";
 		case Type::Bool:
 			return "boolean";
 		case Type::Number:
@@ -279,5 +340,65 @@ const char *Value::type_of() const
 			assert(!"Unknown value type!");
 			return "";
 	}
+}
+
+std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
+{
+	// 1. If op is +, then
+	if (op == Operator::Plus)
+	{
+		// a. Let lprim be ? ToPrimitive(lval)
+		auto lprim = lval.to_primitive(vm);
+		if (!lprim)
+			return std::unexpected(lprim.error());
+
+		// b. Let rprim be ? ToPrimitive(rval)
+		auto rprim = rval.to_primitive(vm);
+		if (!rprim)
+			return std::unexpected(rprim.error());
+
+		// c. If lprim is a String or rprim is a String, then
+		if (lprim->is_string() || rprim->is_string())
+		{
+			// i. Let lstr be ? ToString(lprim)
+			auto lstr = lprim->to_string();
+
+			// ii. Let rstr be ? ToString(rprim)
+			auto rstr = rprim->to_string();
+
+			// iii. Return the string-concatenation of lstr and rstr
+			return Value(vm.heap().allocate<String>(lstr + rstr));
+		}
+
+		// d. Set lval to lprim
+		// e. Set rval to rprim
+	}
+
+	// 2. NOTE: At this point, it must be a numeric operation
+
+	// 3. Let lnum be ? ToNumeric(lval)
+	auto lnum = lval.to_numeric(vm);
+	if (!lnum)
+		return std::unexpected(lnum.error());
+
+	// 4. Let rnum be ? ToNumeric(rval)
+	auto rnum = rval.to_numeric(vm);
+	if (!rnum)
+		return std::unexpected(rnum.error());
+
+	// 5. If Type(lnum) is not Type(rnum), throw a TypeError exception
+	if (lnum->type() != rnum->type())
+		std::unexpected(*vm.heap().allocate<TypeError>());
+
+	// 6. If lnum is a BigInt, then
+	if (lnum->is_bigint())
+	{
+		// a. If opText is **, return ? BigInt::exponentiate(lnum, rnum).
+		// b. If opText is /, return ? BigInt::divide(lnum, rnum).
+		// c. If opText is %, return ? BigInt::remainder(lnum, rnum).
+		// d. If opText is >>>, return ? BigInt::unsignedRightShift(lnum, rnum).
+	}
+
+	// 7. Let operation be the abstract operation associated with opText and Type(lnum) in the following table
 }
 }
