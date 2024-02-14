@@ -729,6 +729,14 @@ Value Value::Number::add(const Value &x, const Value &y)
 	return Value(sum);
 }
 
+Value Value::Number::subtract(const Value &x, const Value &y)
+{
+	assert(x.is_number() && y.is_number());
+
+	// 1. Return Number::add(x, Number::unaryMinus(y))
+	return add(x, unary_minus(y));
+}
+
 std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
 {
 	// 1. If op is +, then

@@ -157,6 +157,9 @@ private:
 
 		// https://tc39.es/ecma262/#sec-numeric-types-number-add
 		static Value add(const Value &, const Value &);
+
+		// https://tc39.es/ecma262/#sec-numeric-types-number-subtract
+		static Value subtract(const Value &, const Value &);
 	};
 };
 
