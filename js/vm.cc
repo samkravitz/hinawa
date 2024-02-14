@@ -744,61 +744,17 @@ Value Vm::peek(uint offset)
 
 void Vm::binary_op(Operator op)
 {
-	Value result = {};
 	auto b = pop();
 	auto a = pop();
 
-	switch (op)
+	auto result_or_error = apply_binary_operator(*this, a, op, b);
+	if (!result_or_error)
 	{
-		case Operator::Plus:
-			result = a + b;
-			break;
-
-		case Operator::Minus:
-			result = a - b;
-			break;
-
-		case Operator::Star:
-			result = a * b;
-			break;
-
-		case Operator::Slash:
-			result = a / b;
-			break;
-
-		case Operator::Mod:
-			result = a % b;
-			break;
-
-		case Operator::LessThan:
-			result = a < b;
-			break;
-
-		case Operator::GreaterThan:
-			result = a > b;
-			break;
-
-		case Operator::Amp:
-			result = a & b;
-			break;
-
-		case Operator::AmpAmp:
-			result = a && b;
-			break;
-
-		case Operator::Pipe:
-			result = a | b;
-			break;
-
-		case Operator::PipePipe:
-			result = a || b;
-			break;
-
-		default:
-			assert(!"Unreachable");
+		runtime_error(result_or_error.error(), "Binary op runtime error");
+		return;
 	}
 
-	push(result);
+	push(*result_or_error);
 }
 
 u8 Vm::read_byte()
