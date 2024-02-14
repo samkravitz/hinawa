@@ -139,6 +139,16 @@ private:
 		double number;
 		String *string;
 	};
+
+	// helper methods for binary operations
+	class Number
+	{
+		// https://tc39.es/ecma262/#sec-numeric-types-number-exponentiate
+		static Value exponentiate(const Value &, const Value &);
+
+		// https://tc39.es/ecma262/#sec-numeric-types-number-multiply
+		static Value multiply(const Value &, const Value &);
+	};
 };
 
 // https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
