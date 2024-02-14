@@ -119,13 +119,13 @@ public:
 	std::string to_string() const;
 
 	// https://tc39.es/ecma262/#sec-toprimitive
-	std::expected<Value, Error> to_primitive(Vm &, Type preferred_type = Type::Number) const;
+	std::expected<Value, Error *> to_primitive(Vm &, Type preferred_type = Type::Number) const;
 
 	// https://tc39.es/ecma262/#sec-tonumber
-	std::expected<Value, Error> to_number(Vm &) const;
+	std::expected<Value, Error *> to_number(Vm &) const;
 
 	// https://tc39.es/ecma262/#sec-tonumeric
-	std::expected<Value, Error> to_numeric(Vm &) const;
+	std::expected<Value, Error *> to_numeric(Vm &) const;
 
 	// https://tc39.es/ecma262/#sec-stringtonumber
 	Value string_to_number() const { return Value(0.0); }
@@ -164,5 +164,5 @@ private:
 };
 
 // https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
-std::expected<Value, Error> apply_binary_operator(Vm &, const Value &, const Operator, const Value &);
+std::expected<Value, Error *> apply_binary_operator(Vm &, const Value &, const Operator, const Value &);
 }

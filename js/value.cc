@@ -282,7 +282,7 @@ bool Value::is_falsy() const
 	return false;
 }
 
-std::expected<Value, Error> Value::to_primitive(Vm &vm, Type preferred_type) const
+std::expected<Value, Error *> Value::to_primitive(Vm &vm, Type preferred_type) const
 {
 	//	1. If input is an Object, then
 	if (is_object())
@@ -310,7 +310,7 @@ std::expected<Value, Error> Value::to_primitive(Vm &vm, Type preferred_type) con
 }
 
 // https://tc39.es/ecma262/#sec-tonumber
-std::expected<Value, Error> Value::to_number(Vm &vm) const
+std::expected<Value, Error *> Value::to_number(Vm &vm) const
 {
 	// 1. If argument is a Number, return argument
 	if (is_number())
@@ -318,7 +318,7 @@ std::expected<Value, Error> Value::to_number(Vm &vm) const
 
 	// 2. If argument is either a Symbol or a BigInt, throw a TypeError exception
 	if (is_symbol() || is_bigint())
-		return std::unexpected(*vm.heap().allocate<TypeError>());
+		return std::unexpected(vm.heap().allocate<TypeError>());
 
 	// 3. If argument is undefined, return NaN
 	if (is_undefined())
@@ -351,7 +351,7 @@ std::expected<Value, Error> Value::to_number(Vm &vm) const
 	return prim->to_number(vm);
 }
 
-std::expected<Value, Error> Value::to_numeric(Vm &vm) const
+std::expected<Value, Error *> Value::to_numeric(Vm &vm) const
 {
 	// 1. Let prim be ? ToPrimitive(value, NUMBER)
 	auto prim = to_primitive(vm);
@@ -737,7 +737,7 @@ Value Value::Number::subtract(const Value &x, const Value &y)
 	return add(x, unary_minus(y));
 }
 
-std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
+std::expected<Value, Error *> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
 {
 	// 1. If op is +, then
 	if (op == Operator::Plus)
@@ -783,7 +783,7 @@ std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, con
 
 	// 5. If Type(lnum) is not Type(rnum), throw a TypeError exception
 	if (lnum->type() != rnum->type())
-		std::unexpected(*vm.heap().allocate<TypeError>());
+		std::unexpected(vm.heap().allocate<TypeError>());
 
 	// 6. If lnum is a BigInt, then
 	if (lnum->is_bigint())
