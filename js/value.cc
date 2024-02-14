@@ -2,6 +2,8 @@
 
 #include <cassert>
 #include <cmath>
+#include <complex>
+#include <limits>
 #include <sstream>
 
 #include "error.h"
@@ -11,6 +13,147 @@
 
 namespace js
 {
+// helper methods for binary operations
+namespace Number
+{
+// https://tc39.es/ecma262/#sec-numeric-types-number-exponentiate
+Value exponentiate(const Value &base, const Value &exponent)
+{
+	assert(base.is_number() && exponent.is_number());
+
+	auto is_integral = [](double num) { return std::trunc(num) == num; };
+	auto is_odd = [](double num) { return (int) num % 2 == 1; };
+
+	// 1. If exponent is NaN, return NaN
+	if (exponent.is_nan())
+		return Value::js_nan();
+
+	// 2. If exponent is either +0𝔽 or -0𝔽, return 1𝔽
+	if (exponent.is_zero() || exponent.is_negative_zero())
+		return Value(1.0);
+
+	// 3. If base is NaN, return NaN
+	if (base.is_nan())
+		return Value::js_nan();
+
+	// 4. If base is +∞𝔽, then
+	if (base.is_infinity())
+	{
+		// a. If exponent > +0𝔽, return +∞𝔽. Otherwise, return +0𝔽
+		if (exponent.as_number() > 0.0)
+			return Value::js_infinity();
+
+		return Value::js_zero();
+	}
+
+	// 5. If base is -∞𝔽, then
+	if (base.is_negative_infinity())
+	{
+		// a. If exponent > +0𝔽, then
+		if (exponent.as_number() > 0.0)
+		{
+			// i. If exponent is an odd integral Number, return -∞𝔽. Otherwise, return +∞𝔽
+			if (is_integral(exponent.as_number()) && is_odd(exponent.as_number()))
+				return Value::js_negative_infinity();
+
+			return Value::js_infinity();
+		}
+
+		// b. Else,
+		else
+		{
+			// i. If exponent is an odd integral Number, return -0𝔽. Otherwise, return +0𝔽
+			if (is_integral(exponent.as_number()) && is_odd(exponent.as_number()))
+				return Value::js_negative_zero();
+
+			return Value::js_zero();
+		}
+	}
+
+	// 6. If base is +0𝔽, then
+	if (base.is_zero())
+	{
+		// a. If exponent > +0𝔽, return +0𝔽. Otherwise, return +∞𝔽
+		if (exponent.as_number() > 0.0)
+			return Value::js_zero();
+
+		return Value::js_infinity();
+	}
+
+	// 7. If base is -0𝔽, then
+	if (base.is_zero())
+	{
+		// a. If exponent > +0𝔽, then
+		if (exponent.as_number() > 0.0)
+		{
+			// i. If exponent is an odd integral Number, return -0𝔽. Otherwise, return +0𝔽
+			if (is_integral(exponent.as_number()) && is_odd(exponent.as_number()))
+				return Value::js_negative_zero();
+
+			return Value::js_zero();
+		}
+
+		// b. Else,
+		else
+		{
+			// i. If exponent is an odd integral Number, return -∞𝔽. Otherwise, return +∞𝔽
+			if (is_integral(exponent.as_number()) && is_odd(exponent.as_number()))
+				return Value::js_negative_infinity();
+
+			return Value::js_infinity();
+		}
+	}
+
+	// 8. Assert: base is finite and is neither +0𝔽 nor -0𝔽
+	assert(!base.is_infinity() && !base.is_negative_infinity() && !base.is_zero() && !base.is_negative_zero());
+
+	// 9. If exponent is +∞𝔽, then
+	if (exponent.is_infinity())
+	{
+		auto abs = std::abs(base.as_number());
+		// a. If abs(ℝ(base)) > 1, return +∞𝔽
+		if (abs > 1.0)
+			return Value::js_infinity();
+
+		// b. If abs(ℝ(base)) = 1, return NaN
+		if (abs == 1.0)
+			return Value::js_nan();
+
+		// c. If abs(ℝ(base)) < 1, return +0𝔽
+		if (abs < 1.0)
+			return Value::js_zero();
+	}
+
+	// 10. If exponent is -∞𝔽, then
+	if (exponent.is_negative_infinity())
+	{
+		auto abs = std::abs(base.as_number());
+		// a. If abs(ℝ(base)) > 1, return +0𝔽
+		if (abs > 1.0)
+			return Value::js_zero();
+
+		// b. If abs(ℝ(base)) = 1, return NaN
+		if (abs == 1.0)
+			return Value::js_nan();
+
+		// c. If abs(ℝ(base)) < 1, return +∞𝔽
+		if (abs < 1.0)
+			return Value::js_infinity();
+	}
+
+	// 11. Assert: exponent is finite and is neither +0𝔽 nor -0𝔽
+	assert(!exponent.is_infinity() && !exponent.is_negative_infinity() && !exponent.is_zero() &&
+	       !exponent.is_negative_zero());
+
+	// 12. If base < -0𝔽 and exponent is not an integral Number, return NaN
+	if (base.as_number() < -0.0 && !is_integral(exponent.as_number()))
+		return Value::js_nan();
+
+	// 13. Return an implementation-approximated Number value representing the result of raising ℝ(base) to the ℝ(exponent) power
+	auto pow = std::pow(base.as_number(), exponent.as_number());
+	return Value(pow);
+}
+}
 
 Value Value::js_null()
 {
