@@ -681,6 +681,42 @@ Value Value::Number::divide(const Value &x, const Value &y)
 	return Value(quotient);
 }
 
+Value Value::Number::add(const Value &x, const Value &y)
+{
+	assert(x.is_number() && y.is_number());
+
+	// 1. If x is NaN or y is NaN, return NaN
+	if (x.is_nan() || y.is_nan())
+		return js_nan();
+
+	// 2. If x is +∞𝔽 and y is -∞𝔽, return NaN
+	if (x.is_infinity() && y.is_negative_infinity())
+		return js_nan();
+
+	// 3. If x is -∞𝔽 and y is +∞𝔽, return NaN
+	if (x.is_negative_infinity() && y.is_infinity())
+		return js_nan();
+
+	// 4. If x is either +∞𝔽 or -∞𝔽, return x
+	if (x.is_infinity() || x.is_negative_infinity())
+		return x;
+
+	// 5. If y is either +∞𝔽 or -∞𝔽, return y
+	if (y.is_infinity() || y.is_negative_infinity())
+		return y;
+
+	// 6. Assert: x and y are both finite
+	assert(!x.is_infinity() && !x.is_negative_infinity() && !y.is_infinity() && !y.is_negative_infinity());
+
+	// 7. If x is -0𝔽 and y is -0𝔽, return -0𝔽
+	if (x.is_negative_zero() && y.is_negative_zero())
+		return js_negative_zero();
+
+	// 8. Return 𝔽(ℝ(x) + ℝ(y))
+	auto sum = x.as_number() + y.as_number();
+	return Value(sum);
+}
+
 std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
 {
 	// 1. If op is +, then
