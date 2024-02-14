@@ -130,18 +130,8 @@ public:
 	// https://tc39.es/ecma262/#sec-stringtonumber
 	Value string_to_number() const { return Value(0.0); }
 
-private:
-	Type m_type;
-	union
-	{
-		bool boolean;
-		Object *object;
-		double number;
-		String *string;
-	};
-
 	// helper methods for binary operations
-	class Number
+	struct Number
 	{
 		// https://tc39.es/ecma262/#sec-numeric-types-number-unaryMinus
 		static Value unary_minus(const Value &);
@@ -160,6 +150,16 @@ private:
 
 		// https://tc39.es/ecma262/#sec-numeric-types-number-subtract
 		static Value subtract(const Value &, const Value &);
+	};
+
+private:
+	Type m_type;
+	union
+	{
+		bool boolean;
+		Object *object;
+		double number;
+		String *string;
 	};
 };
 

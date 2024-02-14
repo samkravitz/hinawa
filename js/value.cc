@@ -3,8 +3,10 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
+#include <fmt/format.h>
 #include <limits>
 #include <sstream>
+#include <unordered_map>
 
 #include "error.h"
 #include "function.h"
@@ -794,6 +796,31 @@ std::expected<Value, Error *> apply_binary_operator(Vm &vm, const Value &lval, c
 		// d. If opText is >>>, return ? BigInt::unsignedRightShift(lnum, rnum).
 	}
 
-	// 7. Let operation be the abstract operation associated with opText and Type(lnum) in the following table
+	// 7. Let operation be the abstract operation associated with op and Type(lnum) in the following table:
+	using OperationType = std::function<Value(const Value &, const Value &)>;
+	OperationType operation = &Value::Number::exponentiate;
+
+	static std::unordered_map<Operator, OperationType> number_operations = {
+	    {Operator::StarStar, &Value::Number::exponentiate},
+	    {Operator::Star,     &Value::Number::multiply    },
+	    {Operator::Slash,    &Value::Number::divide      },
+	    {Operator::Plus,     &Value::Number::add         },
+	};
+
+	if (lnum->is_number())
+	{
+		if (number_operations.contains(op))
+		{
+			operation = number_operations[op];
+		}
+
+		else
+		{
+			fmt::print("Number::Unknown operation {}\n", (int) op);
+		}
+	}
+
+	// 8. Return operation(lnum, rnum)
+	return operation(*lnum, *rnum);
 }
 }
