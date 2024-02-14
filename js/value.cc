@@ -396,7 +396,6 @@ const char *Value::type_of() const
 	}
 }
 
-// https://tc39.es/ecma262/#sec-numeric-types-number-exponentiate
 Value Value::Number::exponentiate(const Value &base, const Value &exponent)
 {
 	assert(base.is_number() && exponent.is_number());
@@ -534,7 +533,6 @@ Value Value::Number::exponentiate(const Value &base, const Value &exponent)
 	return Value(pow);
 }
 
-// https://tc39.es/ecma262/#sec-numeric-types-number-multiply
 Value Value::Number::multiply(const Value &x, const Value &y)
 {
 	assert(x.is_number() && y.is_number());
@@ -598,6 +596,89 @@ Value Value::Number::multiply(const Value &x, const Value &y)
 	// 6. Return 𝔽(ℝ(x) × ℝ(y))
 	auto product = x.as_number() * y.as_number();
 	return Value(product);
+}
+
+Value Value::Number::divide(const Value &x, const Value &y)
+{
+	assert(x.is_number() && y.is_number());
+
+	// 1. If x is NaN or y is NaN, return NaN
+	if (x.is_nan() || y.is_nan())
+		return js_nan();
+
+	// 2. If x is either +∞𝔽 or -∞𝔽, then
+	if (x.is_infinity() || x.is_negative_infinity())
+	{
+		// a. If y is either +∞𝔽 or -∞𝔽, return NaN
+		if (y.is_infinity() || y.is_negative_infinity())
+			return js_nan();
+
+		// b. If y is +0𝔽 or y > +0𝔽, return x
+		if (y.is_zero() || y.as_number() > 0.0)
+			return x;
+
+		// c. Return -x
+		return Value(x.as_number() * -1.0);
+	}
+
+	// 3. If y is +∞𝔽, then
+	if (y.is_infinity())
+	{
+		// a. If x is +0𝔽 or x > +0𝔽, return +0𝔽. Otherwise, return -0𝔽
+		if (x.is_zero() || x.as_number() > 0.0)
+			return js_zero();
+
+		return js_negative_zero();
+	}
+
+	// 4. If y is -∞𝔽, then
+	if (y.is_negative_infinity())
+	{
+		// a. If x is +0𝔽 or x > +0𝔽, return -0𝔽. Otherwise, return +0𝔽
+		if (x.is_zero() || x.as_number() > 0.0)
+			return js_negative_zero();
+
+		return js_zero();
+	}
+
+	// 5. If x is either +0𝔽 or -0𝔽, then
+	if (x.is_zero() || x.is_negative_zero())
+	{
+		// a. If y is either +0𝔽 or -0𝔽, return NaN
+		if (y.is_zero() || y.is_negative_zero())
+			return js_nan();
+
+		// b. If y > +0𝔽, return x
+		if (y.as_number() > 0.0)
+			return x;
+
+		// c. Return -x
+		return Value(x.as_number() * -1.0);
+	}
+
+	// 6. If y is +0𝔽, then
+	if (y.is_zero())
+	{
+		// a. If x > +0𝔽, return +∞𝔽. Otherwise, return -∞𝔽
+		if (x.as_number() > 0.0)
+			return js_infinity();
+
+		return js_negative_infinity();
+	}
+
+	// 7. If y is -0𝔽, then
+	if (y.is_negative_zero())
+	{
+		// a. If x > +0𝔽, return -∞𝔽. Otherwise, return +∞𝔽
+		if (x.as_number() > 0.0)
+			return js_negative_infinity();
+
+		return js_infinity();
+	}
+
+	// 8. Return 𝔽(ℝ(x) / ℝ(y))
+	auto quotient = x.as_number() / y.as_number();
+	return Value(quotient);
 }
 
 std::expected<Value, Error> apply_binary_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)

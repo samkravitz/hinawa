@@ -148,6 +148,9 @@ private:
 
 		// https://tc39.es/ecma262/#sec-numeric-types-number-multiply
 		static Value multiply(const Value &, const Value &);
+
+		// https://tc39.es/ecma262/#sec-numeric-types-number-divide
+		static Value divide(const Value &, const Value &);
 	};
 };
 
