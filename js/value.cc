@@ -396,6 +396,18 @@ const char *Value::type_of() const
 	}
 }
 
+Value Value::Number::unary_minus(const Value &x)
+{
+	assert(x.is_number());
+
+	// 1. If x is NaN, return NaN
+	if (x.is_nan())
+		return js_nan();
+
+	// 2. Return the result of negating x; that is, compute a Number with the same magnitude but opposite sign
+	return Value(x.as_number() * -1.0);
+}
+
 Value Value::Number::exponentiate(const Value &base, const Value &exponent)
 {
 	assert(base.is_number() && exponent.is_number());
