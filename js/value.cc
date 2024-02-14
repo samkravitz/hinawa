@@ -44,6 +44,16 @@ Value Value::js_zero()
 	return Value(-0.0);
 }
 
+Value Value::js_negative_infinity()
+{
+	return Value(std::numeric_limits<double>::min());
+}
+
+Value Value::js_infinity()
+{
+	return Value(std::numeric_limits<double>::max());
+}
+
 bool Value::is_negative_zero() const
 {
 	if (!is_number())
@@ -58,6 +68,22 @@ bool Value::is_zero() const
 		return false;
 
 	return as_number() == 0.0 && std::signbit(as_number());
+}
+
+bool Value::is_negative_infinity() const
+{
+	if (!is_number())
+		return false;
+
+	return as_number() == js_negative_infinity().as_number();
+}
+
+bool Value::is_infinity() const
+{
+	if (!is_number())
+		return false;
+
+	return as_number() == js_infinity().as_number();
 }
 
 bool Value::eq(const Value &other) const
