@@ -75,6 +75,24 @@ static void prelude_error(Vm &vm)
 }
 
 /**
+* prelude for the Math object in javascript.
+*/
+static void prelude_math(Vm &vm)
+{
+	auto *math = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate()); });
+
+	// https://tc39.es/ecma262/#sec-math.sqrt
+	// TODO - implement properly
+	math->set_native("sqrt", [](auto &vm, const auto &argv) -> Value {
+		auto n = argv[0].as_number();
+		return Value(std::sqrt(n));
+	});
+
+	auto val = Value(math);
+	vm.global()->set("Math", val);
+}
+
+/**
 * prelude for the document object in javascript.
 */
 static void prelude_document(Vm &vm, Document *document)
@@ -127,6 +145,7 @@ void prelude(Vm &vm, Document *document)
 	prelude_object(vm);
 	prelude_array(vm);
 	prelude_error(vm);
+	prelude_math(vm);
 
 	if (document)
 		prelude_document(vm, document);
