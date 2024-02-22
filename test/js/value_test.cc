@@ -71,4 +71,13 @@ TEST(ToStringTests, LargeIntegerToString)
 	EXPECT_EQ(large_positive_integer.to_string(), "123456789012");
 	EXPECT_EQ(large_negative_integer.to_string(), "-987654321098");
 }
+
+TEST(ToStringTests, SpecialNumbersToString)
+{
+	EXPECT_EQ(Value::js_infinity().to_string(), "Infinity");
+	EXPECT_EQ(Value::js_negative_infinity().to_string(), "-Infinity");
+	EXPECT_EQ(Value::js_zero().to_string(), "0");
+	EXPECT_EQ(Value::js_negative_zero().to_string(), "-0");
+	EXPECT_EQ(Value::js_nan().to_string(), "NaN");
+}
 }

@@ -247,8 +247,21 @@ std::string Value::to_string() const
 		case Type::Number:
 		{
 			double num = as_number();
-			if (std::isnan(num))
+			if (is_nan())
 				return "NaN";
+
+			if (is_infinity())
+				return "Infinity";
+
+			if (is_negative_infinity())
+				return "-Infinity";
+
+			if (is_zero())
+				return "0";
+
+			if (is_negative_zero())
+				return "-0";
+
 			if (num == std::trunc(num))
 				return std::to_string((std::int64_t) num);
 			return std::to_string(num);
