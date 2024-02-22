@@ -55,4 +55,14 @@ TEST(ZeroTests, ZeroTests)
 	EXPECT_TRUE(zero.strict_eq(negative_zero));
 	EXPECT_TRUE(negative_zero.strict_eq(zero));
 }
+
+// to_string tests
+TEST(ToStringTests, LargeIntegerToString)
+{
+	auto large_positive_integer = Value((double) 123456789012);
+	auto large_negative_integer = Value((double) -987654321098);
+
+	EXPECT_EQ(large_positive_integer.to_string(), "123456789012");
+	EXPECT_EQ(large_negative_integer.to_string(), "-987654321098");
+}
 }

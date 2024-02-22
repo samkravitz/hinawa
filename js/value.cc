@@ -250,7 +250,7 @@ std::string Value::to_string() const
 			if (std::isnan(num))
 				return "NaN";
 			if (num == std::trunc(num))
-				return std::to_string((int) num);
+				return std::to_string((std::int64_t) num);
 			return std::to_string(num);
 		}
 		case Type::Object:
