@@ -111,6 +111,9 @@ static void prelude_math(Vm &vm)
 
 	auto val = Value(math);
 	vm.global()->set("Math", val);
+
+	vm.global()->set("Infinity", Value::js_infinity());
+	vm.global()->set("NaN", Value::js_nan());
 }
 
 /**
