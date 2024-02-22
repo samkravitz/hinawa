@@ -338,6 +338,11 @@ std::shared_ptr<Expr> Parser::expression(bool required)
 
 std::shared_ptr<Expr> Parser::anonymous()
 {
+	if (match(IDENTIFIER))
+	{
+		fmt::print(stderr, "Have a name in a function expression. This is allright.");
+	}
+
 	consume(LEFT_PAREN, "Expected '('");
 
 	std::vector<std::string> args;
