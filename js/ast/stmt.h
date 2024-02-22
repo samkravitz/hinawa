@@ -117,11 +117,19 @@ struct ContinueStmt : public Stmt
 	std::string label = "";
 };
 
-//struct BreakStmt : public Stmt
-//{
-//public:
-//	const char *name() const { return "BreakStmt"; }
-//};
+struct BreakStmt : public Stmt
+{
+	BreakStmt(std::string label = "") :
+	    label(label)
+	{ }
+
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	const char *name() const { return "BreakStmt"; }
+
+	std::string label = "";
+};
 
 struct ReturnStmt : public Stmt
 {

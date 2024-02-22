@@ -60,6 +60,7 @@ private:
 	void compile(const ForStmt &);
 	void compile(const WhileStmt &);
 	void compile(const ContinueStmt &);
+	void compile(const BreakStmt &);
 	void compile(const FunctionDecl &);
 	void compile(const EmptyStmt &);
 	void compile(const ReturnStmt &);

@@ -160,6 +160,8 @@ void Compiler::compile(const WhileStmt &stmt)
 
 void Compiler::compile(const ContinueStmt &stmt) { }
 
+void Compiler::compile(const BreakStmt &stmt) { }
+
 void Compiler::compile(const FunctionDecl &stmt)
 {
 	current_line = stmt.line;

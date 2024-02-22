@@ -82,6 +82,7 @@ private:
 	// parse statements
 	std::shared_ptr<Stmt> statement();
 	std::shared_ptr<Stmt> block_stmt();
+	std::shared_ptr<Stmt> break_statement();
 	std::shared_ptr<Stmt> continue_statement();
 	std::shared_ptr<Stmt> do_while_statement();
 	std::shared_ptr<Stmt> expression_statement();
