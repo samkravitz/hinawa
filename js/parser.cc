@@ -147,7 +147,7 @@ std::shared_ptr<Stmt> Parser::statement()
 		return try_statement();
 
 	if (match(KEY_CONTINUE))
-		return continue_stmt();
+		return continue_statement();
 
 	if (match(KEY_DO))
 		return do_while_statement();
@@ -168,7 +168,7 @@ std::shared_ptr<Stmt> Parser::block_stmt()
 	return make_ast_node<BlockStmt>(stmts);
 }
 
-std::shared_ptr<Stmt> Parser::continue_stmt()
+std::shared_ptr<Stmt> Parser::continue_statement()
 {
 	// match optional semicolon after continue statement
 	match(SEMICOLON);
