@@ -149,6 +149,8 @@ void Compiler::compile(const WhileStmt &stmt)
 	current_line = stmt.line;
 
 	int loop_start = current->function->chunk.size();
+	continue_target = loop_start;
+
 	stmt.condition->accept(this);
 	auto exit = emit_jump(OP_JUMP_IF_FALSE);
 	emit_byte(OP_POP);
@@ -156,9 +158,21 @@ void Compiler::compile(const WhileStmt &stmt)
 	emit_loop(loop_start);
 	patch_jump(exit);
 	emit_byte(OP_POP);
+	continue_target = -1;
 }
 
-void Compiler::compile(const ContinueStmt &stmt) { }
+void Compiler::compile(const ContinueStmt &stmt)
+{
+	current_line = stmt.line;
+
+	if (continue_target == -1)
+	{
+		fmt::print(stderr, "Error: invalid continue on line {}\n", stmt.line);
+		return;
+	}
+
+	emit_loop(continue_target);
+}
 
 void Compiler::compile(const BreakStmt &stmt) { }
 

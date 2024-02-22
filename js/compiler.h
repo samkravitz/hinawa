@@ -49,6 +49,8 @@ private:
 
 	std::vector<std::shared_ptr<Stmt>> stmts;
 
+	int continue_target = -1;
+
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();
 
