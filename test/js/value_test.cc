@@ -54,6 +54,12 @@ TEST(ZeroTests, ZeroTests)
 	EXPECT_TRUE(zero.as_number() == negative_zero.as_number());
 	EXPECT_TRUE(zero.strict_eq(negative_zero));
 	EXPECT_TRUE(negative_zero.strict_eq(zero));
+
+	EXPECT_FALSE(Value((double) 0).is_negative_zero());
+	EXPECT_FALSE(Value(0.0).is_negative_zero());
+	EXPECT_FALSE(Value(0.00).is_negative_zero());
+	EXPECT_FALSE(Value(0.000).is_negative_zero());
+	EXPECT_FALSE(Value(0.0000).is_negative_zero());
 }
 
 // to_string tests

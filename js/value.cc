@@ -40,12 +40,12 @@ Value Value::js_bigint(long num)
 
 Value Value::js_negative_zero()
 {
-	return Value(0.0);
+	return Value(-0.0);
 }
 
 Value Value::js_zero()
 {
-	return Value(-0.0);
+	return Value(0.0);
 }
 
 Value Value::js_negative_infinity()
@@ -63,7 +63,7 @@ bool Value::is_negative_zero() const
 	if (!is_number())
 		return false;
 
-	return as_number() == 0.0 && !std::signbit(as_number());
+	return as_number() == 0.0 && std::signbit(as_number());
 }
 
 bool Value::is_zero() const
@@ -71,7 +71,7 @@ bool Value::is_zero() const
 	if (!is_number())
 		return false;
 
-	return as_number() == 0.0 && std::signbit(as_number());
+	return as_number() == 0.0 && !std::signbit(as_number());
 }
 
 bool Value::is_negative_infinity() const
