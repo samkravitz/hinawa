@@ -10,7 +10,7 @@ class Array final : public Object, public std::vector<Value>
 {
 public:
 	Array();
-
+	Array(std::size_t);
 	Array(std::vector<Value>);
 
 	virtual Object *prototype() override;

@@ -10,6 +10,10 @@ Array::Array() :
     Array(std::vector<Value>{})
 { }
 
+Array::Array(std::size_t size) :
+    Array(std::vector<Value>(size))
+{ }
+
 Array::Array(std::vector<Value> array)
 {
 	for (auto element : array)

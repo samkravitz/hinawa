@@ -36,7 +36,16 @@ static void prelude_object(Vm &vm)
 static void prelude_array(Vm &vm)
 {
 	auto *array = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
-		auto *array = heap().allocate<Array>();
+		Array *array;
+
+		if (!argv.empty())
+		{
+			std::size_t size = argv[0].as_number();
+			array = heap().allocate<Array>(size);
+		}
+		else
+			array = heap().allocate<Array>();
+
 		return Value(array);
 	});
 
