@@ -805,6 +805,7 @@ std::expected<Value, Error *> apply_binary_operator(Vm &vm, const Value &lval, c
 	    {Operator::Star,     &Value::Number::multiply    },
 	    {Operator::Slash,    &Value::Number::divide      },
 	    {Operator::Plus,     &Value::Number::add         },
+	    {Operator::Minus,    &Value::Number::subtract    },
 	};
 
 	if (lnum->is_number())
@@ -822,5 +823,30 @@ std::expected<Value, Error *> apply_binary_operator(Vm &vm, const Value &lval, c
 
 	// 8. Return operation(lnum, rnum)
 	return operation(*lnum, *rnum);
+}
+
+std::expected<Value, Error *> apply_comparison_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
+{
+	switch (op)
+	{
+		case Operator::LessThan:
+			return lval < rval;
+		case Operator::GreaterThan:
+			return lval > rval;
+		default:
+			assert(!"Unknown comparison operator");
+	}
+}
+std::expected<Value, Error *> apply_logical_operator(Vm &vm, const Value &lval, const Operator op, const Value &rval)
+{
+	switch (op)
+	{
+		case Operator::AmpAmp:
+			return lval && rval;
+		case Operator::PipePipe:
+			return lval || rval;
+		default:
+			assert(!"Unknown logical operator");
+	}
 }
 }

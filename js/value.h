@@ -165,4 +165,7 @@ private:
 
 // https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
 std::expected<Value, Error *> apply_binary_operator(Vm &, const Value &, const Operator, const Value &);
+std::expected<Value, Error *> apply_comparison_operator(Vm &, const Value &, const Operator, const Value &);
+std::expected<Value, Error *> apply_logical_operator(Vm &, const Value &, const Operator, const Value &);
+
 }

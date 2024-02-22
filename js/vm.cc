@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <iostream>
 #include <ranges>
+#include <unordered_set>
 
 #include <fmt/format.h>
 
@@ -747,7 +748,38 @@ void Vm::binary_op(Operator op)
 	auto b = pop();
 	auto a = pop();
 
-	auto result_or_error = apply_binary_operator(*this, a, op, b);
+	static std::unordered_set<Operator> comparison_operators = {
+	    Operator::LessThan,
+	    Operator::GreaterThan,
+	};
+
+	static std::unordered_set<Operator> binary_operators = {
+	    Operator::Plus,
+	    Operator::Minus,
+	    Operator::Slash,
+	    Operator::Star,
+	    Operator::StarStar,
+	    Operator::Mod,
+	    Operator::Amp,
+	    Operator::Pipe,
+	};
+
+	static std::unordered_set<Operator> logical_operators = {
+	    Operator::AmpAmp,
+	    Operator::PipePipe,
+	};
+
+	std::expected<Value, Error *> result_or_error = {};
+
+	if (comparison_operators.contains(op))
+		result_or_error = apply_comparison_operator(*this, a, op, b);
+
+	if (binary_operators.contains(op))
+		result_or_error = apply_binary_operator(*this, a, op, b);
+
+	if (logical_operators.contains(op))
+		result_or_error = apply_logical_operator(*this, a, op, b);
+
 	if (!result_or_error)
 	{
 		runtime_error(result_or_error.error(), "Binary op runtime error");
