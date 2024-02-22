@@ -284,5 +284,25 @@ public:
 				arg->accept(this, indent + 1);
 		}
 	}
+
+	void visit(const TernaryExpr *node, int indent) const
+	{
+		node->print_header(indent);
+
+		print_indent(indent);
+		fmt::print("condition: \n");
+		print_indent(indent);
+		node->condition->accept(this, indent + 1);
+
+		print_indent(indent);
+		fmt::print("if true: \n");
+		print_indent(indent);
+		node->if_true->accept(this, indent + 1);
+
+		print_indent(indent);
+		fmt::print("if false: \n");
+		print_indent(indent);
+		node->if_false->accept(this, indent + 1);
+	}
 };
 }

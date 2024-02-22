@@ -29,6 +29,7 @@ struct ObjectExpr;
 struct FunctionExpr;
 struct NewExpr;
 struct ArrayExpr;
+struct TernaryExpr;
 
 struct PrintVisitor
 {
@@ -58,6 +59,7 @@ struct PrintVisitor
 	virtual void visit(const FunctionExpr *, int indent) const = 0;
 	virtual void visit(const NewExpr *, int indent) const = 0;
 	virtual void visit(const ArrayExpr *, int indent) const = 0;
+	virtual void visit(const TernaryExpr *, int indent) const = 0;
 };
 
 struct CompilerVisitor
@@ -88,5 +90,6 @@ struct CompilerVisitor
 	virtual void compile(const FunctionExpr &) = 0;
 	virtual void compile(const NewExpr &) = 0;
 	virtual void compile(const ArrayExpr &) = 0;
+	virtual void compile(const TernaryExpr &) = 0;
 };
 }

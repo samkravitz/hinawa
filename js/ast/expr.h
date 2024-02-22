@@ -219,4 +219,21 @@ struct ArrayExpr : public Expr
 
 	std::vector<std::shared_ptr<Expr>> elements;
 };
+
+struct TernaryExpr : public Expr
+{
+	TernaryExpr(std::shared_ptr<Expr> condition, std::shared_ptr<Expr> if_true, std::shared_ptr<Expr> if_false) :
+	    condition(std::move(condition)),
+	    if_true(std::move(if_true)),
+	    if_false(std::move(if_false))
+	{ }
+
+	const char *name() const { return "TernaryExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::shared_ptr<Expr> condition;
+	std::shared_ptr<Expr> if_true;
+	std::shared_ptr<Expr> if_false;
+};
 }

@@ -81,6 +81,7 @@ private:
 	void compile(const FunctionExpr &);
 	void compile(const NewExpr &);
 	void compile(const ArrayExpr &);
+	void compile(const TernaryExpr &);
 
 	void assignment_target(const Expr &);
 

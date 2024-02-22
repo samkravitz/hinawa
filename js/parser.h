@@ -70,6 +70,7 @@ public:
 	std::shared_ptr<Expr> object();
 	std::shared_ptr<Expr> string();
 	std::shared_ptr<Expr> subscript(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> ternary(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> unary();
 	std::shared_ptr<Expr> update(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> variable();

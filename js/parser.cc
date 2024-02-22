@@ -40,7 +40,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {PIPE,              {nullptr, &Parser::binary, PREC_TERM}          },
 	    {TILDE,             {nullptr, &Parser::binary, PREC_TERM}          },
 	    {CARET,             {nullptr, &Parser::binary, PREC_TERM}          },
-	    {QUESTION,          {nullptr, &Parser::binary, PREC_TERM}          },
+	    {QUESTION,          {nullptr, &Parser::ternary, PREC_ASSIGNMENT}   },
 	    {BANG_EQUAL,        {nullptr, &Parser::binary, PREC_EQUALITY}      },
 	    {EQUAL_EQUAL,       {nullptr, &Parser::binary, PREC_COMPARISON}    },
 	    {GREATER_EQUAL,     {nullptr, &Parser::binary, PREC_COMPARISON}    },
@@ -584,6 +584,14 @@ std::shared_ptr<Expr> Parser::subscript(std::shared_ptr<Expr> left)
 	auto expr = expression();
 	consume(RIGHT_BRACKET, "Expect ']' after subscript");
 	return make_ast_node<MemberExpr>(left, expr);
+}
+
+std::shared_ptr<Expr> Parser::ternary(std::shared_ptr<Expr> left)
+{
+	auto if_true = expression();
+	consume(COLON, "Expect ':' after first expression in ternary");
+	auto if_false = expression();
+	return make_ast_node<TernaryExpr>(left, if_true, if_false);
 }
 
 std::shared_ptr<Expr> Parser::unary()

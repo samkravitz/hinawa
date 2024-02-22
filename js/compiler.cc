@@ -647,6 +647,21 @@ void Compiler::compile(const ArrayExpr &expr)
 	emit_bytes(OP_NEW_ARRAY, expr.elements.size());
 }
 
+void Compiler::compile(const TernaryExpr &expr)
+{
+	current_line = expr.line;
+
+	expr.condition->accept(this);
+	auto if_false_offset = emit_jump(OP_JUMP_IF_FALSE);
+	emit_byte(OP_POP);
+
+	expr.if_true->accept(this);
+	auto exit = emit_jump(OP_JUMP);
+	patch_jump(if_false_offset);
+	expr.if_false->accept(this);
+	patch_jump(exit);
+}
+
 void Compiler::assignment_target(const Expr &expr)
 {
 	std::string identifier;
