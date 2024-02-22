@@ -12,6 +12,7 @@ set(SOURCES
 	array.cc
 	chunk.cc
 	compiler.cc
+	date.cc
 	error.cc
 	function.cc
 	heap.cc
@@ -44,6 +45,7 @@ set(HEADERS
 	cell.h
 	chunk.h
 	compiler.h
+	date.h
 	error.h
 	function.h
 	heap.h

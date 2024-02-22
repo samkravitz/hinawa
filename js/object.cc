@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "array.h"
+#include "date.h"
 #include "function.h"
 #include "object_string.h"
 #include "string.hh"
@@ -91,6 +92,12 @@ Array *Object::as_array()
 {
 	assert(is_array());
 	return static_cast<Array *>(this);
+}
+
+Date *Object::as_date()
+{
+	assert(is_date());
+	return static_cast<Date *>(this);
 }
 
 Value Object::ordinary_to_primitive(const Value::Type &hint) const

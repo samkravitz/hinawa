@@ -4,6 +4,7 @@
 
 #include "array.h"
 #include "bindings/document_wrapper.h"
+#include "date.h"
 #include "document/document.h"
 #include "error.h"
 #include "function.h"
@@ -40,6 +41,19 @@ static void prelude_array(Vm &vm)
 	});
 
 	vm.global()->set("Array", Value(array));
+}
+
+/**
+* prelude for the global Date object in javascript.
+*/
+static void prelude_date(Vm &vm)
+{
+	auto *date = NativeFunction::create([](auto &vm, const auto &argv) -> Value {
+		auto *date = heap().allocate<Date>();
+		return Value(date);
+	});
+
+	vm.global()->set("Date", Value(date));
 }
 
 /**
@@ -144,6 +158,7 @@ void prelude(Vm &vm, Document *document)
 
 	prelude_object(vm);
 	prelude_array(vm);
+	prelude_date(vm);
 	prelude_error(vm);
 	prelude_math(vm);
 

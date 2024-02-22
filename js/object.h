@@ -16,6 +16,7 @@ class NativeFunction;
 class Closure;
 class Array;
 class String;
+class Date;
 
 class Object : public Cell
 {
@@ -43,11 +44,13 @@ public:
 	virtual bool is_closure() const { return false; }
 	virtual bool is_array() const { return false; }
 	virtual bool is_object() const { return true; }
+	virtual bool is_date() const { return false; }
 
 	Function *as_function();
 	NativeFunction *as_native();
 	Closure *as_closure();
 	Array *as_array();
+	Date *as_date();
 
 	// https://tc39.es/ecma262/#sec-ordinarytoprimitive
 	Value ordinary_to_primitive(const Value::Type &) const;
