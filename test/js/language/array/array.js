@@ -5,3 +5,8 @@ for (var i = 0; i < 3; i = i + 1) {
 }
 
 print(new Array(3));
+
+var small = [];
+print(small);
+small[1] = 2;
+print(small);

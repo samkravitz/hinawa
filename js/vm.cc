@@ -489,13 +489,16 @@ void Vm::run_instruction(bool &should_return)
 			}
 
 			int idx = (int) index.as_number();
-			if (idx < 0 || idx >= (int) array->size())
+			if (idx < 0)
 			{
 				if (!runtime_error(heap().allocate<TypeError>(),
-				                   fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+				                   fmt::format("Error: array index {} out of bounds", idx)))
 					return;
 				break;
 			}
+
+			if (idx >= (int) array->size())
+				array->resize(idx + 1);
 
 			push(Value(array->at(idx)));
 			break;
@@ -524,13 +527,16 @@ void Vm::run_instruction(bool &should_return)
 			}
 
 			int idx = (int) index.as_number();
-			if (idx < 0 || idx >= (int) array->size())
+			if (idx < 0)
 			{
 				if (!runtime_error(heap().allocate<TypeError>(),
-				                   fmt::format("Error: array index {} out of bounds (length {})", idx, array->size())))
+				                   fmt::format("Error: array index {} out of bounds", idx)))
 					return;
 				break;
 			}
+
+			if (idx >= (int) array->size())
+				array->resize(idx + 1);
 
 			array->at(idx) = element;
 			push(element);
