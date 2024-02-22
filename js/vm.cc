@@ -862,7 +862,7 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 	if (!caught)
 	{
 		call_stack = call_stack_copy;
-		fmt::print(stderr, "Uncaught exception:\n");
+		fmt::print(stderr, "Uncaught exception: {}\n", msg);
 		print_stack_trace();
 		m_error = heap().allocate<Error>();
 		return false;
