@@ -88,11 +88,19 @@ struct ForStmt : public Stmt
 	std::shared_ptr<Stmt> statement;
 };
 
-//struct ContinueStmt : public Stmt
-//{
-//public:
-//	const char *name() const { return "ContinueStmt"; }
-//};
+struct ContinueStmt : public Stmt
+{
+	ContinueStmt(std::string label = "") :
+	    label(label)
+	{ }
+
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	const char *name() const { return "ContinueStmt"; }
+
+	std::string label = "";
+};
 
 //struct BreakStmt : public Stmt
 //{

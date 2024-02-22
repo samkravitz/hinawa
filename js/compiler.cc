@@ -144,6 +144,8 @@ void Compiler::compile(const ForStmt &stmt)
 	end_scope();
 }
 
+void Compiler::compile(const ContinueStmt &stmt) { }
+
 void Compiler::compile(const FunctionDecl &stmt)
 {
 	current_line = stmt.line;

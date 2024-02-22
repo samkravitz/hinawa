@@ -146,6 +146,9 @@ std::shared_ptr<Stmt> Parser::statement()
 	if (match(KEY_TRY))
 		return try_statement();
 
+	if (match(KEY_CONTINUE))
+		return continue_stmt();
+
 	return expression_statement();
 }
 
@@ -157,6 +160,13 @@ std::shared_ptr<Stmt> Parser::block_stmt()
 		stmts.push_back(declaration());
 
 	return make_ast_node<BlockStmt>(stmts);
+}
+
+std::shared_ptr<Stmt> Parser::continue_stmt()
+{
+	// match optional semicolon after continue statement
+	match(SEMICOLON);
+	return make_ast_node<ContinueStmt>();
 }
 
 std::shared_ptr<Stmt> Parser::var_declaration()

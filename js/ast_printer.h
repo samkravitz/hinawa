@@ -117,6 +117,13 @@ public:
 		}
 	}
 
+	void visit(const ContinueStmt *node, int indent) const
+	{
+		node->print_header(indent);
+		print_indent(indent + 1);
+		fmt::print("ContinueStmt (label: {})\n", node->label);
+	}
+
 	void visit(const ThrowStmt *node, int indent) const
 	{
 		node->print_header(indent);
