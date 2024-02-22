@@ -155,6 +155,16 @@ public:
 		node->rhs->accept(this, indent + 1);
 	}
 
+	void visit(const LogicalExpr *node, int indent) const
+	{
+		node->print_header(indent);
+
+		node->lhs->accept(this, indent + 1);
+		print_indent(indent + 1);
+		std::cout << node->op.value() << "\n";
+		node->rhs->accept(this, indent + 1);
+	}
+
 	void visit(const AssignmentExpr *node, int indent) const
 	{
 		node->print_header(indent);

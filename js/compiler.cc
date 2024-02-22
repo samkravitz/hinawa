@@ -331,17 +331,42 @@ void Compiler::compile(const BinaryExpr &expr)
 		case PIPE:
 			emit_byte(OP_BITWISE_OR);
 			break;
-		case AND_AND:
-			emit_byte(OP_LOGICAL_AND);
-			break;
-		case PIPE_PIPE:
-			emit_byte(OP_LOGICAL_OR);
-			break;
 		case KEY_INSTANCEOF:
 			emit_byte(OP_INSTANCEOF);
 			break;
 		default:
 			fmt::print("Unknown binary op {}\n", expr.op.value());
+	}
+}
+
+void Compiler::compile(const LogicalExpr &expr)
+{
+	current_line = expr.line;
+	auto op = expr.op.type();
+	expr.lhs->accept(this);
+
+	switch (op)
+	{
+		case AND_AND:
+		{
+			auto end = emit_jump(OP_JUMP_IF_FALSE);
+			emit_byte(OP_POP);
+			expr.rhs->accept(this);
+			patch_jump(end);
+			break;
+		}
+		case PIPE_PIPE:
+		{
+			auto else_jump = emit_jump(OP_JUMP_IF_FALSE);
+			auto end = emit_jump(OP_JUMP);
+			patch_jump(else_jump);
+			emit_byte(OP_POP);
+			expr.rhs->accept(this);
+			patch_jump(end);
+			break;
+		}
+		default:
+			fmt::print("Unknown logical op {}\n", expr.op.value());
 	}
 }
 

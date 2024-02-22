@@ -64,6 +64,7 @@ public:
 	std::shared_ptr<Expr> dot(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> grouping();
 	std::shared_ptr<Expr> literal();
+	std::shared_ptr<Expr> logical(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> new_instance();
 	std::shared_ptr<Expr> number();
 	std::shared_ptr<Expr> object();

@@ -52,8 +52,8 @@ ParseRule Parser::get_rule(TokenType type)
 	    {AND_EQUAL,         {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
 	    {PIPE_EQUAL,        {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
 	    {CARET_EQUAL,       {nullptr, &Parser::assign, PREC_ASSIGNMENT}    },
-	    {AND_AND,           {nullptr, &Parser::binary, PREC_AND}           },
-	    {PIPE_PIPE,         {nullptr, &Parser::binary, PREC_OR}            },
+	    {AND_AND,           {nullptr, &Parser::logical, PREC_AND}          },
+	    {PIPE_PIPE,         {nullptr, &Parser::logical, PREC_OR}           },
 	    {ARROW,             {nullptr, &Parser::binary, PREC_AND}           },
 	    {QUESTION_QUESTION, {nullptr, &Parser::binary, PREC_AND}           },
 	    {STAR_STAR,         {nullptr, &Parser::binary, PREC_AND}           },
@@ -460,6 +460,14 @@ std::shared_ptr<Expr> Parser::grouping()
 std::shared_ptr<Expr> Parser::literal()
 {
 	return make_ast_node<Literal>(previous);
+}
+
+std::shared_ptr<Expr> Parser::logical(std::shared_ptr<Expr> left)
+{
+	auto op = previous;
+	auto precedence = get_rule(op.type()).precedence;
+	auto right = parse_precedence(static_cast<Precedence>(precedence + 1));
+	return make_ast_node<LogicalExpr>(left, op, right);
 }
 
 std::shared_ptr<Expr> Parser::new_instance()

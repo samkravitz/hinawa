@@ -69,6 +69,23 @@ struct BinaryExpr : public Expr
 	std::shared_ptr<Expr> rhs;
 };
 
+struct LogicalExpr : public Expr
+{
+	LogicalExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :
+	    lhs(std::move(lhs)),
+	    op(op),
+	    rhs(std::move(rhs))
+	{ }
+
+	const char *name() const { return "LogicalExpr"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::shared_ptr<Expr> lhs;
+	Token op;
+	std::shared_ptr<Expr> rhs;
+};
+
 struct AssignmentExpr : public Expr
 {
 	AssignmentExpr(std::shared_ptr<Expr> lhs, Token op, std::shared_ptr<Expr> rhs) :

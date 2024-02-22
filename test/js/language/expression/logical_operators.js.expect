@@ -11,3 +11,5 @@ foo
 []
 undefined
 null
+false
+true

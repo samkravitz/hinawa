@@ -68,6 +68,7 @@ private:
 	void compile(const UnaryExpr &);
 	void compile(const UpdateExpr &);
 	void compile(const BinaryExpr &);
+	void compile(const LogicalExpr &);
 	void compile(const AssignmentExpr &);
 	void compile(const CallExpr &);
 	void compile(const MemberExpr &);
