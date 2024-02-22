@@ -144,6 +144,20 @@ void Compiler::compile(const ForStmt &stmt)
 	end_scope();
 }
 
+void Compiler::compile(const WhileStmt &stmt)
+{
+	current_line = stmt.line;
+
+	int loop_start = current->function->chunk.size();
+	stmt.condition->accept(this);
+	auto exit = emit_jump(OP_JUMP_IF_FALSE);
+	emit_byte(OP_POP);
+	stmt.statement->accept(this);
+	emit_loop(loop_start);
+	patch_jump(exit);
+	emit_byte(OP_POP);
+}
+
 void Compiler::compile(const ContinueStmt &stmt) { }
 
 void Compiler::compile(const FunctionDecl &stmt)

@@ -117,6 +117,19 @@ public:
 		}
 	}
 
+	void visit(const WhileStmt *node, int indent) const
+	{
+		node->print_header(indent);
+
+		print_indent(indent);
+		fmt::print("condition: \n");
+		node->condition->accept(this, indent + 1);
+
+		print_indent(indent);
+		fmt::print("statement: \n");
+		node->statement->accept(this, indent + 1);
+	}
+
 	void visit(const ContinueStmt *node, int indent) const
 	{
 		node->print_header(indent);

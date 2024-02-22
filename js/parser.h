@@ -83,12 +83,14 @@ private:
 	std::shared_ptr<Stmt> statement();
 	std::shared_ptr<Stmt> block_stmt();
 	std::shared_ptr<Stmt> continue_stmt();
+	std::shared_ptr<Stmt> do_while_statement();
 	std::shared_ptr<Stmt> expression_statement();
 	std::shared_ptr<Stmt> if_statement();
 	std::shared_ptr<Stmt> return_statement();
 	std::shared_ptr<Stmt> for_statement();
 	std::shared_ptr<Stmt> throw_statement();
 	std::shared_ptr<Stmt> try_statement();
+	std::shared_ptr<Stmt> while_statement();
 
 	// parse declarations
 	std::shared_ptr<Stmt> declaration();

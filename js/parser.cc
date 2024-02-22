@@ -149,6 +149,12 @@ std::shared_ptr<Stmt> Parser::statement()
 	if (match(KEY_CONTINUE))
 		return continue_stmt();
 
+	if (match(KEY_DO))
+		return do_while_statement();
+
+	if (match(KEY_WHILE))
+		return while_statement();
+
 	return expression_statement();
 }
 
@@ -260,6 +266,30 @@ std::shared_ptr<Stmt> Parser::for_statement()
 	auto stmt = statement();
 
 	return make_ast_node<ForStmt>(initialization, condition, afterthought, stmt);
+}
+
+std::shared_ptr<Stmt> Parser::do_while_statement()
+{
+	auto stmt = statement();
+	consume(KEY_WHILE, "Expected 'while' in do...while loop");
+	consume(LEFT_PAREN, "Expected '('");
+	auto condition = expression();
+	consume(RIGHT_PAREN, "Expected ')'");
+
+	// match optional semicolon after while statement
+	match(SEMICOLON);
+
+	return make_ast_node<WhileStmt>(condition, stmt);
+}
+
+std::shared_ptr<Stmt> Parser::while_statement()
+{
+	consume(LEFT_PAREN, "Expected '('");
+	auto condition = expression();
+	consume(RIGHT_PAREN, "Expected ')'");
+	auto stmt = statement();
+
+	return make_ast_node<WhileStmt>(condition, stmt);
 }
 
 std::shared_ptr<Stmt> Parser::throw_statement()

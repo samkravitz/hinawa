@@ -88,6 +88,21 @@ struct ForStmt : public Stmt
 	std::shared_ptr<Stmt> statement;
 };
 
+struct WhileStmt : public Stmt
+{
+	WhileStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> statement) :
+	    condition(std::move(condition)),
+	    statement(std::move(statement))
+	{ }
+
+	const char *name() const { return "WhileStmt"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::shared_ptr<Expr> condition;
+	std::shared_ptr<Stmt> statement;
+};
+
 struct ContinueStmt : public Stmt
 {
 	ContinueStmt(std::string label = "") :

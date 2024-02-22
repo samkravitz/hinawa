@@ -58,6 +58,7 @@ private:
 	void compile(const ExpressionStmt &);
 	void compile(const IfStmt &);
 	void compile(const ForStmt &);
+	void compile(const WhileStmt &);
 	void compile(const ContinueStmt &);
 	void compile(const FunctionDecl &);
 	void compile(const EmptyStmt &);
