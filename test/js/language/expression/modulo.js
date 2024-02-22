@@ -1,0 +1,14 @@
+print(13 % 5);
+print(1 % -2);
+print(1 % 2);
+print(2 % 3);
+print(5.5 % 2);
+print(-13 % 5);
+print(-1 % 2);
+print(-4 % 2);
+print(NaN % 2);
+print(Infinity % 2);
+print(Infinity % 0);
+print(Infinity % Infinity);
+print(2 % Infinity);
+print(0 % Infinity);

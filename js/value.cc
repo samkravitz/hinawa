@@ -695,6 +695,51 @@ Value Value::Number::divide(const Value &x, const Value &y)
 	return Value(quotient);
 }
 
+Value Value::Number::remainder(const Value &n, const Value &d)
+{
+	assert(n.is_number() && d.is_number());
+
+	// 1. If n is NaN or d is NaN, return NaN
+	if (n.is_nan() || d.is_nan())
+		return js_nan();
+
+	// 2. If n is either +∞𝔽 or -∞𝔽, return NaN
+	if (n.is_infinity() || n.is_negative_infinity())
+		return js_nan();
+
+	// 3. If d is either +∞𝔽 or -∞𝔽, return n
+	if (d.is_infinity() || d.is_negative_infinity())
+		return n;
+
+	// 4. If d is either +0𝔽 or -0𝔽, return NaN
+	if (d.is_zero() || d.is_negative_zero())
+		return js_nan();
+
+	// 5. If n is either +0𝔽 or -0𝔽, return n
+	if (d.is_zero() || d.is_negative_zero())
+		return n;
+
+	// 6. Assert: n and d are finite and non-zero
+	assert(!n.is_infinity() && !n.is_negative_infinity() && !n.is_zero() && !n.is_negative_zero());
+	assert(!d.is_infinity() && !d.is_negative_infinity() && !d.is_zero() && !d.is_negative_zero());
+
+	// 7. Let quotient be ℝ(n) / ℝ(d)
+	auto quotient = n.as_number() / d.as_number();
+
+	// 8. Let q be truncate(quotient)
+	auto q = std::trunc(quotient);
+
+	// 9. Let r be ℝ(n) - (ℝ(d) × q)
+	auto r = n.as_number() - (d.as_number() * q);
+
+	// 10. If r = 0 and n < -0𝔽, return -0𝔽
+	if (r == 0 && n.as_number() < -0.0)
+		return js_negative_zero();
+
+	// 11. Return 𝔽(r)
+	return Value(r);
+}
+
 Value Value::Number::add(const Value &x, const Value &y)
 {
 	assert(x.is_number() && y.is_number());
@@ -804,6 +849,7 @@ std::expected<Value, Error *> apply_binary_operator(Vm &vm, const Value &lval, c
 	    {Operator::StarStar, &Value::Number::exponentiate},
 	    {Operator::Star,     &Value::Number::multiply    },
 	    {Operator::Slash,    &Value::Number::divide      },
+	    {Operator::Mod,      &Value::Number::remainder   },
 	    {Operator::Plus,     &Value::Number::add         },
 	    {Operator::Minus,    &Value::Number::subtract    },
 	};

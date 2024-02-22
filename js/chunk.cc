@@ -92,6 +92,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_MULTIPLY", offset);
 		case OP_DIVIDE:
 			return simple_instruction("OP_DIVIDE", offset);
+		case OP_MOD:
+			return simple_instruction("OP_MOD", offset);
 		case OP_NOT:
 			return simple_instruction("OP_NOT", offset);
 		case OP_NEGATE:
