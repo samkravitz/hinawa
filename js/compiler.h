@@ -49,8 +49,6 @@ private:
 
 	std::vector<std::shared_ptr<Stmt>> stmts;
 
-	int continue_target = -1;
-
 	/**
 	* Every time a continue statement is encountered while compiling a loop,
 	* that statement's bytecode offset will be appended to the loop's targets.
