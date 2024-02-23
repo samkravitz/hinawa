@@ -100,7 +100,7 @@ void Compiler::compile(const IfStmt &stmt)
 
 	auto else_offset = emit_jump(OP_JUMP);
 	patch_jump(then_offset);
-	emit_jump(OP_POP);
+	emit_byte(OP_POP);
 
 	if (stmt.alternate)
 		stmt.alternate->accept(this);
