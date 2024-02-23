@@ -59,6 +59,7 @@ private:
 	* be iterated through and patched so the VM knows the correct address to jump to.
 	*/
 	std::vector<std::vector<size_t>> continue_targets;
+	std::vector<std::vector<size_t>> break_targets;
 
 	void init_compiler(FunctionCompiler *);
 	void end_compiler();

@@ -119,6 +119,7 @@ void Compiler::compile(const ForStmt &stmt)
 	int loop_start = current->function->chunk.size();
 	int exit_jump = -1;
 	continue_targets.push_back({});
+	break_targets.push_back({});
 
 	if (stmt.condition)
 	{
@@ -136,7 +137,6 @@ void Compiler::compile(const ForStmt &stmt)
 	*/
 	for (const auto &target : continue_targets.back())
 		patch_jump(target);
-
 	continue_targets.pop_back();
 
 	if (stmt.afterthought)
@@ -146,6 +146,10 @@ void Compiler::compile(const ForStmt &stmt)
 	}
 
 	emit_loop(loop_start);
+
+	for (const auto &target : break_targets.back())
+		patch_jump(target);
+	break_targets.pop_back();
 
 	if (exit_jump != -1)
 	{
@@ -162,6 +166,7 @@ void Compiler::compile(const WhileStmt &stmt)
 
 	int loop_start = current->function->chunk.size();
 	continue_targets.push_back({});
+	break_targets.push_back({});
 
 	stmt.condition->accept(this);
 	auto exit = emit_jump(OP_JUMP_IF_FALSE);
@@ -170,10 +175,14 @@ void Compiler::compile(const WhileStmt &stmt)
 
 	for (const auto &target : continue_targets.back())
 		patch_jump(target);
-
 	continue_targets.pop_back();
 
 	emit_loop(loop_start);
+
+	for (const auto &target : break_targets.back())
+		patch_jump(target);
+	break_targets.pop_back();
+
 	patch_jump(exit);
 	emit_byte(OP_POP);
 }
@@ -185,7 +194,12 @@ void Compiler::compile(const ContinueStmt &stmt)
 	continue_targets.back().push_back(emit_jump(OP_JUMP));
 }
 
-void Compiler::compile(const BreakStmt &stmt) { }
+void Compiler::compile(const BreakStmt &stmt)
+{
+	current_line = stmt.line;
+
+	break_targets.back().push_back(emit_jump(OP_JUMP));
+}
 
 void Compiler::compile(const FunctionDecl &stmt)
 {
