@@ -118,6 +118,7 @@ void Compiler::compile(const ForStmt &stmt)
 
 	int loop_start = current->function->chunk.size();
 	int exit_jump = -1;
+	continue_targets.push_back({});
 
 	if (stmt.condition)
 	{
@@ -127,6 +128,17 @@ void Compiler::compile(const ForStmt &stmt)
 	}
 
 	stmt.statement->accept(this);
+
+	/**
+	* After the loop's statement but before the update expression is the point where
+	* all continues in this loop invocation will jump to. So, patch all the jumps from
+	* continue statements
+	*/
+	for (const auto &target : continue_targets.back())
+		patch_jump(target);
+
+	continue_targets.pop_back();
+
 	if (stmt.afterthought)
 	{
 		stmt.afterthought->accept(this);
@@ -165,13 +177,14 @@ void Compiler::compile(const ContinueStmt &stmt)
 {
 	current_line = stmt.line;
 
-	if (continue_target == -1)
-	{
-		fmt::print(stderr, "Error: invalid continue on line {}\n", stmt.line);
-		return;
-	}
+	//if (continue_target == -1)
+	//{
+	//	fmt::print(stderr, "Error: invalid continue on line {}\n", stmt.line);
+	//	return;
+	//}
 
-	emit_loop(continue_target);
+	// emit_loop(continue_target);
+	continue_targets.back().push_back(emit_jump(OP_JUMP));
 }
 
 void Compiler::compile(const BreakStmt &stmt) { }
