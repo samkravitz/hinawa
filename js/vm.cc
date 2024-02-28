@@ -386,6 +386,7 @@ void Vm::run_instruction(bool &should_return)
 
 			else
 			{
+				print_stack_trace();
 				assert(!"Tried to call an uncallable object");
 			}
 
