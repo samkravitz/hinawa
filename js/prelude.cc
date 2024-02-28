@@ -3,9 +3,7 @@
 #include <fmt/format.h>
 
 #include "array.h"
-#include "bindings/document_wrapper.h"
 #include "date.h"
-#include "document/document.h"
 #include "error.h"
 #include "function.h"
 #include "heap.h"
@@ -13,6 +11,11 @@
 #include "object_string.h"
 #include "value.h"
 #include "vm.h"
+
+#ifdef JS_BUILD_BINDINGS
+	#include "bindings/document_wrapper.h"
+	#include "document/document.h"
+#endif
 
 namespace js
 {
@@ -128,12 +131,14 @@ static void prelude_math(Vm &vm)
 /**
 * prelude for the document object in javascript.
 */
+#ifdef JS_BUILD_BINDINGS
 static void prelude_document(Vm &vm, Document *document)
 {
 	auto *document_wrapper = heap().allocate<bindings::DocumentWrapper>(document);
 	vm.set_document_wrapper(document_wrapper);
 	vm.global()->set("document", Value(document_wrapper));
 }
+#endif
 
 void prelude(Vm &vm, Document *document)
 {
@@ -181,9 +186,12 @@ void prelude(Vm &vm, Document *document)
 	prelude_error(vm);
 	prelude_math(vm);
 
+#ifdef JS_BUILD_BINDINGS
 	if (document)
 		prelude_document(vm, document);
+#endif
 
+#if JS_BUILD_BINDINGS
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
 		std::string text = "";
 		if (!argv.empty())
@@ -192,6 +200,7 @@ void prelude(Vm &vm, Document *document)
 		vm.document().set_alert(text);
 		return {};
 	});
+#endif
 
 	vm.set_global(global);
 }

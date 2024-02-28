@@ -5,12 +5,35 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	#add_compile_options("-DDEBUG_LOG_GC")
 endif()
 
-set(SOURCES
+set(BINDINGS_SOURCES
 	bindings/canvas_rendering_context_2d_wrapper.cc
 	bindings/document_wrapper.cc
 	bindings/html_canvas_element_wrapper.cc
 	bindings/node_wrapper.cc
 
+	../document/canvas_rendering_context_2d.cc
+	../document/html_canvas_element.cc
+	../document/document.cc
+	../document/node.cc
+	../document/element.cc
+	../document/text.cc
+)
+
+set(BINDINGS_HEADERS
+	bindings/canvas_rendering_context_2d_wrapper.h
+	bindings/document_wrapper.h
+	bindings/html_canvas_element_wrapper.h
+	bindings/node_wrapper.h
+	bindings/wrapper.h
+
+	../document/canvas_rendering_context_2d.h
+	../document/document.h
+	../document/node.h
+	../document/element.h
+	../document/text.h
+)
+
+set(SOURCES
 	array.cc
 	chunk.cc
 	compiler.cc
@@ -26,13 +49,6 @@ set(SOURCES
 	token.cc
 	value.cc
 	vm.cc
-
-	../document/canvas_rendering_context_2d.cc
-	../document/html_canvas_element.cc
-	../document/document.cc
-	../document/node.cc
-	../document/element.cc
-	../document/text.cc
 )
 
 set(HEADERS
@@ -40,12 +56,6 @@ set(HEADERS
 	ast/expr.h
 	ast/stmt.h
 	ast/visitor.h
-
-	bindings/canvas_rendering_context_2d_wrapper.h
-	bindings/document_wrapper.h
-	bindings/html_canvas_element_wrapper.h
-	bindings/node_wrapper.h
-	bindings/wrapper.h
 
 	array.h
 	cell.h
@@ -67,12 +77,6 @@ set(HEADERS
 	token.h
 	value.h
 	vm.h
-
-	../document/canvas_rendering_context_2d.h
-	../document/document.h
-	../document/node.h
-	../document/element.h
-	../document/text.h
 )
 
 flex_target(JsLexer2 lex.ll lex.yy.cc)
@@ -87,7 +91,7 @@ target_include_directories(js
 	${Skia_INCLUDE_DIR}
 	${Skia_INCLUDE_DIR}/core
 )
-target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS})
+target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS} ${BINDINGS_HEADERS} ${BINDINGS_SOURCES})
 target_link_libraries(js fmt::fmt)
 
 target_include_directories(hinawa.test PRIVATE ..)

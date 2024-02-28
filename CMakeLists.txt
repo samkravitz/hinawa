@@ -73,6 +73,8 @@ qt_add_executable(hinawa
 	${FLEX_JsLexer_OUTPUTS}
 )
 
+target_compile_definitions(hinawa PRIVATE JS_BUILD_BINDINGS)
+
 add_executable(hinawa.test)
 target_sources(hinawa.test PRIVATE ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
 target_include_directories(hinawa PRIVATE css js)
