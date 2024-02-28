@@ -3,11 +3,14 @@
 #include "gfx/color.h"
 #include "layout/rect.h"
 
-void CanvasRenderingContext2D::set_fill_style(std::string) { }
+void CanvasRenderingContext2D::set_fill_style(std::string fill_style)
+{
+	m_fill_style = fill_style;
+}
 
 std::string CanvasRenderingContext2D::fill_style() const
 {
-	return "red";
+	return m_fill_style;
 }
 
 void CanvasRenderingContext2D::fill_rect(int x, int y, int width, int height)

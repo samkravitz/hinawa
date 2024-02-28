@@ -13,6 +13,7 @@ namespace js
 class Vm;
 class Function;
 class NativeFunction;
+class NativeProperty;
 class Closure;
 class Array;
 class String;
@@ -34,11 +35,15 @@ public:
 	void set_prototype(Object *proto) { m_prototype = proto; }
 
 	void set_native(const std::string &, const std::function<Value(Vm &, const std::vector<Value> &)> &);
+	void set_native_property(const std::string &,
+	                         const std::function<Value(Object *)> &,
+	                         const std::function<void(Object *, Value)> &);
 
 	bool has_own_property(const std::string &) const;
 	bool has_own_property(const String &) const;
 	virtual bool is_function() const { return false; }
 	virtual bool is_native() const { return false; }
+	virtual bool is_native_property() const { return false; }
 	virtual bool is_bound_method() const { return false; }
 	virtual bool is_bound_native_method() const { return false; }
 	virtual bool is_closure() const { return false; }
@@ -48,6 +53,7 @@ public:
 
 	Function *as_function();
 	NativeFunction *as_native();
+	NativeProperty *as_native_property();
 	Closure *as_closure();
 	Array *as_array();
 	Date *as_date();

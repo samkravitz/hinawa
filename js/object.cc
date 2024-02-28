@@ -82,6 +82,12 @@ NativeFunction *Object::as_native()
 	return static_cast<NativeFunction *>(this);
 }
 
+NativeProperty *Object::as_native_property()
+{
+	assert(is_native_property());
+	return static_cast<NativeProperty *>(this);
+}
+
 Closure *Object::as_closure()
 {
 	assert(is_closure());

@@ -50,4 +50,22 @@ Closure *Closure::create(Function *function)
 		heap().vm().pop();
 	return closure;
 }
+
+NativeProperty *NativeProperty::create(const std::function<Value(Object *)> &getter,
+                                       const std::function<void(Object *, Value)> &setter)
+{
+	auto *native_property = heap().allocate<NativeProperty>(getter, setter);
+
+	return native_property;
+}
+
+Value NativeProperty::get(Object *object) const
+{
+	return m_getter(object);
+}
+
+void NativeProperty::set(Object *object, Value value)
+{
+	m_setter(object, value);
+}
 }

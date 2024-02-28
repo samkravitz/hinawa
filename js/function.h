@@ -179,4 +179,29 @@ struct BoundNativeMethod final : public Object
 	Object *receiver;
 	NativeFunction *method;
 };
+
+class NativeProperty final : public Object
+{
+	friend class Heap;
+
+public:
+	static NativeProperty *create(const std::function<Value(Object *)> &getter,
+	                              const std::function<void(Object *, Value)> &setter);
+
+	Value get(Object *) const;
+	void set(Object *, Value);
+
+	bool is_native_property() const override { return true; }
+
+	std::string to_string() const override { return "<native property>"; }
+
+private:
+	NativeProperty(const std::function<Value(Object *)> &getter, const std::function<void(Object *, Value)> &setter) :
+	    m_getter(std::move(getter)),
+	    m_setter(std::move(setter))
+	{ }
+
+	std::function<Value(Object *)> m_getter;
+	std::function<void(Object *, Value)> m_setter;
+};
 }
