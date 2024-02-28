@@ -26,6 +26,24 @@ CanvasRenderingContext2DWrapper::CanvasRenderingContext2DWrapper(CanvasRendering
 
 		return Value::js_undefined();
 	});
+
+	set_native("scale", [this](auto &vm, const auto &argv) -> Value {
+		if (argv.size() < 2)
+			return Value::js_undefined();
+
+		m_context->scale(argv[0].as_number(), argv[1].as_number());
+
+		return Value::js_undefined();
+	});
+
+	set_native("translate", [this](auto &vm, const auto &argv) -> Value {
+		if (argv.size() < 2)
+			return Value::js_undefined();
+
+		m_context->translate(argv[0].as_number(), argv[1].as_number());
+
+		return Value::js_undefined();
+	});
 }
 }
 }

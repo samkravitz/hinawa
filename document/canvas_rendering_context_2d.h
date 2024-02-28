@@ -17,6 +17,8 @@ public:
 	std::string fill_style() const;
 
 	void fill_rect(int, int, int, int);
+	void scale(float, float);
+	void translate(float, float);
 
 private:
 	HtmlCanvasElement *m_canvas_element = nullptr;

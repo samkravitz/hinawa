@@ -51,4 +51,14 @@ void Painter::draw_circle(const Point &at, float r, const Color &color)
 
 	canvas->drawCircle(at.x, at.y, r, paint);
 }
+
+void Painter::scale(float sx, float sy)
+{
+	canvas->scale(sx, sy);
+}
+
+void Painter::translate(float dx, float dy)
+{
+	canvas->translate(dx, dy);
+}
 }

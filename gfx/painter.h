@@ -25,6 +25,8 @@ public:
 	void draw_text(const std::string &, const SkFont &, int, int, const Color &color = Color::BLACK);
 	void draw_image(const sk_sp<SkImage> &, int, int);
 	void draw_circle(const Point &, float, const Color &color = Color::BLACK);
+	void scale(float, float);
+	void translate(float, float);
 
 private:
 	SkCanvas *canvas;
