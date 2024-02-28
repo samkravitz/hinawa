@@ -27,14 +27,32 @@ Value Object::get(const std::string &key)
 {
 	// found the key in the properties map
 	if (has_own_property(key))
-		return properties[key];
+	{
+		auto value = properties[key];
+		if (value.is_object() && value.as_object()->is_native_property())
+		{
+			auto *native_property = value.as_object()->as_native_property();
+			return native_property->get(this);
+		}
+
+		return value;
+	}
 
 	// search up the prototype chain for the key
 	auto *proto = prototype();
 	while (proto)
 	{
 		if (proto->has_own_property(key))
-			return proto->properties[key];
+		{
+			auto value = proto->properties[key];
+			if (value.is_object() && value.as_object()->is_native_property())
+			{
+				auto *native_property = value.as_object()->as_native_property();
+				return native_property->get(this);
+			}
+
+			return value;
+		}
 
 		proto = proto->prototype();
 	}
@@ -45,12 +63,27 @@ Value Object::get(const std::string &key)
 
 void Object::set(const std::string &key, Value value)
 {
+	auto got_value = properties[key];
+	if (got_value.is_object() && got_value.as_object()->is_native_property())
+	{
+		auto *native_property = got_value.as_object()->as_native_property();
+		native_property->set(this, value);
+		return;
+	}
+
 	properties[key] = value;
 }
 
 void Object::set_native(const std::string &name, const std::function<Value(Vm &, const std::vector<Value> &)> &fn)
 {
 	properties[name] = Value(NativeFunction::create(fn));
+}
+
+void Object::set_native_property(const std::string &name,
+                                 const std::function<Value(Object *)> &getter,
+                                 const std::function<void(Object *, Value)> &setter)
+{
+	properties[name] = Value(NativeProperty::create(getter, setter));
 }
 
 bool Object::has_own_property(const std::string &key) const
