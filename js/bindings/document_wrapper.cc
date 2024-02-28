@@ -3,8 +3,9 @@
 #include <string>
 
 #include "document/element.h"
-#include "node_wrapper.h"
+#include "document/html_canvas_element.h"
 #include "heap.h"
+#include "node_wrapper.h"
 
 namespace js
 {
@@ -19,7 +20,10 @@ DocumentWrapper::DocumentWrapper(Document *doc) :
 
 		auto id = argv[0].to_string();
 		auto *node = static_cast<Node *>(document().get_element_by_id(id));
-		return Value(heap().allocate<NodeWrapper>(node));
+		if (!node)
+			return Value::js_null();
+
+		return Value(wrap(heap(), *node));
 	});
 }
 }
