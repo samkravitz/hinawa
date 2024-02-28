@@ -21,6 +21,8 @@ CanvasRenderingContext2DWrapper::CanvasRenderingContext2DWrapper(CanvasRendering
 			return Value::js_undefined();
 
 		m_context->fill_rect(argv[0].as_number(), argv[1].as_number(), argv[2].as_number(), argv[3].as_number());
+
+		return Value::js_undefined();
 	});
 }
 }

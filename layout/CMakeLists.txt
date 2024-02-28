@@ -1,5 +1,6 @@
 set(SOURCES
 	block.cc
+	canvas.cc
 	image.cc
 	inline.cc
 	list.cc
@@ -10,6 +11,7 @@ set(SOURCES
 set(HEADERS
 	block.h
 	box.h
+	canvas.h
 	edges.h
 	image.h
 	inline.h

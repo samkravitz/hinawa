@@ -28,7 +28,8 @@ span {
 }
 
 /* inline-block elements */
-img {
+img,
+canvas {
 	display: inline-block;
 }
 

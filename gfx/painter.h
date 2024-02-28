@@ -14,6 +14,10 @@ namespace gfx
 class Painter
 {
 public:
+	Painter() :
+	    Painter(nullptr, 0, 0)
+	{ }
+
 	Painter(SkCanvas *, int, int);
 
 	void fill_rect(const layout::Rect &, const Color &);

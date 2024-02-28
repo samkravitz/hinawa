@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "block.h"
+#include "canvas.h"
 #include "css/value.h"
 #include "document/html_image_element.h"
 #include "document/node.h"
@@ -33,6 +34,8 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 		case css::Display::InlineBlock:
 			if (dynamic_cast<HtmlImageElement *>(styled_node->node()))
 				node = std::make_shared<Image>(styled_node);
+			if (dynamic_cast<HtmlCanvasElement *>(styled_node->node()))
+				node = std::make_shared<Canvas>(styled_node);
 			break;
 
 		case css::Display::ListItem:
