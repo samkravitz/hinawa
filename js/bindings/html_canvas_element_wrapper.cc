@@ -19,6 +19,16 @@ HtmlCanvasElementWrapper::HtmlCanvasElementWrapper(HtmlCanvasElement *canvas) :
 		auto *context = node().get_context("2d");
 		return Value(heap().allocate<CanvasRenderingContext2DWrapper>(context));
 	});
+
+	set_native_property(
+	    "width",
+	    [canvas](Object *) { return Value(canvas->width()); },
+	    [canvas](Object *, Value value) { canvas->set_width(value.as_number()); });
+
+	set_native_property(
+	    "height",
+	    [canvas](Object *) { return Value(canvas->height()); },
+	    [canvas](Object *, Value value) { canvas->set_height(value.as_number()); });
 }
 
 HtmlCanvasElement &HtmlCanvasElementWrapper::node()

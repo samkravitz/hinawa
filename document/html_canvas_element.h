@@ -20,7 +20,10 @@ public:
 
 	void add_attribute(std::string, std::string) override;
 	float width() const;
+	void set_width(float width) { m_width = width; }
 	float height() const;
+	void set_height(float height) { m_height = height; }
+
 	SkCanvas &canvas() const { return *m_surface->getCanvas(); }
 
 	CanvasRenderingContext2D *get_context(std::string);
