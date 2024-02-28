@@ -131,6 +131,16 @@ struct BreakStmt : public Stmt
 	std::string label = "";
 };
 
+struct DebuggerStmt : public Stmt
+{
+	DebuggerStmt() = default;
+
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	const char *name() const { return "DebuggerStmt"; }
+};
+
 struct ReturnStmt : public Stmt
 {
 	ReturnStmt(std::shared_ptr<Expr> expr) :

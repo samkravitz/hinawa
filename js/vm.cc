@@ -721,6 +721,27 @@ void Vm::run_instruction(bool &should_return)
 			break;
 		}
 
+		case OP_DEBUGGER:
+		{
+			print_stack_trace();
+			fmt::print("\n");
+			fmt::print("Globals:\n");
+			for (const auto &[name, value] : m_global->get_properties())
+				fmt::print("{}: {}\n", name, value.to_string());
+
+			fmt::print("\n");
+			fmt::print("Locals:\n");
+			auto base = call_stack.back().base;
+			for (uint i = base; i < stack.size(); i++)
+				fmt::print("[{}]: {}\n", i - base, stack[i].to_string());
+
+			fmt::print("\n");
+			fmt::print("> Press enter to continue\n");
+			std::string line;
+			std::getline(std::cin, line);
+			break;
+		}
+
 		default:
 			assert(!"Unknown opcode");
 	}

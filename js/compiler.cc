@@ -201,6 +201,12 @@ void Compiler::compile(const BreakStmt &stmt)
 	break_targets.back().push_back(emit_jump(OP_JUMP));
 }
 
+void Compiler::compile(const DebuggerStmt &stmt)
+{
+	current_line = stmt.line;
+	emit_byte(OP_DEBUGGER);
+}
+
 void Compiler::compile(const FunctionDecl &stmt)
 {
 	current_line = stmt.line;

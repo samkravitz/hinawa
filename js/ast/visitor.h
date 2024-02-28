@@ -13,6 +13,7 @@ struct ForStmt;
 struct WhileStmt;
 struct ContinueStmt;
 struct BreakStmt;
+struct DebuggerStmt;
 struct ThrowStmt;
 struct TryStmt;
 
@@ -44,6 +45,7 @@ struct PrintVisitor
 	virtual void visit(const WhileStmt *, int indent) const = 0;
 	virtual void visit(const ContinueStmt *, int indent) const = 0;
 	virtual void visit(const BreakStmt *, int indent) const = 0;
+	virtual void visit(const DebuggerStmt *, int indent) const = 0;
 	virtual void visit(const ThrowStmt *, int indent) const = 0;
 	virtual void visit(const TryStmt *, int indent) const = 0;
 	virtual void visit(const UnaryExpr *, int indent) const = 0;
@@ -75,6 +77,7 @@ struct CompilerVisitor
 	virtual void compile(const WhileStmt &) = 0;
 	virtual void compile(const ContinueStmt &) = 0;
 	virtual void compile(const BreakStmt &) = 0;
+	virtual void compile(const DebuggerStmt &) = 0;
 	virtual void compile(const ThrowStmt &) = 0;
 	virtual void compile(const TryStmt &) = 0;
 	virtual void compile(const UnaryExpr &) = 0;

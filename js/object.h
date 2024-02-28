@@ -61,6 +61,8 @@ public:
 	// https://tc39.es/ecma262/#sec-ordinarytoprimitive
 	Value ordinary_to_primitive(const Value::Type &) const;
 
+	std::unordered_map<std::string, Value> get_properties() const { return properties; }
+
 	virtual std::string to_string() const;
 	void print_prototype_chain();
 protected:

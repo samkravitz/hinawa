@@ -144,6 +144,13 @@ public:
 		fmt::print("BreakStmt (label: {})\n", node->label);
 	}
 
+	void visit(const DebuggerStmt *node, int indent) const
+	{
+		node->print_header(indent);
+		print_indent(indent + 1);
+		fmt::print("DebuggerStmt\n");
+	}
+
 	void visit(const ThrowStmt *node, int indent) const
 	{
 		node->print_header(indent);

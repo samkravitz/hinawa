@@ -140,6 +140,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_LOGICAL_AND", offset);
 		case OP_LOGICAL_OR:
 			return simple_instruction("OP_LOGICAL_OR", offset);
+		case OP_DEBUGGER:
+			return simple_instruction("OP_DEBUGGER", offset);
 		case OP_CLOSURE:
 		{
 			offset++;

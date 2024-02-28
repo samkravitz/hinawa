@@ -158,6 +158,13 @@ std::shared_ptr<Stmt> Parser::statement()
 	if (match(KEY_BREAK))
 		return break_statement();
 
+	if (match(KEY_DEBUGGER))
+	{
+		// match optional semicolon after break statement
+		match(SEMICOLON);
+		return make_ast_node<DebuggerStmt>();
+	}
+
 	return expression_statement();
 }
 

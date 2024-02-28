@@ -55,5 +55,6 @@ enum Opcode : u8
 	OP_CALL_CONSTRUCTOR,
 	OP_INSTANCEOF,
 	OP_TYPEOF,
+	OP_DEBUGGER,
 };
 }
