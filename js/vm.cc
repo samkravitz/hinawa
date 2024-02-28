@@ -596,10 +596,11 @@ void Vm::run_instruction(bool &should_return)
 			}
 
 			auto *obj = peek(1).as_object();
-			obj->set(read_string(), peek());
-			auto value = pop();
-			push(value);
+			auto value = peek();
+			obj->set(read_string(), value);
 			pop();
+			pop();
+			push(value);
 			break;
 		}
 
