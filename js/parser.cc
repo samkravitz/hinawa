@@ -271,7 +271,7 @@ std::shared_ptr<Stmt> Parser::for_statement()
 	}
 	else
 	{
-		initialization = expression();
+		initialization = expression(false);
 		consume(SEMICOLON, "For statement: expect ; after initializer");
 	}
 
@@ -397,7 +397,7 @@ std::shared_ptr<Expr> Parser::anonymous()
 {
 	if (match(IDENTIFIER))
 	{
-		fmt::print(stderr, "Have a name in a function expression. This is allright.");
+		fmt::print(stderr, "Have a name in a function expression. This is allright.\n");
 	}
 
 	consume(LEFT_PAREN, "Expected '('");
@@ -692,7 +692,7 @@ bool Parser::match_any(std::initializer_list<TokenType> const &tokens)
 void Parser::consume(TokenType type, const char *msg)
 {
 	if (!match(type))
-		fmt::print("{}\n", msg);
+		fmt::print(stderr, "{}\n", msg);
 }
 
 TokenType Parser::peek()
