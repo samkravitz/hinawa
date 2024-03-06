@@ -58,8 +58,10 @@ public:
 	Array *as_array();
 	Date *as_date();
 
+	const Array *as_array() const;
+
 	// https://tc39.es/ecma262/#sec-ordinarytoprimitive
-	Value ordinary_to_primitive(const Value::Type &) const;
+	Value ordinary_to_primitive(Vm &, const Value::Type &) const;
 
 	std::unordered_map<std::string, Value> get_properties() const { return properties; }
 

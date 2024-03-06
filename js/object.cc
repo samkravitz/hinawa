@@ -139,7 +139,13 @@ Date *Object::as_date()
 	return static_cast<Date *>(this);
 }
 
-Value Object::ordinary_to_primitive(const Value::Type &hint) const
+const Array *Object::as_array() const
+{
+	assert(is_array());
+	return static_cast<const Array *>(this);
+}
+
+Value Object::ordinary_to_primitive(Vm &vm, const Value::Type &hint) const
 {
 	// 1. If hint is string, then
 	// 		a. Let methodNames be « "toString", "valueOf" ».
@@ -151,6 +157,23 @@ Value Object::ordinary_to_primitive(const Value::Type &hint) const
 	//			i. Let result be ? Call(method, O).
 	//			ii. If result is not an Object, return result.
 	// 4. Throw a TypeError exception.
+
+	// TODO - this is not correct
+	if (is_array())
+	{
+		auto *array = as_array();
+		std::stringstream stream;
+
+		for (auto it = array->begin(); it != array->end(); it++)
+		{
+			stream << it->to_string();
+			if (std::next(it) != array->end())
+				stream << ",";
+		}
+
+		return Value(vm.heap().allocate_string(stream.str()));
+	}
+
 	return {};
 }
 

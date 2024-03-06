@@ -317,7 +317,7 @@ std::expected<Value, Error *> Value::to_primitive(Vm &vm, Type preferred_type) c
 		//	c. If preferredType is not present, let preferredType be number.
 
 		//	d. Return ? OrdinaryToPrimitive(input, preferredType).
-		return as_object()->ordinary_to_primitive(preferred_type);
+		return as_object()->ordinary_to_primitive(vm, preferred_type);
 	}
 
 	// 2. Return input.
