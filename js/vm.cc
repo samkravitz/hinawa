@@ -743,6 +743,12 @@ void Vm::run_instruction(bool &should_return)
 			break;
 		}
 
+		case OP_NOOP:
+		{
+			call_stack.back().ip += 1;
+			break;
+		}
+
 		default:
 			assert(!"Unknown opcode");
 	}

@@ -56,5 +56,6 @@ enum Opcode : u8
 	OP_INSTANCEOF,
 	OP_TYPEOF,
 	OP_DEBUGGER,
+	OP_NOOP,
 };
 }
