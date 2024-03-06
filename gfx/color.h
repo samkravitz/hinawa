@@ -1,5 +1,6 @@
 #pragma once
 
+#include <regex>
 #include <unordered_map>
 
 #include "css/value.h"
@@ -62,8 +63,21 @@ struct Color
 		if (color_strings.contains(color))
 			return color_strings[color];
 
+		static const std::regex rgb_regex("rgb\\((\\d{1,3}),(\\d{1,3}),(\\d{1,3})\\)");
+
+		if (std::regex_match(color, rgb_regex))
+		{
+			std::smatch m;
+			std::regex_search(color, m, rgb_regex);
+			u8 r = std::stoi(m[1].str());
+			u8 g = std::stoi(m[2].str());
+			u8 b = std::stoi(m[3].str());
+
+			return Color(r, g, b);
+		}
+
 		return Color::BLACK;
-	}
+	};
 };
 
 inline const Color Color::BLACK(0x0, 0x0, 0x0);
