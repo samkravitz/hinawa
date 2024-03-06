@@ -19,7 +19,8 @@ Array::Array(std::vector<Value> array)
 	for (auto element : array)
 		push_back(element);
 
-	set("length", Value((double) size()));
+	set_native_property(
+	    "length", [this](Object *) { return Value((double) size()); }, [this](Object *, Value) {});
 }
 
 Object *Array::prototype()
