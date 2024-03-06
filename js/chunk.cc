@@ -144,6 +144,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return simple_instruction("OP_DEBUGGER", offset);
 		case OP_NOOP:
 			return simple_instruction("OP_NOOP", offset);
+		case OP_POP_N:
+			return byte_instruction("OP_POP_N", offset);
 		case OP_CLOSURE:
 		{
 			offset++;

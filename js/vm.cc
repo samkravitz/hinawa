@@ -749,6 +749,14 @@ void Vm::run_instruction(bool &should_return)
 			break;
 		}
 
+		case OP_POP_N:
+		{
+			auto count = read_byte();
+			while (count--)
+				pop();
+			break;
+		}
+
 		default:
 			assert(!"Unknown opcode");
 	}
