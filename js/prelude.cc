@@ -121,6 +121,13 @@ static void prelude_math(Vm &vm)
 		return Value(std::abs(n));
 	});
 
+	// https://tc39.es/ecma262/#sec-math.floor
+	// TODO - implement properly
+	math->set_native("floor", [](auto &vm, const auto &argv) -> Value {
+		auto n = argv[0].as_number();
+		return Value(std::floor(n));
+	});
+
 	auto val = Value(math);
 	vm.global()->set("Math", val);
 
