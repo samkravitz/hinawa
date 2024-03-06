@@ -55,10 +55,14 @@ private:
 	* loops can be nested, and each nesting will have a different continue target,
 	* so that's why this is stored as a vector of vectors.
 	*
+	* The continue_targets contains a std::pair of <target_address, num_local_vars_at_location_of_continue>,
+	* which is necessary because the compiler will need to emit a variable number of OP_POPs when compiling
+	* a continue statement.
+	*
 	* After the loop's body has been compiled, the topmost continue targets will
 	* be iterated through and patched so the VM knows the correct address to jump to.
 	*/
-	std::vector<std::vector<size_t>> continue_targets;
+	std::vector<std::vector<std::pair<size_t, size_t>>> continue_targets;
 	std::vector<std::vector<size_t>> break_targets;
 
 	void init_compiler(FunctionCompiler *);
@@ -104,6 +108,7 @@ private:
 	void emit_constant(Value);
 	size_t emit_jump(Opcode);
 	void patch_jump(size_t);
+	void patch_pop_n(size_t, size_t);
 	void emit_loop(size_t);
 
 	u8 parse_variable(const std::string &);

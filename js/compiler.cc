@@ -133,10 +133,14 @@ void Compiler::compile(const ForStmt &stmt)
 	/**
 	* After the loop's statement but before the update expression is the point where
 	* all continues in this loop invocation will jump to. So, patch all the jumps from
-	* continue statements
+	* continue statements. Also emit the number of OP_POPs to get the stack to the point
+	* it was when the loop started.
 	*/
-	for (const auto &target : continue_targets.back())
+	for (const auto &[target, num_local_vars] : continue_targets.back())
+	{
+		patch_pop_n(target - 3, num_local_vars - current->local_count());
 		patch_jump(target);
+	}
 	continue_targets.pop_back();
 
 	if (stmt.afterthought)
@@ -173,8 +177,11 @@ void Compiler::compile(const WhileStmt &stmt)
 	emit_byte(OP_POP);
 	stmt.statement->accept(this);
 
-	for (const auto &target : continue_targets.back())
+	for (const auto &[target, num_local_vars] : continue_targets.back())
+	{
+		patch_pop_n(target - 3, num_local_vars - current->local_count());
 		patch_jump(target);
+	}
 	continue_targets.pop_back();
 
 	emit_loop(loop_start);
@@ -190,8 +197,9 @@ void Compiler::compile(const WhileStmt &stmt)
 void Compiler::compile(const ContinueStmt &stmt)
 {
 	current_line = stmt.line;
+	emit_bytes(OP_POP_N, 0xff);
 
-	continue_targets.back().push_back(emit_jump(OP_JUMP));
+	continue_targets.back().push_back({emit_jump(OP_JUMP), current->local_count()});
 }
 
 void Compiler::compile(const BreakStmt &stmt)
@@ -819,6 +827,14 @@ void Compiler::emit_loop(size_t loop_start)
 
 	emit_byte((offset >> 8) & 0xff);
 	emit_byte(offset & 0xff);
+}
+
+void Compiler::patch_pop_n(size_t offset, size_t count)
+{
+	if (count > 0xff)
+		fmt::print(stderr, "patch_pop_n count {} is > 0xff!\n", count);
+
+	current_function().chunk.code[offset + 1] = count & 0xff;
 }
 
 u8 Compiler::parse_variable(const std::string &identifier)
