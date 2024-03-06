@@ -469,6 +469,22 @@ std::shared_ptr<Expr> Parser::assign(std::shared_ptr<Expr> left)
 {
 	auto op = previous;
 	auto right = expression();
+
+	static std::unordered_map<std::string, TokenType> compound_assignment_ops = {
+	    {"+=", TokenType::PLUS },
+	    {"-=", TokenType::MINUS},
+	    {"*=", TokenType::STAR },
+	    {"/=", TokenType::SLASH},
+	};
+
+	if (compound_assignment_ops.contains(op.value()))
+	{
+		auto assignment_token = Token(
+		    op.value().substr(0, op.value().size() - 1), compound_assignment_ops[op.value()], op.line(), op.col());
+		right = make_ast_node<BinaryExpr>(left, assignment_token, right);
+		op = Token("=", TokenType::EQUAL, op.line(), op.col());
+	}
+
 	return make_ast_node<AssignmentExpr>(left, op, right);
 }
 
