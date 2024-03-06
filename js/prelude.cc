@@ -128,6 +128,21 @@ static void prelude_math(Vm &vm)
 		return Value(std::floor(n));
 	});
 
+	// https://tc39.es/ecma262/#sec-math.max
+	// TODO - implement properly
+	math->set_native("max", [](auto &vm, const auto &argv) -> Value {
+		auto a = argv[0].as_number();
+		auto b = argv[1].as_number();
+		return Value(std::max(a, b));
+	});
+
+	// https://tc39.es/ecma262/#sec-math.round
+	// TODO - implement properly
+	math->set_native("round", [](auto &vm, const auto &argv) -> Value {
+		auto n = argv[0].as_number();
+		return Value(std::round(n));
+	});
+
 	auto val = Value(math);
 	vm.global()->set("Math", val);
 
