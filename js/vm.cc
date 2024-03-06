@@ -386,6 +386,7 @@ void Vm::run_instruction(bool &should_return)
 
 			else
 			{
+				fmt::print(stderr, "Tried to call an uncallable object {}!\n", callee.to_string());
 				print_stack_trace();
 				assert(!"Tried to call an uncallable object");
 			}
