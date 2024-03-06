@@ -11,10 +11,11 @@ endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
 
+add_compile_options(-DHINAWA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_options("-g")
 	add_compile_options("-DDEBUG")
-	add_compile_options(-DHINAWA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 	add_compile_options("-DDEBUG_PRINT_CODE")
 	add_compile_options("-DDEBUG_PRINT_STACK")
 	add_compile_options("-DDEBUG_PRINT_AST")
