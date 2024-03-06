@@ -3,6 +3,8 @@
 #include <regex>
 #include <unordered_map>
 
+#include <fmt/format.h>
+
 #include "css/value.h"
 
 struct Color
@@ -38,6 +40,8 @@ struct Color
 	u8 g;
 	u8 b;
 	u8 a = 0xff;
+
+	std::string to_string() const { return fmt::format("r: {}, g: {}, b: {}, a: {}", r, g, b, a); }
 
 	static Color from_string(const std::string &color)
 	{
