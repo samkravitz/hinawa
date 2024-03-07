@@ -140,7 +140,7 @@ private:
 	Closure(Function *function) :
 	    function(function)
 	{
-		upvalues.reserve(function->upvalue_count);
+		//upvalues.reserve(function->upvalue_count);
 	}
 };
 

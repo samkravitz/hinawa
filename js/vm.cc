@@ -661,8 +661,8 @@ void Vm::run_instruction(bool &should_return)
 
 			for (int i = 0; i < function->upvalue_count; i++)
 			{
+				bool is_local = read_byte();
 				auto index = read_byte();
-				auto is_local = read_byte();
 				if (is_local)
 					closure->upvalues.push_back(capture_upvalue(&stack[call_stack.back().base + index]));
 				else
