@@ -738,6 +738,15 @@ void Vm::run_instruction(bool &should_return)
 				fmt::print("{}: {}\n", name, value.to_string());
 
 			fmt::print("\n");
+			fmt::print("Upvalues:\n");
+			auto upvalues = call_stack.back().closure->upvalues;
+			for (uint i = 0; i < upvalues.size(); i++)
+			{
+				Upvalue *up = upvalues[i];
+				fmt::print("[{}]: {}\n", i, up->location->to_string());
+			}
+
+			fmt::print("\n");
 			fmt::print("Locals:\n");
 			auto base = call_stack.back().base;
 			for (uint i = base; i < stack.size(); i++)
