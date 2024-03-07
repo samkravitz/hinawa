@@ -80,6 +80,8 @@ private:
 
 	Value m_last_evaluated_expression = {};
 
+	std::string m_program_source = "";
+
 	std::vector<Value> stack;
 	std::vector<CallFrame> call_stack;
 
@@ -99,5 +101,6 @@ private:
 
 	void print_stack() const;
 	void print_stack_trace() const;
+	void print_nearby_lines() const;
 };
 }

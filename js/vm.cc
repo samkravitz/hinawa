@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <iostream>
 #include <ranges>
+#include <sstream>
 #include <unordered_set>
 
 #include <fmt/format.h>
@@ -50,6 +51,7 @@ Heap &Vm::heap()
 
 void Vm::interpret(const std::string &program_string)
 {
+	m_program_source = program_string;
 	auto program = Parser::parse(program_string);
 
 #ifdef DEBUG_PRINT_AST
@@ -908,6 +910,7 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 		call_stack = call_stack_copy;
 		fmt::print(stderr, "Uncaught exception: {}\n", msg);
 		print_stack_trace();
+		print_nearby_lines();
 		m_error = heap().allocate<Error>();
 		return false;
 	}
@@ -939,8 +942,33 @@ std::string Vm::stack_trace() const
 		auto *function = call_frame.closure->function;
 		auto instruction = call_frame.ip - 1;
 		stacktrace +=
-		    fmt::format("at {}: line {}\n", function->name_for_stack_trace(), function->chunk.lines[instruction]);
+		    fmt::format("at {} line {}\n", function->name_for_stack_trace(), function->chunk.lines[instruction]);
 	}
 	return stacktrace;
+}
+
+void Vm::print_nearby_lines() const
+{
+	auto split_source_into_lines = [this]() {
+		std::stringstream ss(m_program_source);
+		std::vector<std::string> source_lines;
+		std::string str;
+		while (std::getline(ss, str, '\n'))
+			source_lines.push_back(str);
+
+		return source_lines;
+	};
+
+	auto lines = split_source_into_lines();
+	auto faulting_instruction = call_stack.back().ip - 1;
+	int faulting_line = call_stack.back().closure->function->chunk.lines[faulting_instruction];
+	for (int i = faulting_line - 3; i < faulting_line + 3; i++)
+	{
+		if (i >= 0 && i < (int) lines.size())
+		{
+			auto line = lines[i];
+			fmt::print("[{}]: {}\n", i + 1, line);
+		}
+	}
 }
 }
