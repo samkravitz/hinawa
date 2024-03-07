@@ -598,7 +598,7 @@ void Vm::run_instruction(bool &should_return)
 		{
 			if (!peek(1).is_object())
 			{
-				if (!runtime_error(heap().allocate<TypeError>(), "Error: tried to get property on a non-object"))
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: tried to set property on a non-object"))
 					return;
 				break;
 			}
