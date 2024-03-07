@@ -574,6 +574,7 @@ void Vm::run_instruction(bool &should_return)
 
 			else
 			{
+				fmt::print("value: {}\n", read_string().to_string());
 				if (!runtime_error(heap().allocate<TypeError>(), "Error: tried to get property on a non-object"))
 					return;
 				break;
