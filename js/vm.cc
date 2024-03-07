@@ -136,8 +136,11 @@ void Vm::run_instruction(bool &should_return)
 		}
 
 		case OP_NEGATE:
-			// TODO
+		{
+			auto value = pop();
+			push(Value(value.as_number() * -1));
 			break;
+		}
 
 		case OP_INCREMENT:
 		{
