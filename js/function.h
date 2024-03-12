@@ -35,11 +35,11 @@ enum FunctionType
 class Upvalue final : public Object
 {
 public:
-	Upvalue(Value *location) :
+	Upvalue(Value location) :
 	    location(location)
 	{ }
 
-	Value *location;
+	Value location;
 };
 
 class Function : public Object

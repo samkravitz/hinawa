@@ -97,7 +97,7 @@ private:
 	u16 read_short();
 	Value read_constant();
 	String &read_string();
-	Upvalue *capture_upvalue(Value *);
+	Upvalue *capture_upvalue(Value);
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 
 	bool runtime_error(Error *, const std::string &);
