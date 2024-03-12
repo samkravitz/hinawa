@@ -89,6 +89,10 @@ private:
 
 	void binary_op(Operator);
 
+	// returns call frame of the current executing function
+	inline CallFrame &frame() { return call_stack.back(); }
+	inline CallFrame frame() const { return call_stack.back(); }
+
 	u8 read_byte();
 	u16 read_short();
 	Value read_constant();

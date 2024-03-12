@@ -71,7 +71,7 @@ void Vm::interpret(const std::string &program_string)
 
 Object *Vm::current_this() const
 {
-	return static_cast<Object *>(call_stack.back()._this);
+	return static_cast<Object *>(frame()._this);
 }
 
 Value Vm::call(Closure *closure)
@@ -101,7 +101,7 @@ Value Vm::call(const CallFrame &cf)
 void Vm::run_instruction(bool &should_return)
 {
 #ifdef DEBUG_PRINT_STACK
-	call_stack.back().closure->function->chunk.disassemble_instruction(call_stack.back().ip);
+	frame().closure->function->chunk.disassemble_instruction(frame().ip);
 #endif
 
 	auto instruction = static_cast<Opcode>(read_byte());
@@ -111,7 +111,7 @@ void Vm::run_instruction(bool &should_return)
 		case OP_RETURN:
 		{
 			auto result = pop();
-			auto call_frame = call_stack.back();
+			auto call_frame = frame();
 			auto *_this = current_this();
 			call_stack.pop_back();
 
@@ -283,7 +283,7 @@ void Vm::run_instruction(bool &should_return)
 
 		case OP_GET_LOCAL:
 		{
-			auto base = call_stack.back().base;
+			auto base = frame().base;
 			auto slot = read_byte();
 
 			Value value = stack[base + slot];
@@ -298,7 +298,7 @@ void Vm::run_instruction(bool &should_return)
 
 		case OP_SET_LOCAL:
 		{
-			auto base = call_stack.back().base;
+			auto base = frame().base;
 			auto slot = read_byte();
 			stack[base + slot] = peek();
 			break;
@@ -308,7 +308,7 @@ void Vm::run_instruction(bool &should_return)
 		{
 			auto offset = read_short();
 			if (peek().is_falsy())
-				call_stack.back().ip += offset;
+				frame().ip += offset;
 
 			break;
 		}
@@ -316,14 +316,14 @@ void Vm::run_instruction(bool &should_return)
 		case OP_JUMP:
 		{
 			auto offset = read_short();
-			call_stack.back().ip += offset;
+			frame().ip += offset;
 			break;
 		}
 
 		case OP_LOOP:
 		{
 			auto offset = read_short();
-			call_stack.back().ip -= offset;
+			frame().ip -= offset;
 			break;
 		}
 
@@ -634,14 +634,14 @@ void Vm::run_instruction(bool &should_return)
 		case OP_PUSH_EXCEPTION:
 		{
 			auto offset = read_short();
-			call_stack.back().unwind_contexts.push_back({call_stack.back().ip + offset, stack.size()});
+			frame().unwind_contexts.push_back({frame().ip + offset, stack.size()});
 			break;
 		}
 
 		case OP_POP_EXCEPTION:
 		{
-			assert(!call_stack.back().unwind_contexts.empty());
-			call_stack.back().unwind_contexts.pop_back();
+			assert(!frame().unwind_contexts.empty());
+			frame().unwind_contexts.pop_back();
 			break;
 		}
 
@@ -664,9 +664,9 @@ void Vm::run_instruction(bool &should_return)
 				bool is_local = read_byte();
 				auto index = read_byte();
 				if (is_local)
-					closure->upvalues.push_back(capture_upvalue(&stack[call_stack.back().base + index]));
+					closure->upvalues.push_back(capture_upvalue(&stack[frame().base + index]));
 				else
-					closure->upvalues.push_back(call_stack.back().closure->upvalues[index]);
+					closure->upvalues.push_back(frame().closure->upvalues[index]);
 			}
 			break;
 		}
@@ -674,14 +674,14 @@ void Vm::run_instruction(bool &should_return)
 		case OP_GET_UPVALUE:
 		{
 			auto slot = read_byte();
-			push(*call_stack.back().closure->upvalues[slot]->location);
+			push(*frame().closure->upvalues[slot]->location);
 			break;
 		}
 
 		case OP_SET_UPVALUE:
 		{
 			auto slot = read_byte();
-			*call_stack.back().closure->upvalues[slot]->location = peek();
+			*frame().closure->upvalues[slot]->location = peek();
 			break;
 		}
 
@@ -739,7 +739,7 @@ void Vm::run_instruction(bool &should_return)
 
 			fmt::print("\n");
 			fmt::print("Upvalues:\n");
-			auto upvalues = call_stack.back().closure->upvalues;
+			auto upvalues = frame().closure->upvalues;
 			for (uint i = 0; i < upvalues.size(); i++)
 			{
 				Upvalue *up = upvalues[i];
@@ -748,7 +748,7 @@ void Vm::run_instruction(bool &should_return)
 
 			fmt::print("\n");
 			fmt::print("Locals:\n");
-			auto base = call_stack.back().base;
+			auto base = frame().base;
 			for (uint i = base; i < stack.size(); i++)
 				fmt::print("[{}]: {}\n", i - base, stack[i].to_string());
 
@@ -761,7 +761,7 @@ void Vm::run_instruction(bool &should_return)
 
 		case OP_NOOP:
 		{
-			call_stack.back().ip += 1;
+			frame().ip += 1;
 			break;
 		}
 
@@ -850,18 +850,18 @@ void Vm::binary_op(Operator op)
 
 u8 Vm::read_byte()
 {
-	auto ip = call_stack.back().ip;
-	auto byte = call_stack.back().closure->function->chunk.code[ip];
-	call_stack.back().ip += 1;
+	auto ip = frame().ip;
+	auto byte = frame().closure->function->chunk.code[ip];
+	frame().ip += 1;
 	return byte;
 }
 
 u16 Vm::read_short()
 {
-	auto ip = call_stack.back().ip;
-	auto a = call_stack.back().closure->function->chunk.code[ip];
-	auto b = call_stack.back().closure->function->chunk.code[ip + 1];
-	call_stack.back().ip += 2;
+	auto ip = frame().ip;
+	auto a = frame().closure->function->chunk.code[ip];
+	auto b = frame().closure->function->chunk.code[ip + 1];
+	frame().ip += 2;
 
 	return (a << 8) | b;
 }
@@ -869,7 +869,7 @@ u16 Vm::read_short()
 Value Vm::read_constant()
 {
 	auto byte = read_byte();
-	return call_stack.back().closure->function->chunk.constants[byte];
+	return frame().closure->function->chunk.constants[byte];
 }
 
 String &Vm::read_string()
@@ -901,7 +901,7 @@ bool Vm::runtime_error(Value thrown_value, const std::string &msg)
 	*/
 	while (!call_stack.empty())
 	{
-		auto &call_frame = call_stack.back();
+		auto &call_frame = frame();
 		if (call_frame.unwind_contexts.empty())
 		{
 			call_stack.pop_back();
@@ -973,8 +973,8 @@ void Vm::print_nearby_lines() const
 	};
 
 	auto lines = split_source_into_lines();
-	auto faulting_instruction = call_stack.back().ip - 1;
-	int faulting_line = call_stack.back().closure->function->chunk.lines[faulting_instruction];
+	auto faulting_instruction = frame().ip - 1;
+	int faulting_line = frame().closure->function->chunk.lines[faulting_instruction];
 	for (int i = faulting_line - 3; i < faulting_line + 3; i++)
 	{
 		if (i >= 0 && i < (int) lines.size())
