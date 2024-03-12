@@ -955,7 +955,7 @@ std::string Vm::stack_trace() const
 		auto *function = call_frame.closure->function;
 		auto instruction = call_frame.ip - 1;
 		stacktrace +=
-		    fmt::format("at {} line {}\n", function->name_for_stack_trace(), function->chunk.lines[instruction]);
+		    fmt::format("at {}: line {}\n", function->name_for_stack_trace(), function->chunk.lines[instruction]);
 	}
 	return stacktrace;
 }
