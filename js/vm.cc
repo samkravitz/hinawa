@@ -664,7 +664,7 @@ void Vm::run_instruction(bool &should_return)
 				bool is_local = read_byte();
 				auto index = read_byte();
 				if (is_local)
-					closure->upvalues.push_back(capture_upvalue(stack[frame().base + index]));
+					closure->upvalues.push_back(capture_upvalue(&stack[frame().base + index]));
 				else
 					closure->upvalues.push_back(frame().closure->upvalues[index]);
 			}
@@ -674,14 +674,14 @@ void Vm::run_instruction(bool &should_return)
 		case OP_GET_UPVALUE:
 		{
 			auto slot = read_byte();
-			push(frame().closure->upvalues[slot]->location);
+			push(*frame().closure->upvalues[slot]->location);
 			break;
 		}
 
 		case OP_SET_UPVALUE:
 		{
 			auto slot = read_byte();
-			frame().closure->upvalues[slot]->location = peek();
+			*frame().closure->upvalues[slot]->location = peek();
 			break;
 		}
 
@@ -743,7 +743,7 @@ void Vm::run_instruction(bool &should_return)
 			for (uint i = 0; i < upvalues.size(); i++)
 			{
 				Upvalue *up = upvalues[i];
-				fmt::print("[{}]: {}\n", i, up->location.to_string());
+				fmt::print("[{}]: {}\n", i, up->location->to_string());
 			}
 
 			fmt::print("\n");
@@ -879,7 +879,7 @@ String &Vm::read_string()
 	return constant.as_string();
 }
 
-Upvalue *Vm::capture_upvalue(Value local)
+Upvalue *Vm::capture_upvalue(Value *local)
 {
 	return heap().allocate<Upvalue>(local);
 }
