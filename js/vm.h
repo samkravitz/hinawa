@@ -1,9 +1,8 @@
 #pragma once
 
-#include <unordered_map>
+#include <list>
 #include <vector>
 
-#include "chunk.h"
 #include "document/document.h"
 #include "error.h"
 #include "function.h"
@@ -84,6 +83,7 @@ private:
 
 	std::vector<Value> stack;
 	std::vector<CallFrame> call_stack;
+	std::list<Upvalue *> open_upvalues;
 
 	void run_instruction(bool &);
 
@@ -97,7 +97,8 @@ private:
 	u16 read_short();
 	Value read_constant();
 	String &read_string();
-	Upvalue *capture_upvalue(Value *);
+	Upvalue *capture_upvalue(u8);
+	void close_upvalues(u8);
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
 
 	bool runtime_error(Error *, const std::string &);

@@ -132,6 +132,8 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			return byte_instruction("OP_GET_UPVALUE", offset);
 		case OP_SET_UPVALUE:
 			return byte_instruction("OP_SET_UPVALUE", offset);
+		case OP_CLOSE_UPVALUE:
+			return simple_instruction("OP_CLOSE_UPVALUE", offset);
 		case OP_INSTANCEOF:
 			return simple_instruction("OP_INSTANCEOF", offset);
 		case OP_TYPEOF:

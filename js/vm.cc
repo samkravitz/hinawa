@@ -1,6 +1,5 @@
 #include "vm.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <iostream>
@@ -111,6 +110,7 @@ void Vm::run_instruction(bool &should_return)
 		case OP_RETURN:
 		{
 			auto result = pop();
+			close_upvalues(frame().base);
 			auto call_frame = frame();
 			auto *_this = current_this();
 			call_stack.pop_back();
@@ -664,7 +664,7 @@ void Vm::run_instruction(bool &should_return)
 				bool is_local = read_byte();
 				auto index = read_byte();
 				if (is_local)
-					closure->upvalues.push_back(capture_upvalue(&stack[frame().base + index]));
+					closure->upvalues.push_back(capture_upvalue(frame().base + index));
 				else
 					closure->upvalues.push_back(frame().closure->upvalues[index]);
 			}
@@ -682,6 +682,13 @@ void Vm::run_instruction(bool &should_return)
 		{
 			auto slot = read_byte();
 			*frame().closure->upvalues[slot]->location = peek();
+			break;
+		}
+
+		case OP_CLOSE_UPVALUE:
+		{
+			close_upvalues(stack.size());
+			pop();
 			break;
 		}
 
@@ -879,9 +886,47 @@ String &Vm::read_string()
 	return constant.as_string();
 }
 
-Upvalue *Vm::capture_upvalue(Value *local)
+Upvalue *Vm::capture_upvalue(u8 slot)
 {
-	return heap().allocate<Upvalue>(local);
+	auto *location = &stack[slot];
+	Upvalue *prev_upvalue = nullptr;
+	for (auto *upvalue : open_upvalues)
+	{
+		if (upvalue->slot <= slot)
+		{
+			prev_upvalue = upvalue;
+			break;
+		}
+	}
+
+	if (prev_upvalue && (void *) prev_upvalue == location)
+		return prev_upvalue;
+
+	auto *created_upvalue = heap().allocate<Upvalue>(location, slot);
+	open_upvalues.push_front(created_upvalue);
+	return created_upvalue;
+}
+
+/**
+ * @brief closes all upvalues after a given slot
+ * @param slot the index in the stack to begin closing from
+ */
+void Vm::close_upvalues(u8 slot)
+{
+	auto it = std::begin(open_upvalues);
+	while (it != std::end(open_upvalues))
+	{
+		Upvalue *upvalue = *it;
+		if (upvalue->slot > slot)
+		{
+			upvalue->closed = *upvalue->location;
+			upvalue->location = &upvalue->closed;
+			it = open_upvalues.erase(it);
+			continue;
+		}
+
+		it++;
+	}
 }
 
 bool Vm::runtime_error(Error *err, const std::string &msg)

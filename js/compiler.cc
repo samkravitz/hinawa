@@ -876,7 +876,12 @@ void Compiler::end_scope()
 	current->scope_depth -= 1;
 	while (!current->locals.empty() && (current->locals.back().depth > current->scope_depth))
 	{
-		emit_byte(OP_POP);
+		auto local = current->locals.back();
+		if (local.is_captured)
+			emit_byte(OP_CLOSE_UPVALUE);
+		else
+			emit_byte(OP_POP);
+
 		current->locals.pop_back();
 	}
 }
@@ -920,7 +925,10 @@ int Compiler::resolve_upvalue(FunctionCompiler *compiler, const std::string &nam
 
 	int local = resolve_local(compiler->enclosing, name);
 	if (local != -1)
+	{
+		compiler->enclosing->locals[local].is_captured = true;
 		return add_upvalue(compiler, local, true);
+	}
 
 	int upvalue = resolve_upvalue(compiler->enclosing, name);
 	if (upvalue != -1)

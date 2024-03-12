@@ -23,6 +23,7 @@ struct Local
 
 	std::string name;
 	int depth;
+	bool is_captured = false;
 };
 
 enum FunctionType
@@ -35,11 +36,14 @@ enum FunctionType
 class Upvalue final : public Object
 {
 public:
-	Upvalue(Value *location) :
-	    location(location)
+	Upvalue(Value *location, u8 slot) :
+	    location(location),
+	    slot(slot)
 	{ }
 
 	Value *location;
+	u8 slot = 0;    // slot on the VM's value stack the variable is on when closed
+	Value closed;
 };
 
 class Function : public Object
