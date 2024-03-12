@@ -522,7 +522,7 @@ std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 std::shared_ptr<Expr> Parser::grouping()
 {
 	auto state = save_state();
-	auto expr = expression();
+	auto expr = expression(false);
 
 	match(RIGHT_PAREN);
 
