@@ -11,3 +11,6 @@ A hobby browser engine to learn how web technologies work.
 
 Default Apache landing page on Debian
 ![Default apache landing page](data/apache-default.png)
+
+Rendering a raytracer JavaScript HTML canvas demo from [nerget.com](https://nerget.com/rayjs/rayjs.html)
+![Raytracer](data/hinawa_raytracer.png)
