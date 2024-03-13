@@ -158,7 +158,7 @@ size_t Chunk::disassemble_instruction(size_t offset)
 			{
 				int is_local = code[offset++];
 				int index = code[offset++];
-				fmt::print("{:4} | {} {}\n", offset - 2, is_local ? "local" : "upvalue", index);
+				fmt::print("{:04}    |                     {} {}\n", offset - 2, is_local ? "local" : "upvalue", index);
 			}
 
 			return offset;
