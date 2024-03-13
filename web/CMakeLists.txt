@@ -15,8 +15,8 @@ set(HEADERS
 add_executable(web main.cc ${SOURCES} ${HEADERS})
 
 target_include_directories(web PRIVATE ..)
-target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS})
 target_link_libraries(web curl)
 
-target_include_directories(hinawa.test PRIVATE ..)
+target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS})
 target_sources(hinawa.test PUBLIC ${SOURCES} ${HEADERS})
+

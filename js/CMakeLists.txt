@@ -1,3 +1,11 @@
+cmake_minimum_required(VERSION 3.21)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_EXTENSIONS OFF)
+#set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project(js DESCRIPTION "JavaScript Runtime")
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_options("-DDEBUG_PRINT_CODE")
 	add_compile_options("-DDEBUG_PRINT_STACK")
@@ -5,32 +13,41 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	#add_compile_options("-DDEBUG_LOG_GC")
 endif()
 
-set(BINDINGS_SOURCES
-	bindings/canvas_rendering_context_2d_wrapper.cc
-	bindings/document_wrapper.cc
-	bindings/html_canvas_element_wrapper.cc
-	bindings/node_wrapper.cc
+add_library(libjs STATIC)
 
-	../document/canvas_rendering_context_2d.cc
-	../document/html_canvas_element.cc
-	../document/document.cc
-	../document/node.cc
-	../document/element.cc
-	../document/text.cc
+find_package(fmt REQUIRED)
+find_package(FLEX REQUIRED)
+
+set(JS_BINDINGS_SOURCES
+	js/bindings/canvas_rendering_context_2d_wrapper.cc
+	js/bindings/document_wrapper.cc
+	js/bindings/html_canvas_element_wrapper.cc
+	js/bindings/node_wrapper.cc
+
+	js/../document/canvas_rendering_context_2d.cc
+	js/../document/html_canvas_element.cc
+	js/../document/document.cc
+	js/../document/node.cc
+	js/../document/element.cc
+	js/../document/text.cc
+
+	PARENT_SCOPE
 )
 
-set(BINDINGS_HEADERS
-	bindings/canvas_rendering_context_2d_wrapper.h
-	bindings/document_wrapper.h
-	bindings/html_canvas_element_wrapper.h
-	bindings/node_wrapper.h
-	bindings/wrapper.h
+set(JS_BINDINGS_HEADERS
+	js/bindings/canvas_rendering_context_2d_wrapper.h
+	js/bindings/document_wrapper.h
+	js/bindings/html_canvas_element_wrapper.h
+	js/bindings/node_wrapper.h
+	js/bindings/wrapper.h
 
-	../document/canvas_rendering_context_2d.h
-	../document/document.h
-	../document/node.h
-	../document/element.h
-	../document/text.h
+	js/../document/canvas_rendering_context_2d.h
+	js/../document/document.h
+	js/../document/node.h
+	js/../document/element.h
+	js/../document/text.h
+
+	PARENT_SCOPE
 )
 
 set(SOURCES
@@ -79,20 +96,22 @@ set(HEADERS
 	vm.h
 )
 
-flex_target(JsLexer2 lex.ll lex.yy.cc)
+flex_target(JsLexer lex.ll lex.yy.cc)
 
-add_executable(js main.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer2_OUTPUTS})
+set(
+	JS_FLEX_OUTPUTS
+	${FLEX_JsLexer_OUTPUTS}
 
-target_include_directories(js
-	PRIVATE
-	.
-	..
-	${Skia_BUILD_DIR}
-	${Skia_INCLUDE_DIR}
-	${Skia_INCLUDE_DIR}/core
+	PARENT_SCOPE
 )
-target_sources(hinawa PUBLIC ${SOURCES} ${HEADERS} ${BINDINGS_HEADERS} ${BINDINGS_SOURCES})
-target_link_libraries(js fmt::fmt)
 
-target_include_directories(hinawa.test PRIVATE ..)
-target_sources(hinawa.test PUBLIC ${SOURCES} ${HEADERS})
+add_executable(js main.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer_OUTPUTS})
+target_include_directories(js PRIVATE . ..)
+
+target_include_directories(libjs PRIVATE . ..)
+target_sources(libjs PUBLIC ${SOURCES} ${HEADERS})
+
+target_link_libraries(js fmt::fmt)
+target_link_libraries(libjs fmt::fmt)
+
+add_library(libjs::libjs ALIAS libjs)
