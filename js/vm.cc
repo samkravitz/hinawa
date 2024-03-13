@@ -10,10 +10,8 @@
 #include <fmt/format.h>
 
 #include "array.h"
-#include "bindings/document_wrapper.h"
 #include "chunk.h"
 #include "compiler.h"
-#include "document/document.h"
 #include "heap.h"
 #include "object.h"
 #include "object_string.h"
@@ -22,16 +20,24 @@
 #include "prelude.h"
 #include "string.hh"
 
+#ifdef JS_BUILD_BINDINGS
+	#include "bindings/document_wrapper.h"
+	#include "document/document.h"
+#endif
+
 #ifdef DEBUG_PRINT_AST
 	#include "ast_printer.h"
 #endif
 
 namespace js
 {
-Vm::Vm() :
-    Vm(nullptr)
-{ }
+Vm::Vm()
+{
+	prelude(*this);
+	heap().set_vm(*this);
+}
 
+#ifdef JS_BUILD_BINDINGS
 Vm::Vm(Document *document)
 {
 	prelude(*this, document);
@@ -42,6 +48,7 @@ Document &Vm::document()
 {
 	return m_document_wrapper->document();
 }
+#endif
 
 Heap &Vm::heap()
 {

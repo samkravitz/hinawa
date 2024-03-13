@@ -161,6 +161,7 @@ static void prelude_document(Vm &vm, Document *document)
 }
 #endif
 
+#ifdef JS_BUILD_BINDINGS
 void prelude(Vm &vm, Document *document)
 {
 	// create the global object and put some functions on it
@@ -207,12 +208,9 @@ void prelude(Vm &vm, Document *document)
 	prelude_error(vm);
 	prelude_math(vm);
 
-#ifdef JS_BUILD_BINDINGS
 	if (document)
 		prelude_document(vm, document);
-#endif
 
-#if JS_BUILD_BINDINGS
 	global->set_native("alert", [](auto &vm, const auto &argv) -> Value {
 		std::string text = "";
 		if (!argv.empty())
@@ -221,8 +219,58 @@ void prelude(Vm &vm, Document *document)
 		vm.document().set_alert(text);
 		return {};
 	});
-#endif
 
 	vm.set_global(global);
 }
+
+#else
+void prelude(Vm &vm)
+{
+	// create the global object and put some functions on it
+	auto *global = heap().allocate();
+	vm.set_global(global);
+	global->set("window", Value(global));
+
+	global->set_native("print", [](auto &vm, const auto &argv) -> Value {
+		if (argv.empty())
+			return {};
+
+		for (uint i = 0; i < argv.size(); i++)
+		{
+			fmt::print("{}", argv[i].to_string());
+			if (i != argv.size() - 1)
+				fmt::print(" ");
+		}
+
+		fmt::print("\n");
+		return {};
+	});
+
+	auto *console = heap().allocate();
+	console->set_native("log", [](auto &vm, const auto &argv) -> Value {
+		if (argv.empty())
+			return {};
+
+		for (uint i = 0; i < argv.size(); i++)
+		{
+			fmt::print("{}", argv[i].to_string());
+			if (i != argv.size() - 1)
+				fmt::print(" ");
+		}
+
+		fmt::print("\n");
+		return {};
+	});
+
+	global->set("console", Value(console));
+
+	prelude_object(vm);
+	prelude_array(vm);
+	prelude_date(vm);
+	prelude_error(vm);
+	prelude_math(vm);
+
+	vm.set_global(global);
+}
+#endif
 }

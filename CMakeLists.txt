@@ -38,8 +38,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
-flex_target(JsLexer js/lex.ll js/lex.yy.cc)
-
 file(STRINGS "skia_path.txt" Skia_INSTALL_DIR)
 set(Skia_BUILD_DIR ${Skia_INSTALL_DIR} CACHE PATH "Skia build directory")
 
@@ -68,25 +66,53 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+add_subdirectory(js)
+
 qt_add_executable(hinawa
     main.cc
 	${FLEX_CssLexer_OUTPUTS}
-	${FLEX_JsLexer_OUTPUTS}
+	${JS_FLEX_OUTPUTS}
+	${JS_BINDINGS_SOURCES}
+)
+
+add_executable(hinawa.test)
+target_sources(hinawa.test
+	PRIVATE
+	${FLEX_CssLexer_OUTPUTS}
+	${JS_FLEX_OUTPUTS}
+	${JS_BINDINGS_SOURCES}
 )
 
 target_compile_definitions(hinawa PRIVATE JS_BUILD_BINDINGS)
+target_compile_definitions(hinawa.test PRIVATE JS_BUILD_BINDINGS)
 
-add_executable(hinawa.test)
-target_sources(hinawa.test PRIVATE ${FLEX_CssLexer_OUTPUTS} ${FLEX_JsLexer_OUTPUTS})
-target_include_directories(hinawa PRIVATE css js)
-target_include_directories(hinawa.test PRIVATE css js)
+target_include_directories(hinawa
+	PUBLIC
+	.
+	css
+	js
+
+	${Skia_BUILD_DIR}
+	${Skia_INCLUDE_DIR}
+	${Skia_INCLUDE_DIR}/core
+)
+
+target_include_directories(hinawa.test
+	PUBLIC
+	.
+	css
+	js
+
+	${Skia_BUILD_DIR}
+	${Skia_INCLUDE_DIR}
+	${Skia_INCLUDE_DIR}/core
+)
 
 add_subdirectory(css)
 add_subdirectory(browser)
 add_subdirectory(document)
 add_subdirectory(gfx)
 add_subdirectory(html)
-add_subdirectory(js)
 add_subdirectory(layout)
 add_subdirectory(test)
 add_subdirectory(web)
@@ -102,6 +128,7 @@ target_link_libraries(hinawa
 	${Skia_LIBRARY}
 	${FREETYPE_LIBRARIES}
 	Fontconfig::Fontconfig
+	libjs::libjs
 )
 
 enable_testing()
@@ -118,6 +145,7 @@ target_link_libraries(
 	${Skia_LIBRARY}
 	${FREETYPE_LIBRARIES}
 	Fontconfig::Fontconfig
+	libjs::libjs
 )
 
 include(GoogleTest)

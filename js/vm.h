@@ -3,18 +3,23 @@
 #include <list>
 #include <vector>
 
-#include "document/document.h"
 #include "error.h"
 #include "function.h"
 #include "operator.h"
 #include "value.h"
+
+#ifdef JS_BUILD_BINDINGS
+	#include "document/document.h"
+#endif
 
 namespace js
 {
 class String;
 namespace bindings
 {
+#ifdef JS_BUILD_BINDINGS
 class DocumentWrapper;
+#endif
 }
 
 struct CallFrame
@@ -47,7 +52,10 @@ class Vm
 
 public:
 	Vm();
+
+#ifdef JS_BUILD_BINDINGS
 	Vm(Document *);
+#endif
 
 	void interpret(const std::string &);
 	Object *current_this() const;
@@ -58,8 +66,10 @@ public:
 	Value call(const CallFrame &);
 	Value call(Closure *);
 
+#ifdef JS_BUILD_BINDINGS
 	Document &document();
 	void set_document_wrapper(bindings::DocumentWrapper *wrapper) { m_document_wrapper = wrapper; }
+#endif
 
 	void push(Value);
 	Value pop();
@@ -99,7 +109,10 @@ private:
 	String &read_string();
 	Upvalue *capture_upvalue(u8);
 	void close_upvalues(u8);
+
+#ifdef JS_BUILD_BINDINGS
 	bindings::DocumentWrapper *m_document_wrapper = nullptr;
+#endif
 
 	bool runtime_error(Error *, const std::string &);
 	bool runtime_error(Value, const std::string &);

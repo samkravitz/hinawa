@@ -4,5 +4,4 @@ set(SOURCES
 	js/value_test.cc
 )
 
-target_include_directories(hinawa.test PRIVATE ..)
-target_sources(hinawa.test PUBLIC ${SOURCES})
+target_sources(hinawa.test PUBLIC ${SOURCES} ${HEADERS})
