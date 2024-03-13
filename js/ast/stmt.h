@@ -29,6 +29,19 @@ struct BlockStmt : public Stmt
 	std::vector<std::shared_ptr<Stmt>> stmts;
 };
 
+struct ScopeNode : public Stmt
+{
+	ScopeNode(std::shared_ptr<Stmt> stmt) :
+	    stmt(stmt)
+	{ }
+
+	const char *name() const { return "ScopeNode"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::shared_ptr<Stmt> stmt;
+};
+
 struct EmptyStmt : public Stmt
 {
 	const char *name() const { return "EmptyStmt"; }

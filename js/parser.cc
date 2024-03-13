@@ -129,7 +129,10 @@ std::shared_ptr<Stmt> Parser::declaration()
 std::shared_ptr<Stmt> Parser::statement()
 {
 	if (match(LEFT_BRACE))
-		return block_stmt();
+	{
+		auto block = block_stmt();
+		return make_ast_node<ScopeNode>(block);
+	}
 
 	if (match(KEY_IF))
 		return if_statement();

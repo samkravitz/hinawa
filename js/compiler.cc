@@ -62,9 +62,15 @@ Function *Compiler::compile_impl()
 void Compiler::compile(const BlockStmt &stmt)
 {
 	current_line = stmt.line;
-	begin_scope();
 	for (auto s : stmt.stmts)
 		s->accept(this);
+}
+
+void Compiler::compile(const ScopeNode &stmt)
+{
+	current_line = stmt.line;
+	begin_scope();
+	stmt.stmt->accept(this);
 	end_scope();
 }
 

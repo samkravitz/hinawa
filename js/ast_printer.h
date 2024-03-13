@@ -35,6 +35,12 @@ public:
 			stmt->accept(this, indent + 1);
 	}
 
+	void visit(const ScopeNode *node, int indent) const
+	{
+		node->print_header(indent);
+		node->stmt->accept(this, indent + 1);
+	}
+
 	void visit(const VarDecl *node, int indent) const
 	{
 		node->print_header(indent);

@@ -70,6 +70,7 @@ private:
 
 	// compile statements
 	void compile(const BlockStmt &);
+	void compile(const ScopeNode &);
 	void compile(const VarDecl &);
 	void compile(const ExpressionStmt &);
 	void compile(const IfStmt &);

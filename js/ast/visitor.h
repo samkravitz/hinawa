@@ -3,6 +3,7 @@
 namespace js
 {
 struct BlockStmt;
+struct ScopeNode;
 struct VarDecl;
 struct EmptyStmt;
 struct IfStmt;
@@ -35,6 +36,7 @@ struct TernaryExpr;
 struct PrintVisitor
 {
 	virtual void visit(const BlockStmt *, int indent) const = 0;
+	virtual void visit(const ScopeNode *, int indent) const = 0;
 	virtual void visit(const VarDecl *, int indent) const = 0;
 	virtual void visit(const EmptyStmt *, int indent) const = 0;
 	virtual void visit(const IfStmt *, int indent) const = 0;
@@ -67,6 +69,7 @@ struct PrintVisitor
 struct CompilerVisitor
 {
 	virtual void compile(const BlockStmt &) = 0;
+	virtual void compile(const ScopeNode &) = 0;
 	virtual void compile(const VarDecl &) = 0;
 	virtual void compile(const EmptyStmt &) = 0;
 	virtual void compile(const IfStmt &) = 0;
