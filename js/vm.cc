@@ -900,7 +900,7 @@ Upvalue *Vm::capture_upvalue(u8 slot)
 		}
 	}
 
-	if (prev_upvalue && (void *) prev_upvalue == location)
+	if (prev_upvalue && (void *) prev_upvalue->location == location)
 		return prev_upvalue;
 
 	auto *created_upvalue = heap().allocate<Upvalue>(location, slot);
