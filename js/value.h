@@ -2,7 +2,6 @@
 
 #include <expected>
 #include <string>
-#include <vector>
 
 #include "operator.h"
 #include "string.hh"

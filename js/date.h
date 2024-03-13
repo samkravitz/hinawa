@@ -2,8 +2,6 @@
 
 #include "object.h"
 
-#include "util/hinawa.h"
-
 namespace js
 {
 class Date final : public Object

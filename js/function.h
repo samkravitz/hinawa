@@ -10,7 +10,6 @@
 #include "heap.h"
 #include "object.h"
 #include "string.hh"
-#include "token.h"
 
 namespace js
 {

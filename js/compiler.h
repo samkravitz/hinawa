@@ -1,15 +1,11 @@
 #pragma once
 
-#include <queue>
-#include <stack>
 #include <vector>
 
 #include "ast/stmt.h"
 #include "ast/visitor.h"
-#include "chunk.h"
 #include "function.h"
 #include "opcode.h"
-#include "token_type.h"
 #include "value.h"
 
 namespace js

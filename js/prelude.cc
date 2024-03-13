@@ -8,7 +8,6 @@
 #include "function.h"
 #include "heap.h"
 #include "object.h"
-#include "object_string.h"
 #include "value.h"
 #include "vm.h"
 

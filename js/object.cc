@@ -1,7 +1,6 @@
 #include "object.h"
 
 #include <cassert>
-#include <iostream>
 #include <sstream>
 
 #include "array.h"

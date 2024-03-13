@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "opcode.h"
-#include "token.h"
 #include "util/hinawa.h"
 #include "value.h"
 

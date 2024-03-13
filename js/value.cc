@@ -2,11 +2,8 @@
 
 #include <cassert>
 #include <cmath>
-#include <complex>
 #include <fmt/format.h>
 #include <limits>
-#include <sstream>
-#include <unordered_map>
 
 #include "error.h"
 #include "function.h"

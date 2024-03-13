@@ -2,13 +2,11 @@
 
 #include <cassert>
 #include <fmt/format.h>
-#include <functional>
 #include <iostream>
 #include <memory>
 #include <ranges>
 
 #include "heap.h"
-#include "object_string.h"
 #include "opcode.h"
 
 namespace js
