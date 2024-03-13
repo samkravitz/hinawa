@@ -52,6 +52,7 @@ void Vm::interpret(const std::string &program_string)
 {
 	m_program_source = program_string;
 	auto program = Parser::parse(program_string);
+	stack.reserve(1024);
 
 #ifdef DEBUG_PRINT_AST
 	auto printer = js::AstPrinter{};
