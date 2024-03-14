@@ -179,7 +179,8 @@ struct ObjectExpr : public Expr
 
 struct FunctionExpr : public Expr
 {
-	FunctionExpr(std::vector<std::string> args, std::shared_ptr<BlockStmt> body) :
+	FunctionExpr(std::string function_name, std::vector<std::string> args, std::shared_ptr<BlockStmt> body) :
+	    function_name(function_name),
 	    args(args),
 	    body(std::move(body))
 	{ }
@@ -188,6 +189,9 @@ struct FunctionExpr : public Expr
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
+	inline bool is_anonymous() const { return function_name == ""; }
+
+	std::string function_name = "";
 	std::vector<std::string> args;
 	std::shared_ptr<BlockStmt> body;
 };

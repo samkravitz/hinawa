@@ -264,6 +264,8 @@ public:
 	void visit(const FunctionExpr *node, int indent) const
 	{
 		node->print_header(indent);
+		print_indent(indent);
+		fmt::print("{}\n", node->is_anonymous() ? "<anon>" : node->function_name);
 		node->body->accept(this, indent + 1);
 	}
 

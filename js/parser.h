@@ -55,13 +55,13 @@ public:
 
 	// parse expressions
 	std::shared_ptr<Expr> expression(bool required = true);
-	std::shared_ptr<Expr> anonymous();
 	std::shared_ptr<Expr> array();
 	std::shared_ptr<Expr> arrow();
 	std::shared_ptr<Expr> assign(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> binary(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> call(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> dot(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> function();
 	std::shared_ptr<Expr> grouping();
 	std::shared_ptr<Expr> literal();
 	std::shared_ptr<Expr> logical(std::shared_ptr<Expr>);

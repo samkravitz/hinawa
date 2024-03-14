@@ -1,0 +1,3 @@
+{ named: <fn add2> }
+{ anon: <anonymous fn> }
+{ arrow: <anonymous fn> }

@@ -72,7 +72,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {HEX_NUMBER,        {&Parser::number, nullptr, PREC_NONE}          },
 	    {BIGINT,            {&Parser::number, nullptr, PREC_NONE}          },
 	    {KEY_FALSE,         {&Parser::literal, nullptr, PREC_NONE}         },
-	    {KEY_FUNCTION,      {&Parser::anonymous, nullptr, PREC_NONE}       },
+	    {KEY_FUNCTION,      {&Parser::function, nullptr, PREC_NONE}        },
 	    {KEY_INSTANCEOF,    {nullptr, &Parser::binary, PREC_COMPARISON}    },
 	    {KEY_NEW,           {&Parser::new_instance, nullptr, PREC_NEW}     },
 	    {KEY_NULL,          {&Parser::literal, nullptr, PREC_NONE}         },
@@ -393,34 +393,6 @@ std::shared_ptr<Expr> Parser::expression(bool required)
 	return expr;
 }
 
-std::shared_ptr<Expr> Parser::anonymous()
-{
-	if (match(IDENTIFIER))
-	{
-		fmt::print(stderr, "Have a name in a function expression. This is allright.\n");
-	}
-
-	consume(LEFT_PAREN, "Expected '('");
-
-	std::vector<std::string> args;
-	if (!check(RIGHT_PAREN))
-	{
-		do
-		{
-			if (args.size() > 0xff)
-				std::cerr << "Can't have more than 255 arguments\n";
-
-			consume(IDENTIFIER, "Expect arguments name");
-			args.push_back(previous.value());
-		} while (match(COMMA));
-	}
-	consume(RIGHT_PAREN, "Expected ')'");
-	consume(LEFT_BRACE, "Expected '{'");
-	auto body = block_stmt();
-
-	return make_ast_node<FunctionExpr>(args, std::static_pointer_cast<BlockStmt>(body));
-}
-
 std::shared_ptr<Expr> Parser::array()
 {
 	std::vector<std::shared_ptr<Expr>> elements;
@@ -462,7 +434,7 @@ std::shared_ptr<Expr> Parser::arrow()
 	consume(LEFT_BRACE, "Expected '{'");
 	auto body = block_stmt();
 
-	return make_ast_node<FunctionExpr>(params, std::static_pointer_cast<BlockStmt>(body));
+	return make_ast_node<FunctionExpr>("", params, std::static_pointer_cast<BlockStmt>(body));
 }
 
 std::shared_ptr<Expr> Parser::assign(std::shared_ptr<Expr> left)
@@ -517,6 +489,33 @@ std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
 	return make_ast_node<MemberExpr>(left, make_ast_node<Variable>(previous.value()), true);
+}
+
+std::shared_ptr<Expr> Parser::function()
+{
+	std::string name = "";
+	if (match(IDENTIFIER))
+		name = previous.value();
+
+	consume(LEFT_PAREN, "Expected '('");
+
+	std::vector<std::string> args;
+	if (!check(RIGHT_PAREN))
+	{
+		do
+		{
+			if (args.size() > 0xff)
+				std::cerr << "Can't have more than 255 arguments\n";
+
+			consume(IDENTIFIER, "Expect arguments name");
+			args.push_back(previous.value());
+		} while (match(COMMA));
+	}
+	consume(RIGHT_PAREN, "Expected ')'");
+	consume(LEFT_BRACE, "Expected '{'");
+	auto body = block_stmt();
+
+	return make_ast_node<FunctionExpr>(name, args, std::static_pointer_cast<BlockStmt>(body));
 }
 
 std::shared_ptr<Expr> Parser::grouping()

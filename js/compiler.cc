@@ -654,7 +654,13 @@ void Compiler::compile(const ObjectExpr &expr)
 void Compiler::compile(const FunctionExpr &expr)
 {
 	current_line = expr.line;
-	auto function = heap().allocate<Function>(ANONYMOUS);
+
+	Function *function = nullptr;
+	if (expr.is_anonymous())
+		function = heap().allocate<Function>(ANONYMOUS);
+	else
+		function = heap().allocate<Function>(expr.function_name);
+
 	function->arity = expr.args.size();
 	FunctionCompiler compiler(current, function);
 	init_compiler(&compiler);
