@@ -1,7 +1,6 @@
 #pragma once
 
 #include "document/document.h"
-#include "document/element.h"
 #include "tokenizer.h"
 
 #include <memory>

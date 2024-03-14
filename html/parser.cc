@@ -3,8 +3,6 @@
 
 #include "parser.h"
 
-#include <iostream>
-
 #include "document/element.h"
 #include "document/element_factory.h"
 #include "document/node.h"

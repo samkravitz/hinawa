@@ -1,7 +1,5 @@
 #include "tokenizer.h"
 
-#include <string.h>
-
 int main()
 {
 	std::string input = "<!DOCTYPE html>\n"

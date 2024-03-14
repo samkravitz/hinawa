@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <fmt/format.h>
-#include <iostream>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-label"
