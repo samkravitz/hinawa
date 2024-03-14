@@ -1,10 +1,8 @@
 #include "block.h"
 
 #include "SkFont.h"
-#include "SkFontMgr.h"
 #include "document/node.h"
 #include "text.h"
-#include "util/hinawa.h"
 
 namespace layout
 {
