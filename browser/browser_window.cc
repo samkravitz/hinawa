@@ -1,17 +1,9 @@
 #include "browser_window.h"
 
-#include <cassert>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 #include "css.h"
 #include "document/element.h"
-#include "document/text.h"
 #include "html/parser.h"
 #include "js/vm.h"
-#include "layout/block.h"
-#include "layout/image.h"
 #include "layout/node.h"
 #include "layout/rect.h"
 #include "web/resource.h"
@@ -20,8 +12,6 @@
 #include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
-#include "SkPath.h"
-#include "SkRRect.h"
 #include "SkSurface.h"
 
 fs::path DATA_DIR = HINAWA_DATA_DIR;
