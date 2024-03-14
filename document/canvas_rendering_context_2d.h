@@ -1,7 +1,6 @@
 #pragma once
 
 #include "document/html_canvas_element.h"
-#include "gfx/color.h"
 #include "gfx/painter.h"
 
 class CanvasRenderingContext2D

@@ -1,9 +1,7 @@
 #pragma once
 
 #include "element.h"
-#include "util/hinawa.h"
 
-#include <memory>
 #include <vector>
 
 #include "SkCanvas.h"
