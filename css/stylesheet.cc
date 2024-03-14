@@ -2,7 +2,6 @@
 
 #include <cassert>
 
-#include "document/element.h"
 #include "parser.h"
 #include "styled_node.h"
 

@@ -2,7 +2,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include "document/document.h"
 #include "stylesheet.h"

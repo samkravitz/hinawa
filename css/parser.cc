@@ -1,12 +1,11 @@
 // https://www.w3.org/TR/css-syntax-3/#parsing
 #include "parser.h"
 #include "component_value.h"
+#include "scanner.h"
 #include "stylesheet.h"
 
 #include <cassert>
 #include <fmt/format.h>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 namespace css

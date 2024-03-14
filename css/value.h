@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "fmt/format.h"
 #include "util/hinawa.h"
 
 namespace css

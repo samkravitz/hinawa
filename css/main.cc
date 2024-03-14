@@ -1,7 +1,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <vector>
 
 #include <FlexLexer.h>
 

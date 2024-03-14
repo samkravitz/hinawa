@@ -1,7 +1,5 @@
 #pragma once
 
-#include <variant>
-
 #include "token.h"
 
 namespace css

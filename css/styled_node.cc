@@ -7,7 +7,6 @@
 #include "stylesheet.h"
 
 #include <cassert>
-#include <iostream>
 
 namespace css
 {

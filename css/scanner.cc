@@ -1,7 +1,5 @@
 #include "scanner.h"
 
-#include <iostream>
-
 namespace css
 {
 

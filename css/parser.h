@@ -4,7 +4,6 @@
 #include <string>
 
 #include "component_value.h"
-#include "scanner.h"
 #include "selector.h"
 #include "stylesheet.h"
 #include "token.h"
