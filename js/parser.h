@@ -42,7 +42,7 @@ struct ParseRule
 {
 	std::function<std::shared_ptr<Expr>(Parser *)> prefix;
 	std::function<std::shared_ptr<Expr>(Parser *, std::shared_ptr<Expr>)> infix;
-	Precedence precedence;
+	Precedence precedence = PREC_NONE;
 };
 
 class Parser
@@ -60,6 +60,7 @@ public:
 	std::shared_ptr<Expr> assign(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> binary(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> call(std::shared_ptr<Expr>);
+	std::shared_ptr<Expr> comma(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> dot(std::shared_ptr<Expr>);
 	std::shared_ptr<Expr> function();
 	std::shared_ptr<Expr> grouping();

@@ -24,6 +24,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {LEFT_PAREN,        {&Parser::grouping, &Parser::call, PREC_NEW}   },
 	    {LEFT_BRACKET,      {&Parser::array, &Parser::subscript, PREC_CALL}},
 	    {LEFT_BRACE,        {&Parser::object, nullptr, PREC_CALL}          },
+	    {COMMA,             {nullptr, &Parser::comma, PREC_COMMA}          },
 	    {DOT,	           {nullptr, &Parser::dot, PREC_CALL}             },
 	    {MINUS,             {&Parser::unary, &Parser::binary, PREC_TERM}   },
 	    {PLUS,              {nullptr, &Parser::binary, PREC_TERM}          },
@@ -497,6 +498,11 @@ std::shared_ptr<Expr> Parser::call(std::shared_ptr<Expr> left)
 	return make_ast_node<CallExpr>(left, args);
 }
 
+std::shared_ptr<Expr> Parser::comma(std::shared_ptr<Expr> left)
+{
+	return nullptr;
+}
+
 std::shared_ptr<Expr> Parser::dot(std::shared_ptr<Expr> left)
 {
 	consume(IDENTIFIER, "Expect identifier after '.'");
@@ -533,7 +539,7 @@ std::shared_ptr<Expr> Parser::function()
 std::shared_ptr<Expr> Parser::grouping()
 {
 	auto state = save_state();
-	auto expr = expression(false);
+	auto expr = parse_precedence(PREC_COMMA);
 
 	match(RIGHT_PAREN);
 
