@@ -45,6 +45,18 @@ public:
 	{
 		node->print_header(indent);
 
+		std::string kind = "";
+
+		if (node->kind == VarDecl::VAR)
+			kind = "var";
+		if (node->kind == VarDecl::LET)
+			kind = "let";
+		if (node->kind == VarDecl::CONST)
+			kind = "const";
+
+		print_indent(indent);
+		fmt::print("kind: ({})\n", kind);
+
 		for (const auto &declarator : node->declorators)
 		{
 			print_indent(indent + 1);

@@ -169,6 +169,13 @@ struct ReturnStmt : public Stmt
 
 struct VarDecl : public Stmt
 {
+	enum VarDeclKind
+	{
+		VAR,
+		LET,
+		CONST,
+	};
+
 	struct VarDeclarator
 	{
 		VarDeclarator(std::string identifier, std::shared_ptr<Expr> initializer) :
@@ -180,8 +187,9 @@ struct VarDecl : public Stmt
 		std::shared_ptr<Expr> init;
 	};
 
-	VarDecl(std::vector<VarDeclarator> declorators) :
-	    declorators(declorators)
+	VarDecl(std::vector<VarDeclarator> declorators, VarDeclKind kind) :
+	    declorators(declorators),
+	    kind(kind)
 	{ }
 
 	const char *name() const { return "VarDecl"; }
@@ -189,6 +197,7 @@ struct VarDecl : public Stmt
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
 	std::vector<VarDeclarator> declorators;
+	VarDeclKind kind;
 };
 
 struct FunctionDecl : public Stmt

@@ -1,5 +1,6 @@
 #include "parser.h"
 
+#include <cassert>
 #include <fmt/format.h>
 #include <iostream>
 #include <memory>
@@ -111,7 +112,7 @@ std::vector<std::shared_ptr<Stmt>> Parser::parse_impl()
 
 std::shared_ptr<Stmt> Parser::declaration()
 {
-	if (match(KEY_VAR) || match(KEY_LET) || match(KEY_CONST))
+	if (check_any({KEY_VAR, KEY_LET, KEY_CONST}))
 		return var_declaration();
 
 	//if (match(KEY_CLASS))
@@ -196,6 +197,17 @@ std::shared_ptr<Stmt> Parser::var_declaration()
 {
 	std::vector<VarDecl::VarDeclarator> declorators;
 	std::shared_ptr<Expr> initializer = nullptr;
+	VarDecl::VarDeclKind kind;
+
+	if (match(KEY_VAR))
+		kind = VarDecl::VAR;
+	else if (match(KEY_CONST))
+		kind = VarDecl::CONST;
+	else if (match(KEY_LET))
+		kind = VarDecl::LET;
+	else
+		assert(!"Unknown var decl type!");
+
 	do
 	{
 		consume(IDENTIFIER, "Expected variable name");
@@ -213,7 +225,7 @@ std::shared_ptr<Stmt> Parser::var_declaration()
 	// match optional semicolon after expression statement
 	match(SEMICOLON);
 
-	return make_ast_node<VarDecl>(declorators);
+	return make_ast_node<VarDecl>(declorators, kind);
 }
 
 std::shared_ptr<Stmt> Parser::expression_statement()
@@ -260,7 +272,7 @@ std::shared_ptr<Stmt> Parser::for_statement()
 	consume(LEFT_PAREN, "Expected '('");
 
 	std::shared_ptr<AstNode> initialization = nullptr;
-	if (match(KEY_VAR) || match(KEY_LET) || match(KEY_CONST))
+	if (check_any({KEY_VAR, KEY_LET, KEY_CONST}))
 	{
 		initialization = var_declaration();
 		if (!initialization)
@@ -684,7 +696,7 @@ bool Parser::match(TokenType type)
 
 bool Parser::check_any(std::initializer_list<TokenType> const &tokens)
 {
-	for (auto t : tokens)
+	for (const auto &t : tokens)
 	{
 		if (check(t))
 			return true;
