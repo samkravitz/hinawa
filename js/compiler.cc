@@ -301,13 +301,6 @@ void Compiler::compile(const TryStmt &stmt)
 	}
 }
 
-void Compiler::compile(const PrintStmt &stmt)
-{
-	current_line = stmt.line;
-	stmt.expr->accept(this);
-	emit_byte(OP_PRINT);
-}
-
 void Compiler::compile(const UnaryExpr &expr)
 {
 	current_line = expr.line;

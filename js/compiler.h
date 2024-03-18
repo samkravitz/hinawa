@@ -80,7 +80,6 @@ private:
 	void compile(const ReturnStmt &);
 	void compile(const ThrowStmt &);
 	void compile(const TryStmt &);
-	void compile(const PrintStmt &);
 
 	// compile expressions
 	void compile(const UnaryExpr &);

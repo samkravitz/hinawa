@@ -165,14 +165,6 @@ public:
 
 	void visit(const TryStmt *node, int indent) const { node->print_header(indent); }
 
-	void visit(const PrintStmt *node, int indent) const
-	{
-		node->print_header(indent);
-		print_indent(indent);
-		fmt::print("expr:\n");
-		node->expr->accept(this, indent + 1);
-	}
-
 	void visit(const UnaryExpr *node, int indent) const
 	{
 		node->print_header(indent);
