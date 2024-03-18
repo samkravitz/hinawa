@@ -8,6 +8,7 @@ FAIL = '\033[91m'
 COLOR_OFF = '\033[0m'
 
 test_files = glob.glob('**/*.js',recursive=True)
+failed_tests = []
 
 for test_file in test_files:
 	expect_file_name = test_file + '.expect'
@@ -22,6 +23,7 @@ for test_file in test_files:
 		if result == expected_result:
 			print(f'{PASS}PASS')
 		else:
+			failed_tests.append(test_file)
 			print(f'{FAIL}FAIL')
 			print('expect:')
 			print(f'{expected_result}\n')
@@ -30,3 +32,12 @@ for test_file in test_files:
 	
 	except:
 		print(f'{FAIL}parser error')
+
+
+print(f'{COLOR_OFF}')
+if len(failed_tests) == 0:
+	print('All tests passed')
+else:
+	print('Failed Tests:')
+	for failure in failed_tests:
+		print(failure)
