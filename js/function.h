@@ -23,6 +23,7 @@ struct Local
 	std::string name;
 	int depth;
 	bool is_captured = false;
+	bool is_constant = false;
 };
 
 enum FunctionType

@@ -258,6 +258,13 @@ void Vm::run_instruction(bool &should_return)
 			break;
 		}
 
+		case OP_DEFINE_CONSTANT:
+		{
+			const auto &ident = read_string();
+			m_global->set_constant(ident, pop());
+			break;
+		}
+
 		case OP_GET_GLOBAL:
 		{
 			const auto &ident = read_string();
@@ -281,6 +288,15 @@ void Vm::run_instruction(bool &should_return)
 				pop();
 				if (!runtime_error(heap().allocate<ReferenceError>(*this, ident.string()),
 				                   fmt::format("Undefined variable '{}'", ident.string())))
+					return;
+				break;
+			}
+
+			if (m_global->has_constant(ident))
+			{
+				pop();
+				if (!runtime_error(heap().allocate<TypeError>(),
+				                   fmt::format("Assignment to constant variable '{}'", ident.string())))
 					return;
 				break;
 			}

@@ -109,7 +109,7 @@ private:
 	void emit_loop(size_t);
 
 	u8 parse_variable(const std::string &);
-	void define_variable(u8);
+	void define_variable(u8, bool is_constant = false);
 	u8 identifier_constant(const std::string &);
 	void mark_initialized();
 

@@ -75,6 +75,8 @@ void Compiler::compile(const ScopeNode &stmt)
 void Compiler::compile(const VarDecl &stmt)
 {
 	current_line = stmt.line;
+	auto is_constant = stmt.is_constant();
+
 	for (const auto &declarator : stmt.declorators)
 	{
 		auto global = parse_variable(declarator.identifier);
@@ -83,7 +85,10 @@ void Compiler::compile(const VarDecl &stmt)
 		else
 			emit_byte(OP_UNDEFINED);
 
-		define_variable(global);
+		define_variable(global, is_constant);
+
+		if (is_constant && !is_global())
+			current->locals.back().is_constant = true;
 	}
 }
 
@@ -852,7 +857,7 @@ u8 Compiler::parse_variable(const std::string &identifier)
 	return identifier_constant(identifier);
 }
 
-void Compiler::define_variable(u8 global)
+void Compiler::define_variable(u8 global, bool is_constant)
 {
 	if (!is_global())
 	{
@@ -860,7 +865,8 @@ void Compiler::define_variable(u8 global)
 		return;
 	}
 
-	emit_bytes(OP_DEFINE_GLOBAL, global);
+	auto define_op = is_constant ? OP_DEFINE_CONSTANT : OP_DEFINE_GLOBAL;
+	emit_bytes(define_op, global);
 }
 
 u8 Compiler::identifier_constant(const std::string &name)

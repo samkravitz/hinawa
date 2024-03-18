@@ -196,6 +196,8 @@ struct VarDecl : public Stmt
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
+	bool is_constant() const { return kind == CONST; }
+
 	std::vector<VarDeclarator> declorators;
 	VarDeclKind kind;
 };
