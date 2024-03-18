@@ -30,8 +30,9 @@ private:
 
 		struct CompilerUpvalue
 		{
-			u8 index{0};
-			bool is_local{false};
+			u8 index = 0;
+			bool is_local = false;
+			bool is_constant = false;
 		};
 
 		FunctionCompiler *enclosing{nullptr};

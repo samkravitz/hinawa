@@ -6,6 +6,7 @@
 #include <memory>
 #include <ranges>
 
+#include "error.h"
 #include "heap.h"
 #include "opcode.h"
 
@@ -457,6 +458,7 @@ void Compiler::compile(const AssignmentExpr &expr)
 	int value{};
 	if (expr.lhs->is_variable())
 	{
+		Error *setting_constant_variable_error = nullptr;
 		Opcode set_op{};
 		auto &var = static_cast<Variable &>(*expr.lhs);
 		identifier = var.ident;
@@ -464,11 +466,17 @@ void Compiler::compile(const AssignmentExpr &expr)
 
 		if (value != RESOLVED_GLOBAL)
 		{
+			auto &local = current->locals[value];
+			if (local.is_constant)
+				setting_constant_variable_error = heap().allocate<TypeError>();
 			set_op = OP_SET_LOCAL;
 		}
 
 		else if ((value = resolve_upvalue(current, identifier)) != -1)
 		{
+			auto &upvalue = current->upvalues[value];
+			if (upvalue.is_constant)
+				setting_constant_variable_error = heap().allocate<TypeError>();
 			set_op = OP_SET_UPVALUE;
 		}
 
@@ -480,7 +488,15 @@ void Compiler::compile(const AssignmentExpr &expr)
 
 		expr.rhs->accept(this);
 
-		emit_bytes(set_op, value);
+		if (setting_constant_variable_error)
+		{
+			emit_bytes(OP_CONSTANT, make_constant(Value(setting_constant_variable_error)));
+			emit_byte(OP_THROW);
+		}
+
+		else
+			emit_bytes(set_op, value);
+
 		return;
 	}
 
@@ -943,7 +959,10 @@ int Compiler::resolve_upvalue(FunctionCompiler *compiler, const std::string &nam
 	if (local != -1)
 	{
 		compiler->enclosing->locals[local].is_captured = true;
-		return add_upvalue(compiler, local, true);
+		auto index = add_upvalue(compiler, local, true);
+		auto &upvalue = compiler->upvalues[index];
+		upvalue.is_constant = compiler->enclosing->locals[local].is_constant;
+		return index;
 	}
 
 	int upvalue = resolve_upvalue(compiler->enclosing, name);
