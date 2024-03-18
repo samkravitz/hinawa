@@ -158,6 +158,9 @@ std::shared_ptr<Stmt> Parser::statement()
 	if (match(KEY_BREAK))
 		return break_statement();
 
+	if (match(KEY_PRINT))
+		return print_statement();
+
 	if (match(KEY_DEBUGGER))
 	{
 		// match optional semicolon after break statement
@@ -307,6 +310,15 @@ std::shared_ptr<Stmt> Parser::while_statement()
 	auto stmt = statement();
 
 	return make_ast_node<WhileStmt>(condition, stmt);
+}
+
+std::shared_ptr<Stmt> Parser::print_statement()
+{
+	auto expr = expression();
+
+	// match optional semicolon after print statement
+	match(SEMICOLON);
+	return make_ast_node<PrintStmt>(expr);
 }
 
 std::shared_ptr<Stmt> Parser::throw_statement()

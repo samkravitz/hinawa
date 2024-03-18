@@ -67,6 +67,7 @@ DECIMAL_PART \.[[:digit:]]+
 "while"                     { return KEY_WHILE; }
 "with"                      { return KEY_WITH; }
 "yield"                     { return KEY_YIELD; }
+"print"                     { return KEY_PRINT; }
 
 %{
 	// Three character tokens

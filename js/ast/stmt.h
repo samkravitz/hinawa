@@ -242,4 +242,17 @@ struct TryStmt : public Stmt
 	std::shared_ptr<BlockStmt> finalizer{nullptr};
 	std::optional<std::string> catch_param = {};
 };
+
+struct PrintStmt : public Stmt
+{
+	PrintStmt(std::shared_ptr<Expr> expr) :
+	    expr(std::move(expr))
+	{ }
+
+	const char *name() const { return "PrintStmt"; }
+	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
+	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::shared_ptr<Expr> expr;
+};
 }

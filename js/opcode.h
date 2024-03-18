@@ -59,5 +59,6 @@ enum Opcode : u8
 	OP_DEBUGGER,
 	OP_NOOP,
 	OP_POP_N,
+	OP_PRINT,
 };
 }

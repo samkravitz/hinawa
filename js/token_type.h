@@ -120,6 +120,7 @@ enum TokenType : int
 	KEY_WHILE,
 	KEY_WITH,
 	KEY_YIELD,
+	KEY_PRINT,    // Not a real JS keyword, used for easy debugging
 
 	TOKEN_EOF,
 };

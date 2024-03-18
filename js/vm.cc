@@ -788,6 +788,13 @@ void Vm::run_instruction(bool &should_return)
 			break;
 		}
 
+		case OP_PRINT:
+		{
+			auto val = pop();
+			fmt::print("{}", val.to_string());
+			break;
+		}
+
 		default:
 			assert(!"Unknown opcode");
 	}

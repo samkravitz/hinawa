@@ -93,6 +93,7 @@ private:
 	std::shared_ptr<Stmt> throw_statement();
 	std::shared_ptr<Stmt> try_statement();
 	std::shared_ptr<Stmt> while_statement();
+	std::shared_ptr<Stmt> print_statement();
 
 	// parse declarations
 	std::shared_ptr<Stmt> declaration();
