@@ -57,6 +57,7 @@ set(SOURCES
 	date.cc
 	error.cc
 	function.cc
+	global_object.cc
 	heap.cc
 	object_string.cc
 	object.cc
@@ -81,6 +82,7 @@ set(HEADERS
 	date.h
 	error.h
 	function.h
+	global_object.h
 	heap.h
 	object_string.h
 	object.h

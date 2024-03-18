@@ -5,6 +5,7 @@
 
 #include "error.h"
 #include "function.h"
+#include "global_object.h"
 #include "operator.h"
 #include "value.h"
 
@@ -59,8 +60,8 @@ public:
 
 	void interpret(const std::string &);
 	Object *current_this() const;
-	inline void set_global(Object *g) { m_global = g; }
-	inline Object *global() { return m_global; }
+	inline void set_global(GlobalObject *g) { m_global = g; }
+	inline GlobalObject &global() { return *m_global; }
 	Heap &heap();
 
 	Value call(const CallFrame &);
@@ -83,7 +84,7 @@ public:
 
 private:
 	// pointer to the global object
-	Object *m_global = nullptr;
+	GlobalObject *m_global = nullptr;
 
 	Error *m_error = nullptr;
 

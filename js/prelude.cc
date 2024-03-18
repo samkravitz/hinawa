@@ -26,7 +26,7 @@ static void prelude_object(Vm &vm)
 {
 	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate()); });
 	auto val = Value(object);
-	vm.global()->set("Object", val);
+	vm.global().set("Object", val);
 
 	object->set("prototype", Value(ObjectPrototype::the()));
 	ObjectPrototype::the()->set("constructor", val);
@@ -51,7 +51,7 @@ static void prelude_array(Vm &vm)
 		return Value(array);
 	});
 
-	vm.global()->set("Array", Value(array));
+	vm.global().set("Array", Value(array));
 }
 
 /**
@@ -64,7 +64,7 @@ static void prelude_date(Vm &vm)
 		return Value(date);
 	});
 
-	vm.global()->set("Date", Value(date));
+	vm.global().set("Date", Value(date));
 }
 
 /**
@@ -94,9 +94,9 @@ static void prelude_error(Vm &vm)
 		return Value::js_undefined();
 	});
 
-	vm.global()->set("Error", Value(error));
-	vm.global()->set("ReferenceError", Value(reference_error));
-	vm.global()->set("TypeError", Value(type_error));
+	vm.global().set("Error", Value(error));
+	vm.global().set("ReferenceError", Value(reference_error));
+	vm.global().set("TypeError", Value(type_error));
 }
 
 /**
@@ -143,10 +143,10 @@ static void prelude_math(Vm &vm)
 	});
 
 	auto val = Value(math);
-	vm.global()->set("Math", val);
+	vm.global().set("Math", val);
 
-	vm.global()->set("Infinity", Value::js_infinity());
-	vm.global()->set("NaN", Value::js_nan());
+	vm.global().set("Infinity", Value::js_infinity());
+	vm.global().set("NaN", Value::js_nan());
 }
 
 /**
@@ -157,7 +157,7 @@ static void prelude_document(Vm &vm, Document *document)
 {
 	auto *document_wrapper = heap().allocate<bindings::DocumentWrapper>(document);
 	vm.set_document_wrapper(document_wrapper);
-	vm.global()->set("document", Value(document_wrapper));
+	vm.global().set("document", Value(document_wrapper));
 }
 #endif
 
@@ -165,7 +165,7 @@ static void prelude_document(Vm &vm, Document *document)
 void prelude(Vm &vm, Document *document)
 {
 	// create the global object and put some functions on it
-	auto *global = heap().allocate();
+	auto *global = heap().allocate<GlobalObject>();
 	vm.set_global(global);
 	global->set("window", Value(global));
 
@@ -227,7 +227,7 @@ void prelude(Vm &vm, Document *document)
 void prelude(Vm &vm)
 {
 	// create the global object and put some functions on it
-	auto *global = heap().allocate();
+	auto *global = heap().allocate<GlobalObject>();
 	vm.set_global(global);
 	global->set("window", Value(global));
 
