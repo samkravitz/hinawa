@@ -1,0 +1,2 @@
+{ foo: bar }
+caught attempt to assign to a constant!
