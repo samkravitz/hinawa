@@ -96,13 +96,6 @@ void WebView::load(const Url &new_url)
 
 		style_tree = css::build_style_tree(document);
 		layout_tree = layout::build_layout_tree(style_tree.get());
-
-		auto javascript = document.get_script();
-		if (javascript == "")
-			return;
-
-		js::Vm vm(&document);
-		vm.interpret(javascript);
 	});
 }
 

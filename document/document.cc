@@ -1,5 +1,6 @@
 #include "document.h"
 #include "element.h"
+#include "js/vm.h"
 #include "node.h"
 #include "text.h"
 
@@ -74,6 +75,14 @@ std::string Document::get_script() const
 	return source;
 }
 
+void Document::execute_script_node(std::shared_ptr<Node> node)
+{
+	auto script_element = std::dynamic_pointer_cast<Element>(node);
+	auto text_element = dynamic_cast<Text *>(script_element->last_child());
+	auto text = text_element->text();
+	vm().interpret(text);
+}
+
 void Document::add_child(const std::shared_ptr<Node> &child)
 {
 	if (!m_root)
@@ -86,4 +95,11 @@ void Document::set_alert(const std::string &text)
 {
 	m_show_alert = true;
 	m_alert_text = text;
+}
+
+js::Vm &Document::vm()
+{
+	if (!m_vm)
+		m_vm = new js::Vm(this);
+	return *m_vm;
 }
