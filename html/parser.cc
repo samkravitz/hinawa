@@ -77,7 +77,7 @@ Document &Parser::parse(std::string const &input)
 						auto tag_name = token.tag_name();
 						if (tag_name == "html")
 						{
-							auto html_element = std::make_shared<Element>("html");
+							auto html_element = create_element(document(), "html");
 							document().add_child(html_element);
 							stack_of_open_elements.push_back(html_element);
 							insertion_mode = InsertionMode::BeforeHead;
@@ -106,7 +106,7 @@ Document &Parser::parse(std::string const &input)
 					before_html_anything_else:
 					default:
 					{
-						auto html_element = std::make_shared<Element>("html");
+						auto html_element = create_element(document(), "html");
 						document().add_child(html_element);
 						stack_of_open_elements.push_back(html_element);
 						insertion_mode = InsertionMode::BeforeHead;
@@ -152,7 +152,7 @@ Document &Parser::parse(std::string const &input)
 
 						else if (tag_name == "head")
 						{
-							auto head_element = std::make_shared<Element>("head");
+							auto head_element = create_element(document(), "head");
 							insert_element(head_element);
 							// TODO: set the head element pointer to the newly created head element
 							insertion_mode = InsertionMode::InHead;
@@ -181,7 +181,7 @@ Document &Parser::parse(std::string const &input)
 
 					before_head_anything_else:
 					default:
-						auto head_element = std::make_shared<Element>("head");
+						auto head_element = create_element(document(), "head");
 						insert_element(head_element);
 						// TODO: set the head element pointer to the newly created head element
 						insertion_mode = InsertionMode::InHead;
@@ -283,7 +283,7 @@ Document &Parser::parse(std::string const &input)
 						auto tag_name = token.tag_name();
 						if (tag_name == "body")
 						{
-							auto body_element = std::make_shared<Element>("body");
+							auto body_element = create_element(document(), "body");
 							insert_element(body_element);
 							insertion_mode = InsertionMode::InBody;
 							break;
@@ -296,7 +296,7 @@ Document &Parser::parse(std::string const &input)
 					default:
 					{
 						// create body start tag
-						auto body_element = std::make_shared<Element>("body");
+						auto body_element = create_element(document(), "body");
 						insert_element(body_element);
 						insertion_mode = InsertionMode::InBody;
 					}
@@ -584,7 +584,7 @@ void Parser::insert_character(Token t)
 void Parser::parse_raw_text(Token t)
 {
 	// 1. insert an html element for the token
-	auto element = std::make_shared<Element>(t.tag_name());
+	auto element = create_element(document(), t.tag_name());
 	insert_element(element);
 
 	// 2. if the algorithm that was invoked is the generic raw text element parsing algorithm, switch the tokenizer to the RAWTEXT state;
