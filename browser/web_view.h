@@ -22,6 +22,10 @@ public:
 
 	void resize(int, int);
 	void render();
+	void url_selected(const std::string &);
+
+signals:
+	void load_started(QString);
 
 private:
 	Url url;

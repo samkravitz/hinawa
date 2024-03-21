@@ -91,6 +91,7 @@ void WebView::load(const Url &new_url)
 {
 	url = new_url;
 	document = Document(url);
+	emit load_started(QString::fromStdString(url.serialize()));
 	::load(url, [&](const auto &data) {
 		html::Parser::parse(std::string((const char *) data.data(), data.size()), document);
 		document.print("Document");
@@ -181,5 +182,12 @@ void WebView::mousePressEvent(QMouseEvent *event)
 		document.clear_alert();
 		render();
 	}
+}
+
+void WebView::url_selected(const std::string &new_url)
+{
+	load(Url(new_url));
+	layout();
+	render();
 }
 }
