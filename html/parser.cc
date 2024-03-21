@@ -20,7 +20,17 @@ Parser::Parser(Document &document) :
     m_document(document)
 { }
 
-Document &Parser::parse(std::string const &input)
+Document Parser::parse(std::string const &input, Url base_url)
+{
+	// The parser is associated with a document when it is created
+	// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction
+	auto document = Document(base_url);
+	auto parser = Parser(document);
+
+	return parser.run(input);
+}
+
+Document Parser::run(const std::string &input)
 {
 	tokenizer = Tokenizer(input);
 	while (auto token = tokenizer.next())
@@ -475,7 +485,7 @@ Document &Parser::parse(std::string const &input)
 		}
 	}
 
-	return m_document;
+	return std::move(m_document);
 }
 
 std::shared_ptr<Node> Parser::current_node()

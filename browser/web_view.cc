@@ -91,9 +91,7 @@ void WebView::load(const Url &new_url)
 {
 	url = new_url;
 	::load(url, [&](const auto &data) {
-		document = Document(url);
-		auto parser = html::Parser(document);
-		document = parser.parse(std::string((const char *) data.data(), data.size()));
+		document = html::Parser::parse(std::string((const char *) data.data(), data.size()), url);
 		document.print("Document");
 
 		style_tree = css::build_style_tree(document);

@@ -36,10 +36,9 @@ namespace html
 class Parser
 {
 public:
-	// The parser is associated with a document when it is created
-	// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction
 	Parser() = delete;
-	Parser(Document &);
+
+	static Document parse(const std::string &, Url base_url = {});
 
 	enum class InsertionMode
 	{
@@ -48,10 +47,12 @@ public:
 #undef MODE
 	};
 
-	Document &parse(std::string const &input);
 	Document &document() { return m_document; }
 
 private:
+	Parser(Document &);
+
+	Document run(const std::string &input);
 	InsertionMode insertion_mode = InsertionMode::Initial;
 	InsertionMode original_insertion_mode = InsertionMode::Initial;
 	std::vector<std::shared_ptr<Node>> stack_of_open_elements;
