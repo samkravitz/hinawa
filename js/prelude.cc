@@ -135,6 +135,14 @@ static void prelude_math(Vm &vm)
 		return Value(std::max(a, b));
 	});
 
+	// https://tc39.es/ecma262/#sec-math.min
+	// TODO - implement properly
+	math->set_native("min", [](auto &vm, const auto &argv) -> Value {
+		auto a = argv[0].as_number();
+		auto b = argv[1].as_number();
+		return Value(std::min(a, b));
+	});
+
 	// https://tc39.es/ecma262/#sec-math.round
 	// TODO - implement properly
 	math->set_native("round", [](auto &vm, const auto &argv) -> Value {
