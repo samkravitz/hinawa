@@ -90,8 +90,9 @@ void WebView::render()
 void WebView::load(const Url &new_url)
 {
 	url = new_url;
+	document = Document(url);
 	::load(url, [&](const auto &data) {
-		document = html::Parser::parse(std::string((const char *) data.data(), data.size()), url);
+		html::Parser::parse(std::string((const char *) data.data(), data.size()), document);
 		document.print("Document");
 
 		style_tree = css::build_style_tree(document);
@@ -157,14 +158,22 @@ void WebView::mousePressEvent(QMouseEvent *event)
 	Point p = {pos.x(), pos.y()};
 	if (!hovered_href.empty())
 	{
-		auto new_url = Url(hovered_href, &url);
-		load(new_url);
-		layout::Box viewport = {};
-		viewport.content.width = width;
-		viewport.content.height = 0;
-		layout_tree->layout(viewport);
-		layout_tree->print("Layout Tree");
-		render();
+		const std::string javascript_url = "javascript:";
+		auto is_javascript_url = [&javascript_url](const std::string &str) { return str.starts_with(javascript_url); };
+		if (is_javascript_url(hovered_href))
+		{
+			auto source = hovered_href.substr(javascript_url.size());
+			document.vm().interpret(source);
+			render();
+		}
+
+		else
+		{
+			auto new_url = Url(hovered_href, &url);
+			load(new_url);
+			layout();
+			render();
+		}
 	}
 
 	if (document.show_alert() && alert_box.contains(p))

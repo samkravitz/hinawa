@@ -36,9 +36,9 @@ namespace html
 class Parser
 {
 public:
-	Parser() = delete;
+	Parser() = default;
 
-	static Document parse(const std::string &, Url base_url = {});
+	static void parse(const std::string &, Document &);
 
 	enum class InsertionMode
 	{
@@ -47,17 +47,17 @@ public:
 #undef MODE
 	};
 
-	Document &document() { return m_document; }
+	Document &document() { return *m_document; }
 
 private:
 	Parser(Document &);
 
-	Document run(const std::string &input);
+	void run(const std::string &input);
 	InsertionMode insertion_mode = InsertionMode::Initial;
 	InsertionMode original_insertion_mode = InsertionMode::Initial;
 	std::vector<std::shared_ptr<Node>> stack_of_open_elements;
 	Tokenizer tokenizer;
-	Document m_document;
+	Document *m_document = nullptr;
 
 	std::shared_ptr<Node> current_node();
 	std::shared_ptr<Node> adjusted_current_node();
