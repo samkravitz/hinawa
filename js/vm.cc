@@ -29,6 +29,9 @@
 	#include "ast_printer.h"
 #endif
 
+static constexpr int STACK_MAX = 1024;
+static constexpr int CALL_FRAME_MAX = 64;
+
 namespace js
 {
 Vm::Vm()
@@ -59,7 +62,7 @@ void Vm::interpret(const std::string &program_string)
 {
 	m_program_source = program_string;
 	auto program = Parser::parse(program_string);
-	stack.reserve(1024);
+	stack.reserve(STACK_MAX);
 
 #ifdef DEBUG_PRINT_AST
 	auto printer = js::AstPrinter{};
@@ -92,6 +95,13 @@ Value Vm::call(Closure *closure)
 
 Value Vm::call(const CallFrame &cf)
 {
+	if (call_stack.size() >= CALL_FRAME_MAX)
+	{
+		fmt::print(stderr, "Error: stack overflow\n");
+		print_stack_trace();
+		exit(1);
+	}
+
 	call_stack.push_back(cf);
 	bool should_return = false;
 
@@ -818,6 +828,13 @@ void Vm::run_instruction(bool &should_return)
 
 void Vm::push(Value value)
 {
+	if (stack.size() >= STACK_MAX)
+	{
+		fmt::print(stderr, "Error: value stack limit reached\n");
+		print_stack_trace();
+		exit(1);
+	}
+
 	stack.push_back(value);
 }
 
