@@ -11,6 +11,9 @@ test_files = glob.glob('**/*.js',recursive=True)
 failed_tests = []
 
 for test_file in test_files:
+	if test_file == 'harness.js':
+		continue
+
 	expect_file_name = test_file + '.expect'
 	with open(expect_file_name) as file:
 		expected_result = file.read()
