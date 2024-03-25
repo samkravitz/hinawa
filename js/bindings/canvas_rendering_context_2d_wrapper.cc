@@ -58,6 +58,15 @@ CanvasRenderingContext2DWrapper::CanvasRenderingContext2DWrapper(CanvasRendering
 
 		return Value::js_undefined();
 	});
+
+	set_native("rotate", [this](auto &vm, const auto &argv) -> Value {
+		if (argv.size() < 1)
+			return Value::js_undefined();
+
+		m_context->rotate(argv[0].as_number());
+
+		return Value::js_undefined();
+	});
 }
 }
 }

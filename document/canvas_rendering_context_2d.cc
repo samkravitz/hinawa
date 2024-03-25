@@ -46,3 +46,8 @@ void CanvasRenderingContext2D::translate(float dx, float dy)
 {
 	m_painter.translate(dx, dy);
 }
+
+void CanvasRenderingContext2D::rotate(float degrees)
+{
+	m_painter.rotate(degrees);
+}

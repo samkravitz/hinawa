@@ -72,4 +72,9 @@ void Painter::translate(float dx, float dy)
 {
 	canvas->translate(dx, dy);
 }
+
+void Painter::rotate(float degrees)
+{
+	canvas->rotate(degrees);
+}
 }

@@ -21,6 +21,7 @@ public:
 	void stroke_rect(int, int, int, int);
 	void scale(float, float);
 	void translate(float, float);
+	void rotate(float);
 
 private:
 	HtmlCanvasElement *m_canvas_element = nullptr;

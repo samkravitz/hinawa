@@ -28,6 +28,7 @@ public:
 	void draw_circle(const Point &, float, const Color &color = Color::BLACK);
 	void scale(float, float);
 	void translate(float, float);
+	void rotate(float);
 
 private:
 	SkCanvas *canvas;
