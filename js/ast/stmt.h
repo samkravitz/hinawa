@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <optional>
 #include <vector>
 
@@ -14,6 +15,9 @@ struct Stmt : public AstNode
 	const char *name() const = 0;
 	virtual void accept(const PrintVisitor *visitor, int indent) const = 0;
 	virtual void accept(CompilerVisitor *compiler) const = 0;
+	virtual bool is_var_decl() { return false; }
+
+	virtual std::vector<std::shared_ptr<Stmt>> remove_var_decls() { return {}; }
 };
 
 struct BlockStmt : public Stmt
@@ -25,6 +29,21 @@ struct BlockStmt : public Stmt
 	const char *name() const { return "BlockStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); };
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override
+	{
+		std::vector<std::shared_ptr<Stmt>> var_decls;
+		for (auto stmt : stmts)
+		{
+			auto other = stmt->remove_var_decls();
+			var_decls.insert(var_decls.begin(), other.begin(), other.end());
+		}
+
+		stmts.erase(std::remove_if(stmts.begin(), stmts.end(), [](auto stmt) { return stmt->is_var_decl(); }),
+		            stmts.end());
+
+		return var_decls;
+	}
 
 	std::vector<std::shared_ptr<Stmt>> stmts;
 };
@@ -74,6 +93,22 @@ struct IfStmt : public Stmt
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override
+	{
+		std::vector<std::shared_ptr<Stmt>> var_decls;
+
+		auto other = consequence->remove_var_decls();
+		var_decls.insert(var_decls.begin(), other.begin(), other.end());
+
+		if (consequence)
+		{
+			other = consequence->remove_var_decls();
+			var_decls.insert(var_decls.begin(), other.begin(), other.end());
+		}
+
+		return var_decls;
+	}
+
 	std::shared_ptr<Expr> test;
 	std::shared_ptr<Stmt> consequence;
 	std::shared_ptr<Stmt> alternate{nullptr};
@@ -95,6 +130,23 @@ struct ForStmt : public Stmt
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
 
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override
+	{
+		std::vector<std::shared_ptr<Stmt>> var_decls;
+
+		if (initialization)
+		{
+			auto stmt = dynamic_pointer_cast<Stmt>(initialization);
+			if (stmt && stmt->is_var_decl())
+			{
+				var_decls.push_back(stmt);
+				initialization = nullptr;
+			}
+		}
+
+		return var_decls;
+	}
+
 	std::shared_ptr<AstNode> initialization;
 	std::shared_ptr<Expr> condition;
 	std::shared_ptr<Expr> afterthought;
@@ -111,6 +163,16 @@ struct WhileStmt : public Stmt
 	const char *name() const { return "WhileStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override
+	{
+		std::vector<std::shared_ptr<Stmt>> var_decls;
+
+		auto other = statement->remove_var_decls();
+		var_decls.insert(var_decls.begin(), other.begin(), other.end());
+
+		return var_decls;
+	}
 
 	std::shared_ptr<Expr> condition;
 	std::shared_ptr<Stmt> statement;
@@ -198,6 +260,8 @@ struct VarDecl : public Stmt
 
 	bool is_constant() const { return kind == CONST; }
 
+	bool is_var_decl() override { return kind == VAR; }
+
 	std::vector<VarDeclarator> declorators;
 	VarDeclKind kind;
 };
@@ -213,6 +277,8 @@ struct FunctionDecl : public Stmt
 	const char *name() const { return "FunctionDecl"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override { return block->remove_var_decls(); }
 
 	std::string function_name;
 	std::vector<std::string> args;
@@ -247,6 +313,28 @@ struct TryStmt : public Stmt
 	const char *name() const { return "TryStmt"; }
 	void accept(const PrintVisitor *visitor, int indent) const { visitor->visit(this, indent); }
 	void accept(CompilerVisitor *compiler) const { compiler->compile(*this); };
+
+	std::vector<std::shared_ptr<Stmt>> remove_var_decls() override
+	{
+		std::vector<std::shared_ptr<Stmt>> var_decls;
+
+		auto other = block->remove_var_decls();
+		var_decls.insert(var_decls.begin(), other.begin(), other.end());
+
+		if (handler)
+		{
+			other = handler->remove_var_decls();
+			var_decls.insert(var_decls.begin(), other.begin(), other.end());
+		}
+
+		if (finalizer)
+		{
+			other = finalizer->remove_var_decls();
+			var_decls.insert(var_decls.begin(), other.begin(), other.end());
+		}
+
+		return var_decls;
+	}
 
 	std::shared_ptr<BlockStmt> block;
 	std::shared_ptr<BlockStmt> handler{nullptr};

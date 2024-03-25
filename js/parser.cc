@@ -108,6 +108,47 @@ std::vector<std::shared_ptr<Stmt>> Parser::parse_impl()
 		program.push_back(stmt);
 	}
 
+	/**
+	* Hoist all var declarations to the global scope
+	* a variable declared with var is accessible at all points in the program,
+	* so the program:
+	*
+	* foo = 2
+	* var 
+	*
+	* is equivalent to:
+	*
+	* var foo
+	* foo = 2
+	*
+	* So, we copy all the var decls in the program to another vector,
+	* remove them from the program, then re-copy all the var decls to the beginning of the program
+	*/
+	std::vector<std::shared_ptr<Stmt>> var_decls;
+	auto is_var_decl = [](std::shared_ptr<Stmt> stmt) {
+		auto var_decl = dynamic_pointer_cast<VarDecl>(stmt);
+		if (!var_decl)
+			return false;
+
+		return var_decl->kind == VarDecl::VAR;
+	};
+
+	for (auto stmt : program)
+	{
+		if (stmt->is_var_decl())
+		{
+			var_decls.push_back(stmt);
+		}
+
+		else
+		{
+			auto other = stmt->remove_var_decls();
+			var_decls.insert(var_decls.begin(), other.begin(), other.end());
+		}
+	}
+
+	program.erase(std::remove_if(program.begin(), program.end(), is_var_decl), program.end());
+	program.insert(program.begin(), var_decls.begin(), var_decls.end());
 	return program;
 }
 
