@@ -1,0 +1,6 @@
+{ foo: bar }
+bar
+undefined
+undefined
+value
+{ key: value, foo: bar }

@@ -510,77 +510,96 @@ void Vm::run_instruction(bool &should_return)
 
 		case OP_GET_SUBSCRIPT:
 		{
-			auto index = pop();
-			auto array_value = pop();
+			auto property = pop();    // property of object being accessed
+			auto value = pop();       // object being accessed
 
-			if (!array_value.is_object() || !array_value.as_object()->is_array())
+			if (!value.is_object())
 			{
-				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an array"))
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an object"))
 					return;
 				break;
 			}
 
-			auto array = array_value.as_object()->as_array();
-
-			if (!index.is_number())
+			auto *object = value.as_object();
+			if (object->is_array())
 			{
-				if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
-					return;
-				break;
+				auto *array = object->as_array();
+
+				if (!property.is_number())
+				{
+					if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
+						return;
+					break;
+				}
+
+				int idx = (int) property.as_number();
+				if (idx < 0)
+				{
+					if (!runtime_error(heap().allocate<TypeError>(),
+					                   fmt::format("Error: array index {} out of bounds", idx)))
+						return;
+					break;
+				}
+
+				if (idx >= (int) array->size())
+					array->resize(idx + 1);
+
+				push(Value(array->at(idx)));
 			}
 
-			int idx = (int) index.as_number();
-			if (idx < 0)
+			else
 			{
-				if (!runtime_error(heap().allocate<TypeError>(),
-				                   fmt::format("Error: array index {} out of bounds", idx)))
-					return;
-				break;
+				push(object->get(property.to_string()));
 			}
 
-			if (idx >= (int) array->size())
-				array->resize(idx + 1);
-
-			push(Value(array->at(idx)));
 			break;
 		}
 
 		case OP_SET_SUBSCRIPT:
 		{
-			auto element = pop();
-			auto index = pop();
-			auto array_value = pop();
+			auto right = pop();       // value to set
+			auto property = pop();    // property of object to set
+			auto value = pop();       // object being accessed
 
-			if (!array_value.is_object() || !array_value.as_object()->is_array())
+			if (!value.is_object())
 			{
-				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an array"))
+				if (!runtime_error(heap().allocate<TypeError>(), "Error: value is not an object"))
 					return;
 				break;
 			}
 
-			auto array = array_value.as_object()->as_array();
-
-			if (!index.is_number())
+			auto *object = value.as_object();
+			if (object->is_array())
 			{
-				if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
-					return;
-				break;
+				auto array = object->as_array();
+				if (!property.is_number())
+				{
+					if (!runtime_error(heap().allocate<TypeError>(), "Error: array index is not a number"))
+						return;
+					break;
+				}
+
+				int idx = (int) property.as_number();
+				if (idx < 0)
+				{
+					if (!runtime_error(heap().allocate<TypeError>(),
+					                   fmt::format("Error: array index {} out of bounds", idx)))
+						return;
+					break;
+				}
+
+				if (idx >= (int) array->size())
+					array->resize(idx + 1);
+
+				array->at(idx) = right;
 			}
 
-			int idx = (int) index.as_number();
-			if (idx < 0)
+			else
 			{
-				if (!runtime_error(heap().allocate<TypeError>(),
-				                   fmt::format("Error: array index {} out of bounds", idx)))
-					return;
-				break;
+				object->set(property.to_string(), right);
 			}
 
-			if (idx >= (int) array->size())
-				array->resize(idx + 1);
-
-			array->at(idx) = element;
-			push(element);
+			push(right);
 			break;
 		}
 
