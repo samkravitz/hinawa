@@ -24,6 +24,17 @@ void Painter::fill_rect(const layout::Rect &rect, const Color &color)
 	canvas->drawRect(sk_rect, paint);
 }
 
+void Painter::stroke_rect(const layout::Rect &rect, const Color &color)
+{
+	SkPaint paint;
+	paint.setStyle(SkPaint::kStroke_Style);
+	paint.setAntiAlias(true);
+	paint.setColor(color.to_u32());
+
+	SkRect sk_rect = SkRect::MakeXYWH(rect.x, rect.y, rect.width, rect.height);
+	canvas->drawRect(sk_rect, paint);
+}
+
 void Painter::fill_rect(const Color &color)
 {
 	fill_rect({0, 0, width, height}, color);

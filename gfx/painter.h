@@ -21,6 +21,7 @@ public:
 	Painter(SkCanvas *, int, int);
 
 	void fill_rect(const layout::Rect &, const Color &);
+	void stroke_rect(const layout::Rect &, const Color &);
 	void fill_rect(const Color &);
 	void draw_text(const std::string &, const SkFont &, int, int, const Color &color = Color::BLACK);
 	void draw_image(const sk_sp<SkImage> &, int, int);

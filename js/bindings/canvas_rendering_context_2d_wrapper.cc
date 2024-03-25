@@ -18,11 +18,25 @@ CanvasRenderingContext2DWrapper::CanvasRenderingContext2DWrapper(CanvasRendering
 	    [this](Object *) { return Value(heap().allocate_string(m_context->fill_style())); },
 	    [this](Object *, Value value) { m_context->set_fill_style(value.to_string()); });
 
+	set_native_property(
+	    "strokeStyle",
+	    [this](Object *) { return Value(heap().allocate_string(m_context->stroke_style())); },
+	    [this](Object *, Value value) { m_context->set_stroke_style(value.to_string()); });
+
 	set_native("fillRect", [this](auto &vm, const auto &argv) -> Value {
 		if (argv.size() < 4)
 			return Value::js_undefined();
 
 		m_context->fill_rect(argv[0].as_number(), argv[1].as_number(), argv[2].as_number(), argv[3].as_number());
+
+		return Value::js_undefined();
+	});
+
+	set_native("strokeRect", [this](auto &vm, const auto &argv) -> Value {
+		if (argv.size() < 4)
+			return Value::js_undefined();
+
+		m_context->stroke_rect(argv[0].as_number(), argv[1].as_number(), argv[2].as_number(), argv[3].as_number());
 
 		return Value::js_undefined();
 	});

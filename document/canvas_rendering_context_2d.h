@@ -14,8 +14,11 @@ public:
 
 	void set_fill_style(std::string);
 	std::string fill_style() const;
+	void set_stroke_style(std::string);
+	std::string stroke_style() const;
 
 	void fill_rect(int, int, int, int);
+	void stroke_rect(int, int, int, int);
 	void scale(float, float);
 	void translate(float, float);
 
@@ -23,4 +26,5 @@ private:
 	HtmlCanvasElement *m_canvas_element = nullptr;
 	gfx::Painter m_painter;
 	std::string m_fill_style = "";
+	std::string m_stroke_style = "";
 };
