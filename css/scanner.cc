@@ -29,7 +29,7 @@ static inline bool is_letter(u32 c)
 
 static inline bool is_non_ascii(u32 c)
 {
-	return c >= 80;
+	return c >= 0x80;
 }
 
 static inline bool is_ident_start(u32 c)
