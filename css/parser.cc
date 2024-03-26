@@ -724,6 +724,52 @@ std::optional<Selector::SimpleSelector> Parser::parse_simple_selector()
 		return selector;
 	}
 
+	// attribute selector
+	auto state = save_state();
+	auto attribute_selctor = parse_attribute_selector();
+	if (attribute_selctor)
+	{
+		auto simple_selector = Selector::SimpleSelector(*attribute_selctor);
+		return simple_selector;
+	}
+
+	restore_state(state);
+	return {};
+}
+
+std::optional<Selector::SimpleSelector::AttributeSelector> Parser::parse_attribute_selector()
+{
+	Selector::SimpleSelector::AttributeSelector attribute_selector;
+	if (current_input_token.type() == OPEN_SQUARE)
+	{
+		consume_next_input_token();
+		if (current_input_token.type() == IDENT)
+		{
+			attribute_selector.name = current_input_token.value();
+			consume_next_input_token();
+			if (current_input_token.type() == DELIM)
+			{
+				if (current_input_token.value() == "=")
+				{
+					attribute_selector.matcher = "=";
+					consume_next_input_token();
+				}
+
+				if (current_input_token.type() == STRING)
+				{
+					attribute_selector.modifier = current_input_token.value();
+					consume_next_input_token();
+				}
+			}
+
+			if (current_input_token.type() == CLOSE_SQUARE)
+			{
+				consume_next_input_token();
+				return attribute_selector;
+			}
+		}
+	}
+
 	return {};
 }
 
@@ -812,5 +858,16 @@ void Parser::skip_whitespace()
 {
 	while (!current_input_token.is_eof() && current_input_token.is_whitespace())
 		consume_next_input_token();
+}
+
+std::vector<Token>::iterator Parser::save_state() const
+{
+	return pos;
+}
+
+void Parser::restore_state(const std::vector<Token>::iterator &saved_state)
+{
+	pos = saved_state;
+	current_input_token = *(pos - 1);
 }
 }

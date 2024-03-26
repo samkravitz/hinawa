@@ -75,6 +75,94 @@ TEST(SelectorParseTests, ParseCompound)
 	EXPECT_EQ(my_class.value, "my_class");
 }
 
+TEST(SelectorParseTests, ParseSimpleAttribute)
+{
+	std::string css = R"([href])";
+
+	auto selector = Parser::parse_selector(css);
+
+	EXPECT_FALSE(selector->is_selector_list());
+	EXPECT_FALSE(selector->is_compound());
+	EXPECT_EQ(selector->complex_selectors.size(), 1);
+
+	auto complex = selector->complex_selectors[0];
+	EXPECT_EQ(complex.compound_selectors.size(), 1);
+
+	auto compound = complex.compound_selectors[0];
+	EXPECT_EQ(compound.simple_selectors.size(), 1);
+	EXPECT_EQ(compound.combinator, Selector::Combinator::None);
+
+	auto simple_selector = compound.simple_selectors[0];
+	EXPECT_TRUE(simple_selector.is_attribute_selector);
+	EXPECT_EQ(simple_selector.type, Selector::SimpleSelector::Type::Attribute);
+
+	auto attribute_selctor = simple_selector.attribute_selctor;
+	EXPECT_EQ(attribute_selctor.matcher_type, Selector::SimpleSelector::AttributeSelector::MatcherType::None);
+	EXPECT_EQ(attribute_selctor.name, "href");
+	EXPECT_EQ(attribute_selctor.matcher, "");
+	EXPECT_EQ(attribute_selctor.modifier, "");
+}
+
+TEST(SelectorParseTests, ParseSimpleAttributeWithMatcher)
+{
+	std::string css = R"([href="www.kravitz.dev"])";
+
+	auto selector = Parser::parse_selector(css);
+
+	EXPECT_FALSE(selector->is_selector_list());
+	EXPECT_FALSE(selector->is_compound());
+	EXPECT_EQ(selector->complex_selectors.size(), 1);
+
+	auto complex = selector->complex_selectors[0];
+	EXPECT_EQ(complex.compound_selectors.size(), 1);
+
+	auto compound = complex.compound_selectors[0];
+	EXPECT_EQ(compound.simple_selectors.size(), 1);
+	EXPECT_EQ(compound.combinator, Selector::Combinator::None);
+
+	auto simple_selector = compound.simple_selectors[0];
+	EXPECT_TRUE(simple_selector.is_attribute_selector);
+	EXPECT_EQ(simple_selector.type, Selector::SimpleSelector::Type::Attribute);
+
+	auto attribute_selctor = simple_selector.attribute_selctor;
+	EXPECT_EQ(attribute_selctor.matcher_type, Selector::SimpleSelector::AttributeSelector::MatcherType::None);
+	EXPECT_EQ(attribute_selctor.name, "href");
+	EXPECT_EQ(attribute_selctor.matcher, "=");
+	EXPECT_EQ(attribute_selctor.modifier, "www.kravitz.dev");
+}
+
+TEST(SelectorParseTests, ParseCompoundWithAttribute)
+{
+	std::string css = R"(#a[href="www.kravitz.dev"])";
+
+	auto selector = Parser::parse_selector(css);
+
+	EXPECT_FALSE(selector->is_selector_list());
+	EXPECT_TRUE(selector->is_compound());
+	EXPECT_EQ(selector->complex_selectors.size(), 1);
+
+	auto complex = selector->complex_selectors[0];
+	EXPECT_EQ(complex.compound_selectors.size(), 1);
+
+	auto compound = complex.compound_selectors[0];
+	EXPECT_EQ(compound.simple_selectors.size(), 2);
+	EXPECT_EQ(compound.combinator, Selector::Combinator::None);
+
+	auto id_simple_selector = compound.simple_selectors[0];
+	EXPECT_EQ(id_simple_selector.type, Selector::SimpleSelector::Type::Id);
+	EXPECT_EQ(id_simple_selector.value, "a");
+
+	auto attribute_simple_selector = compound.simple_selectors[1];
+	EXPECT_TRUE(attribute_simple_selector.is_attribute_selector);
+	EXPECT_EQ(attribute_simple_selector.type, Selector::SimpleSelector::Type::Attribute);
+
+	auto attribute_selctor = attribute_simple_selector.attribute_selctor;
+	EXPECT_EQ(attribute_selctor.matcher_type, Selector::SimpleSelector::AttributeSelector::MatcherType::None);
+	EXPECT_EQ(attribute_selctor.name, "href");
+	EXPECT_EQ(attribute_selctor.matcher, "=");
+	EXPECT_EQ(attribute_selctor.modifier, "www.kravitz.dev");
+}
+
 // SelectorMatchTests
 
 TEST(SelectorMatchTests, MatchCompound)

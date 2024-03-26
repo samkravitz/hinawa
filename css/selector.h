@@ -31,7 +31,36 @@ public:
 			PseudoElement,    // ::
 		} type;
 
+		struct AttributeSelector
+		{
+			enum class MatcherType
+			{
+				None,
+			};
+
+			std::string name = "";
+			MatcherType matcher_type = MatcherType::None;
+			std::string matcher = "";
+			std::string modifier = "";
+		};
+
+		SimpleSelector(Type type, std::string value) :
+		    type(type),
+		    value(value)
+		{
+			is_attribute_selector = false;
+		}
+
+		SimpleSelector(const AttributeSelector &attr)
+		{
+			type = Type::Attribute;
+			attribute_selctor = attr;
+			is_attribute_selector = true;
+		}
+
 		std::string value;
+		AttributeSelector attribute_selctor;
+		bool is_attribute_selector = false;
 
 		bool matches(const StyledNode &) const;
 		void print() const;

@@ -45,6 +45,7 @@ private:
 	std::optional<Selector> parse_compound_selector_list();
 	std::optional<Selector::CompoundSelector> parse_compound_selector();
 	std::optional<Selector::SimpleSelector> parse_simple_selector();
+	std::optional<Selector::SimpleSelector::AttributeSelector> parse_attribute_selector();
 	std::optional<Selector::Combinator> parse_combinator();
 
 	std::vector<Token> normalize(const std::string &);
@@ -52,5 +53,8 @@ private:
 	void consume_next_input_token();
 	void reconsume_current_input_token();
 	void skip_whitespace();
+
+	std::vector<Token>::iterator save_state() const;
+	void restore_state(const std::vector<Token>::iterator &);
 };
 };
