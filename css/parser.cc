@@ -57,9 +57,33 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 		{
 			auto hex = token.value();
 			auto *color = new Color();
-			color->r = std::stoul(hex.substr(0, 2), nullptr, 16);
-			color->g = std::stoul(hex.substr(2, 2), nullptr, 16);
-			color->b = std::stoul(hex.substr(4, 2), nullptr, 16);
+
+			std::string r = "";
+			std::string g = "";
+			std::string b = "";
+
+			if (hex.size() == 6)
+			{
+				r = hex.substr(0, 2);
+				g = hex.substr(2, 2);
+				b = hex.substr(4, 2);
+			}
+
+			else if (hex.size() == 3)
+			{
+				r = hex.substr(0, 1) + hex.substr(0, 1);
+				g = hex.substr(1, 1) + hex.substr(1, 1);
+				b = hex.substr(2, 1) + hex.substr(2, 1);
+			}
+
+			else
+			{
+				assert(!"Not a valid color");
+			}
+
+			color->r = std::stoul(r, nullptr, 16);
+			color->g = std::stoul(g, nullptr, 16);
+			color->b = std::stoul(b, nullptr, 16);
 			return color;
 		}
 
