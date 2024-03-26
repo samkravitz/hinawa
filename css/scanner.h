@@ -32,7 +32,7 @@ private:
 	Token consume_ident_like();
 	Token consume_numeric();
 	std::string consume_number();
-	void consume_next_code_point();
+	u32 consume_next_code_point();
 	void reconsume_current_code_point();
 	bool would_start_ident_sequence() const;
 	bool starts_with_valid_escape() const;

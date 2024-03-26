@@ -397,10 +397,12 @@ std::string Scanner::consume_ident_sequence()
 	}
 }
 
-void Scanner::consume_next_code_point()
+u32 Scanner::consume_next_code_point()
 {
+	auto last_codepoint = current_codepoint;
 	current_codepoint = next_codepoint();
 	pos++;
+	return last_codepoint;
 }
 
 void Scanner::reconsume_current_code_point()
@@ -455,22 +457,60 @@ Token Scanner::consume_numeric()
 	return {NUMBER, number};
 }
 
+// https://www.w3.org/TR/css-syntax-3/#consume-number
 std::string Scanner::consume_number()
 {
-	std::string repr;
+	enum NumberType
+	{
+		INTEGER,
+		NUMBER,
+	};
 
+	// 1. Initially set type to "integer". Let repr be the empty string
+	auto type = INTEGER;
+	std::string repr = "";
+
+	// 2. If the next input code point is U+002B PLUS SIGN (+) or U+002D HYPHEN-MINUS (-), consume it and append it to repr
 	if (next_codepoint() == '+' || next_codepoint() == '-')
 	{
 		repr += next_codepoint();
 		consume_next_code_point();
 	}
 
+	// 3. While the next input code point is a digit, consume it and append it to repr
 	while (is_digit(next_codepoint()))
 	{
 		repr += next_codepoint();
 		consume_next_code_point();
 	}
 
+	// 4. If the next 2 input code points are U+002E FULL STOP (.) followed by a digit, then:
+	if (next_codepoint() == '.' && is_digit(input[pos + 1]))
+	{
+		// 1. Consume them
+		// 2. Append them to repr
+		repr += consume_next_code_point();
+		repr += consume_next_code_point();
+
+		// 3. Set type to "number"
+		type = NUMBER;
+
+		// 4. While the next input code point is a digit, consume it and append it to repr
+		while (is_digit(next_codepoint()))
+		{
+			repr += next_codepoint();
+			consume_next_code_point();
+		}
+	}
+
+	// 5. If the next 2 or 3 input code points are U+0045 LATIN CAPITAL LETTER E (E) or U+0065 LATIN SMALL LETTER E (e), optionally followed by U+002D HYPHEN-MINUS (-) or U+002B PLUS SIGN (+), followed by a digit, then:
+	// 1. Consume them
+	// 2. Append them to repr
+	// 3. Set type to "number"
+	// 4. While the next input code point is a digit, consume it and append it to repr
+
+	// 6. Convert repr to a number, and set the value to the returned value
+	// 7. Return value and type
 	return repr;
 }
 
