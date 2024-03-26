@@ -2,47 +2,56 @@
 
 namespace css
 {
-
 static inline bool is_digit(u32 c)
 {
 	return c >= '0' && c <= '9';
 }
+
 static inline bool is_hex_digit(u32 c)
 {
 	return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
+
 static inline bool is_uppercase_letter(u32 c)
 {
 	return c >= 'A' && c <= 'Z';
 }
+
 static inline bool is_lowercase_letter(u32 c)
 {
 	return c >= 'a' && c <= 'z';
 }
+
 static inline bool is_letter(u32 c)
 {
 	return is_uppercase_letter(c) || is_lowercase_letter(c);
 }
+
 static inline bool is_non_ascii(u32 c)
 {
 	return c >= 80;
 }
+
 static inline bool is_ident_start(u32 c)
 {
 	return is_letter(c) || is_non_ascii(c) || c == '_';
 }
+
 static inline bool is_ident(u32 c)
 {
 	return is_ident_start(c) || is_digit(c) || c == '-';
 }
+
 static inline bool is_non_printable(u32 c)
 {
 	return (c >= 0 && c <= 8) || c == 0xb || (c >= 0xe && c <= 0x1f) || c == 0x7f;
 }
+
 static inline bool is_newline(u32 c)
 {
 	return c == '\n';
 }
+
 static inline bool is_whitespace(u32 c)
 {
 	return c == '\n' || c == '\t' || c == ' ';
