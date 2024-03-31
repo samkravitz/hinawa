@@ -141,6 +141,9 @@ Value *Parser::parse_style_value(const std::string &name, const std::vector<Comp
 			if (cv.token.type() == DIMENSION)
 				value_array->values.push_back(new Length(cv.token.value()));
 
+			if (cv.token.type() == NUMBER)
+				value_array->values.push_back(new Length(cv.token.value()));
+
 			else
 				fmt::print(stderr, "Bad {}: {}\n", name, value_text);
 		}
