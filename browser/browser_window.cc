@@ -1,5 +1,9 @@
 #include "browser_window.h"
 
+#include <QAction>
+#include <QMenuBar>
+#include <QToolBar>
+
 fs::path DATA_DIR = HINAWA_DATA_DIR;
 
 static constexpr int NAVBAR_HEIGHT = 28;
@@ -10,22 +14,29 @@ BrowserWindow::BrowserWindow(const Url &url)
 {
 	QMainWindow::resize(width, height);
 
-	toolbar.setFixedHeight(NAVBAR_HEIGHT);
-	url_bar.setParent(&toolbar);
+	auto *menu = menuBar()->addMenu("&File");
+	const auto menu_height = menu->height();
+
+	auto *quit_action = new QAction("&Quit", this);
+	menu->addAction(quit_action);
+
+	auto *toolbar = addToolBar("main toolbar");
+	url_bar.setParent(this);
 	url_bar.setText(QString::fromStdString(url.serialize()));
-	toolbar.addWidget(&url_bar);
-	toolbar.setFloatable(false);
-	toolbar.setMovable(false);
-	QMainWindow::addToolBar(&toolbar);
+	toolbar->addWidget(&url_bar);
+	toolbar->setFloatable(false);
+	toolbar->setMovable(false);
+	QMainWindow::addToolBar(toolbar);
 
 	view = new WebView(url, width, height);
-	view->setGeometry(0, NAVBAR_HEIGHT, width, height - NAVBAR_HEIGHT);
+	view->setGeometry(0, NAVBAR_HEIGHT + menu_height, width, height - menu_height);
 	view->setParent(this);
 	view->resize(width, height);
 	view->setFocus();
 
 	QObject::connect(view, &WebView::load_started, &url_bar, &QLineEdit::setText);
 	QObject::connect(&url_bar, &QLineEdit::returnPressed, this, &BrowserWindow::url_selected);
+	QObject::connect(quit_action, &QAction::triggered, this, &QMainWindow::close);
 
 	render();
 	QMainWindow::show();

@@ -5,7 +5,6 @@
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QResizeEvent>
-#include <QToolBar>
 
 namespace browser
 {
@@ -24,7 +23,6 @@ private:
 	int height = 1200;
 
 	void render();
-	QToolBar toolbar;
 	QLineEdit url_bar;
 
 	virtual void resizeEvent(QResizeEvent *) override;
