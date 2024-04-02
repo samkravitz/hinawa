@@ -67,10 +67,11 @@ enum TokenType : int
 
 	// Literals
 	IDENTIFIER,
-	STRING,        // e.g. 'Hello World'
-	NUMBER,        // e.g. 3.4, -1
-	HEX_NUMBER,    // e.g. 0x10, 0xff
-	BIGINT,        // bigint literal, e.g. 1n
+	STRING,         // e.g. 'Hello World'
+	ESCAPED_STRING, // string with escape sequences in it
+	NUMBER,         // e.g. 3.4, -1
+	HEX_NUMBER,     // e.g. 0x10, 0xff
+	BIGINT,         // bigint literal, e.g. 1n
 
 	// Keywords
 	KEY_AWAIT,

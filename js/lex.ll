@@ -143,6 +143,8 @@ DECIMAL_PART \.[[:digit:]]+
 
 \"([^\\\"]|\\n|\\t)*\"                        { return STRING; }
 \'([^\\\']|\\n|\\t)*\'                        { return STRING; }
+\"([^\"]|\\n|\\t)*\"                          { return ESCAPED_STRING; }
+\'([^\']|\\n|\\t)*\'                          { return ESCAPED_STRING; }
 -?([[:digit:]]+|[[:digit:]]*{DECIMAL_PART})   { return NUMBER; }
 0x[[:alnum:]]+                                { return HEX_NUMBER; }
 [[:digit:]]+                                  { return BIGINT; }

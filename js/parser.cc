@@ -70,6 +70,7 @@ ParseRule Parser::get_rule(TokenType type)
 	    {DOT_DOT_DOT,       {nullptr, &Parser::binary, PREC_EQUALITY}      },
 	    {IDENTIFIER,        {&Parser::variable, nullptr, PREC_NONE}        },
 	    {STRING,            {&Parser::string, nullptr, PREC_NONE}          },
+	    {ESCAPED_STRING,    {&Parser::string, nullptr, PREC_NONE}          },
 	    {NUMBER,            {&Parser::number, nullptr, PREC_NONE}          },
 	    {HEX_NUMBER,        {&Parser::number, nullptr, PREC_NONE}          },
 	    {BIGINT,            {&Parser::number, nullptr, PREC_NONE}          },
@@ -616,7 +617,31 @@ std::shared_ptr<Expr> Parser::object()
 
 std::shared_ptr<Expr> Parser::string()
 {
-	return make_ast_node<Literal>(previous);
+	auto string_token = previous;
+	if (string_token.type() == ESCAPED_STRING)
+	{
+		std::string adjusted_string = "";
+		auto str = string_token.value();
+		for (auto it = str.begin(); it != str.end();)
+		{
+			if (*it == '\\')
+			{
+				it += 2;
+				auto escaped_value = std::string(it, it + 2);
+				unsigned char c = std::stol(escaped_value, nullptr, 16);
+				adjusted_string += c;
+				it += 2;
+			}
+			else
+			{
+				adjusted_string += *it;
+				it++;
+			}
+		}
+		string_token = Token(adjusted_string, STRING, string_token.line(), string_token.col());
+	}
+
+	return make_ast_node<Literal>(string_token);
 }
 
 std::shared_ptr<Expr> Parser::subscript(std::shared_ptr<Expr> left)
