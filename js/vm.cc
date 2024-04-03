@@ -258,20 +258,24 @@ void Vm::run_instruction(bool &should_return)
 			break;
 
 		case OP_POP:
-			pop();
+			m_last_evaluated_expression = pop();
 			break;
 
 		case OP_DEFINE_GLOBAL:
 		{
 			const auto &ident = read_string();
-			m_global->set(ident, pop());
+			auto val = pop();
+			m_last_evaluated_expression = val;
+			m_global->set(ident, val);
 			break;
 		}
 
 		case OP_DEFINE_CONSTANT:
 		{
 			const auto &ident = read_string();
-			m_global->set_constant(ident, pop());
+			auto constant = pop();
+			m_last_evaluated_expression = constant;
+			m_global->set_constant(ident, constant);
 			break;
 		}
 

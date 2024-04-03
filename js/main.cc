@@ -79,12 +79,40 @@ void test_262_runner(const std::string &test_262_dir)
 	fmt::print("{} tests run. {} passed, {} failed, {} crashed\n", total, passed, failed, crashed);
 }
 
+static void repl()
+{
+	int line = 0;
+	js::Vm vm{};
+
+	fmt::print("JS REPL\n.exit to quit\n");
+	for (;;)
+	{
+		std::string source = "";
+		fmt::print("> ");
+		std::getline(std::cin, source);
+
+		if (std::cin.eof())
+			return;
+
+		if (source == "")
+			continue;
+
+		if (source == ".exit")
+			break;
+
+		vm.interpret(source);
+		auto result = vm.last_evaluated_expression();
+		fmt::print("{}\n", result.to_string());
+		line++;
+	}
+}
+
 int main(int argc, char **argv)
 {
-	if (argc < 2)
+	if (argc == 1)
 	{
-		std::cout << "Usage: ./main [script]\n";
-		return 1;
+		repl();
+		return 0;
 	}
 
 	if (std::string(argv[1]) == "--test-262")
