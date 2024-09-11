@@ -34,7 +34,7 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 		case css::Display::InlineBlock:
 			if (dynamic_cast<HtmlImageElement *>(styled_node->node()))
 				node = std::make_shared<Image>(styled_node);
-			if (dynamic_cast<HtmlCanvasElement *>(styled_node->node()))
+			else if (dynamic_cast<HtmlCanvasElement *>(styled_node->node()))
 				node = std::make_shared<Canvas>(styled_node);
 			else
 				node = std::make_shared<Inline>(styled_node);
