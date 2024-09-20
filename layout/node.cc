@@ -88,8 +88,11 @@ void Node::insert_anonymous_container()
 		{
 			auto anonymous_box = std::make_shared<Block>();
 			anonymous_box->m_parent = this;
-			anonymous_box->add_child(*it);
-			it = children.erase(it);
+			while (it != children.end() && it->get()->is_inline())
+			{
+				anonymous_box->add_child(*it);
+				it = children.erase(it);
+			}
 			it = children.insert(it, anonymous_box);
 		}
 
