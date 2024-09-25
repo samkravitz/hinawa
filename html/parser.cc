@@ -3,6 +3,8 @@
 
 #include "parser.h"
 
+#include <initializer_list>
+
 #include "document/element.h"
 #include "document/element_factory.h"
 #include "document/node.h"
@@ -14,6 +16,17 @@ namespace html
 static inline bool is_whitespace(char c)
 {
 	return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
+}
+
+static inline bool is_one_of(const std::string &str, const std::initializer_list<std::string> &strs)
+{
+	for (const auto &s : strs)
+	{
+		if (str == s)
+			return true;
+	}
+
+	return false;
 }
 
 Parser::Parser(Document &document) :
@@ -199,6 +212,7 @@ void Parser::run(const std::string &input)
 
 			// 13.2.6.4.4 The "in head" insertion mode
 			case InsertionMode::InHead:
+			in_head:
 				switch (token.type())
 				{
 					case Character:
@@ -342,6 +356,23 @@ void Parser::run(const std::string &input)
 						         token.tag_name() == "keygen" || token.tag_name() == "wbr")
 						{
 							stack_of_open_elements.pop_back();
+						}
+
+						// A start tag whose tag name is one of: "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"
+						else if (is_one_of(token.tag_name(),
+						                   {"base",
+						                    "basefont",
+						                    "bgsound",
+						                    "link",
+						                    "meta",
+						                    "noframes",
+						                    "script",
+						                    "style",
+						                    "template",
+						                    "title"}))
+						{
+							// Process the token using the rules for the "in head" insertion mode
+							goto in_head;
 						}
 						break;
 					}

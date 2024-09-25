@@ -6,6 +6,10 @@
         background: white;
       }
     </style>
+  </head>
+
+  <body>
+    <canvas id="cvs" width="800" height="800"></canvas>
     <script>
       var canvas = document.getElementById("cvs");
       var ctx = canvas.getContext("2d");
@@ -15,9 +19,5 @@
       ctx.fillStyle = "blue";
       ctx.fillRect(50, 25, 100, 100);
     </script>
-  </head>
-
-  <body>
-    <canvas id="cvs" width="800" height="800"></canvas>
   </body>
 </html>
