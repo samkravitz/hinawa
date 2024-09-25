@@ -49,19 +49,16 @@ void Block::layout(Box container)
 
 void Block::calculate_width(Box container)
 {
-	if (m_anonymous)
-		m_style = parent()->style();
+	auto *margin_left = property("margin-left");
+	auto *margin_right = property("margin-right");
 
-	auto *margin_left = m_style->property("margin-left");
-	auto *margin_right = m_style->property("margin-right");
+	auto *border_left = property("border-left-width");
+	auto *border_right = property("border-right-width");
 
-	auto *border_left = m_style->property("border-left-width");
-	auto *border_right = m_style->property("border-right-width");
+	auto *padding_left = property("padding-left");
+	auto *padding_right = property("padding-right");
 
-	auto *padding_left = m_style->property("padding-left");
-	auto *padding_right = m_style->property("padding-right");
-
-	auto *width = style()->property("width");
+	auto *width = property("width");
 
 	// total width in px
 	int total = 0;
@@ -179,17 +176,14 @@ void Block::calculate_width(Box container)
 
 void Block::calculate_position(Box container)
 {
-	if (m_anonymous)
-		m_style = parent()->style();
+	m_dimensions.margin.top = property("margin-top")->to_px();
+	m_dimensions.margin.bottom = property("margin-bottom")->to_px();
 
-	m_dimensions.margin.top = m_style->property("margin-top")->to_px();
-	m_dimensions.margin.bottom = m_style->property("margin-bottom")->to_px();
+	m_dimensions.border.top = property("border-top-width")->to_px();
+	m_dimensions.border.bottom = property("border-bottom-width")->to_px();
 
-	m_dimensions.border.top = m_style->property("border-top-width")->to_px();
-	m_dimensions.border.bottom = m_style->property("border-bottom-width")->to_px();
-
-	m_dimensions.padding.top = m_style->property("padding-top")->to_px();
-	m_dimensions.padding.bottom = m_style->property("padding-bottom")->to_px();
+	m_dimensions.padding.top = property("padding-top")->to_px();
+	m_dimensions.padding.bottom = property("padding-bottom")->to_px();
 
 	m_dimensions.content.x =
 	    container.content.x + m_dimensions.margin.left + m_dimensions.border.left + m_dimensions.padding.left;
