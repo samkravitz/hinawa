@@ -11,16 +11,13 @@ test_files = glob.glob('**/*.js',recursive=True)
 failed_tests = []
 
 for test_file in test_files:
-	if test_file == 'harness.js':
-		continue
-
 	expect_file_name = test_file + '.expect'
 	with open(expect_file_name) as file:
 		expected_result = file.read()
 	
 	print(f'{COLOR_OFF}{test_file} - ', end='')
 	try:
-		proc = subprocess.run(['../../../build/js', test_file], stdout=subprocess.PIPE)
+		proc = subprocess.run(['../../../../build/js', test_file], stdout=subprocess.PIPE)
 		result = proc.stdout.decode('utf-8').strip()
 		
 		if result == expected_result:
