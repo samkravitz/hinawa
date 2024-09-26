@@ -1,6 +1,7 @@
 #include "prelude.h"
 
 #include <fmt/format.h>
+#include <numbers>
 
 #include "array.h"
 #include "date.h"
@@ -149,6 +150,8 @@ static void prelude_math(Vm &vm)
 		auto n = argv[0].as_number();
 		return Value(std::round(n));
 	});
+
+	math->set("PI", Value(std::numbers::pi));
 
 	auto val = Value(math);
 	vm.global().set("Math", val);
