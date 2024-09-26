@@ -107,6 +107,8 @@ public:
 	void set_self_closing();
 	u32 get_char() const;
 
+	bool is_parser_whitespace() const;
+
 	std::string to_string() const;
 
 private:

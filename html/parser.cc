@@ -5,6 +5,8 @@
 
 #include <initializer_list>
 
+#include <fmt/format.h>
+
 #include "document/element.h"
 #include "document/element_factory.h"
 #include "document/node.h"
@@ -13,10 +15,6 @@
 
 namespace html
 {
-static inline bool is_whitespace(char c)
-{
-	return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
-}
 
 static inline bool is_one_of(const std::string &str, const std::initializer_list<std::string> &strs)
 {
@@ -47,512 +45,707 @@ void Parser::run(const std::string &input)
 	while (auto token = tokenizer.next())
 	{
 		// std::cout << token.to_string() << "\n";
-
-	reprocess_token:
-		switch (insertion_mode)
-		{
-			// 13.2.6.4.1 The "initial" insertion mode
-			case InsertionMode::Initial:
-				switch (token.type())
-				{
-					case Character:
-						// ignore the character
-						break;
-
-					case Comment:
-						break;
-
-					case Doctype:
-						break;
-
-					default:
-						insertion_mode = InsertionMode::BeforeHtml;
-						goto reprocess_token;
-				}
-				break;
-
-			// 13.2.6.4.2 The "before html" insertion mode
-			case InsertionMode::BeforeHtml:
-				switch (token.type())
-				{
-					case Doctype:
-						// ignore the token
-						break;
-
-					case Comment:
-						break;
-
-					case Character:
-					{
-						auto c = token.get_char();
-						// ignore the whitespace
-						if (is_whitespace(c))
-							break;
-
-						goto before_html_anything_else;
-						break;
-					}
-
-					case StartTag:
-					{
-						auto tag_name = token.tag_name();
-						if (tag_name == "html")
-						{
-							auto html_element = create_element(document(), "html");
-							document().add_child(html_element);
-							stack_of_open_elements.push_back(html_element);
-							insertion_mode = InsertionMode::BeforeHead;
-							break;
-						}
-
-						goto before_html_anything_else;
-						break;
-					}
-
-					case EndTag:
-					{
-						auto name = token.tag_name();
-						if (name == "head" || name == "body" || name == "html" || name == "br")
-						{
-							goto before_html_anything_else;
-						}
-
-						else
-						{
-							// ignore the token
-							break;
-						}
-					}
-
-					before_html_anything_else:
-					default:
-					{
-						auto html_element = create_element(document(), "html");
-						document().add_child(html_element);
-						stack_of_open_elements.push_back(html_element);
-						insertion_mode = InsertionMode::BeforeHead;
-						goto reprocess_token;
-					}
-				}
-				break;
-
-			// 13.2.6.4.3 The "before head" insertion mode
-			case InsertionMode::BeforeHead:
-				switch (token.type())
-				{
-					case Character:
-					{
-						auto c = token.get_char();
-						if (is_whitespace(c))
-						{
-							// ignore the token
-							break;
-						}
-
-						else
-						{
-							goto before_head_anything_else;
-						}
-						break;
-					}
-
-					case Comment:
-						break;
-
-					case Doctype:
-						// ignore the token
-						break;
-
-					case StartTag:
-					{
-						auto tag_name = token.tag_name();
-						if (tag_name == "html")
-						{
-							// process the token using the rules for the "in body" insertion mode
-						}
-
-						else if (tag_name == "head")
-						{
-							auto head_element = create_element(document(), "head");
-							insert_element(head_element);
-							// TODO: set the head element pointer to the newly created head element
-							insertion_mode = InsertionMode::InHead;
-							break;
-						}
-
-						goto before_head_anything_else;
-						break;
-					}
-
-					case EndTag:
-					{
-						auto name = token.tag_name();
-						if (name == "head" || name == "body" || name == "html" || name == "br")
-						{
-							goto before_head_anything_else;
-						}
-
-						else
-						{
-							// ignore the token;
-							break;
-						}
-						break;
-					}
-
-					before_head_anything_else:
-					default:
-						auto head_element = create_element(document(), "head");
-						insert_element(head_element);
-						// TODO: set the head element pointer to the newly created head element
-						insertion_mode = InsertionMode::InHead;
-						goto reprocess_token;
-				}
-				break;
-
-			// 13.2.6.4.4 The "in head" insertion mode
-			case InsertionMode::InHead:
-			in_head:
-				switch (token.type())
-				{
-					case Character:
-					{
-						auto c = token.get_char();
-						if (is_whitespace(c))
-						{
-							insert_character(token);
-						}
-
-						else
-						{
-							goto in_head_anything_else;
-						}
-						break;
-					}
-
-					case Comment:
-						// insert_comment(token);
-						break;
-
-					case StartTag:
-					{
-						if (token.tag_name() == "noframes" || token.tag_name() == "style" ||
-						    token.tag_name() == "title" || token.tag_name() == "script")
-							parse_raw_text(token);
-
-						else if (token.tag_name() == "meta")
-						{
-							// Insert an HTML element for the token.
-							// Immediately pop the current node off the stack of open elements.
-							auto head_element = create_element(document(), "head");
-							insert_element(head_element);
-							stack_of_open_elements.pop_back();
-
-							// Acknowledge the token's self-closing flag, if it is set
-							// TODO - handle speculative parsing
-						}
-
-						else
-							goto in_head_anything_else;
-						break;
-					}
-
-					case EndTag:
-					{
-						if (token.tag_name() == "head")
-						{
-							stack_of_open_elements.pop_back();
-							insertion_mode = InsertionMode::AfterHead;
-						}
-
-						else
-							goto in_head_anything_else;
-
-						break;
-					}
-
-					in_head_anything_else:
-					default:
-						// pop head element off stack of open elements
-						stack_of_open_elements.pop_back();
-						insertion_mode = InsertionMode::AfterHead;
-						goto reprocess_token;
-				}
-				break;
-
-			// 13.2.6.4.5 The "in head noscript" insertion mode
-			case InsertionMode::InHeadNoScript:
-				break;
-
-			// 13.2.6.4.6 The "after head" insertion mode
-			case InsertionMode::AfterHead:
-				switch (token.type())
-				{
-					case Character:
-					{
-						auto c = token.get_char();
-						if (is_whitespace(c))
-						{
-							insert_character(token);
-						}
-
-						else
-							goto after_head_anything_else;
-						break;
-					}
-					case StartTag:
-					{
-						auto tag_name = token.tag_name();
-						if (tag_name == "body")
-						{
-							auto body_element = create_element(document(), "body");
-							insert_element(body_element);
-							insertion_mode = InsertionMode::InBody;
-							break;
-						}
-
-						break;
-					}
-
-					after_head_anything_else:
-					default:
-					{
-						// create body start tag
-						auto body_element = create_element(document(), "body");
-						insert_element(body_element);
-						insertion_mode = InsertionMode::InBody;
-					}
-				}
-				break;
-
-			// 13.2.6.4.7 The "in body" insertion mode
-			case InsertionMode::InBody:
-				switch (token.type())
-				{
-					case Character:
-						insert_character(token);
-						break;
-
-					case Comment:
-						break;
-
-					case Doctype:
-						break;
-
-					case StartTag:
-					{
-						auto tag_data = token.as_tag_data();
-						auto element = create_element(document(), tag_data.name);
-						for (auto attribute : tag_data.attributes)
-							element->add_attribute(attribute.first, attribute.second);
-
-						insert_element(element);
-
-						if (tag_data.self_closing)
-							stack_of_open_elements.pop_back();
-
-						else if (token.tag_name() == "area" || token.tag_name() == "br" ||
-						         token.tag_name() == "embed" || token.tag_name() == "img" ||
-						         token.tag_name() == "keygen" || token.tag_name() == "wbr")
-						{
-							stack_of_open_elements.pop_back();
-						}
-
-						// A start tag whose tag name is one of: "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"
-						else if (is_one_of(token.tag_name(),
-						                   {"base",
-						                    "basefont",
-						                    "bgsound",
-						                    "link",
-						                    "meta",
-						                    "noframes",
-						                    "script",
-						                    "style",
-						                    "template",
-						                    "title"}))
-						{
-							// Process the token using the rules for the "in head" insertion mode
-							goto in_head;
-						}
-						break;
-					}
-
-					case EndTag:
-					{
-						auto tag_name = token.tag_name();
-						if (tag_name == "body")
-						{
-							insertion_mode = InsertionMode::AfterBody;
-							break;
-						}
-
-						else
-						{
-							stack_of_open_elements.pop_back();
-						}
-						break;
-					}
-
-					in_body_anything_else:
-					default:
-						insertion_mode = InsertionMode::BeforeHtml;
-						goto reprocess_token;
-				}
-				break;
-
-			// 13.2.6.4.8 The "text" insertion mode
-			case InsertionMode::Text:
-				switch (token.type())
-				{
-					case Character:
-						insert_character(token);
-						break;
-
-					// TODO
-					case Eof:
-						break;
-
-					case EndTag:
-					{
-						// TODO
-						if (token.tag_name() == "script")
-						{
-							// If the active speculative HTML parser is null and the JavaScript execution context stack is empty, then perform a microtask checkpoint
-							// Let script be the current node (which will be a script element)
-							auto script = current_node();
-
-							// Pop the current node off the stack of open elements
-							stack_of_open_elements.pop_back();
-
-							// Switch the insertion mode to the original insertion mode
-							insertion_mode = original_insertion_mode;
-
-							// Let the old insertion point have the same value as the current insertion point. Let the insertion point be just before the next input character
-							// Increment the parser's script nesting level by one
-							// If the active speculative HTML parser is null, then prepare the script element script. This might cause some script to execute, which might cause new characters to be inserted into the tokenizer, and might cause the tokenizer to output more tokens, resulting in a reentrant invocation of the parser
-							// Decrement the parser's script nesting level by one. If the parser's script nesting level is zero, then set the parser pause flag to false
-							// Let the insertion point have the value of the old insertion point. (In other words, restore the insertion point to its previous value. This value might be the "undefined" value.)
-							// At this stage, if the pending parsing-blocking script is not null, then:
-							// If the script nesting level is not zero:
-							// Set the parser pause flag to true, and abort the processing of any nested invocations of the tokenizer, yielding control back to the caller. (Tokenization will resume when the caller returns to the "outer" tree construction stage.)
-							// The tree construction stage of this particular parser is being called reentrantly, say from a call to document.write()
-							// Otherwise:
-							// While the pending parsing-blocking script is not null:
-							// Let the script be the pending parsing-blocking script
-							// Set the pending parsing-blocking script to null
-							// Start the speculative HTML parser for this instance of the HTML parser
-							// Block the tokenizer for this instance of the HTML parser, such that the event loop will not run tasks that invoke the tokenizer
-							// If the parser's Document has a style sheet that is blocking scripts or the script's ready to be parser-executed is false: spin the event loop until the parser's Document has no style sheet that is blocking scripts and the script's ready to be parser-executed becomes true
-							// If this parser has been aborted in the meantime, return
-							// This could happen if, e.g., while the spin the event loop algorithm is running, the Document gets destroyed, or the document.open() method gets invoked on the Document
-							// Stop the speculative HTML parser for this instance of the HTML parser
-							// Unblock the tokenizer for this instance of the HTML parser, such that tasks that invoke the tokenizer can again be run
-							// Let the insertion point be just before the next input character
-							// Increment the parser's script nesting level by one (it should be zero before this step, so this sets it to one)
-							// Execute the script element the script
-							// Decrement the parser's script nesting level by one. If the parser's script nesting level is zero (which it always should be at this point), then set the parser pause flag to false
-							// Let the insertion point be undefined again
-
-							// Execute the script
-							document().execute_script_node(script);
-						}
-
-						else
-						{
-							stack_of_open_elements.pop_back();
-							insertion_mode = original_insertion_mode;
-						}
-						break;
-					}
-				}
-				break;
-
-			// 13.2.6.4.9 The "in table" insertion mode
-			case InsertionMode::InTable:
-				break;
-
-			// 13.2.6.4.10 The "in table text" insertion mode
-			case InsertionMode::InTableText:
-				break;
-
-			// 13.2.6.4.11 The "in caption" insertion mode
-			case InsertionMode::InCaption:
-				break;
-
-			// 13.2.6.4.12 The "in column group" insertion mode
-			case InsertionMode::InColumnBody:
-				break;
-
-			// 13.2.6.4.13 The "in table body" insertion mode
-			case InsertionMode::InTableBody:
-				break;
-
-			// 13.2.6.4.14 The "in row" insertion mode
-			case InsertionMode::InRow:
-				break;
-
-			// 13.2.6.4.15 The "in cell" insertion mode
-			case InsertionMode::InCell:
-				break;
-
-			// 13.2.6.4.16 The "in select" insertion mode
-			case InsertionMode::InSelect:
-				break;
-
-			// 13.2.6.4.17 The "in select in table" insertion mode
-			case InsertionMode::InSelectInTable:
-				break;
-
-			// 13.2.6.4.18 The "in template" insertion mode
-			case InsertionMode::InTemplate:
-				break;
-
-			// 13.2.6.4.19 The "after body" insertion mode
-			case InsertionMode::AfterBody:
-				switch (token.type())
-				{
-					case EndTag:
-					{
-						auto tag_name = token.tag_name();
-						if (tag_name == "html")
-						{
-							insertion_mode = InsertionMode::AfterAfterBody;
-							break;
-						}
-
-						else
-						{
-							goto after_body_anything_else;
-						}
-						break;
-					}
-
-					case Eof:
-						return;
-
-					after_body_anything_else:
-					default:;
-				}
-				break;
-
-			// 13.2.6.4.20 The "in frameset" insertion mode
-			case InsertionMode::InFrameset:
-				break;
-
-			// 13.2.6.4.21 The "after frameset" insertion mode
-			case InsertionMode::AfterFrameset:
-				break;
-
-			// 13.2.6.4.22 The "after after body" insertion mode
-			case InsertionMode::AfterAfterBody:
-				break;
-
-			// 13.2.6.4.23 The "after after frameset" insertion mode
-			case InsertionMode::AfterAfterFrameset:
-				break;
-		}
+		process_using_the_rules_for(insertion_mode, token);
 	}
 }
+
+void Parser::process_using_the_rules_for(InsertionMode mode, Token &token)
+{
+	switch (mode)
+	{
+		case InsertionMode::Initial:
+			handle_initial(token);
+			break;
+		case InsertionMode::BeforeHtml:
+			handle_before_html(token);
+			break;
+		case InsertionMode::BeforeHead:
+			handle_before_head(token);
+			break;
+		case InsertionMode::InHead:
+			handle_in_head(token);
+			break;
+		case InsertionMode::InHeadNoScript:
+			handle_in_head_noscript(token);
+			break;
+		case InsertionMode::AfterHead:
+			handle_after_head(token);
+			break;
+		case InsertionMode::InBody:
+			handle_in_body(token);
+			break;
+		case InsertionMode::AfterBody:
+			handle_after_body(token);
+			break;
+		case InsertionMode::AfterAfterBody:
+			handle_after_after_body(token);
+			break;
+		case InsertionMode::Text:
+			handle_text(token);
+			break;
+		case InsertionMode::InTable:
+			handle_in_table(token);
+			break;
+		case InsertionMode::InTableBody:
+			handle_in_table_body(token);
+			break;
+		case InsertionMode::InRow:
+			handle_in_row(token);
+			break;
+		case InsertionMode::InCell:
+			handle_in_cell(token);
+			break;
+		case InsertionMode::InTableText:
+			handle_in_table_text(token);
+			break;
+		case InsertionMode::InSelectInTable:
+			handle_in_select_in_table(token);
+			break;
+		case InsertionMode::InSelect:
+			handle_in_select(token);
+			break;
+		case InsertionMode::InCaption:
+			handle_in_caption(token);
+			break;
+		case InsertionMode::InColumnGroup:
+			handle_in_column_group(token);
+			break;
+		case InsertionMode::InTemplate:
+			handle_in_template(token);
+			break;
+		case InsertionMode::InFrameset:
+			handle_in_frameset(token);
+			break;
+		case InsertionMode::AfterFrameset:
+			handle_after_frameset(token);
+			break;
+		case InsertionMode::AfterAfterFrameset:
+			handle_after_after_frameset(token);
+			break;
+	}
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
+// 13.2.6.4.1 The "initial" insertion mode
+void Parser::handle_initial(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// ignore the token
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> anything else:
+	// if the document is not an iframe srcdoc document, then this is a parse error; if the parser cannot change the mode flag is false, set the Document to quirks mode
+
+	// in any case, switch the insertion mode to "before html", then reprocess the token
+	insertion_mode = InsertionMode::BeforeHtml;
+	//process_using_the_rules_for(insertion_mode, token);
+}
+
+//https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
+// 13.2.6.4.2 The "before html" insertion mode
+void Parser::handle_before_html(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// ignore the token
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "html"
+	if (token.is_start_tag() && token.tag_name() == "html")
+	{
+		// create an element for the token in the HTML namespace, with the Document as the intended parent. Append it to the Document object. Put this element in the stack of open elements
+		auto html_element = create_element(document(), "html");
+		document().add_child(html_element);
+		stack_of_open_elements.push_back(html_element);
+
+		// switch the insertion mode to "before head"
+		insertion_mode = InsertionMode::BeforeHead;
+		return;
+	}
+
+	// -> an end tag whose tag name is one of: "head", "body", "html", "br"
+	if (token.is_end_tag() && is_one_of(token.tag_name(), {"head", "body", "html", "br"}))
+	{
+		// act as described in the "anything else" entry below
+		goto anything_else;
+	}
+
+	// -> any other end tag
+	if (token.is_end_tag())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+anything_else:
+	// -> anything else
+
+	// create an html element whose node document is the Document object
+	auto html_element = create_element(document(), "html");
+
+	// append it to the Document object
+	document().add_child(html_element);
+
+	// put this element in the stack of open elements
+	stack_of_open_elements.push_back(html_element);
+
+	// switch the insertion mode to "before head", then reprocess the token
+	insertion_mode = InsertionMode::BeforeHead;
+	process_using_the_rules_for(insertion_mode, token);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
+// 13.2.6.4.3 The "before head" insertion mode
+void Parser::handle_before_head(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// ignore the token
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "html"
+	if (token.is_start_tag() && token.tag_name() == "html")
+	{
+		// process the token using the rules for the "in body" insertion mode
+		process_using_the_rules_for(InsertionMode::InBody, token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "head"
+	if (token.is_start_tag() && token.tag_name() == "head")
+	{
+		// insert an HTML element for the token
+		auto head_element = create_element(document(), "head");
+
+		// set the head element pointer to the newly created head element
+		insert_element(head_element);
+
+		// switch the insertion mode to "in head"
+		insertion_mode = InsertionMode::InHead;
+		return;
+	}
+
+	// -> an end tag whose tag name is one of: "head", "body", "html", "br"
+	if (token.is_end_tag() && is_one_of(token.tag_name(), {"head", "body", "html", "br"}))
+	{
+		// act as described in the "anything else" entry below.
+		goto anything_else;
+	}
+
+	// -> any other end tag
+	if (token.is_end_tag())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+anything_else:
+	// -> anything else
+	// insert an HTML element for a "head" start tag token with no attributes
+	auto head_element = create_element(document(), "head");
+	insert_element(head_element);
+
+	// TODO
+	// set the head element pointer to the newly created head element
+
+	// switch the insertion mode to "in head"
+	insertion_mode = InsertionMode::InHead;
+
+	// reprocess the current token
+	process_using_the_rules_for(insertion_mode, token);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
+// 13.2.6.4.4 The "in head" insertion mode
+void Parser::handle_in_head(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// insert the character
+		insert_character(token);
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "html"
+	if (token.is_start_tag() && token.tag_name() == "html")
+	{
+		// process the token using the rules for the "in body" insertion mode
+		process_using_the_rules_for(InsertionMode::InBody, token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "meta"
+	if (token.is_start_tag() && token.tag_name() == "meta")
+	{
+		// insert an HTML element for the token
+		// immediately pop the current node off the stack of open elements
+		auto head_element = create_element(document(), "head");
+		insert_element(head_element);
+		stack_of_open_elements.pop_back();
+
+		// acknowledge the token's self-closing flag, if it is set
+		// TODO - handle speculative parsing
+		return;
+	}
+
+	// -> a start tag whose tag name is one of: "noframes", "style"
+	if (token.is_start_tag() && is_one_of(token.tag_name(), {"noframes", "style"}))
+	{
+		parse_raw_text(token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "script"
+	if (token.is_start_tag() && token.tag_name() == "script")
+	{
+		parse_raw_text(token);
+		return;
+	}
+
+	// -> an end tag whose name is "head"
+	if (token.is_end_tag() && token.tag_name() == "head")
+	{
+		// pop the current node (which will be the head element) off the stack of open elements
+		stack_of_open_elements.pop_back();
+
+		// switch the insertion mode to "after head"
+		insertion_mode = InsertionMode::AfterHead;
+		return;
+	}
+
+	// -> an end tag whose tag name is one of: "body", "html", "br"
+	if (token.is_end_tag() && is_one_of(token.tag_name(), {"body", "html", "br"}))
+	{
+		// act as described in the "anything else" entry below
+		goto anything_else;
+	}
+
+	// -> a start tag whose tag name is "head"
+	// -> any other end tag
+	if ((token.is_start_tag() && token.tag_name() == "head") || token.is_end_tag())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+anything_else:
+	// -> anything else
+	// pop the current node (which will be the head element) off the stack of open elements
+	stack_of_open_elements.pop_back();
+
+	// switch the insertion mode to "after head"
+	insertion_mode = InsertionMode::AfterHead;
+
+	// reprocess the token
+	process_using_the_rules_for(insertion_mode, token);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
+// 13.2.6.4.5 The "in head noscript" insertion mode
+void Parser::handle_in_head_noscript(Token &token) { }
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
+// 13.2.6.4.6 The "after head" insertion mode
+void Parser::handle_after_head(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// insert the character
+		insert_character(token);
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> a DOCTYPE token
+	if (token.is_doctype())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+	// -> a start tag whose tag name is "body"
+	if (token.is_start_tag() && token.tag_name() == "body")
+	{
+		// insert an HTML element for the token
+		auto body_element = create_element(document(), "body");
+		insert_element(body_element);
+
+		// TODO
+		// set the frameset-ok flag to "not ok"
+
+		// switch the insertion mode to "in body"
+		insertion_mode = InsertionMode::InBody;
+		return;
+	}
+
+	// -> an end tag whose tag name is one of: "body", "html", "br"
+	if (token.is_end_tag() && is_one_of(token.tag_name(), {"body", "html", "br"}))
+	{
+		// act as described in the "anything else" entry below
+		goto anything_else;
+	}
+
+	// -> a start tag whose tag name is "head"
+	// -> any other end tag
+	if ((token.is_start_tag() && token.tag_name() == "head") || token.is_end_tag())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+anything_else:
+	// -> anything else
+	// insert an HTML element for a "body" start tag token with no attributes
+	auto body_element = create_element(document(), "body");
+	insert_element(body_element);
+
+	// switch the insertion mode to "in body"
+	insertion_mode = InsertionMode::InBody;
+
+	// reprocess the current token
+	process_using_the_rules_for(insertion_mode, token);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+// 13.2.6.4.7 The "in body" insertion mode
+void Parser::handle_in_body(Token &token)
+{
+	// -> a character token that is U+0000 NULL
+	// TODO
+
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// TODO
+		// reconstruct the active formatting elements, if any
+
+		// insert the character
+		insert_character(token);
+		return;
+	}
+
+	// -> any other character token
+	if (token.is_character())
+	{
+		// TODO
+		// reconstruct the active formatting elements, if any
+
+		// insert the character
+		insert_character(token);
+
+		// TODO
+		// set the frameset-ok flag to "not ok"
+
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		insert_comment(token);
+		return;
+	}
+
+	// -> a DOCTYPE token
+	if (token.is_doctype())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+	// -> a start tag whose tag name is "html"
+	if (token.is_start_tag() && token.tag_name() == "html")
+	{
+		// parse error
+		parse_error();
+
+		// TODO
+		// if there is a template element on the stack of open elements, then ignore the token
+		// otherwise, for each attribute on the token, check to see if the attribute is already present on the top element of the stack of open elements. If it is not, add the attribute and its corresponding value to that element
+		return;
+	}
+
+	// -> a start tag whose tag name is one of: "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"
+	// -> an end tag whose tag name is "template"
+	if ((token.is_start_tag() &&
+	     is_one_of(
+	         token.tag_name(),
+	         {"base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"})) ||
+	    (token.is_end_tag() && token.tag_name() == "template"))
+	{
+		// process the token using the rules for the "in head" insertion mode
+		process_using_the_rules_for(InsertionMode::InHead, token);
+		return;
+	}
+
+	// -> a start tag whose tag name is "body"
+	if (token.is_start_tag() && token.tag_name() == "body")
+	{
+		// parse error
+		parse_error();
+
+		// TODO
+		// if the stack of open elements has only one node on it, if the second element on the stack of open elements is not a body element, or if there is a template element on the stack of open elements, then ignore the token. (fragment case or there is a template element on the stack)
+		// otherwise, set the frameset - ok flag to "not ok"; then, for each attribute on the token, check to see if the attribute is already present on the body element (the second element) on the stack of open elements, and if it is not, add the attribute and its corresponding value to that element
+		return;
+	}
+
+	// -> an end-of-file token
+	if (token.is_eof())
+	{
+		// TODO
+		// if the stack of template insertion modes is not empty, then process the token using the rules for the "in template" insertion mode
+		// otherwise, follow these steps:
+		// if there is a node in the stack of open elements that is not either a dd element, a dt element, an li element, an optgroup element, an option element, a p element, an rb element, an rp element, an rt element, an rtc element, a tbody element, a td element, a tfoot element, a th element, a thead element, a tr element, the body element, or the html element, then this is a parse error
+		// stop parsing
+		return;
+	}
+
+	// -> an end tag whose tag name is "body"
+	if (token.is_end_tag() && token.tag_name() == "body")
+	{
+		// TODO
+		// if the stack of open elements does not have a body element in scope, this is a parse error; ignore the token
+		// otherwise, if there is a node in the stack of open elements that is not either a dd element, a dt element, an li element, an optgroup element, an option element, a p element, an rb element, an rp element, an rt element, an rtc element, a tbody element, a td element, a tfoot element, a th element, a thead element, a tr element, the body element, or the html element, then this is a parse error
+		// switch the insertion mode to "after body"
+		insertion_mode = InsertionMode::AfterBody;
+		return;
+	}
+
+	// -> any other start tag
+	if (token.is_start_tag())
+	{
+		// TODO
+		// reconstruct the active formatting elements, if any
+
+		// insert an HTML element for the token
+		auto tag_data = token.as_tag_data();
+		auto element = create_element(document(), tag_data.name);
+		for (auto attribute : tag_data.attributes)
+			element->add_attribute(attribute.first, attribute.second);
+
+		insert_element(element);
+
+		if (tag_data.self_closing)
+			stack_of_open_elements.pop_back();
+
+		return;
+	}
+
+	// -> any other end tag
+	if (token.is_end_tag())
+	{
+		stack_of_open_elements.pop_back();
+		return;
+	}
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
+// 13.2.6.4.8 The "text" insertion mode
+void Parser::handle_text(Token &token)
+{
+	// -> a character token
+	if (token.is_character())
+	{
+		// insert the character
+		insert_character(token);
+		return;
+	}
+
+	// -> an end tag whose tag name is "script"
+	if (token.is_end_tag() && token.tag_name() == "script")
+	{
+		// If the active speculative HTML parser is null and the JavaScript execution context stack is empty, then perform a microtask checkpoint
+		// Let script be the current node (which will be a script element)
+		auto script = current_node();
+
+		// Pop the current node off the stack of open elements
+		stack_of_open_elements.pop_back();
+
+		// Switch the insertion mode to the original insertion mode
+		insertion_mode = original_insertion_mode;
+
+		// TODO
+		// Let the old insertion point have the same value as the current insertion point. Let the insertion point be just before the next input character
+		// Increment the parser's script nesting level by one
+		// If the active speculative HTML parser is null, then prepare the script element script. This might cause some script to execute, which might cause new characters to be inserted into the tokenizer, and might cause the tokenizer to output more tokens, resulting in a reentrant invocation of the parser
+		// Decrement the parser's script nesting level by one. If the parser's script nesting level is zero, then set the parser pause flag to false
+		// Let the insertion point have the value of the old insertion point. (In other words, restore the insertion point to its previous value. This value might be the "undefined" value.)
+		// At this stage, if the pending parsing-blocking script is not null, then:
+		// If the script nesting level is not zero:
+		// Set the parser pause flag to true, and abort the processing of any nested invocations of the tokenizer, yielding control back to the caller. (Tokenization will resume when the caller returns to the "outer" tree construction stage.)
+		// The tree construction stage of this particular parser is being called reentrantly, say from a call to document.write()
+		// Otherwise:
+		// While the pending parsing-blocking script is not null:
+		// Let the script be the pending parsing-blocking script
+		// Set the pending parsing-blocking script to null
+		// Start the speculative HTML parser for this instance of the HTML parser
+		// Block the tokenizer for this instance of the HTML parser, such that the event loop will not run tasks that invoke the tokenizer
+		// If the parser's Document has a style sheet that is blocking scripts or the script's ready to be parser-executed is false: spin the event loop until the parser's Document has no style sheet that is blocking scripts and the script's ready to be parser-executed becomes true
+		// If this parser has been aborted in the meantime, return
+		// This could happen if, e.g., while the spin the event loop algorithm is running, the Document gets destroyed, or the document.open() method gets invoked on the Document
+		// Stop the speculative HTML parser for this instance of the HTML parser
+		// Unblock the tokenizer for this instance of the HTML parser, such that tasks that invoke the tokenizer can again be run
+		// Let the insertion point be just before the next input character
+		// Increment the parser's script nesting level by one (it should be zero before this step, so this sets it to one)
+		// Execute the script element the script
+		// Decrement the parser's script nesting level by one. If the parser's script nesting level is zero (which it always should be at this point), then set the parser pause flag to false
+		// Let the insertion point be undefined again
+
+		// Execute the script
+		document().execute_script_node(script);
+		return;
+	}
+
+	// -> any other end tag
+	if (token.is_end_tag())
+	{
+		// pop the current node off the stack of open elements
+		stack_of_open_elements.pop_back();
+
+		// switch the insertion mode to the original insertion mode
+		insertion_mode = original_insertion_mode;
+		return;
+	}
+}
+
+void Parser::handle_in_table(Token &token) { }
+
+void Parser::handle_in_table_body(Token &token) { }
+
+void Parser::handle_in_row(Token &token) { }
+
+void Parser::handle_in_cell(Token &token) { }
+
+void Parser::handle_in_table_text(Token &token) { }
+
+void Parser::handle_in_select_in_table(Token &token) { }
+
+void Parser::handle_in_select(Token &token) { }
+
+void Parser::handle_in_caption(Token &token) { }
+
+void Parser::handle_in_column_group(Token &token) { }
+
+void Parser::handle_in_template(Token &token) { }
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
+// 13.2.6.4.19 The "after body" insertion mode
+void Parser::handle_after_body(Token &token)
+{
+	// -> a character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020 SPACE
+	if (token.is_character() && token.is_parser_whitespace())
+	{
+		// process the token using the rules for the "in body" insertion mode
+		process_using_the_rules_for(InsertionMode::InBody, token);
+		return;
+	}
+
+	// -> a comment token
+	if (token.is_comment())
+	{
+		// insert a comment as the last child of the first element in the stack of open elements (the html element)
+		insert_comment(token);
+		return;
+	}
+
+	// -> a DOCTYPE token
+	if (token.is_doctype())
+	{
+		// parse error. Ignore the token
+		parse_error();
+		return;
+	}
+
+	// -> a start tag whose tag name is "html"
+	if (token.is_start_tag() && token.tag_name() == "html")
+	{
+		// process the token using the rules for the "in body" insertion mode
+		process_using_the_rules_for(InsertionMode::InBody, token);
+		return;
+	}
+
+	// -> an end tag whose tag name is "html"
+	if (token.is_end_tag() && token.tag_name() == "html")
+	{
+		// TODO
+		// if the parser was created as part of the HTML fragment parsing algorithm, this is a parse error; ignore the token. (fragment case)
+		// otherwise, switch the insertion mode to "after after body"
+		insertion_mode = InsertionMode::AfterAfterBody;
+		return;
+	}
+
+	// -> an end-of-file token
+	if (token.is_eof())
+	{
+		// stop parsing
+		stop_parsing();
+		return;
+	}
+
+	// -> anything else
+	// parse error. Switch the insertion mode to "in body" and reprocess the token
+	parse_error();
+	insertion_mode = InsertionMode::InBody;
+	process_using_the_rules_for(insertion_mode, token);
+}
+
+void Parser::handle_in_frameset(Token &token) { }
+
+void Parser::handle_after_frameset(Token &token) { }
+
+void Parser::handle_after_after_body(Token &token) { }
+
+void Parser::handle_after_after_frameset(Token &token) { }
 
 std::shared_ptr<Node> Parser::current_node()
 {
@@ -653,6 +846,15 @@ void Parser::insert_character(Token t)
 }
 
 /**
+* When the steps below require the user agent to insert a comment while processing a comment token, optionally with an explicitly insertion position position,
+* the user agent must run the following steps:
+*
+* @ref https://html.spec.whatwg.org/multipage/parsing.html#insert-a-comment
+* TODO: implement
+*/
+void Parser::insert_comment(Token &token) { }
+
+/**
  * parsing elements that contain only text
  * 
  * @ref https://html.spec.whatwg.org/multipage/parsing.html#generic-raw-text-element-parsing-algorithm
@@ -672,5 +874,10 @@ void Parser::parse_raw_text(Token t)
 
 	// 4. Then, switch the insertion mode to "text"
 	insertion_mode = InsertionMode::Text;
+}
+
+void Parser::parse_error()
+{
+	fmt::print(stderr, "HTML Parse Error!\n");
 }
 }

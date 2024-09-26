@@ -81,6 +81,13 @@ void Token::set_force_quirks()
 	std::get<DoctypeData>(data).force_quirks = true;
 }
 
+bool Token::is_parser_whitespace() const
+{
+	assert(is_character());
+	auto c = get_char();
+	return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
+}
+
 std::string Token::to_string() const
 {
 	return std::visit(
