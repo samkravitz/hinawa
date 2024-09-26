@@ -35,6 +35,11 @@ canvas {
 	display: inline-block;
 }
 
+/* visual-less elements */
+script {
+	display: none;
+}
+
 /* list-item elements */
 li {
 	display: list-item;
