@@ -11,13 +11,33 @@
   <body>
     <canvas id="cvs" width="800" height="800"></canvas>
     <script>
+      //const colors = ["#fcd1f5", "#efbbf0", "#b795e4", "#97a5ee", "#95dff2"];
+      const colors = [
+        "rgb(252,209,245)",
+        "rgb(239,187,240)",
+        "rgb(183,149,228)",
+        "rgb(151,165,238)",
+        "rgb(149,223,242)"
+      ];
+
       var canvas = document.getElementById("cvs");
       var ctx = canvas.getContext("2d");
-      ctx.fillStyle = "red";
-      ctx.fillRect(0, 0, 500, 300);
 
-      ctx.fillStyle = "blue";
-      ctx.fillRect(50, 25, 100, 100);
+      var x = 400;
+      var y = 50;
+      for (var i = 0; i < 5; i++) {
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x, y, 100, 100);
+        x += 50;
+        y += 50;
+      }
+
+      ctx.fillStyle = "black";
+
+      for (var i = 0; i < 8; i++) {
+        ctx.strokeRect(200, 150, 100, 100);
+        ctx.rotate(5);
+      }
     </script>
   </body>
 </html>
