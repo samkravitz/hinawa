@@ -4,7 +4,6 @@
 #include "document/element.h"
 #include "html/parser.h"
 #include "js/vm.h"
-#include "layout/node.h"
 #include "layout/rect.h"
 #include "web/resource.h"
 
