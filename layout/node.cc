@@ -54,12 +54,16 @@ std::shared_ptr<Node> build_layout_tree(css::StyledNode *styled_node)
 
 	styled_node->for_each_child([&](auto *styled_child) {
 		auto child = build_layout_tree(styled_child);
-		node->add_child(child);
 
-		if (child->is_inline())
-			contains_inline_children = true;
-		else
-			contains_block_children = true;
+		if (child)
+		{
+			node->add_child(child);
+
+			if (child->is_inline())
+				contains_inline_children = true;
+			else
+				contains_block_children = true;
+		}
 	});
 
 	if (contains_inline_children && contains_block_children)
