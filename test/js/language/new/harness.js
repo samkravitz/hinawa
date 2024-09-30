@@ -29,21 +29,3 @@ function Expector(target) {
     }
   };
 }
-
-test("1 + 1 = 2", () => {
-  expect(1 + 1).toEqual(2);
-});
-
-test("true does not equal false", () => {
-  expect(true).toEqual(false);
-});
-
-for (let i = 0; i < __PassedTests__.length; i++) {
-  const details = __PassedTests__[i];
-  console.log(details["message"], "PASSED");
-}
-
-for (let i = 0; i < __FailedTests__.length; i++) {
-  const details = __FailedTests__[i];
-  console.log(details["message"], "FAILED:", details["details"]);
-}

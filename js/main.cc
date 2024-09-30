@@ -107,6 +107,33 @@ static void repl()
 	}
 }
 
+static void test()
+{
+	fs::path new_tests_path(TEST_DIR);
+	std::ifstream harness(new_tests_path / "harness.js");
+	std::ifstream afterthought(new_tests_path / "afterthought.js");
+
+	for (const auto &entry : fs::recursive_directory_iterator(new_tests_path / "tests"))
+	{
+		fs::path path(entry);
+		if (fs::is_directory(path))
+			continue;
+
+		std::string filename = path.filename();
+		fmt::print("testing {}\n", filename);
+
+		std::stringstream program;
+		std::ifstream test(path);
+
+		program << harness.rdbuf();
+		program << test.rdbuf();
+		program << afterthought.rdbuf();
+
+		js::Vm vm{};
+		vm.interpret(program.str());
+	}
+}
+
 int main(int argc, char **argv)
 {
 	if (argc == 1)
@@ -122,6 +149,12 @@ int main(int argc, char **argv)
 			test_262_path = argv[2];
 
 		test_262_runner(test_262_path);
+		return 0;
+	}
+
+	if (std::string(argv[1]) == "-test")
+	{
+		test();
 		return 0;
 	}
 
