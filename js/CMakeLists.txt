@@ -112,10 +112,14 @@ set(
 add_executable(js main.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer_OUTPUTS})
 target_include_directories(js PRIVATE . ..)
 
+add_executable(test_js test_js.cc ${SOURCES} ${HEADERS} ${FLEX_JsLexer_OUTPUTS})
+target_include_directories(test_js PRIVATE . ..)
+
 target_include_directories(libjs PRIVATE . ..)
 target_sources(libjs PUBLIC ${SOURCES} ${HEADERS})
 
 target_link_libraries(js fmt::fmt)
 target_link_libraries(libjs fmt::fmt)
+target_link_libraries(test_js fmt::fmt)
 
 add_library(libjs::libjs ALIAS libjs)
