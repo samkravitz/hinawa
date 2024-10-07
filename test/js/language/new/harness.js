@@ -14,7 +14,8 @@ const test = (message, callback) => {
   } catch (e) {
     __FailedTests__.push({
       message: message,
-      details: e
+      expect: e.expect,
+      got: e.got
     });
   }
 };
@@ -24,8 +25,12 @@ function Expector(target) {
 
   this.toEqual = function (value) {
     if (value !== this.target) {
-      let message = "Expect: " + target + " got: " + value;
-      throw message;
+      const details = {
+        expect: target,
+        got: value
+      };
+
+      throw details;
     }
   };
 }
