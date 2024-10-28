@@ -20,10 +20,11 @@ const test = (message, callback) => {
   }
 };
 
-function Expector(target) {
+function Expector(target, inverted) {
   this.target = target;
+	this.inverted = !!inverted;
 
-  this.toEqual = function (value) {
+  this.toEqual = function(value) {
     if (value !== this.target) {
       const details = {
         expect: target,
@@ -33,4 +34,8 @@ function Expector(target) {
       throw details;
     }
   };
+
+	this.not = function() {
+		return new Expector(this.target, !this.inverted)
+	}
 }
