@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(js DESCRIPTION "JavaScript Runtime")
 
-add_compile_options(-DTEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../test/js/language/new")
+add_compile_options(-DSPEC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/spec")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_options("-DDEBUG_PRINT_CODE")
