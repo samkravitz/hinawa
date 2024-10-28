@@ -17,7 +17,7 @@ for test_file in test_files:
 	
 	print(f'{COLOR_OFF}{test_file} - ', end='')
 	try:
-		proc = subprocess.run(['../../../../build/js', test_file], stdout=subprocess.PIPE)
+		proc = subprocess.run(['../../../build/js', test_file], stdout=subprocess.PIPE)
 		result = proc.stdout.decode('utf-8').strip()
 		
 		if result == expected_result:
