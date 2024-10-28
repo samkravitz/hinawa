@@ -1,0 +1,35 @@
+name: Run JS specs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build JavaScript Specs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 12
+          platform: x64
+
+      - name: Install required libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install libfmt-dev libfl-dev libfl2
+
+      - name: Compile
+        run: |
+          mkdir ${{ github.workspace }}/build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ../js
+          cmake --build . -j8
+
+      - name: Run specs
+        run: |
+          ./build/test_js
