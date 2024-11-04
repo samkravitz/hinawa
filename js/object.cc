@@ -62,12 +62,26 @@ Value Object::get(const std::string &key)
 
 void Object::set(const std::string &key, Value value, int attributes)
 {
-	auto got_value = own_properties[key].value;
-	if (got_value.is_object() && got_value.as_object()->is_native_property())
+	bool has_own_prop = has_own_property(key);
+
+	if (has_own_prop)
 	{
-		auto *native_property = got_value.as_object()->as_native_property();
-		native_property->set(this, value);
-		return;
+		auto got_value = own_properties[key].value;
+
+		if (got_value.is_object() && got_value.as_object()->is_native_property())
+		{
+			auto *native_property = got_value.as_object()->as_native_property();
+			native_property->set(this, value);
+			return;
+		}
+	}
+
+	// fail if property is not writable
+	if (has_own_prop)
+	{
+		auto prop = own_properties[key];
+		if (!prop.is_writable())
+			return;
 	}
 
 	own_properties[key] = Property(value, attributes);

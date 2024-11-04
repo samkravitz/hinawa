@@ -26,6 +26,43 @@ namespace js
 static void prelude_object(Vm &vm)
 {
 	auto *object = NativeFunction::create([](auto &vm, const auto &argv) -> Value { return Value(heap().allocate()); });
+
+	object->set_native("defineProperty", [](auto &vm, const auto &argv) -> Value {
+		// TODO - this should throw, instead of returning undefined
+		if (argv.size() < 3)
+			return {};
+
+		if (!argv[0].is_object())
+			return {};
+		auto *obj = argv[0].as_object();
+
+		if (!argv[1].is_string())
+			return {};
+		auto prop = argv[1].as_string();
+
+		if (!argv[2].is_object())
+			return {};
+		auto *descriptor = argv[2].as_object();
+
+		bool configurable = descriptor->get("configurable") == Value(true);
+		bool enumerable = descriptor->get("enumerable") == Value(true);
+		bool writable = descriptor->get("writable") == Value(true);
+		auto value = descriptor->get("value");
+
+		int flags = 0;
+
+		if (configurable)
+			flags |= Property::CONFIGURABLE;
+		if (enumerable)
+			flags |= Property::ENUMERABLE;
+		if (writable)
+			flags |= Property::WRITABLE;
+
+		obj->set(prop, value, flags);
+
+		return Value(obj);
+	});
+
 	auto val = Value(object);
 	vm.global().set("Object", val);
 
