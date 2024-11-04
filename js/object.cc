@@ -27,7 +27,7 @@ Value Object::get(const std::string &key)
 	// found the key in the properties map
 	if (has_own_property(key))
 	{
-		auto value = properties[key];
+		auto value = own_properties[key];
 		if (value.is_object() && value.as_object()->is_native_property())
 		{
 			auto *native_property = value.as_object()->as_native_property();
@@ -43,7 +43,7 @@ Value Object::get(const std::string &key)
 	{
 		if (proto->has_own_property(key))
 		{
-			auto value = proto->properties[key];
+			auto value = proto->own_properties[key];
 			if (value.is_object() && value.as_object()->is_native_property())
 			{
 				auto *native_property = value.as_object()->as_native_property();
@@ -62,7 +62,7 @@ Value Object::get(const std::string &key)
 
 void Object::set(const std::string &key, Value value)
 {
-	auto got_value = properties[key];
+	auto got_value = own_properties[key];
 	if (got_value.is_object() && got_value.as_object()->is_native_property())
 	{
 		auto *native_property = got_value.as_object()->as_native_property();
@@ -70,24 +70,24 @@ void Object::set(const std::string &key, Value value)
 		return;
 	}
 
-	properties[key] = value;
+	own_properties[key] = value;
 }
 
 void Object::set_native(const std::string &name, const std::function<Value(Vm &, const std::vector<Value> &)> &fn)
 {
-	properties[name] = Value(NativeFunction::create(fn));
+	own_properties[name] = Value(NativeFunction::create(fn));
 }
 
 void Object::set_native_property(const std::string &name,
                                  const std::function<Value(Object *)> &getter,
                                  const std::function<void(Object *, Value)> &setter)
 {
-	properties[name] = Value(NativeProperty::create(getter, setter));
+	own_properties[name] = Value(NativeProperty::create(getter, setter));
 }
 
 bool Object::has_own_property(const std::string &key) const
 {
-	return properties.find(key) != properties.end();
+	return own_properties.find(key) != own_properties.end();
 }
 
 bool Object::has_own_property(const String &primitive_string) const
@@ -181,7 +181,7 @@ std::string Object::to_string() const
 	std::stringstream stream;
 	stream << "{";
 
-	for (auto it = properties.begin(); it != properties.end(); it++)
+	for (auto it = own_properties.begin(); it != own_properties.end(); it++)
 	{
 		stream << " " << it->first;
 		stream << ": ";
@@ -191,7 +191,7 @@ std::string Object::to_string() const
 		else
 			stream << it->second.to_string();
 
-		if (std::next(it) != properties.end())
+		if (std::next(it) != own_properties.end())
 			stream << ",";
 		else
 			stream << " ";

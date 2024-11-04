@@ -6,8 +6,8 @@ Value GlobalObject::get(const String &primitive_string)
 {
 	const auto &key = primitive_string.string();
 
-	if (properties.contains(key))
-		return properties[key];
+	if (own_properties.contains(key))
+		return own_properties[key];
 
 	if (m_constants.contains(key))
 		return m_constants[key];
@@ -24,7 +24,7 @@ bool GlobalObject::has_own_property(const String &primitive_string) const
 {
 	const auto &key = primitive_string.string();
 
-	if (properties.contains(key))
+	if (own_properties.contains(key))
 		return true;
 
 	if (m_constants.contains(key))
