@@ -24,12 +24,12 @@ const test = (message, callback) => {
   try {
     callback();
     suite[message] = {
-      passed: true
+      passed: true,
     };
   } catch (e) {
     suite[message] = {
       passed: false,
-      details: e
+      details: e,
     };
   }
 };
