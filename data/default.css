@@ -6,6 +6,7 @@
 /* block elements */
 body,
 div,
+form,
 header,
 h1,
 h2,
@@ -16,6 +17,7 @@ h6,
 nav,
 p,
 pre,
+section,
 ul {
 	display: block;
 }
