@@ -26,12 +26,16 @@ public:
 		return hash;
 	}
 
-	explicit String(std::string str) {
+	explicit String(std::string str)
+	{
 		m_string = new std::string(str);
 		m_hash = hash_string(str);
 	}
 
-	~String() { delete m_string; }
+	~String()
+	{
+		// delete m_string;
+	}
 
 	std::string &string() { return *m_string; }
 	const std::string &string() const { return *m_string; }
