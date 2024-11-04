@@ -17,9 +17,9 @@ Value Object::get(const String &primitive_string)
 	return get(primitive_string.string());
 }
 
-void Object::set(const String &key, Value value)
+void Object::set(const String &key, Value value, int attributes)
 {
-	set(key.string(), value);
+	set(key.string(), value, attributes);
 }
 
 Value Object::get(const std::string &key)
@@ -27,7 +27,7 @@ Value Object::get(const std::string &key)
 	// found the key in the properties map
 	if (has_own_property(key))
 	{
-		auto value = own_properties[key];
+		auto value = own_properties[key].value;
 		if (value.is_object() && value.as_object()->is_native_property())
 		{
 			auto *native_property = value.as_object()->as_native_property();
@@ -43,7 +43,7 @@ Value Object::get(const std::string &key)
 	{
 		if (proto->has_own_property(key))
 		{
-			auto value = proto->own_properties[key];
+			auto value = proto->own_properties[key].value;
 			if (value.is_object() && value.as_object()->is_native_property())
 			{
 				auto *native_property = value.as_object()->as_native_property();
@@ -60,9 +60,9 @@ Value Object::get(const std::string &key)
 	return {};
 }
 
-void Object::set(const std::string &key, Value value)
+void Object::set(const std::string &key, Value value, int attributes)
 {
-	auto got_value = own_properties[key];
+	auto got_value = own_properties[key].value;
 	if (got_value.is_object() && got_value.as_object()->is_native_property())
 	{
 		auto *native_property = got_value.as_object()->as_native_property();
@@ -70,19 +70,19 @@ void Object::set(const std::string &key, Value value)
 		return;
 	}
 
-	own_properties[key] = value;
+	own_properties[key] = Property(value, attributes);
 }
 
 void Object::set_native(const std::string &name, const std::function<Value(Vm &, const std::vector<Value> &)> &fn)
 {
-	own_properties[name] = Value(NativeFunction::create(fn));
+	own_properties[name] = Property(Value(NativeFunction::create(fn)), 0);
 }
 
 void Object::set_native_property(const std::string &name,
                                  const std::function<Value(Object *)> &getter,
                                  const std::function<void(Object *, Value)> &setter)
 {
-	own_properties[name] = Value(NativeProperty::create(getter, setter));
+	own_properties[name] = Property(Value(NativeProperty::create(getter, setter)), 0);
 }
 
 bool Object::has_own_property(const std::string &key) const
@@ -186,10 +186,10 @@ std::string Object::to_string() const
 		stream << " " << it->first;
 		stream << ": ";
 
-		if (it->second.as_object() == this)
+		if (it->second.value.as_object() == this)
 			stream << "[Object object]";
 		else
-			stream << it->second.to_string();
+			stream << it->second.value.to_string();
 
 		if (std::next(it) != own_properties.end())
 			stream << ",";

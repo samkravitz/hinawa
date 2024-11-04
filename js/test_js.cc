@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
 		{
 			bool all_passed = true;
 
-			for (const auto &[test_name, test_details] : suite_details.as_object()->get_properties())
+			for (const auto &[test_name, test_details] : suite_details.value.as_object()->get_properties())
 			{
-				auto *obj = test_details.as_object();
+				auto *obj = test_details.value.as_object();
 				if (obj->get("passed").as_bool())
 				{
 					passed_tests += 1;

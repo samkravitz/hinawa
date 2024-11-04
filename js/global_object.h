@@ -15,6 +15,6 @@ public:
 	bool has_constant(const String &) const;
 
 private:
-	std::unordered_map<std::string, Value> m_constants;
+	std::unordered_map<std::string, Property> m_constants;
 };
 }

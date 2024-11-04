@@ -19,6 +19,35 @@ class Array;
 class String;
 class Date;
 
+struct Property
+{
+	enum Attributes : int
+	{
+		CONFIGURABLE = 0b001,
+		ENUMERABLE = 0b010,
+		WRITABLE = 0b100,
+	};
+
+	Property(Value value, int flags) :
+	    value(value),
+	    flags(flags)
+	{ }
+
+	Property() :
+	    value(Value::js_undefined()),
+	    flags(0)
+	{ }
+
+	Value value = {};
+	int flags = 0;
+
+	inline bool is_configurable() const { return flags & CONFIGURABLE; }
+	inline bool is_enumerable() const { return flags & ENUMERABLE; }
+	inline bool is_writable() const { return flags & WRITABLE; }
+
+	constexpr static int default_attributes() { return CONFIGURABLE | ENUMERABLE | WRITABLE; }
+};
+
 class Object : public Cell
 {
 	friend class Heap;
@@ -28,8 +57,8 @@ public:
 
 	Value get(const String &);
 	Value get(const std::string &);
-	void set(const String &, Value);
-	void set(const std::string &, Value);
+	void set(const String &, Value, int attributes = Property::default_attributes());
+	void set(const std::string &, Value, int attributes = Property::default_attributes());
 
 	virtual Object *prototype();
 	void set_prototype(Object *proto) { m_prototype = proto; }
@@ -63,13 +92,13 @@ public:
 	// https://tc39.es/ecma262/#sec-ordinarytoprimitive
 	Value ordinary_to_primitive(Vm &, const Value::Type &) const;
 
-	std::unordered_map<std::string, Value> get_properties() const { return own_properties; }
+	std::unordered_map<std::string, Property> get_properties() const { return own_properties; }
 
 	virtual std::string to_string() const;
 	void print_prototype_chain();
 
 protected:
-	std::unordered_map<std::string, Value> own_properties;
+	std::unordered_map<std::string, Property> own_properties;
 	Object *m_prototype{nullptr};
 };
 

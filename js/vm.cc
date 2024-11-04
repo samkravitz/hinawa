@@ -799,7 +799,7 @@ void Vm::run_instruction(bool &should_return)
 			fmt::print("\n");
 			fmt::print("Globals:\n");
 			for (const auto &[name, value] : m_global->get_properties())
-				fmt::print("{}: {}\n", name, value.to_string());
+				fmt::print("{}: {}\n", name, value.value.to_string());
 
 			fmt::print("\n");
 			fmt::print("Upvalues:\n");

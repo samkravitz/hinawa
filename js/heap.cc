@@ -116,7 +116,7 @@ void Heap::blacken_cell(Cell *cell)
 
 		// mark object's properties
 		for (const auto &[key, value] : object->own_properties)
-			mark_value(value);
+			mark_value(value.value);
 
 		if (object->is_function())
 		{
