@@ -412,7 +412,7 @@ std::shared_ptr<Expr> Parser::array()
 	std::vector<std::shared_ptr<Expr>> elements;
 	if (!check(RIGHT_BRACKET))
 	{
-		do
+		for (;;)
 		{
 			if (elements.size() > 0xff)
 				fmt::print(stderr, "Can't have more than 255 elements in an array expression\n");
@@ -422,7 +422,20 @@ std::shared_ptr<Expr> Parser::array()
 				fmt::print(stderr, "Expected expression\n");
 
 			elements.push_back(expr);
-		} while (match(COMMA));
+
+			if (match(COMMA))
+			{
+				if (check(RIGHT_BRACKET))
+					break;
+			}
+			else
+			{
+				if (!check(RIGHT_BRACKET))
+					fmt::print(stderr, "Invalid array literal");
+				else
+					break;
+			}
+		}
 	}
 	consume(RIGHT_BRACKET, "Expect ']' after array expression");
 
@@ -598,7 +611,7 @@ std::shared_ptr<Expr> Parser::object()
 	std::vector<std::pair<std::string, std::shared_ptr<Expr>>> properties;
 	if (!check(RIGHT_BRACE))
 	{
-		do
+		for (;;)
 		{
 			if (properties.size() > 0xff)
 				std::cerr << "Can't have more than 255 properties in an object literal\n";
@@ -608,8 +621,22 @@ std::shared_ptr<Expr> Parser::object()
 			consume(COLON, "Expect : after object key name");
 			auto expr = expression();
 			properties.push_back({ident, expr});
-		} while (match(COMMA));
+
+			if (match(COMMA))
+			{
+				if (check(RIGHT_BRACE))
+					break;
+			}
+			else
+			{
+				if (!check(RIGHT_BRACE))
+					fmt::print(stderr, "Invalid object literal");
+				else
+					break;
+			}
+		}
 	}
+
 	consume(RIGHT_BRACE, "Expect '}' after object literal");
 
 	return make_ast_node<ObjectExpr>(properties);
