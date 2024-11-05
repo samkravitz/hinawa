@@ -9,6 +9,7 @@
 #include "function.h"
 #include "heap.h"
 #include "object.h"
+#include "object_string.h"
 #include "value.h"
 #include "vm.h"
 
@@ -61,6 +62,22 @@ static void prelude_object(Vm &vm)
 		obj->set(prop, value, flags);
 
 		return Value(obj);
+	});
+
+	object->set_native("getPrototypeOf", [](auto &vm, const auto &argv) -> Value {
+		// TODO - this should throw, instead of returning undefined
+		if (argv.empty())
+			return {};
+
+		auto obj = argv[0];
+		if (obj.is_string())
+			return Value(StringPrototype::the());
+
+		// TODO - this should throw, instead of returning undefined
+		if (!obj.is_object())
+			return {};
+
+		return Value(obj.as_object()->prototype());
 	});
 
 	auto val = Value(object);
