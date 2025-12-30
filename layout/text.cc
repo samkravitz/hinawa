@@ -7,7 +7,9 @@
 #include "value.h"
 
 #include "SkFont.h"
+#include "SkFontTypes.h"
 #include "SkFontMgr.h"
+#include "gfx/font_mgr.h"
 
 namespace layout
 {
@@ -50,10 +52,10 @@ void Text::split_into_lines(Box container)
 	int current_x = lines.back().x + lines.back().width;
 	int current_y = lines.back().y;
 
-	const char *fontFamily = nullptr;
+	const char *fontFamily = "Arial";
 	SkFontStyle fontStyle;
-	auto fontManager = SkFontMgr::RefDefault();
-	auto typeface = fontManager->legacyMakeTypeface(fontFamily, fontStyle);
+	auto fontManager = gfx::CreateFontMgr();
+	auto typeface = fontManager->matchFamilyStyle(fontFamily, fontStyle);
 	m_font = SkFont(typeface, px);
 
 	const auto space_width = m_font.measureText(" ", 1, SkTextEncoding::kUTF8);

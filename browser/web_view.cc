@@ -12,6 +12,7 @@
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkSurface.h"
+#include "gfx/font_mgr.h"
 
 namespace browser
 {
@@ -71,8 +72,8 @@ void WebView::raster()
 
 		auto alert_text = document.alert_text();
 		SkFontStyle font_style;
-		auto font_mgr = SkFontMgr::RefDefault();
-		auto typeface = font_mgr->legacyMakeTypeface(nullptr, font_style);
+		auto font_mgr = gfx::CreateFontMgr();
+		auto typeface = font_mgr->matchFamilyStyle("Arial", font_style);
 		auto font = SkFont(typeface, ALERT_FONT_SIZE);
 		painter.draw_text(alert_text, font, alert_box.x + 8, (ALERT_BOX_HEIGHT + ALERT_BOX_Y) / 2.0, Color::WHITE);
 	}

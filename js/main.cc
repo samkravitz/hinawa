@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "vm.h"
 
